@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agency Arcade</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #030305;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #game-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 360px;
+            max-height: 740px;
+            box-shadow: 0 0 35px rgba(255, 0, 85, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(255, 0, 85, 0.25);
+        }
+        #game-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
+        #top-header-bar {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            height: 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 150;
+            pointer-events: auto;
+        }
+        .header-btn {
+            background: #060614;
+            border: 1.5px solid #00ffcc;
+            color: #ffff00;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+        .header-btn:active {
+            transform: scale(0.95);
+        }
+        #header-score-btn {
+            color: #ff0055;
+            border-color: #ff0055;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+        }
+
+        /* OVERLAY HTML PROFILO */
+        .auth-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 3, 10, 0.95);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .auth-box {
+            width: 100%;
+            max-width: 320px;
+            background: #090918;
+            border: 2px solid #ff0055;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            color: #fff;
+        }
+
+        /* GAMER CARD PROFILE STYLE */
+        .profile-card-header {
+            background: linear-gradient(90deg, #150520, #051525);
+            border: 1px solid #00ffcc;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+        .profile-avatar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+        }
+        .profile-avatar {
+            width: 44px;
+            height: 44px;
+            background: #250515;
+            border: 2px solid #ff0055;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            box-shadow: 0 0 10px #ff0055;
+        }
+        .profile-rank-title {
+            color: #ffff00;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .profile-username {
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .xp-bar-container {
+            width: 100%;
+            background: #04040a;
+            border: 1px solid #00ffcc;
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffcc, #ff0055);
+            width: 0%;
+            box-shadow: 0 0 8px #00ffcc;
+            transition: width 0.4s ease;
+        }
+        .badges-row {
+            display: flex;
+            justify-content: space-around;
+            background: #04040a;
+            border: 1px dashed rgba(255, 0, 85, 0.4);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
+        .badge-item {
+            font-size: 18px;
+            filter: grayscale(1);
+            opacity: 0.3;
+            transition: all 0.3s;
+        }
+        .badge-item.unlocked {
+            filter: grayscale(0);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .stat-card {
+            background: #04040a;
+            border: 1px solid rgba(0, 255, 204, 0.4);
+            border-radius: 8px;
+            padding: 8px 4px;
+            text-align: center;
+        }
+        .stat-card .val {
+            color: #ffff00;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .stat-card .lbl {
+            color: #00ffcc;
+            font-size: 8px;
+            margin-top: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            background: #ff0055;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+        }
+        .auth-btn:active { transform: scale(0.96); }
+
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 6px 100%;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <!-- BARRA HEADER HTML PERFETTAMENTE CLICCABILE -->
+    <div id="top-header-bar">
+        <button id="header-user-btn" class="header-btn">👤 LOGIN</button>
+        <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
+    </div>
+
+    <!-- MODAL GAMER CARD PROFILO -->
+    <div id="profile-modal" class="auth-overlay" style="display: none;">
+        <div class="auth-box">
+            <div class="profile-card-header">
+                <div class="profile-avatar-row">
+                    <div class="profile-avatar">👾</div>
+                    <div>
+                        <div id="profile-rank" class="profile-rank-title">ROOKIE 🐣</div>
+                        <div id="profile-username" class="profile-username">PLAYER_1</div>
+                    </div>
+                </div>
+                <div class="xp-bar-container">
+                    <div id="profile-xp-fill" class="xp-bar-fill"></div>
+                </div>
+            </div>
+
+            <div class="badges-row">
+                <span id="badge-1" class="badge-item" title="Prima partita">🕹️</span>
+                <span id="badge-2" class="badge-item" title="100+ Punti">🔥</span>
+                <span id="badge-3" class="badge-item" title="500+ Punti">⚡</span>
+                <span id="badge-4" class="badge-item" title="Retro King">👑</span>
+            </div>
+
+            <!-- SCHEDA PUNTEGGI DEDICATA AI SINGOLI GIOCHI -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="val" id="stat-invaders">0 PTS</div>
+                    <div class="lbl">👾 Invaders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val" id="stat-cyber">0 PTS</div>
+                    <div class="lbl">💣 Cyber Run</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val" id="stat-punch">0 PTS</div>
+                    <div class="lbl">🥊 Pixel Punch</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val" id="stat-dodge">0 PTS</div>
+                    <div class="lbl">🚗 Deadline Dodge</div>
+                </div>
+            </div>
+
+            <button id="profile-close-btn" class="auth-btn">TORNA AL GIOCO</button>
+            <button id="profile-logout-btn" class="auth-btn" style="background:#550022; margin-top:8px;">LOGOUT / CAMBIA UTENTE</button>
+        </div>
+    </div>
+
+    <div id="game-container"></div>
+    <div class="crt-overlay"></div>
+</div>
+
+<script>
+// --- GESTIONE STATISTICHE E UTENTE ---
+class AuthManager {
+    constructor() {
+        this.currentUser = null;
+        this.init();
+    }
+
+    init() {
+        if (!localStorage.getItem('arcade_users')) {
+            localStorage.setItem('arcade_users', JSON.stringify({}));
+        }
+        const savedUser = localStorage.getItem('arcade_current_user');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            if (!this.currentUser.stats) this.currentUser.stats = {};
+            if (this.currentUser.stats.feedbackInvaders === undefined) this.currentUser.stats.feedbackInvaders = 0;
+            if (this.currentUser.stats.cyberRun === undefined) this.currentUser.stats.cyberRun = 0;
+            if (this.currentUser.stats.pixelPunch === undefined) this.currentUser.stats.pixelPunch = 0;
+            if (this.currentUser.stats.deadlineDrive === undefined) this.currentUser.stats.deadlineDrive = 0;
+        } else {
+            this.loginAsGuest();
+        }
+    }
+
+    getUsers() {
+        return JSON.parse(localStorage.getItem('arcade_users')) || {};
+    }
+
+    saveUsers(users) {
+        localStorage.setItem('arcade_users', JSON.stringify(users));
+    }
+
+    loginAsGuest() {
+        this.currentUser = {
+            username: "GUEST_" + Math.floor(Math.random() * 900 + 100),
+            stats: { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 }
+        };
+        localStorage.setItem('arcade_current_user', JSON.stringify(this.currentUser));
+    }
+
+    updateStat(gameKey, addPoints) {
+        if (!this.currentUser) return;
+        this.currentUser.stats.gamesPlayed++;
+        if (gameKey && this.currentUser.stats[gameKey] !== undefined) {
+            this.currentUser.stats[gameKey] += addPoints;
+        }
+
+        localStorage.setItem('arcade_current_user', JSON.stringify(this.currentUser));
+
+        if (!this.currentUser.username.startsWith("GUEST_")) {
+            let users = this.getUsers();
+            if (users[this.currentUser.username]) {
+                users[this.currentUser.username].stats = this.currentUser.stats;
+                this.saveUsers(users);
+            }
+        }
+
+        updateHeaderDOM();
+    }
+
+    getRankInfo() {
+        let totalPts = 0;
+        if (this.currentUser) {
+            let s = this.currentUser.stats;
+            totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
+        }
+
+        if (totalPts >= 1000) return { title: "RETRO KING 👑", level: 5, xpPct: 100 };
+        if (totalPts >= 500)  return { title: "ARCADE HERO ⚡", level: 4, xpPct: (totalPts - 500) / 5 };
+        if (totalPts >= 200)  return { title: "PRO GAMER 👾", level: 3, xpPct: (totalPts - 200) / 3 };
+        if (totalPts >= 100)  return { title: "CHALLENGER 🕹️", level: 2, xpPct: (totalPts - 100) };
+        return { title: "ROOKIE 🐣", level: 1, xpPct: totalPts };
+    }
+
+    logout() {
+        localStorage.removeItem('arcade_current_user');
+        window.location.href = 'login.html';
+    }
+}
+
+const auth = new AuthManager();
+
+function updateHeaderDOM() {
+    const userBtn = document.getElementById('header-user-btn');
+    const scoreBtn = document.getElementById('header-score-btn');
+    
+    if (auth.currentUser && !auth.currentUser.username.startsWith("GUEST_")) {
+        userBtn.innerText = "👤 " + auth.currentUser.username;
+    } else {
+        userBtn.innerText = "👤 LOGIN";
+    }
+
+    if (auth.currentUser && auth.currentUser.stats) {
+        let s = auth.currentUser.stats;
+        let totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
+        scoreBtn.innerText = "⚡ " + totalPts.toLocaleString() + " PTS";
+    }
+}
+
+// BINDING EVENTI CLICK SULLA HEADER BAR PER APRIRE IL PROFILO
+document.getElementById('header-user-btn').addEventListener('click', () => {
+    if (!auth.currentUser || auth.currentUser.username.startsWith("GUEST_")) {
+        window.location.href = 'login.html';
+    } else {
+        openProfileModal();
+    }
+});
+
+document.getElementById('header-score-btn').addEventListener('click', () => {
+    openProfileModal();
+});
+
+// --- SCENA PRINCIPALE PHASER ---
+class MainHub extends Phaser.Scene {
+    constructor() {
+        super({ key: 'MainHub' });
+    }
+
+    preload() {
+        this.load.image('background', 'assets/hub/background.png');
+        this.load.image('logo', 'assets/hub/logo.png');
+        this.load.video('npc_video', 'assets/hub/personaggio.webm', 'loadeddata', false, true);
+        this.load.video('gabri_video', 'assets/hub/gabri.webm', 'loadeddata', false, true);
+        this.load.video('raffa_video', 'assets/hub/raffa.webm', 'loadeddata', false, true);
+
+        const playerSkins = ['dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png', 'guido.png', 'bretto.png', 'giulia.png', 'rabe.png', 'giampa.png', 'tommi.png', 'tobi.png'];
+        const selectedSkin = Phaser.Math.RND.pick(playerSkins);
+
+        let rawName = selectedSkin.replace('.png', '');
+        this.playerName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+
+        this.load.spritesheet('player', 'assets/hub/player/' + selectedSkin, {
+            frameWidth: 755,
+            frameHeight: 1120
+        });
+
+        let g = this.make.graphics({ x: 0, y: 0, add: false });
+        g.fillStyle(0xffffff, 0);
+        g.fillRect(0, 0, 50, 80);
+        g.generateTexture('hitbox_sm', 50, 80);
+    }
+
+    create() {
+        const vWidth = 360;
+        const vHeight = 740;
+
+        let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
+        let bgScale = vHeight / bg.height;
+        bg.setScale(bgScale);
+
+        const worldWidth = bg.width * bgScale;
+        this.physics.world.setBounds(0, 0, worldWidth, vHeight);
+
+        // Colleghi Studio
+        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.gabri.play(true); this.gabri.setMute(true);
+
+        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc.play(true); this.npc.setMute(true);
+
+        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa.play(true); this.raffa.setMute(true);
+
+        this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
+        this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
+
+        let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
+        let savedY = parseFloat(localStorage.getItem('arcade_player_y'));
+        let startX = (!isNaN(savedX) && savedX > 0) ? savedX : 100;
+        let startY = (!isNaN(savedY) && savedY > 0) ? savedY : 568;
+
+        this.player = this.physics.add.sprite(startX, startY, 'player');
+        this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
+        this.player.play('idle');
+
+        // Logo Animato
+        let logo = this.add.image(vWidth / 2, 85, 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
+        logo.setDisplaySize(280, (logo.height / logo.width) * 280);
+
+        this.tweens.add({
+            targets: logo,
+            scaleX: logo.scaleX * 1.03,
+            scaleY: logo.scaleY * 1.03,
+            duration: 1800,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        updateHeaderDOM();
+
+        // Configurazione Cabinati
+        this.cabinets = [
+            { x: 1471, y: 548, badgeX: 1471, badgeY: 330, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "invaders.html" },
+            { x: 1610, y: 548, badgeX: 1610, badgeY: 330, title: "CYBER RUN", key: "cyberRun", type: "game", url: "pacman.html" },
+            { x: 1742, y: 548, badgeX: 1742, badgeY: 330, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "PixelPunch.html" },
+            { x: 1882, y: 548, badgeX: 1882, badgeY: 330, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "frogger.html" },
+            { x: 2800, y: 548, badgeX: 2800, badgeY: 330, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: "leaderboard.html" }
+        ];
+
+        this.cabinetSprites = [];
+        this.cabinets.forEach(cab => {
+            let sprite = this.physics.add.staticSprite(cab.x, cab.y, 'hitbox_sm');
+            sprite.setVisible(false);
+            sprite.gameData = cab;
+            this.cabinetSprites.push(sprite);
+        });
+
+        // BADGE INTERATTIVO CHE MOSTRA IL RECORD DEL SINGOLO GIOCO
+        this.infoBox = this.add.container(0, 0).setDepth(80);
+        let boxBg = this.add.graphics();
+        boxBg.fillStyle(0x050515, 0.95);
+        boxBg.lineStyle(2, 0x00ffcc, 1);
+        boxBg.fillRoundedRect(-85, -22, 170, 44, 10);
+        boxBg.strokeRoundedRect(-85, -22, 170, 44, 10);
+
+        this.boxTitleText = this.add.text(0, -9, "", {
+            font: "bold 10px monospace",
+            fill: "#ffff00",
+            align: "center"
+        }).setOrigin(0.5);
+
+        this.boxActionText = this.add.text(0, 9, "GIOCA 🕹️", {
+            font: "bold 10px monospace",
+            fill: "#00ffcc",
+            align: "center"
+        }).setOrigin(0.5);
+
+        this.infoBox.add([boxBg, this.boxTitleText, this.boxActionText]);
+        this.infoBox.setSize(170, 44);
+        this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-85, -22, 170, 44), Phaser.Geom.Rectangle.Contains);
+        this.infoBox.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            this.interact();
+        });
+        this.infoBox.setVisible(false);
+
+        this.createDialogueSystem();
+        this.createInGameModal(vWidth, vHeight);
+
+        this.cameras.main.setBounds(0, 0, worldWidth, vHeight);
+        this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+        this.keyEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+
+        this.setupTouchControls(vWidth, vHeight);
+    }
+
+    createDialogueSystem() {
+        this.dialogueContainer = this.add.container(0, 0).setDepth(160);
+        this.dialogueBg = this.add.graphics();
+        this.dialogueText = this.add.text(0, 0, "", {
+            font: "bold 12px monospace",
+            fill: "#0b0c10",
+            align: "center",
+            wordWrap: { width: 180 }
+        }).setOrigin(0.5);
+
+        this.dialoguePrompt = this.add.text(0, 0, "► TAP", {
+            font: "bold 10px monospace",
+            fill: "#ff0055"
+        }).setOrigin(0.5);
+
+        this.dialogueContainer.add([this.dialogueBg, this.dialogueText, this.dialoguePrompt]);
+        this.dialogueContainer.setVisible(false);
+
+        this.dialogueContainer.setSize(200, 160);
+        this.dialogueContainer.setInteractive(new Phaser.Geom.Rectangle(-100, -80, 200, 160), Phaser.Geom.Rectangle.Contains);
+        this.dialogueContainer.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            this.advanceDialogue();
+        });
+
+        this.isDialogueOpen = false;
+        this.dialogueIndex = 0;
+        this.activeSpeaker = null;
+        this.npcLines = [];
+    }
+
+    drawSpeechBubble(width, height) {
+        this.dialogueBg.clear();
+        this.dialogueBg.fillStyle(0xffffff, 0.98);
+        this.dialogueBg.lineStyle(3, 0x00ffcc, 1);
+        this.dialogueBg.fillRoundedRect(-width/2, -height/2, width, height, 14);
+        this.dialogueBg.strokeRoundedRect(-width/2, -height/2, width, height, 14);
+
+        this.dialogueBg.beginPath();
+        this.dialogueBg.moveTo(-10, height/2);
+        this.dialogueBg.lineTo(0, height/2 + 14);
+        this.dialogueBg.lineTo(10, height/2);
+        this.dialogueBg.closePath();
+        this.dialogueBg.fillPath();
+        this.dialogueBg.strokePath();
+    }
+
+    startDialogue(speakerKey) {
+        this.infoBox.setVisible(false);
+        this.isDialogueOpen = true;
+        this.dialogueIndex = 0;
+        this.activeSpeaker = speakerKey;
+
+        const greeting = Phaser.Math.RND.pick(["Hey", "Ehi", "Ciao"]);
+        const line1 = `${greeting} ${this.playerName}!`;
+
+        if (speakerKey === 'gabri') {
+            const phrasesGabri = [
+                "Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.",
+                "Sto sistemando un po' di animazioni su After Effects. Devo solo far combaciare due movimenti.",
+                "Sto lavorando su una grafica animata. Ho quasi finito!"
+            ];
+            this.npcLines = [line1, Phaser.Math.RND.pick(phrasesGabri)];
+        } else if (speakerKey === 'raffa') {
+            const phrasesRaffa = [
+                "Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi dei giochi!",
+                "Sto preparando l'attrezzatura per il prossimo lavoro. Vai avanti a vedere le classifiche!"
+            ];
+            this.npcLines = [line1, Phaser.Math.RND.pick(phrasesRaffa)];
+        } else {
+            const phrasesNpc = [
+                "Tutto bene? Ho sentito che hanno piazzato dei giochi nuovi in studio. Prova a battere il mio punteggio.",
+                "Stavo giusto guardando quanto tempo ci mette qualcuno a scoprire i cabinati!"
+            ];
+            this.npcLines = [line1, Phaser.Math.RND.pick(phrasesNpc)];
+        }
+
+        this.showDialogueLine();
+        this.dialogueContainer.setVisible(true);
+    }
+
+    showDialogueLine() {
+        let line = this.npcLines[this.dialogueIndex];
+        this.dialogueText.setText(line);
+        
+        let boxW = 200;
+        let boxH = this.dialogueText.height + 40;
+        if (boxH < 65) boxH = 65;
+
+        this.drawSpeechBubble(boxW, boxH);
+        this.dialogueText.setPosition(0, -8);
+        this.dialoguePrompt.setPosition(boxW/2 - 25, boxH/2 - 12);
+
+        let targetX = this.npc.x;
+        let targetY = this.npc.y;
+
+        if (this.activeSpeaker === 'gabri') {
+            targetX = this.gabri.x; targetY = this.gabri.y;
+        } else if (this.activeSpeaker === 'raffa') {
+            targetX = this.raffa.x; targetY = this.raffa.y;
+        }
+
+        this.dialogueContainer.setPosition(targetX - 20, targetY - 180 - (boxH/2));
+    }
+
+    advanceDialogue() {
+        this.dialogueIndex++;
+        if (this.dialogueIndex < this.npcLines.length) {
+            this.showDialogueLine();
+        } else {
+            this.closeDialogue();
+        }
+    }
+
+    closeDialogue() {
+        this.isDialogueOpen = false;
+        this.dialogueContainer.setVisible(false);
+    }
+
+    createInGameModal(vWidth, vHeight) {
+        this.modalContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(200);
+        
+        let overlay = this.add.graphics();
+        overlay.fillStyle(0x000000, 0.78);
+        overlay.fillRect(0, 0, vWidth, vHeight);
+        overlay.setInteractive(new Phaser.Geom.Rectangle(0, 0, vWidth, vHeight), Phaser.Geom.Rectangle.Contains);
+        overlay.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            this.closeModal();
+        });
+
+        let modalBox = this.add.graphics();
+        modalBox.fillStyle(0x090918, 0.96);
+        modalBox.lineStyle(3, 0xff0055, 1);
+        modalBox.fillRoundedRect(30, 220, 300, 240, 16);
+        modalBox.strokeRoundedRect(30, 220, 300, 240, 16);
+
+        modalBox.lineStyle(1, 0x00ffcc, 0.6);
+        modalBox.strokeRoundedRect(36, 226, 288, 228, 12);
+        modalBox.setInteractive(new Phaser.Geom.Rectangle(30, 220, 300, 240), Phaser.Geom.Rectangle.Contains);
+
+        this.modalTitle = this.add.text(vWidth / 2, 260, "", {
+            font: "bold 18px monospace", fill: "#ffff00", align: "center", wordWrap: { width: 260 }
+        }).setOrigin(0.5);
+
+        this.modalDesc = this.add.text(vWidth / 2, 310, "Vuoi iniziare a giocare?", {
+            font: "13px monospace", fill: "#ffffff", align: "center"
+        }).setOrigin(0.5);
+
+        let btnPlay = this.add.container(vWidth / 2 - 60, 390);
+        let gPlay = this.add.graphics();
+        gPlay.fillStyle(0xff0055, 0.95);
+        gPlay.fillRoundedRect(-45, -18, 90, 36, 8);
+        let tPlay = this.add.text(0, 0, "AVVIA", { font: "bold 13px monospace", fill: "#ffffff" }).setOrigin(0.5);
+        btnPlay.add([gPlay, tPlay]);
+        btnPlay.setInteractive(new Phaser.Geom.Rectangle(-45, -18, 90, 36), Phaser.Geom.Rectangle.Contains);
+        
+        btnPlay.on('pointerup', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            if (this.activeTargetUrl) window.location.href = this.activeTargetUrl;
+        });
+
+        let btnClose = this.add.container(vWidth / 2 + 60, 390);
+        let gClose = this.add.graphics();
+        gClose.fillStyle(0x1a1a2e, 0.95);
+        gClose.lineStyle(2, 0x00ffcc, 0.9);
+        gClose.fillRoundedRect(-45, -18, 90, 36, 8);
+        gClose.strokeRoundedRect(-45, -18, 90, 36, 8);
+        let tClose = this.add.text(0, 0, "CHIUDI", { font: "bold 13px monospace", fill: "#00ffcc" }).setOrigin(0.5);
+        btnClose.add([gClose, tClose]);
+        btnClose.setInteractive(new Phaser.Geom.Rectangle(-45, -18, 90, 36), Phaser.Geom.Rectangle.Contains);
+        btnClose.on('pointerup', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            this.closeModal();
+        });
+
+        this.modalContainer.add([overlay, modalBox, this.modalTitle, this.modalDesc, btnPlay, btnClose]);
+        this.modalContainer.setVisible(false);
+        this.isModalOpen = false;
+    }
+
+    closeModal() {
+        this.modalContainer.setVisible(false);
+        this.isModalOpen = false;
+    }
+
+    setupTouchControls(width, height) {
+        this.isMovingLeft = false;
+        this.isMovingRight = false;
+
+        let controlDeck = this.add.container(0, 0).setScrollFactor(0).setDepth(100);
+
+        let deckBg = this.add.graphics();
+        deckBg.fillStyle(0x060612, 0.94);
+        deckBg.fillRoundedRect(10, height - 98, width - 20, 86, 20);
+        deckBg.lineStyle(2, 0x00ffcc, 0.8);
+        deckBg.strokeRoundedRect(10, height - 98, width - 20, 86, 20);
+
+        let btnY = height - 55;
+
+        const createDPadBtn = (x, y, label, onPress) => {
+            let container = this.add.container(x, y).setScrollFactor(0).setDepth(102);
+            let g = this.add.graphics();
+
+            g.fillStyle(0x101528, 0.95);
+            g.lineStyle(2, 0x00ffcc, 1);
+            g.fillRoundedRect(-28, -26, 56, 52, 12);
+            g.strokeRoundedRect(-28, -26, 56, 52, 12);
+
+            let txt = this.add.text(0, 0, label, { font: "bold 22px monospace", fill: "#00ffcc" }).setOrigin(0.5);
+
+            container.add([g, txt]);
+            container.setInteractive(new Phaser.Geom.Rectangle(-28, -26, 56, 52), Phaser.Geom.Rectangle.Contains);
+
+            container.on('pointerdown', () => { container.setScale(0.88); onPress(true); });
+            container.on('pointerup', () => { container.setScale(1.0); onPress(false); });
+            container.on('pointerout', () => { container.setScale(1.0); onPress(false); });
+        };
+
+        createDPadBtn(55, btnY, '◄', (isDown) => { this.isMovingLeft = isDown; });
+        createDPadBtn(120, btnY, '►', (isDown) => { this.isMovingRight = isDown; });
+
+        this.actionBtnContainer = this.add.container(width - 65, btnY).setScrollFactor(0).setDepth(102);
+
+        this.actionAura = this.add.graphics();
+        this.actionAura.fillStyle(0xff0055, 0.4);
+        this.actionAura.fillCircle(0, 0, 36);
+        this.actionAura.setVisible(false);
+
+        let btnBezel = this.add.graphics();
+        btnBezel.fillStyle(0x222233, 1);
+        btnBezel.lineStyle(2, 0xff0055, 1);
+        btnBezel.fillCircle(0, 0, 32);
+        btnBezel.strokeCircle(0, 0, 32);
+
+        let btnBody = this.add.graphics();
+        btnBody.fillStyle(0xff0055, 0.95);
+        btnBody.fillCircle(0, 0, 26);
+
+        let btnTxt = this.add.text(0, 1, "VAI", { font: "bold 15px monospace", fill: "#ffffff" }).setOrigin(0.5);
+
+        this.actionBtnContainer.add([this.actionAura, btnBezel, btnBody, btnTxt]);
+        this.actionBtnContainer.setInteractive(new Phaser.Geom.Circle(0, 0, 32), Phaser.Geom.Circle.Contains);
+
+        this.actionBtnContainer.on('pointerdown', () => {
+            this.actionBtnContainer.setScale(0.88);
+            this.interact();
+        });
+        this.actionBtnContainer.on('pointerup', () => { this.actionBtnContainer.setScale(1.0); });
+
+        controlDeck.add([deckBg]);
+    }
+
+    interact() {
+        if (this.isDialogueOpen) { this.advanceDialogue(); return; }
+        if (this.isModalOpen) { this.closeModal(); return; }
+
+        let distGabri = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y);
+        if (distGabri < 70) { this.startDialogue('gabri'); return; }
+
+        let distNpc = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
+        if (distNpc < 70) { this.startDialogue('npc'); return; }
+
+        let distRaffa = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y);
+        if (distRaffa < 70) { this.startDialogue('raffa'); return; }
+
+        for (let cab of this.cabinetSprites) {
+            let dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y);
+            if (dist < 60) {
+                if (cab.gameData.url) window.location.href = cab.gameData.url;
+                return;
+            }
+        }
+    }
+
+    update() {
+        if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
+            if (this.isDialogueOpen) this.closeDialogue();
+            if (this.isModalOpen) this.closeModal();
+            return;
+        }
+
+        if (this.isModalOpen || this.isDialogueOpen) {
+            this.player.setVelocityX(0);
+            this.player.play('idle', true);
+            this.infoBox.setVisible(false);
+            return;
+        }
+
+        this.player.setVelocityX(0);
+
+        if (this.cursors.left.isDown || this.isMovingLeft) {
+            this.player.setVelocityX(-180);
+            this.player.setFlipX(true);
+            this.player.play('walk', true);
+        } 
+        else if (this.cursors.right.isDown || this.isMovingRight) {
+            this.player.setVelocityX(180);
+            this.player.setFlipX(false);
+            this.player.play('walk', true);
+        } 
+        else {
+            this.player.play('idle', true);
+        }
+
+        localStorage.setItem('arcade_player_x', this.player.x);
+        localStorage.setItem('arcade_player_y', this.player.y);
+
+        if (Phaser.Input.Keyboard.JustDown(this.keyEnter)) {
+            this.interact();
+        }
+
+        let distGabri = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y);
+        let distNpc = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
+        let distRaffa = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y);
+        let activeCabinet = null;
+
+        if (distGabri < 70) {
+            this.infoBox.setPosition(this.gabri.x, 330);
+            this.boxTitleText.setText("Gabri");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
+        }
+
+        if (distNpc < 70) {
+            this.infoBox.setPosition(this.npc.x, 330);
+            this.boxTitleText.setText("Giovannone");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
+        }
+
+        if (distRaffa < 70) {
+            this.infoBox.setPosition(this.raffa.x, 330);
+            this.boxTitleText.setText("Raffa");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
+        }
+
+        for (let cab of this.cabinetSprites) {
+            let dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y);
+            if (dist < 60) {
+                activeCabinet = cab;
+                break;
+            }
+        }
+
+        if (activeCabinet) {
+            let data = activeCabinet.gameData;
+            this.infoBox.setPosition(data.badgeX, data.badgeY);
+            this.boxTitleText.setText(data.title);
+
+            if (data.type === "leaderboard") {
+                this.boxActionText.setText("ENTRA 🏆");
+            } else {
+                let myRecord = (auth.currentUser && auth.currentUser.stats) ? (auth.currentUser.stats[data.key] || 0) : 0;
+                this.boxActionText.setText(`REC: ${myRecord} PTS | GIOCA 🕹️`);
+            }
+            this.infoBox.setVisible(true);
+        } else {
+            this.infoBox.setVisible(false);
+        }
+    }
+}
+
+let activeScene = null;
+
+const config = {
+    type: Phaser.AUTO,
+    parent: 'game-container',
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 360,
+        height: 740
+    },
+    physics: {
+        default: 'arcade',
+        arcade: { gravity: { y: 0 }, debug: false }
+    },
+    scene: [MainHub]
+};
+
+const game = new Phaser.Game(config);
+
+game.events.on('ready', () => {
+    activeScene = game.scene.getScene('MainHub');
+});
+
+const profileModal = document.getElementById('profile-modal');
+
+function openProfileModal() {
+    if (!auth.currentUser) return;
+    let s = auth.currentUser.stats || {};
+    let rank = auth.getRankInfo();
+
+    document.getElementById('profile-username').innerText = auth.currentUser.username;
+    document.getElementById('profile-rank').innerText = rank.title;
+    document.getElementById('profile-xp-fill').style.width = rank.xpPct + '%';
+
+    document.getElementById('stat-invaders').innerText = (s.feedbackInvaders || 0).toLocaleString() + " PTS";
+    document.getElementById('stat-cyber').innerText = (s.cyberRun || 0).toLocaleString() + " PTS";
+    document.getElementById('stat-punch').innerText = (s.pixelPunch || 0).toLocaleString() + " PTS";
+    document.getElementById('stat-dodge').innerText = (s.deadlineDrive || 0).toLocaleString() + " PTS";
+
+    let totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
+    document.getElementById('badge-1').classList.toggle('unlocked', (s.gamesPlayed || 0) > 0);
+    document.getElementById('badge-2').classList.toggle('unlocked', totalPts >= 100);
+    document.getElementById('badge-3').classList.toggle('unlocked', totalPts >= 500);
+    document.getElementById('badge-4').classList.toggle('unlocked', totalPts >= 1000);
+
+    profileModal.style.display = 'flex';
+}
+
+document.getElementById('profile-close-btn').addEventListener('click', () => {
+    profileModal.style.display = 'none';
+});
+
+document.getElementById('profile-logout-btn').addEventListener('click', () => {
+    auth.logout();
+});
+</script>
+</body>
+</html>
