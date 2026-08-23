@@ -79,16 +79,20 @@
         }
 
         /* ---------------------------------------------------- */
-        /* VIDEO WEBM CON ALPHA NATIVO (SAFARI/IOS)             */
+        /* FIX TRASPARENZA WEBM (sfondo nero → screen blend)    */
         /* ---------------------------------------------------- */
         .npc-video {
             object-fit: contain;
             background: transparent;
             pointer-events: none;
+            /* NIENTE mix-blend-mode qui: lo screen va SOLO sul genitore,
+               altrimenti il doppio screen sbiadisce tutto */
         }
         
-        /* Phaser crea un div genitore per gli oggetti DOM. */
+        /* Il div genitore (creato da Phaser per il DOM) blenda 
+           tutto il layer contro il canvas: un solo passaggio screen. */
         #game-container > div {
+            mix-blend-mode: screen !important;
             pointer-events: none !important;
         }
 
