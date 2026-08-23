@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade</title>
 
-    <!-- ICONA WEB APP E PWA -->
+    <!-- ICONA WEB APP E CONFIGURAZIONE PWA FULLSCREEN -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-    <!-- SDK SUPABASE PER CLASSIFICA MONDIALE REALE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -36,25 +36,12 @@
         }
         #game-wrapper {
             position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 360px;
-            max-height: 740px;
-            box-shadow: 0 0 35px rgba(255, 0, 85, 0.25);
+            width: 100vw;
+            height: 100dvh;
+            max-width: 100vw;
+            max-height: 100dvh;
             overflow: hidden;
-            border: 1px solid rgba(255, 0, 85, 0.25);
-        }
-
-        /* FULLSCREEN PER DISPOSITIVI MOBILE */
-        @media (max-width: 600px) {
-            #game-wrapper {
-                max-width: 100vw;
-                max-height: 100dvh;
-                width: 100vw;
-                height: 100dvh;
-                border: none;
-                box-shadow: none;
-            }
+            background: #000;
         }
 
         #game-container {
@@ -62,12 +49,12 @@
             height: 100%;
         }
 
-        /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
+        /* BARRA SUPERIORE RISPETTOSA DELLA NOTCH IOS */
         #top-header-bar {
             position: absolute;
-            top: env(safe-area-inset-top, 8px);
-            left: 8px;
-            right: 8px;
+            top: max(env(safe-area-inset-top), 10px);
+            left: 10px;
+            right: 10px;
             height: 36px;
             display: flex;
             justify-content: space-between;
@@ -87,16 +74,13 @@
             cursor: pointer;
             box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
         }
-        .header-btn:active {
-            transform: scale(0.95);
-        }
+        .header-btn:active { transform: scale(0.95); }
         #header-score-btn {
             color: #ff0055;
             border-color: #ff0055;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
-        /* OVERLAY HTML PROFILO E CLASSIFICHE */
         .auth-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -316,6 +300,9 @@
 <body>
 
 <script>
+// NAVIGAZIONE INTERNA SENZA USCIRE DALLA MODALITÀ STANDALONE PWA
+(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/javascript:/i;a.addEventListener("click",function(a){if("A"===a.target.nodeName){var c=a.target.getAttribute("href");if(!f.test(c)&&a.target.getAttribute("target")!== "_blank"){a.preventDefault();e.href=c;}}},!1);}})(document,window.navigator,"standalone");
+
 if (!sessionStorage.getItem('arcade_session_active')) {
     window.location.href = 'start.html';
 } else {
@@ -519,8 +506,8 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        const vWidth = 360;
-        const vHeight = 740;
+        const vWidth = this.scale.width;
+        const vHeight = this.scale.height;
 
         let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
         let bgScale = vHeight / bg.height;
@@ -529,16 +516,16 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        /* VIDEO CON BLEND MODE PER RIMUOVERE LO SFONDO NERO SU SAFARI / IOS */
-        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        /* VIDEO CON BLEND MODE SCREEN PER APPARIRE TRASPARENTI */
+        this.gabri = this.add.video(150, vHeight * 0.75, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         this.gabri.setBlendMode(Phaser.BlendModes.SCREEN);
         this.gabri.play(true); this.gabri.setMute(true);
 
-        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc = this.add.video(860, vHeight * 0.76, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         this.npc.setBlendMode(Phaser.BlendModes.SCREEN);
         this.npc.play(true); this.npc.setMute(true);
 
-        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa = this.add.video(2210, vHeight * 0.77, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
         this.raffa.setBlendMode(Phaser.BlendModes.SCREEN);
         this.raffa.play(true); this.raffa.setMute(true);
 
@@ -548,7 +535,7 @@ class MainHub extends Phaser.Scene {
         let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
         let savedY = parseFloat(localStorage.getItem('arcade_player_y'));
         let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
-        let startY = (!isNaN(savedY) && savedY > 0) ? savedY : 568;
+        let startY = (!isNaN(savedY) && savedY > 0) ? savedY : (vHeight * 0.77);
 
         this.player = this.physics.add.sprite(startX, startY, 'player');
         this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
@@ -569,12 +556,15 @@ class MainHub extends Phaser.Scene {
 
         updateHeaderDOM();
 
+        let cabY = vHeight * 0.74;
+        let badgeY = vHeight * 0.45;
+
         this.cabinets = [
-            { x: 1471, y: 548, badgeX: 1471, badgeY: 330, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "invaders.html" },
-            { x: 1610, y: 548, badgeX: 1610, badgeY: 330, title: "CYBER RUN", key: "cyberRun", type: "game", url: "pacman.html" },
-            { x: 1742, y: 548, badgeX: 1742, badgeY: 330, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "PixelPunch.html" },
-            { x: 1882, y: 548, badgeX: 1882, badgeY: 330, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "frogger.html" },
-            { x: 2800, y: 548, badgeX: 2800, badgeY: 330, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
+            { x: 1471, y: cabY, badgeX: 1471, badgeY: badgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "invaders.html" },
+            { x: 1610, y: cabY, badgeX: 1610, badgeY: badgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "pacman.html" },
+            { x: 1742, y: cabY, badgeX: 1742, badgeY: badgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "PixelPunch.html" },
+            { x: 1882, y: cabY, badgeX: 1882, badgeY: badgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "frogger.html" },
+            { x: 2800, y: cabY, badgeX: 2800, badgeY: badgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
         this.cabinetSprites = [];
@@ -860,7 +850,7 @@ class MainHub extends Phaser.Scene {
         let activeCabinet = null;
 
         if (distGabri < 70) {
-            this.infoBox.setPosition(this.gabri.x, 330);
+            this.infoBox.setPosition(this.gabri.x, this.scale.height * 0.45);
             this.boxTitleText.setText("Gabri");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
@@ -868,7 +858,7 @@ class MainHub extends Phaser.Scene {
         }
 
         if (distNpc < 70) {
-            this.infoBox.setPosition(this.npc.x, 330);
+            this.infoBox.setPosition(this.npc.x, this.scale.height * 0.45);
             this.boxTitleText.setText("Giovannone");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
@@ -876,7 +866,7 @@ class MainHub extends Phaser.Scene {
         }
 
         if (distRaffa < 70) {
-            this.infoBox.setPosition(this.raffa.x, 330);
+            this.infoBox.setPosition(this.raffa.x, this.scale.height * 0.45);
             this.boxTitleText.setText("Raffa");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
@@ -914,7 +904,7 @@ let activeScene = null;
 const config = {
     type: Phaser.AUTO,
     parent: 'game-container',
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
+    scale: { mode: Phaser.Scale.RESIZE, width: '100%', height: '100%' },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
 };
