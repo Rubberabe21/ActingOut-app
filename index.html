@@ -78,23 +78,6 @@
             height: 100%;
         }
 
-        /* ---------------------------------------------------- */
-        /* FIX TRASPARENZA WEBM (sfondo nero → screen blend)    */
-        /* ---------------------------------------------------- */
-        .npc-video {
-            object-fit: contain;
-            background: transparent;
-            pointer-events: none;
-            /* NIENTE mix-blend-mode qui: lo screen va SOLO sul genitore,
-               altrimenti il doppio screen sbiadisce tutto */
-        }
-        
-        /* Il div genitore (creato da Phaser per il DOM) blenda 
-           tutto il layer contro il canvas: un solo passaggio screen. */
-        #game-container > div {
-            mix-blend-mode: screen !important;
-            pointer-events: none !important;
-        }
 
         /* BARRA SUPERIORE HTML */
         #top-header-bar {
@@ -473,6 +456,10 @@ class MainHub extends Phaser.Scene {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
 
+        this.load.video('npc_video', 'assets/hub/personaggio.webm', 'loadeddata', false, true);
+        this.load.video('gabri_video', 'assets/hub/gabri.webm', 'loadeddata', false, true);
+        this.load.video('raffa_video', 'assets/hub/raffa.webm', 'loadeddata', false, true);
+
         const playerSkins = ['dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png', 'guido.png', 'bretto.png', 'giulia.png', 'rabe.png', 'giampa.png', 'tommi.png', 'tobi.png'];
         const selectedSkin = Phaser.Math.RND.pick(playerSkins);
 
@@ -501,25 +488,14 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // CREAZIONE VIDEO TRAMITE DOM PER TRASPARENZA PERFETTA SU iOS
-        const createDOMVideo = (x, y, src, widthPx) => {
-            const video = document.createElement('video');
-            video.src = src;
-            video.autoplay = true;
-            video.loop = true;
-            video.muted = true;
-            video.playsInline = true;
-            video.setAttribute('playsinline', '');
-            video.className = 'npc-video';
-            video.style.width = widthPx + 'px';
-            video.style.height = 'auto';
-            video.play().catch(() => {});
-            return this.add.dom(x, y, video).setOrigin(0.5, 1).setDepth(10);
-        };
+        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.gabri.play(true); this.gabri.setMute(true);
 
-        this.gabri = createDOMVideo(150, 558, 'assets/hub/gabri.webm', 150);
-        this.npc = createDOMVideo(860, 563, 'assets/hub/personaggio.webm', 150);
-        this.raffa = createDOMVideo(2210, 568, 'assets/hub/raffa.webm', 110);
+        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc.play(true); this.npc.setMute(true);
+
+        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa.play(true); this.raffa.setMute(true);
 
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
         this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
@@ -893,7 +869,6 @@ let activeScene = null;
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
-    dom: { createContainer: true },
     backgroundColor: '#060612',
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
