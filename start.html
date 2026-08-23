@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade - Benvenuto</title>
 
-    <!-- ICONA WEB APP E PWA -->
+    <!-- ICONA WEB APP E PWA FULLSCREEN -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#060612">
+    <link rel="manifest" href="manifest.json">
 
     <!-- SDK SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -26,9 +29,9 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
+            height: 100dvh;
             overflow: hidden;
-            background-color: #060612; /* Sfondo identico all'app per evitare bordi neri */
+            background-color: #060612; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -49,7 +52,7 @@
             align-items: center;
         }
 
-        /* FIX DEFINTIVO FULLSCREEN MOBILE SENZA BARRE NERE */
+        /* FIX FULLSCREEN MOBILE SENZA BARRE NERE */
         @media (max-width: 600px) {
             #app-wrapper {
                 position: fixed;
@@ -58,9 +61,9 @@
                 left: 0;
                 right: 0;
                 width: 100vw;
-                height: 100%;
+                height: 100dvh;
                 max-width: 100vw;
-                max-height: 100%;
+                max-height: 100dvh;
                 border: none;
                 box-shadow: none;
             }
@@ -475,7 +478,7 @@ function renderLandingButtons() {
         btnContinue.innerText = "CONTINUA ►";
         btnContinue.onclick = () => {
             sessionStorage.setItem('arcade_session_active', 'true');
-            window.location.href = "index.html";
+            window.location.replace("index.html"); // SOSTITUITO CON REPLACE
         };
 
         const btnLogout = document.createElement('button');
@@ -552,7 +555,7 @@ document.getElementById('login-submit-btn').onclick = async () => {
     if (loggedUser) {
         localStorage.setItem('arcade_current_user', JSON.stringify(loggedUser));
         sessionStorage.setItem('arcade_session_active', 'true');
-        window.location.href = "index.html";
+        window.location.replace("index.html"); // SOSTITUITO CON REPLACE
     } else {
         alert("Credenziali errate o utente non trovato!");
     }
@@ -678,7 +681,7 @@ stepBtn.onclick = async () => {
 
     } else if (stepData.type === "finish") {
         sessionStorage.setItem('arcade_session_active', 'true');
-        window.location.href = "index.html";
+        window.location.replace("index.html"); // SOSTITUITO CON REPLACE
         return;
     }
 
@@ -687,7 +690,7 @@ stepBtn.onclick = async () => {
         renderStep();
     } else {
         sessionStorage.setItem('arcade_session_active', 'true');
-        window.location.href = "index.html";
+        window.location.replace("index.html"); // SOSTITUITO CON REPLACE
     }
 };
 
