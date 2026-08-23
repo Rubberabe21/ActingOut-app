@@ -215,12 +215,14 @@
             width: 100%;
             overflow: hidden;
         }
+        
+        /* FIX VIDEO WEBM PER SAFARI */
         .npc-video {
             width: 150px;
             height: auto;
             object-fit: contain;
-            filter: drop-shadow(0 0 15px rgba(0, 255, 204, 0.3));
             mix-blend-mode: screen;
+            background: transparent;
         }
 
         .input-group {
@@ -405,7 +407,7 @@ const DIALOGUE_STEPS = [
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Che fai?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
+    { text: "Sei uno che arrives puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "E soprattutto…", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
