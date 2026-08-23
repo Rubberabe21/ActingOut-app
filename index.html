@@ -365,6 +365,32 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
+
+// WEBGL SHADER PIPELINE PER DISCARD DEL NERO NEI WEBM
+class BlackKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
+    constructor(game) {
+        super({
+            game: game,
+            fragShader: `
+                precision mediump float;
+                uniform sampler2D uMainSampler;
+                varying vec2 outTexCoord;
+                varying vec4 outTint;
+
+                void main() {
+                    vec4 texColor = texture2D(uMainSampler, outTexCoord);
+                    float brightness = max(texColor.r, max(texColor.g, texColor.b));
+                    if (brightness < 0.12) {
+                        discard;
+                    } else {
+                        gl_FragColor = texColor * outTint;
+                    }
+                }
+            `
+        });
+    }
+}
+
 class AuthManager {
     constructor() {
         this.currentUser = null;
@@ -488,13 +514,20 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10).setBlendMode(Phaser.BlendModes.ADD);
+        if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('BlackKey')) {
+            this.game.renderer.pipelines.add('BlackKey', new BlackKeyPipeline(this.game));
+        }
+
+        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        if (this.gabri.setPipeline) this.gabri.setPipeline('BlackKey');
         this.gabri.play(true); this.gabri.setMute(true);
 
-        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10).setBlendMode(Phaser.BlendModes.ADD);
+        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        if (this.npc.setPipeline) this.npc.setPipeline('BlackKey');
         this.npc.play(true); this.npc.setMute(true);
 
-        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10).setBlendMode(Phaser.BlendModes.ADD);
+        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        if (this.raffa.setPipeline) this.raffa.setPipeline('BlackKey');
         this.raffa.play(true); this.raffa.setMute(true);
 
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
