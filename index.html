@@ -2,15 +2,14 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agency Arcade</title>
 
-    <!-- ICONA WEB APP E PWA FULLSCREEN -->
+    <!-- ICONA WEB APP E PWA -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <!-- SDK SUPABASE PER CLASSIFICA MONDIALE REALE -->
@@ -28,7 +27,6 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            height: 100dvh;
             overflow: hidden;
             background-color: #030305;
             display: flex;
@@ -45,19 +43,6 @@
             overflow: hidden;
             border: 1px solid rgba(255, 0, 85, 0.25);
         }
-
-        /* ADATTAMENTO FULLSCREEN PER SMARTPHONE COME START.HTML */
-        @media (max-width: 600px) {
-            #game-wrapper {
-                width: 100vw;
-                height: 100dvh;
-                max-width: 100vw;
-                max-height: 100dvh;
-                border: none;
-                box-shadow: none;
-            }
-        }
-
         #game-container {
             width: 100%;
             height: 100%;
@@ -66,7 +51,7 @@
         /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
         #top-header-bar {
             position: absolute;
-            top: max(env(safe-area-inset-top), 8px);
+            top: 8px;
             left: 8px;
             right: 8px;
             height: 36px;
@@ -319,24 +304,11 @@
 <body>
 
 <script>
-// MANTIENE LA MODALITÀ STANDALONE PWA SENZA APRIRE SAFARI TRA LE PAGINE
-if (("standalone" in window.navigator) && window.navigator.standalone) {
-    var noddy, remotes = false;
-    document.addEventListener('click', function(event) {
-        noddy = event.target;
-        while (noddy.nodeName !== "A" && noddy.nodeName !== "HTML") {
-            noddy = noddy.parentNode;
-        }
-        if ('href' in noddy && noddy.href.indexOf('http') !== -1 && (noddy.href.indexOf(location.host) !== -1 || remotes)) {
-            event.preventDefault();
-            location.href = noddy.href;
-        }
-    }, false);
-}
-
+// SE SI AGGIORNA LA PAGINA (RELOAD), REINDIRIZZA SEMPRE A START.HTML
 if (!sessionStorage.getItem('arcade_session_active')) {
     window.location.href = 'start.html';
 } else {
+    // Consuma il flag così che un refresh successivo rimandi a start.html
     sessionStorage.removeItem('arcade_session_active');
 }
 </script>
@@ -371,6 +343,7 @@ if (!sessionStorage.getItem('arcade_session_active')) {
                 <span id="badge-4" class="badge-item" title="Retro King">👑</span>
             </div>
 
+            <!-- SCHEDA PUNTEGGI DEDICATA AI SINGOLI GIOCHI -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="val" id="stat-invaders">0 PTS</div>
@@ -521,6 +494,9 @@ class MainHub extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
+        this.load.video('npc_video', 'assets/hub/personaggio.webm', 'loadeddata', false, true);
+        this.load.video('gabri_video', 'assets/hub/gabri.webm', 'loadeddata', false, true);
+        this.load.video('raffa_video', 'assets/hub/raffa.webm', 'loadeddata', false, true);
 
         const playerSkins = ['dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png', 'guido.png', 'bretto.png', 'giulia.png', 'rabe.png', 'giampa.png', 'tommi.png', 'tobi.png'];
         const selectedSkin = Phaser.Math.RND.pick(playerSkins);
@@ -550,31 +526,20 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // FUNZIONE PER CREARE VIDEO HTML NATIVI CON TRASPARENZA SENZA SFONDO NERO
-        const createDOMVideo = (x, y, src, widthPx) => {
-            const video = document.createElement('video');
-            video.src = src;
-            video.autoplay = true;
-            video.loop = true;
-            video.muted = true;
-            video.playsInline = true;
-            video.setAttribute('playsinline', '');
-            video.style.width = widthPx + 'px';
-            video.style.height = 'auto';
-            video.style.pointerEvents = 'none';
-            video.style.filter = 'drop-shadow(0 0 15px rgba(0, 255, 204, 0.3))';
-            video.play().catch(() => {});
-            return this.add.dom(x, y, video).setOrigin(0.5, 1).setDepth(10);
-        };
+        // Colleghi Studio
+        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.gabri.play(true); this.gabri.setMute(true);
 
-        // COLLEGHI STUDIO INSERITI COME ELEMENTI HTML TRASPARENTI NATIVI
-        this.gabri = createDOMVideo(150, 558, 'assets/hub/gabri.webm', 150);
-        this.npc = createDOMVideo(860, 563, 'assets/hub/personaggio.webm', 150);
-        this.raffa = createDOMVideo(2210, 568, 'assets/hub/raffa.webm', 110);
+        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc.play(true); this.npc.setMute(true);
+
+        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa.play(true); this.raffa.setMute(true);
 
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
         this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
 
+        // CALCOLO POSIZIONE INIZIALE: SE È LA PRIMA VOLTA, IL GIOCATORE PARTE AD AD UN TERZO (1/3) DELLO SFONDO
         let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
         let savedY = parseFloat(localStorage.getItem('arcade_player_y'));
         let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
@@ -946,7 +911,6 @@ let activeScene = null;
 const config = {
     type: Phaser.AUTO,
     parent: 'game-container',
-    dom: { createContainer: true },
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
