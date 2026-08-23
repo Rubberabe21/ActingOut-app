@@ -27,9 +27,8 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            height: 100dvh;
             overflow: hidden;
-            background-color: #030305;
+            background-color: #060612; /* Sfondo identico all'app per evitare bordi neri */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -50,13 +49,18 @@
             align-items: center;
         }
 
-        /* ADATTAMENTO FULLSCREEN MOBILE CON GESTIONE NOTCH E BOTTOM */
+        /* FIX DEFINTIVO FULLSCREEN MOBILE SENZA BARRE NERE */
         @media (max-width: 600px) {
             #app-wrapper {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
                 width: 100vw;
-                height: 100dvh;
+                height: 100%;
                 max-width: 100vw;
-                max-height: 100dvh;
+                max-height: 100%;
                 border: none;
                 box-shadow: none;
             }
@@ -224,7 +228,6 @@
             overflow: hidden;
         }
         
-        /* VIDEO INGRANDITO E SENZA SFONDO NERO */
         .npc-video {
             width: 230px;
             max-width: 80vw;
