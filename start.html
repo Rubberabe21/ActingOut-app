@@ -49,7 +49,6 @@
             align-items: center;
         }
 
-        /* LANDING PAGE INIZIALE */
         #landing-screen {
             display: flex;
             flex-direction: column;
@@ -101,7 +100,6 @@
         }
         .arcade-secondary-btn:active { transform: scale(0.95); }
 
-        /* MODAL LOGIN */
         #login-modal {
             display: none;
             position: absolute;
@@ -127,7 +125,6 @@
             gap: 12px;
         }
 
-        /* ONBOARDING GIOVANNONE */
         #onboarding-screen {
             display: none;
             flex-direction: column;
@@ -139,7 +136,6 @@
             background-color: #060612;
         }
 
-        /* CONTENITORE CENTRALE NUVOLETTA + GIOVANNONE */
         .center-stage {
             flex: 1;
             display: flex;
@@ -150,7 +146,6 @@
             gap: 12px;
         }
 
-        /* NUVOLETTA DIALOGO STILE INDEX */
         .speech-bubble {
             position: relative;
             background: #ffffff;
@@ -216,7 +211,6 @@
             overflow: hidden;
         }
         
-        /* FIX VIDEO WEBM PER SAFARI */
         .npc-video {
             width: 150px;
             height: auto;
@@ -245,7 +239,6 @@
             font-weight: bold;
         }
 
-        /* GRIGLIA SELEZIONE AVATAR ESPANSA */
         .avatar-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -328,13 +321,11 @@
 <body>
 
 <div id="app-wrapper">
-    <!-- LANDING PAGE -->
     <div id="landing-screen">
         <img src="assets/hub/logo.png" alt="Agency Arcade Logo" class="main-logo">
         <div id="action-buttons-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;"></div>
     </div>
 
-    <!-- MODAL ACCEDI / LOGIN -->
     <div id="login-modal">
         <div class="login-box">
             <h3 style="color:#ffff00; font-size:15px; margin-bottom:4px;">LOGIN GIOCATORE</h3>
@@ -345,7 +336,6 @@
         </div>
     </div>
 
-    <!-- ONBOARDING GIOVANNONE -->
     <div id="onboarding-screen">
         <div class="center-stage">
             <div class="speech-bubble">
@@ -371,19 +361,16 @@
 </div>
 
 <script>
-// CONFIGURAZIONE SUPABASE
 const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtLMpejqT7nsew_Ivhd7..."; 
+const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq"; 
 
 let supabaseClient = null;
-if (window.supabase && SUPABASE_URL.includes("supabase.co")) {
+if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// LISTA DI 102 AVATAR TESTE
 const AVATAR_LIST = Array.from({ length: 102 }, (_, i) => `assets/avatars/testa${i + 1}.png`);
 
-// SEQUENZA ESATTA DEI DIALOGHI
 const DIALOGUE_STEPS = [
     { text: "Ehi! Non so se ti ricordi di me… sono Giovannone.", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
@@ -407,7 +394,7 @@ const DIALOGUE_STEPS = [
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Che fai?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sei uno che arrives puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
+    { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "E soprattutto…", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
@@ -501,7 +488,6 @@ function renderLandingButtons() {
 
 renderLandingButtons();
 
-// MODAL LOGIN CON AUTENTICAZIONE SUPABASE
 document.getElementById('login-cancel-btn').onclick = () => {
     loginModal.style.display = "none";
 };
@@ -530,8 +516,6 @@ document.getElementById('login-submit-btn').onclick = async () => {
                     avatar: data.avatar || "assets/avatars/testa1.png",
                     stats: data.stats || defaultStats
                 };
-            } else if (error) {
-                console.error("Errore lettura Supabase:", error);
             }
         } catch (e) { console.warn("Errore login Supabase:", e); }
     }
@@ -633,12 +617,12 @@ stepBtn.onclick = async () => {
         if (supabaseClient) {
             try {
                 let { data } = await supabaseClient.from('profiles').select('username').eq('username', val).maybeSingle();
-                if (data) { alert("Nome utente già esistente nel database!"); return; }
+                if (data) { alert("Nome utente già esistente!"); return; }
             } catch (e) {}
         }
 
         let users = getUsers();
-        if (users[val]) { alert("Nome utente già esistente nel browser!"); return; }
+        if (users[val]) { alert("Nome utente già esistente!"); return; }
         tempUsername = val;
 
     } else if (stepData.type === "password") {
@@ -650,7 +634,7 @@ stepBtn.onclick = async () => {
 
         if (supabaseClient) {
             try {
-                const { data, error } = await supabaseClient.from('profiles').upsert({
+                const { error } = await supabaseClient.from('profiles').upsert({
                     username: tempUsername,
                     password: tempPassword,
                     avatar: tempAvatar,
@@ -658,11 +642,13 @@ stepBtn.onclick = async () => {
                 });
 
                 if (error) {
-                    console.error("Errore salvataggio Supabase:", error.message, error.details);
-                } else {
-                    console.log("Profilo registrato con successo su Supabase!");
+                    alert("Errore registrazione Supabase: " + error.message);
+                    return;
                 }
-            } catch (e) { console.warn("Eccezione Supabase:", e); }
+            } catch (e) {
+                alert("Errore durante il salvataggio su Supabase!");
+                return;
+            }
         }
 
         let users = getUsers();
