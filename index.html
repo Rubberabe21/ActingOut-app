@@ -12,7 +12,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-    <!-- SDK SUPABASE PER CLASSIFICA MONDIALE REALE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -46,14 +45,6 @@
         #game-container {
             width: 100%;
             height: 100%;
-        }
-
-        /* CLASSE PER ELIMINARE IL FONDO NERO DAI WEBM SU IOS/SAFARI */
-        .npc-video {
-            object-fit: contain;
-            mix-blend-mode: screen;
-            background: transparent;
-            pointer-events: none;
         }
 
         /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
@@ -90,7 +81,6 @@
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
-        /* OVERLAY HTML PROFILO E CLASSIFICHE */
         .auth-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -114,7 +104,6 @@
             color: #fff;
         }
 
-        /* GAMER CARD PROFILE STYLE */
         .profile-card-header {
             background: linear-gradient(90deg, #150520, #051525);
             border: 1px solid #00ffcc;
@@ -220,7 +209,6 @@
             font-weight: bold;
         }
 
-        /* TABS E TABELLA CLASSIFICA MONDIALE */
         .tab-selector {
             display: flex;
             justify-content: space-around;
@@ -312,23 +300,19 @@
 <body>
 
 <script>
-// SE SI AGGIORNA LA PAGINA (RELOAD), REINDIRIZZA SEMPRE A START.HTML
 if (!sessionStorage.getItem('arcade_session_active')) {
     window.location.href = 'start.html';
 } else {
-    // Consuma il flag così che un refresh successivo rimandi a start.html
     sessionStorage.removeItem('arcade_session_active');
 }
 </script>
 
 <div id="game-wrapper">
-    <!-- BARRA HEADER HTML -->
     <div id="top-header-bar">
         <button id="header-user-btn" class="header-btn">👤 LOGIN</button>
         <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
     </div>
 
-    <!-- MODAL GAMER CARD PROFILO LOCALE -->
     <div id="profile-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <div class="profile-card-header">
@@ -351,7 +335,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
                 <span id="badge-4" class="badge-item" title="Retro King">👑</span>
             </div>
 
-            <!-- SCHEDA PUNTEGGI DEDICATA AI SINGOLI GIOCHI -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="val" id="stat-invaders">0 PTS</div>
@@ -376,7 +359,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         </div>
     </div>
 
-    <!-- MODAL CLASSIFICA MONDIALE DINAMICA -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <h2 style="color:#00ffcc;">🌍 CLASSIFICA MONDIALE</h2>
@@ -401,7 +383,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
 </div>
 
 <script>
-// PARAMETRI SUPABASE REALI
 const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
 
@@ -410,7 +391,6 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// --- GESTIONE STATISTICHE E UTENTE ---
 class AuthManager {
     constructor() {
         this.currentUser = null;
@@ -493,7 +473,6 @@ document.getElementById('header-score-btn').addEventListener('click', () => {
     openProfileModal();
 });
 
-// --- SCENA PRINCIPALE PHASER ---
 class MainHub extends Phaser.Scene {
     constructor() {
         super({ key: 'MainHub' });
@@ -502,6 +481,10 @@ class MainHub extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
+
+        this.load.video('npc_video', 'assets/hub/personaggio.webm', 'loadeddata', false, true);
+        this.load.video('gabri_video', 'assets/hub/gabri.webm', 'loadeddata', false, true);
+        this.load.video('raffa_video', 'assets/hub/raffa.webm', 'loadeddata', false, true);
 
         const playerSkins = ['dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png', 'guido.png', 'bretto.png', 'giulia.png', 'rabe.png', 'giampa.png', 'tommi.png', 'tobi.png'];
         const selectedSkin = Phaser.Math.RND.pick(playerSkins);
@@ -531,26 +514,18 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // FUNZIONE PER CREARE VIDEO DOM NATIVI CON TRASPARENZA CSS (mix-blend-mode: screen)
-        const createDOMVideo = (x, y, src, widthPx) => {
-            const video = document.createElement('video');
-            video.src = src;
-            video.autoplay = true;
-            video.loop = true;
-            video.muted = true;
-            video.playsInline = true;
-            video.setAttribute('playsinline', '');
-            video.className = 'npc-video';
-            video.style.width = widthPx + 'px';
-            video.style.height = 'auto';
-            video.play().catch(() => {});
-            return this.add.dom(x, y, video).setOrigin(0.5, 1).setDepth(10);
-        };
+        // VIDEO NATIVI PHASER WEBGL CON BLENDMODE ADD (AZZERA IL NERO SU QUALSIASI DISPOSITIVO)
+        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.gabri.setBlendMode(Phaser.BlendModes.ADD);
+        this.gabri.play(true); this.gabri.setMute(true);
 
-        // Colleghi Studio come elementi DOM trasparenti
-        this.gabri = createDOMVideo(150, 558, 'assets/hub/gabri.webm', 150);
-        this.npc = createDOMVideo(860, 563, 'assets/hub/personaggio.webm', 150);
-        this.raffa = createDOMVideo(2210, 568, 'assets/hub/raffa.webm', 110);
+        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc.setBlendMode(Phaser.BlendModes.ADD);
+        this.npc.play(true); this.npc.setMute(true);
+
+        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa.setBlendMode(Phaser.BlendModes.ADD);
+        this.raffa.play(true); this.raffa.setMute(true);
 
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
         this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
@@ -579,7 +554,6 @@ class MainHub extends Phaser.Scene {
 
         updateHeaderDOM();
 
-        // Configurazione Cabinati
         this.cabinets = [
             { x: 1471, y: 548, badgeX: 1471, badgeY: 330, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "invaders.html" },
             { x: 1610, y: 548, badgeX: 1610, badgeY: 330, title: "CYBER RUN", key: "cyberRun", type: "game", url: "pacman.html" },
@@ -596,7 +570,6 @@ class MainHub extends Phaser.Scene {
             this.cabinetSprites.push(sprite);
         });
 
-        // BADGE INTERATTIVO RECORD LOCALE
         this.infoBox = this.add.container(0, 0).setDepth(80);
         let boxBg = this.add.graphics();
         boxBg.fillStyle(0x050515, 0.95);
@@ -924,9 +897,8 @@ class MainHub extends Phaser.Scene {
 let activeScene = null;
 
 const config = {
-    type: Phaser.AUTO,
+    type: Phaser.WEBGL,
     parent: 'game-container',
-    dom: { createContainer: true },
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
