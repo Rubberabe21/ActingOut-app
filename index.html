@@ -26,12 +26,14 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
+        /* ---------------------------------------------------- */
+        /* STESSO IDENTICO CSS FULLSCREEN CHE HAI IN START.HTML */
+        /* ---------------------------------------------------- */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            height: -webkit-fill-available;
             overflow: hidden;
             background-color: #060612;
             display: flex;
@@ -39,13 +41,12 @@
             align-items: center;
             touch-action: none;
         }
-
         #game-wrapper {
             position: relative;
             width: 100%;
             height: 100%;
             max-width: 360px;
-            max-height: 780px;
+            max-height: 740px;
             background: #060612;
             box-shadow: 0 0 35px rgba(255, 0, 85, 0.25);
             border: 1px solid rgba(255, 0, 85, 0.25);
@@ -64,11 +65,9 @@
                 left: 0;
                 right: 0;
                 width: 100vw;
-                height: 100vh;
-                height: 100dvh;
-                height: -webkit-fill-available;
-                max-width: none;
-                max-height: none;
+                height: 100%;
+                max-width: 100vw;
+                max-height: 100%;
                 border: none;
                 box-shadow: none;
             }
@@ -77,8 +76,23 @@
         #game-container {
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            background: #060612;
+        }
+
+        /* ---------------------------------------------------- */
+        /* FIX DEFINITIVO TRASPARENZA WEBM (SAFARI/IOS)         */
+        /* ---------------------------------------------------- */
+        .npc-video {
+            object-fit: contain;
+            mix-blend-mode: screen;
+            background: transparent;
+            pointer-events: none;
+        }
+        
+        /* Phaser crea un div genitore per gli oggetti DOM. 
+           Se questo non ha il blend mode, il video rimane nero. */
+        #game-container > div {
+            mix-blend-mode: screen !important;
+            pointer-events: none !important;
         }
 
         /* BARRA SUPERIORE HTML */
@@ -104,7 +118,7 @@
             padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
         }
         .header-btn:active { transform: scale(0.95); }
         #header-score-btn {
@@ -274,6 +288,7 @@
 
 <script>
 if (!sessionStorage.getItem('arcade_session_active')) {
+    // Il ./ è fondamentale per non uscire dalla PWA iOS
     window.location.replace('./start.html');
 } else {
     sessionStorage.removeItem('arcade_session_active');
@@ -310,10 +325,22 @@ if (!sessionStorage.getItem('arcade_session_active')) {
             </div>
 
             <div class="stats-grid">
-                <div class="stat-card"><div class="val" id="stat-invaders">0 PTS</div><div class="lbl">👾 Invaders</div></div>
-                <div class="stat-card"><div class="val" id="stat-cyber">0 PTS</div><div class="lbl">💣 Cyber Run</div></div>
-                <div class="stat-card"><div class="val" id="stat-punch">0 PTS</div><div class="lbl">🥊 Pixel Punch</div></div>
-                <div class="stat-card"><div class="val" id="stat-dodge">0 PTS</div><div class="lbl">🚗 Deadline Dodge</div></div>
+                <div class="stat-card">
+                    <div class="val" id="stat-invaders">0 PTS</div>
+                    <div class="lbl">👾 Invaders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val" id="stat-cyber">0 PTS</div>
+                    <div class="lbl">💣 Cyber Run</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val" id="stat-punch">0 PTS</div>
+                    <div class="lbl">🥊 Pixel Punch</div>
+                </div>
+                <div class="stat-card">
+                    <div class="val" id="stat-dodge">0 PTS</div>
+                    <div class="lbl">🚗 Deadline Dodge</div>
+                </div>
             </div>
 
             <button id="profile-close-btn" class="auth-btn">TORNA AL GIOCO</button>
@@ -354,31 +381,6 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// WEBGL SHADER PIPELINE PER DISCARD DEL NERO NEI WEBM
-class BlackKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
-    constructor(game) {
-        super({
-            game: game,
-            fragShader: `
-                precision mediump float;
-                uniform sampler2D uMainSampler;
-                varying vec2 outTexCoord;
-                varying vec4 outTint;
-
-                void main() {
-                    vec4 texColor = texture2D(uMainSampler, outTexCoord);
-                    float brightness = max(texColor.r, max(texColor.g, texColor.b));
-                    if (brightness < 0.12) {
-                        discard;
-                    } else {
-                        gl_FragColor = texColor * outTint;
-                    }
-                }
-            `
-        });
-    }
-}
-
 class AuthManager {
     constructor() {
         this.currentUser = null;
@@ -402,8 +404,13 @@ class AuthManager {
         }
     }
 
-    getUsers() { return JSON.parse(localStorage.getItem('arcade_users')) || {}; }
-    saveUsers(users) { localStorage.setItem('arcade_users', JSON.stringify(users)); }
+    getUsers() {
+        return JSON.parse(localStorage.getItem('arcade_users')) || {};
+    }
+
+    saveUsers(users) {
+        localStorage.setItem('arcade_users', JSON.stringify(users));
+    }
 
     getRankInfo() {
         let totalPts = 0;
@@ -411,6 +418,7 @@ class AuthManager {
             let s = this.currentUser.stats;
             totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
         }
+
         if (totalPts >= 1000) return { title: "RETRO KING 👑", level: 5, xpPct: 100 };
         if (totalPts >= 500)  return { title: "ARCADE HERO ⚡", level: 4, xpPct: (totalPts - 500) / 5 };
         if (totalPts >= 200)  return { title: "PRO GAMER 👾", level: 3, xpPct: (totalPts - 200) / 3 };
@@ -444,58 +452,73 @@ function updateHeaderDOM() {
 }
 
 document.getElementById('header-user-btn').addEventListener('click', () => {
-    if (!auth.currentUser) window.location.replace('./start.html');
-    else openProfileModal();
+    if (!auth.currentUser) {
+        window.location.replace('./start.html');
+    } else {
+        openProfileModal();
+    }
 });
-document.getElementById('header-score-btn').addEventListener('click', () => { openProfileModal(); });
+
+document.getElementById('header-score-btn').addEventListener('click', () => {
+    openProfileModal();
+});
 
 class MainHub extends Phaser.Scene {
-    constructor() { super({ key: 'MainHub' }); }
+    constructor() {
+        super({ key: 'MainHub' });
+    }
 
     preload() {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
 
-        this.load.video('npc_video', 'assets/hub/personaggio.webm', 'loadeddata', false, true);
-        this.load.video('gabri_video', 'assets/hub/gabri.webm', 'loadeddata', false, true);
-        this.load.video('raffa_video', 'assets/hub/raffa.webm', 'loadeddata', false, true);
-
         const playerSkins = ['dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png', 'guido.png', 'bretto.png', 'giulia.png', 'rabe.png', 'giampa.png', 'tommi.png', 'tobi.png'];
         const selectedSkin = Phaser.Math.RND.pick(playerSkins);
-        this.playerName = selectedSkin.replace('.png', '').charAt(0).toUpperCase() + selectedSkin.replace('.png', '').slice(1);
 
-        this.load.spritesheet('player', 'assets/hub/player/' + selectedSkin, { frameWidth: 755, frameHeight: 1120 });
+        let rawName = selectedSkin.replace('.png', '');
+        this.playerName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+
+        this.load.spritesheet('player', 'assets/hub/player/' + selectedSkin, {
+            frameWidth: 755,
+            frameHeight: 1120
+        });
+
         let g = this.make.graphics({ x: 0, y: 0, add: false });
-        g.fillStyle(0xffffff, 0); g.fillRect(0, 0, 50, 80);
+        g.fillStyle(0xffffff, 0);
+        g.fillRect(0, 0, 50, 80);
         g.generateTexture('hitbox_sm', 50, 80);
     }
 
     create() {
         const vWidth = 360;
-        const vHeight = 780;
-
-        if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('BlackKey')) {
-            this.game.renderer.pipelines.add('BlackKey', new BlackKeyPipeline(this.game));
-        }
+        const vHeight = 740;
 
         let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
         let bgScale = vHeight / bg.height;
         bg.setScale(bgScale);
+
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // WEBM RENDERIZZATI CON SHADER DISCARD SUL NERO
-        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
-        if (this.gabri.setPipeline) this.gabri.setPipeline('BlackKey');
-        this.gabri.play(true); this.gabri.setMute(true);
+        // CREAZIONE VIDEO TRAMITE DOM PER TRASPARENZA PERFETTA SU iOS
+        const createDOMVideo = (x, y, src, widthPx) => {
+            const video = document.createElement('video');
+            video.src = src;
+            video.autoplay = true;
+            video.loop = true;
+            video.muted = true;
+            video.playsInline = true;
+            video.setAttribute('playsinline', '');
+            video.className = 'npc-video';
+            video.style.width = widthPx + 'px';
+            video.style.height = 'auto';
+            video.play().catch(() => {});
+            return this.add.dom(x, y, video).setOrigin(0.5, 1).setDepth(10);
+        };
 
-        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
-        if (this.npc.setPipeline) this.npc.setPipeline('BlackKey');
-        this.npc.play(true); this.npc.setMute(true);
-
-        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
-        if (this.raffa.setPipeline) this.raffa.setPipeline('BlackKey');
-        this.raffa.play(true); this.raffa.setMute(true);
+        this.gabri = createDOMVideo(150, 558, 'assets/hub/gabri.webm', 150);
+        this.npc = createDOMVideo(860, 563, 'assets/hub/personaggio.webm', 150);
+        this.raffa = createDOMVideo(2210, 568, 'assets/hub/raffa.webm', 110);
 
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
         this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
@@ -512,7 +535,15 @@ class MainHub extends Phaser.Scene {
         let logo = this.add.image(vWidth / 2, 85, 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
         logo.setDisplaySize(280, (logo.height / logo.width) * 280);
 
-        this.tweens.add({ targets: logo, scaleX: logo.scaleX * 1.03, scaleY: logo.scaleY * 1.03, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        this.tweens.add({
+            targets: logo,
+            scaleX: logo.scaleX * 1.03,
+            scaleY: logo.scaleY * 1.03,
+            duration: 1800,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
 
         updateHeaderDOM();
 
@@ -527,13 +558,17 @@ class MainHub extends Phaser.Scene {
         this.cabinetSprites = [];
         this.cabinets.forEach(cab => {
             let sprite = this.physics.add.staticSprite(cab.x, cab.y, 'hitbox_sm');
-            sprite.setVisible(false); sprite.gameData = cab; this.cabinetSprites.push(sprite);
+            sprite.setVisible(false);
+            sprite.gameData = cab;
+            this.cabinetSprites.push(sprite);
         });
 
         this.infoBox = this.add.container(0, 0).setDepth(80);
         let boxBg = this.add.graphics();
-        boxBg.fillStyle(0x050515, 0.95); boxBg.lineStyle(2, 0x00ffcc, 1);
-        boxBg.fillRoundedRect(-85, -22, 170, 44, 10); boxBg.strokeRoundedRect(-85, -22, 170, 44, 10);
+        boxBg.fillStyle(0x050515, 0.95);
+        boxBg.lineStyle(2, 0x00ffcc, 1);
+        boxBg.fillRoundedRect(-85, -22, 170, 44, 10);
+        boxBg.strokeRoundedRect(-85, -22, 170, 44, 10);
 
         this.boxTitleText = this.add.text(0, -9, "", { font: "bold 10px monospace", fill: "#ffff00", align: "center" }).setOrigin(0.5);
         this.boxActionText = this.add.text(0, 9, "GIOCA 🕹️", { font: "bold 10px monospace", fill: "#00ffcc", align: "center" }).setOrigin(0.5);
@@ -541,7 +576,10 @@ class MainHub extends Phaser.Scene {
         this.infoBox.add([boxBg, this.boxTitleText, this.boxActionText]);
         this.infoBox.setSize(170, 44);
         this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-85, -22, 170, 44), Phaser.Geom.Rectangle.Contains);
-        this.infoBox.on('pointerdown', (pointer, localX, localY, event) => { if (event) event.stopPropagation(); this.interact(); });
+        this.infoBox.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            this.interact();
+        });
         this.infoBox.setVisible(false);
 
         this.createDialogueSystem();
@@ -563,68 +601,136 @@ class MainHub extends Phaser.Scene {
 
         this.dialogueContainer.add([this.dialogueBg, this.dialogueText, this.dialoguePrompt]);
         this.dialogueContainer.setVisible(false);
+
         this.dialogueContainer.setSize(200, 160);
         this.dialogueContainer.setInteractive(new Phaser.Geom.Rectangle(-100, -80, 200, 160), Phaser.Geom.Rectangle.Contains);
-        this.dialogueContainer.on('pointerdown', (pointer, localX, localY, event) => { if (event) event.stopPropagation(); this.advanceDialogue(); });
+        this.dialogueContainer.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            this.advanceDialogue();
+        });
 
-        this.isDialogueOpen = false; this.dialogueIndex = 0; this.activeSpeaker = null; this.npcLines = [];
+        this.isDialogueOpen = false;
+        this.dialogueIndex = 0;
+        this.activeSpeaker = null;
+        this.npcLines = [];
     }
 
     drawSpeechBubble(width, height) {
-        this.dialogueBg.clear(); this.dialogueBg.fillStyle(0xffffff, 0.98); this.dialogueBg.lineStyle(3, 0x00ffcc, 1);
-        this.dialogueBg.fillRoundedRect(-width/2, -height/2, width, height, 14); this.dialogueBg.strokeRoundedRect(-width/2, -height/2, width, height, 14);
-        this.dialogueBg.beginPath(); this.dialogueBg.moveTo(-10, height/2); this.dialogueBg.lineTo(0, height/2 + 14); this.dialogueBg.lineTo(10, height/2);
-        this.dialogueBg.closePath(); this.dialogueBg.fillPath(); this.dialogueBg.strokePath();
+        this.dialogueBg.clear();
+        this.dialogueBg.fillStyle(0xffffff, 0.98);
+        this.dialogueBg.lineStyle(3, 0x00ffcc, 1);
+        this.dialogueBg.fillRoundedRect(-width/2, -height/2, width, height, 14);
+        this.dialogueBg.strokeRoundedRect(-width/2, -height/2, width, height, 14);
+
+        this.dialogueBg.beginPath();
+        this.dialogueBg.moveTo(-10, height/2);
+        this.dialogueBg.lineTo(0, height/2 + 14);
+        this.dialogueBg.lineTo(10, height/2);
+        this.dialogueBg.closePath();
+        this.dialogueBg.fillPath();
+        this.dialogueBg.strokePath();
     }
 
     startDialogue(speakerKey) {
-        this.infoBox.setVisible(false); this.isDialogueOpen = true; this.dialogueIndex = 0; this.activeSpeaker = speakerKey;
+        this.infoBox.setVisible(false);
+        this.isDialogueOpen = true;
+        this.dialogueIndex = 0;
+        this.activeSpeaker = speakerKey;
+
         const greeting = Phaser.Math.RND.pick(["Hey", "Ehi", "Ciao"]);
         const line1 = `${greeting} ${this.playerName}!`;
 
-        if (speakerKey === 'gabri') this.npcLines = [line1, Phaser.Math.RND.pick(["Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.", "Sto sistemando un po' di animazioni su After Effects.", "Sto lavorando su una grafica animata. Ho quasi finito!"])];
-        else if (speakerKey === 'raffa') this.npcLines = [line1, Phaser.Math.RND.pick(["Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi!", "Sto preparando l'attrezzatura per il prossimo lavoro."])];
-        else this.npcLines = [line1, Phaser.Math.RND.pick(["Tutto bene? Ho sentito che hanno piazzato dei giochi nuovi.", "Stavo giusto guardando quanto tempo ci mette qualcuno a scoprire i cabinati!"])];
+        if (speakerKey === 'gabri') {
+            const phrasesGabri = [
+                "Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.",
+                "Sto sistemando un po' di animazioni su After Effects. Devo solo far combaciare due movimenti.",
+                "Sto lavorando su una grafica animata. Ho quasi finito!"
+            ];
+            this.npcLines = [line1, Phaser.Math.RND.pick(phrasesGabri)];
+        } else if (speakerKey === 'raffa') {
+            const phrasesRaffa = [
+                "Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi dei giochi!",
+                "Sto preparando l'attrezzatura per il prossimo lavoro. Vai avanti a vedere le classifiche!"
+            ];
+            this.npcLines = [line1, Phaser.Math.RND.pick(phrasesRaffa)];
+        } else {
+            const phrasesNpc = [
+                "Tutto bene? Ho sentito che hanno piazzato dei giochi nuovi in studio. Prova a battere il mio punteggio.",
+                "Stavo giusto guardando quanto tempo ci mette qualcuno a scoprire i cabinati!"
+            ];
+            this.npcLines = [line1, Phaser.Math.RND.pick(phrasesNpc)];
+        }
 
-        this.showDialogueLine(); this.dialogueContainer.setVisible(true);
+        this.showDialogueLine();
+        this.dialogueContainer.setVisible(true);
     }
 
     showDialogueLine() {
-        this.dialogueText.setText(this.npcLines[this.dialogueIndex]);
-        let boxH = this.dialogueText.height + 40; if (boxH < 65) boxH = 65;
-        this.drawSpeechBubble(200, boxH);
-        this.dialogueText.setPosition(0, -8); this.dialoguePrompt.setPosition(200/2 - 25, boxH/2 - 12);
-        let targetX = this.npc.x; let targetY = this.npc.y;
-        if (this.activeSpeaker === 'gabri') { targetX = this.gabri.x; targetY = this.gabri.y; }
-        else if (this.activeSpeaker === 'raffa') { targetX = this.raffa.x; targetY = this.raffa.y; }
+        let line = this.npcLines[this.dialogueIndex];
+        this.dialogueText.setText(line);
+
+        let boxW = 200;
+        let boxH = this.dialogueText.height + 40;
+        if (boxH < 65) boxH = 65;
+
+        this.drawSpeechBubble(boxW, boxH);
+        this.dialogueText.setPosition(0, -8);
+        this.dialoguePrompt.setPosition(boxW/2 - 25, boxH/2 - 12);
+
+        let targetX = this.npc.x;
+        let targetY = this.npc.y;
+
+        if (this.activeSpeaker === 'gabri') {
+            targetX = this.gabri.x; targetY = this.gabri.y;
+        } else if (this.activeSpeaker === 'raffa') {
+            targetX = this.raffa.x; targetY = this.raffa.y;
+        }
+
         this.dialogueContainer.setPosition(targetX - 20, targetY - 180 - (boxH/2));
     }
 
     advanceDialogue() {
         this.dialogueIndex++;
-        if (this.dialogueIndex < this.npcLines.length) this.showDialogueLine();
-        else this.closeDialogue();
+        if (this.dialogueIndex < this.npcLines.length) {
+            this.showDialogueLine();
+        } else {
+            this.closeDialogue();
+        }
     }
 
-    closeDialogue() { this.isDialogueOpen = false; this.dialogueContainer.setVisible(false); }
+    closeDialogue() {
+        this.isDialogueOpen = false;
+        this.dialogueContainer.setVisible(false);
+    }
 
     setupTouchControls(width, height) {
-        this.isMovingLeft = false; this.isMovingRight = false;
+        this.isMovingLeft = false;
+        this.isMovingRight = false;
+
         let controlDeck = this.add.container(0, 0).setScrollFactor(0).setDepth(100);
 
-        let deckBg = this.add.graphics(); deckBg.fillStyle(0x060612, 0.94);
+        let deckBg = this.add.graphics();
+        deckBg.fillStyle(0x060612, 0.94);
         deckBg.fillRoundedRect(10, height - 98, width - 20, 86, 20);
-        deckBg.lineStyle(2, 0x00ffcc, 0.8); deckBg.strokeRoundedRect(10, height - 98, width - 20, 86, 20);
+        deckBg.lineStyle(2, 0x00ffcc, 0.8);
+        deckBg.strokeRoundedRect(10, height - 98, width - 20, 86, 20);
 
         let btnY = height - 55;
+
         const createDPadBtn = (x, y, label, onPress) => {
             let container = this.add.container(x, y).setScrollFactor(0).setDepth(102);
             let g = this.add.graphics();
-            g.fillStyle(0x101528, 0.95); g.lineStyle(2, 0x00ffcc, 1);
-            g.fillRoundedRect(-28, -26, 56, 52, 12); g.strokeRoundedRect(-28, -26, 56, 52, 12);
+
+            g.fillStyle(0x101528, 0.95);
+            g.lineStyle(2, 0x00ffcc, 1);
+            g.fillRoundedRect(-28, -26, 56, 52, 12);
+            g.strokeRoundedRect(-28, -26, 56, 52, 12);
+
             let txt = this.add.text(0, 0, label, { font: "bold 22px monospace", fill: "#00ffcc" }).setOrigin(0.5);
+
             container.add([g, txt]);
             container.setInteractive(new Phaser.Geom.Rectangle(-28, -26, 56, 52), Phaser.Geom.Rectangle.Contains);
+
             container.on('pointerdown', () => { container.setScale(0.88); onPress(true); });
             container.on('pointerup', () => { container.setScale(1.0); onPress(false); });
             container.on('pointerout', () => { container.setScale(1.0); onPress(false); });
@@ -634,13 +740,31 @@ class MainHub extends Phaser.Scene {
         createDPadBtn(120, btnY, '►', (isDown) => { this.isMovingRight = isDown; });
 
         this.actionBtnContainer = this.add.container(width - 65, btnY).setScrollFactor(0).setDepth(102);
-        this.actionAura = this.add.graphics(); this.actionAura.fillStyle(0xff0055, 0.4); this.actionAura.fillCircle(0, 0, 36); this.actionAura.setVisible(false);
-        let btnBezel = this.add.graphics(); btnBezel.fillStyle(0x222233, 1); btnBezel.lineStyle(2, 0xff0055, 1); btnBezel.fillCircle(0, 0, 32); btnBezel.strokeCircle(0, 0, 32);
-        let btnBody = this.add.graphics(); btnBody.fillStyle(0xff0055, 0.95); btnBody.fillCircle(0, 0, 26);
+
+        this.actionAura = this.add.graphics();
+        this.actionAura.fillStyle(0xff0055, 0.4);
+        this.actionAura.fillCircle(0, 0, 36);
+        this.actionAura.setVisible(false);
+
+        let btnBezel = this.add.graphics();
+        btnBezel.fillStyle(0x222233, 1);
+        btnBezel.lineStyle(2, 0xff0055, 1);
+        btnBezel.fillCircle(0, 0, 32);
+        btnBezel.strokeCircle(0, 0, 32);
+
+        let btnBody = this.add.graphics();
+        btnBody.fillStyle(0xff0055, 0.95);
+        btnBody.fillCircle(0, 0, 26);
+
         let btnTxt = this.add.text(0, 1, "VAI", { font: "bold 15px monospace", fill: "#ffffff" }).setOrigin(0.5);
+
         this.actionBtnContainer.add([this.actionAura, btnBezel, btnBody, btnTxt]);
         this.actionBtnContainer.setInteractive(new Phaser.Geom.Circle(0, 0, 32), Phaser.Geom.Circle.Contains);
-        this.actionBtnContainer.on('pointerdown', () => { this.actionBtnContainer.setScale(0.88); this.interact(); });
+
+        this.actionBtnContainer.on('pointerdown', () => {
+            this.actionBtnContainer.setScale(0.88);
+            this.interact();
+        });
         this.actionBtnContainer.on('pointerup', () => { this.actionBtnContainer.setScale(1.0); });
 
         controlDeck.add([deckBg]);
@@ -661,8 +785,9 @@ class MainHub extends Phaser.Scene {
         for (let cab of this.cabinetSprites) {
             let dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y);
             if (dist < 60) {
-                if (cab.gameData.type === "leaderboard") openLeaderboardModal('feedbackInvaders');
-                else if (cab.gameData.url) {
+                if (cab.gameData.type === "leaderboard") {
+                    openLeaderboardModal('feedbackInvaders');
+                } else if (cab.gameData.url) {
                     sessionStorage.setItem('arcade_session_active', 'true');
                     window.location.replace(cab.gameData.url);
                 }
@@ -672,49 +797,104 @@ class MainHub extends Phaser.Scene {
     }
 
     update() {
-        if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) { if (this.isDialogueOpen) this.closeDialogue(); return; }
-        if (this.isDialogueOpen) { this.player.setVelocityX(0); this.player.play('idle', true); this.infoBox.setVisible(false); return; }
+        if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
+            if (this.isDialogueOpen) this.closeDialogue();
+            return;
+        }
+
+        if (this.isDialogueOpen) {
+            this.player.setVelocityX(0);
+            this.player.play('idle', true);
+            this.infoBox.setVisible(false);
+            return;
+        }
 
         this.player.setVelocityX(0);
-        if (this.cursors.left.isDown || this.isMovingLeft) { this.player.setVelocityX(-180); this.player.setFlipX(true); this.player.play('walk', true); } 
-        else if (this.cursors.right.isDown || this.isMovingRight) { this.player.setVelocityX(180); this.player.setFlipX(false); this.player.play('walk', true); } 
-        else this.player.play('idle', true);
+
+        if (this.cursors.left.isDown || this.isMovingLeft) {
+            this.player.setVelocityX(-180);
+            this.player.setFlipX(true);
+            this.player.play('walk', true);
+        } 
+        else if (this.cursors.right.isDown || this.isMovingRight) {
+            this.player.setVelocityX(180);
+            this.player.setFlipX(false);
+            this.player.play('walk', true);
+        } 
+        else {
+            this.player.play('idle', true);
+        }
 
         localStorage.setItem('arcade_player_x', this.player.x);
         localStorage.setItem('arcade_player_y', this.player.y);
-        if (Phaser.Input.Keyboard.JustDown(this.keyEnter)) this.interact();
 
+        if (Phaser.Input.Keyboard.JustDown(this.keyEnter)) {
+            this.interact();
+        }
+
+        let distGabri = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y);
+        let distNpc = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
+        let distRaffa = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y);
         let activeCabinet = null;
-        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y) < 70) {
-            this.infoBox.setPosition(this.gabri.x, 330); this.boxTitleText.setText("Gabri"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+
+        if (distGabri < 70) {
+            this.infoBox.setPosition(this.gabri.x, 330);
+            this.boxTitleText.setText("Gabri");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
         }
-        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y) < 70) {
-            this.infoBox.setPosition(this.npc.x, 330); this.boxTitleText.setText("Giovannone"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+
+        if (distNpc < 70) {
+            this.infoBox.setPosition(this.npc.x, 330);
+            this.boxTitleText.setText("Giovannone");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
         }
-        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y) < 70) {
-            this.infoBox.setPosition(this.raffa.x, 330); this.boxTitleText.setText("Raffa"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+
+        if (distRaffa < 70) {
+            this.infoBox.setPosition(this.raffa.x, 330);
+            this.boxTitleText.setText("Raffa");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
         }
 
         for (let cab of this.cabinetSprites) {
-            if (Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y) < 60) { activeCabinet = cab; break; }
+            let dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y);
+            if (dist < 60) {
+                activeCabinet = cab;
+                break;
+            }
         }
 
         if (activeCabinet) {
             let data = activeCabinet.gameData;
-            this.infoBox.setPosition(data.badgeX, data.badgeY); this.boxTitleText.setText(data.title);
-            if (data.type === "leaderboard") this.boxActionText.setText("VEDI RECORD 🏆");
-            else { let myRecord = (auth.currentUser && auth.currentUser.stats) ? (auth.currentUser.stats[data.key] || 0) : 0; this.boxActionText.setText(`REC: ${myRecord} PTS | GIOCA 🕹️`); }
+            this.infoBox.setPosition(data.badgeX, data.badgeY);
+            this.boxTitleText.setText(data.title);
+
+            if (data.type === "leaderboard") {
+                this.boxActionText.setText("VEDI RECORD 🏆");
+            } else {
+                let myRecord = (auth.currentUser && auth.currentUser.stats) ? (auth.currentUser.stats[data.key] || 0) : 0;
+                this.boxActionText.setText(`REC: ${myRecord} PTS | GIOCA 🕹️`);
+            }
             this.infoBox.setVisible(true);
-        } else this.infoBox.setVisible(false);
+        } else {
+            this.infoBox.setVisible(false);
+        }
     }
 }
 
-// RAPPORTO D'ASPETTO 360x780 (19.5:9) PER ADATTARSI AGLI iPHONE SENZA BORDINI
+let activeScene = null;
+
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
+    dom: { createContainer: true },
     backgroundColor: '#060612',
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 780 },
+    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
 };
@@ -725,16 +905,25 @@ let currentLBGameKey = 'feedbackInvaders';
 
 function openProfileModal() {
     if (!auth.currentUser) return;
-    let s = auth.currentUser.stats || {}; let rank = auth.getRankInfo();
+    let s = auth.currentUser.stats || {};
+    let rank = auth.getRankInfo();
+
     document.getElementById('profile-username').innerText = auth.currentUser.username;
     document.getElementById('profile-rank').innerText = rank.title;
     document.getElementById('profile-xp-fill').style.width = rank.xpPct + '%';
+
     const avatarBox = document.getElementById('profile-avatar-box');
-    if (auth.currentUser.avatar) avatarBox.innerHTML = `<img src="${auth.currentUser.avatar}" alt="Avatar">`; else avatarBox.innerText = "👾";
+    if (auth.currentUser.avatar) {
+        avatarBox.innerHTML = `<img src="${auth.currentUser.avatar}" alt="Avatar">`;
+    } else {
+        avatarBox.innerText = "👾";
+    }
+
     document.getElementById('stat-invaders').innerText = (s.feedbackInvaders || 0).toLocaleString() + " PTS";
     document.getElementById('stat-cyber').innerText = (s.cyberRun || 0).toLocaleString() + " PTS";
     document.getElementById('stat-punch').innerText = (s.pixelPunch || 0).toLocaleString() + " PTS";
     document.getElementById('stat-dodge').innerText = (s.deadlineDrive || 0).toLocaleString() + " PTS";
+
     document.getElementById('profile-modal').style.display = 'flex';
 }
 
@@ -746,33 +935,76 @@ async function openLeaderboardModal(gameKey) {
 
 async function fetchLeaderboardFromSupabase(gameKey) {
     currentLBGameKey = gameKey;
+
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    let activeTabBtn = document.getElementById('tab-' + gameKey); if (activeTabBtn) activeTabBtn.classList.add('active');
-    const listEl = document.getElementById('lb-records-list'); listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Caricamento classifiche...</span></div>';
+    let activeTabBtn = document.getElementById('tab-' + gameKey);
+    if (activeTabBtn) activeTabBtn.classList.add('active');
+
+    const listEl = document.getElementById('lb-records-list');
+    listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Caricamento classifiche...</span></div>';
+
     let records = [];
+
     if (supabaseClient) {
         try {
-            let { data, error } = await supabaseClient.from('leaderboard').select('username, score').eq('game_key', gameKey).order('score', { ascending: false }).limit(10);
-            if (!error && data) records = data;
-        } catch (e) { console.warn("Supabase non raggiungibile."); }
+            let { data, error } = await supabaseClient
+                .from('leaderboard')
+                .select('username, score')
+                .eq('game_key', gameKey)
+                .order('score', { ascending: false })
+                .limit(10);
+
+            if (!error && data) {
+                records = data;
+            }
+        } catch (e) {
+            console.warn("Supabase non raggiungibile.");
+        }
     }
+
     if (records.length === 0) {
         let users = auth.getUsers();
-        for (let uname in users) { let sc = users[uname].stats ? (users[uname].stats[gameKey] || 0) : 0; if (sc > 0) records.push({ username: uname, score: sc }); }
+        for (let uname in users) {
+            let sc = users[uname].stats ? (users[uname].stats[gameKey] || 0) : 0;
+            if (sc > 0) records.push({ username: uname, score: sc });
+        }
         if (auth.currentUser && auth.currentUser.stats) {
             let mySc = auth.currentUser.stats[gameKey] || 0;
-            if (mySc > 0 && !records.some(r => r.username === auth.currentUser.username)) records.push({ username: auth.currentUser.username, score: mySc });
+            if (mySc > 0 && !records.some(r => r.username === auth.currentUser.username)) {
+                records.push({ username: auth.currentUser.username, score: mySc });
+            }
         }
         records.sort((a, b) => b.score - a.score);
     }
-    if (records.length === 0) listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Nessun record registrato per questo gioco!</span></div>';
-    else listEl.innerHTML = records.map((r, i) => `<div class="leaderboard-row"><span class="rank-pos">#${i + 1}</span><span class="player-name">${r.username}</span><span class="score-val">${r.score.toLocaleString()} PTS</span></div>`).join('');
+
+    if (records.length === 0) {
+        listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Nessun record registrato per questo gioco!</span></div>';
+    } else {
+        listEl.innerHTML = records.map((r, i) => `
+            <div class="leaderboard-row">
+                <span class="rank-pos">#${i + 1}</span>
+                <span class="player-name">${r.username}</span>
+                <span class="score-val">${r.score.toLocaleString()} PTS</span>
+            </div>
+        `).join('');
+    }
 }
 
-function switchLBTab(gameKey) { fetchLeaderboardFromSupabase(gameKey); }
-document.getElementById('profile-close-btn').addEventListener('click', () => { document.getElementById('profile-modal').style.display = 'none'; });
-document.getElementById('lb-close-btn').addEventListener('click', () => { document.getElementById('leaderboard-modal').style.display = 'none'; });
-document.getElementById('profile-logout-btn').addEventListener('click', () => { auth.logout(); });
+function switchLBTab(gameKey) {
+    fetchLeaderboardFromSupabase(gameKey);
+}
+
+document.getElementById('profile-close-btn').addEventListener('click', () => {
+    document.getElementById('profile-modal').style.display = 'none';
+});
+
+document.getElementById('lb-close-btn').addEventListener('click', () => {
+    document.getElementById('leaderboard-modal').style.display = 'none';
+});
+
+document.getElementById('profile-logout-btn').addEventListener('click', () => {
+    auth.logout();
+});
 </script>
 </body>
 </html>
