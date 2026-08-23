@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade - Benvenuto</title>
 
     <!-- ICONA WEB APP E PWA -->
@@ -220,6 +220,7 @@
             height: auto;
             object-fit: contain;
             filter: drop-shadow(0 0 15px rgba(0, 255, 204, 0.3));
+            mix-blend-mode: screen;
         }
 
         .input-group {
@@ -368,7 +369,7 @@
 </div>
 
 <script>
-// CONFIGURAZIONE SUPABASE (INCOLLA LA CHIAVE COMPLETA SENZA '...')
+// CONFIGURAZIONE SUPABASE
 const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtLMpejqT7nsew_Ivhd7..."; 
 
@@ -512,7 +513,6 @@ document.getElementById('login-submit-btn').onclick = async () => {
     const defaultStats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
     let loggedUser = null;
 
-    // 1. VERIFICA SU DATABASE SUPABASE
     if (supabaseClient) {
         try {
             let { data, error } = await supabaseClient
@@ -534,7 +534,6 @@ document.getElementById('login-submit-btn').onclick = async () => {
         } catch (e) { console.warn("Errore login Supabase:", e); }
     }
 
-    // 2. FALLBACK SU LOCALSTORAGE
     if (!loggedUser) {
         let users = getUsers();
         if (users[uVal] && users[uVal].password === pVal) {
@@ -555,7 +554,6 @@ document.getElementById('login-submit-btn').onclick = async () => {
     }
 };
 
-// ONBOARDING ENGINE
 let currentStepIdx = 0;
 let tempUsername = "";
 let tempPassword = "";
@@ -648,7 +646,6 @@ stepBtn.onclick = async () => {
 
         const defaultStats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
 
-        // 1. CREAZIONE ACCOUNT SU DATABASE SUPABASE CON GESTIONE ERRORE
         if (supabaseClient) {
             try {
                 const { data, error } = await supabaseClient.from('profiles').upsert({
@@ -666,7 +663,6 @@ stepBtn.onclick = async () => {
             } catch (e) { console.warn("Eccezione Supabase:", e); }
         }
 
-        // 2. SALVATAGGIO LOCALE
         let users = getUsers();
         users[tempUsername] = { password: tempPassword, avatar: tempAvatar, stats: defaultStats };
         localStorage.setItem('arcade_users', JSON.stringify(users));
