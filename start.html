@@ -27,6 +27,7 @@
             padding: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
             overflow: hidden;
             background-color: #030305;
             display: flex;
@@ -49,6 +50,18 @@
             align-items: center;
         }
 
+        /* ADATTAMENTO FULLSCREEN MOBILE CON GESTIONE NOTCH E BOTTOM */
+        @media (max-width: 600px) {
+            #app-wrapper {
+                width: 100vw;
+                height: 100dvh;
+                max-width: 100vw;
+                max-height: 100dvh;
+                border: none;
+                box-shadow: none;
+            }
+        }
+
         #landing-screen {
             display: flex;
             flex-direction: column;
@@ -56,7 +69,7 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            padding: 24px;
+            padding: max(env(safe-area-inset-top), 24px) 24px max(env(safe-area-inset-bottom), 24px) 24px;
             text-align: center;
             gap: 12px;
         }
@@ -132,7 +145,7 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            padding: 16px;
+            padding: max(env(safe-area-inset-top), 20px) 16px max(env(safe-area-inset-bottom), 16px) 16px;
             background-color: #060612;
         }
 
@@ -211,8 +224,10 @@
             overflow: hidden;
         }
         
+        /* VIDEO INGRANDITO E SENZA SFONDO NERO */
         .npc-video {
-            width: 150px;
+            width: 230px;
+            max-width: 80vw;
             height: auto;
             object-fit: contain;
             mix-blend-mode: screen;
