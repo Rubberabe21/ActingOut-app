@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade</title>
 
-    <!-- ICONA WEB APP E PWA FULLSCREEN -->
+    <!-- ICONA WEB APP E PWA FULLSCREEN CLONATA DA START -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- LE 3 RIGHE AGGIUNTE CHE BLOCCANO LA FUORIUSCITA DA SAFARI -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#060612">
     <link rel="manifest" href="manifest.json">
@@ -25,17 +24,20 @@
             touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
         }
+        
+        /* FIX IDENTICO A START.HTML */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100dvh; /* MODIFICATO IN 100dvh */
+            height: 100%;
             overflow: hidden;
-            background-color: #060612;
+            background-color: #060612; /* Evita bordi neri */
             display: flex;
             justify-content: center;
             align-items: center;
         }
+        
         #game-wrapper {
             position: relative;
             width: 100%;
@@ -52,35 +54,38 @@
             align-items: center;
         }
 
-        /* STESSO LAYOUT FULLSCREEN MOBILE DI START.HTML */
+        /* MEDIA QUERY FULLSCREEN ASSOLUTO COME IN START.HTML */
         @media (max-width: 600px) {
             #game-wrapper {
-                position: fixed !important;
-                top: 0 !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                width: 100vw !important;
-                height: 100dvh !important;
-                max-width: none !important;
-                max-height: none !important;
-                border: none !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100vw;
+                height: 100%;
+                max-width: 100vw;
+                max-height: 100%;
+                border: none;
+                box-shadow: none;
             }
         }
 
         #game-container {
             width: 100%;
             height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #060612; /* Nasconde bande nere di Phaser */
         }
 
-        /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
+        /* FIX BARRA SUPERIORE SAFARI */
         #top-header-bar {
             position: absolute;
-            top: max(env(safe-area-inset-top), 8px);
-            left: 8px;
-            right: 8px;
+            top: max(env(safe-area-inset-top), 12px);
+            left: 12px;
+            right: 12px;
             height: 36px;
             display: flex;
             justify-content: space-between;
@@ -329,23 +334,19 @@
 <body>
 
 <script>
-// SE SI AGGIORNA LA PAGINA (RELOAD), REINDIRIZZA SEMPRE A START.HTML
 if (!sessionStorage.getItem('arcade_session_active')) {
     window.location.href = 'start.html';
 } else {
-    // Consuma il flag così che un refresh successivo rimandi a start.html
     sessionStorage.removeItem('arcade_session_active');
 }
 </script>
 
 <div id="game-wrapper">
-    <!-- BARRA HEADER HTML -->
     <div id="top-header-bar">
         <button id="header-user-btn" class="header-btn">👤 LOGIN</button>
         <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
     </div>
 
-    <!-- MODAL GAMER CARD PROFILO LOCALE -->
     <div id="profile-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <div class="profile-card-header">
@@ -368,7 +369,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
                 <span id="badge-4" class="badge-item" title="Retro King">👑</span>
             </div>
 
-            <!-- SCHEDA PUNTEGGI DEDICATA AI SINGOLI GIOCHI -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="val" id="stat-invaders">0 PTS</div>
@@ -393,14 +393,13 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         </div>
     </div>
 
-    <!-- MODAL CLASSIFICA MONDIALE DINAMICA -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <h2 style="color:#00ffcc;">🌍 CLASSIFICA MONDIALE</h2>
 
             <div class="tab-selector">
                 <button class="tab-btn active" id="tab-feedbackInvaders" onclick="switchLBTab('feedbackInvaders')">INVADERS</button>
-                <button class="tab-btn" id="tab-cyberRun" onclick="switchLBTab('cyberRun')">CYBER RUN</button>
+                <button class="tab-btn" id="tab-cyberRun" onclick="switchLBTab('cyberRun')">CYBER Run</button>
                 <button class="tab-btn" id="tab-pixelPunch" onclick="switchLBTab('pixelPunch')">PUNCH</button>
                 <button class="tab-btn" id="tab-deadlineDrive" onclick="switchLBTab('deadlineDrive')">DODGE</button>
             </div>
@@ -418,7 +417,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
 </div>
 
 <script>
-// PARAMETRI SUPABASE REALI
 const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
 
@@ -427,7 +425,6 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// --- GESTIONE STATISTICHE E UTENTE ---
 class AuthManager {
     constructor() {
         this.currentUser = null;
@@ -510,7 +507,6 @@ document.getElementById('header-score-btn').addEventListener('click', () => {
     openProfileModal();
 });
 
-// --- SCENA PRINCIPALE PHASER ---
 class MainHub extends Phaser.Scene {
     constructor() {
         super({ key: 'MainHub' });
@@ -519,6 +515,7 @@ class MainHub extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
+
         this.load.video('npc_video', 'assets/hub/personaggio.webm', 'loadeddata', false, true);
         this.load.video('gabri_video', 'assets/hub/gabri.webm', 'loadeddata', false, true);
         this.load.video('raffa_video', 'assets/hub/raffa.webm', 'loadeddata', false, true);
@@ -551,7 +548,7 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // RENDER DEI WEBM IN WEBGL CON BLENDMODE ADD (ELIMINA IL NERO SU SAFARI/IOS)
+        // VIDEO WEBM RENDERIZZATI IN WEBGL CON BLENDMODE ADD (ELIMINA IL NERO SU SAFARI/IOS)
         this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         this.gabri.setBlendMode(Phaser.BlendModes.ADD);
         this.gabri.play(true); this.gabri.setMute(true);
@@ -567,7 +564,6 @@ class MainHub extends Phaser.Scene {
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
         this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
 
-        // CALCOLO POSIZIONE INIZIALE: SE È LA PRIMA VOLTA, IL GIOCATORE PARTE AD AD UN TERZO (1/3) DELLO SFONDO
         let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
         let savedY = parseFloat(localStorage.getItem('arcade_player_y'));
         let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
@@ -936,6 +932,7 @@ class MainHub extends Phaser.Scene {
 
 let activeScene = null;
 
+// RENDERER IMPOSTATO A WEBGL PER FAR FUNZIONARE LA TRASPARENZA E LA SCALA SU FIT
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
