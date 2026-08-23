@@ -48,14 +48,6 @@
             height: 100%;
         }
 
-        /* FIX TRASPARENZA VIDEO WEBM SAFARI */
-        .npc-video {
-            object-fit: contain;
-            mix-blend-mode: screen;
-            background: transparent;
-            pointer-events: none;
-        }
-
         /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
         #top-header-bar {
             position: absolute;
@@ -502,6 +494,9 @@ class MainHub extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
+        this.load.video('npc_video', 'assets/hub/personaggio.webm', 'loadeddata', false, true);
+        this.load.video('gabri_video', 'assets/hub/gabri.webm', 'loadeddata', false, true);
+        this.load.video('raffa_video', 'assets/hub/raffa.webm', 'loadeddata', false, true);
 
         const playerSkins = ['dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png', 'guido.png', 'bretto.png', 'giulia.png', 'rabe.png', 'giampa.png', 'tommi.png', 'tobi.png'];
         const selectedSkin = Phaser.Math.RND.pick(playerSkins);
@@ -531,26 +526,15 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // FUNZIONE PER CREARE I VIDEO HTML NATIVI TRASPARENTI CON LA CLASSE STESSA DI START.HTML
-        const createDOMVideo = (x, y, src, widthPx) => {
-            const video = document.createElement('video');
-            video.src = src;
-            video.autoplay = true;
-            video.loop = true;
-            video.muted = true;
-            video.playsInline = true;
-            video.setAttribute('playsinline', '');
-            video.className = 'npc-video';
-            video.style.width = widthPx + 'px';
-            video.style.height = 'auto';
-            video.play().catch(() => {});
-            return this.add.dom(x, y, video).setOrigin(0.5, 1).setDepth(10);
-        };
+        // Colleghi Studio
+        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.gabri.play(true); this.gabri.setMute(true);
 
-        // Colleghi Studio caricati come DOM Element con mix-blend-mode
-        this.gabri = createDOMVideo(150, 558, 'assets/hub/gabri.webm', 150);
-        this.npc = createDOMVideo(860, 563, 'assets/hub/personaggio.webm', 150);
-        this.raffa = createDOMVideo(2210, 568, 'assets/hub/raffa.webm', 110);
+        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc.play(true); this.npc.setMute(true);
+
+        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa.play(true); this.raffa.setMute(true);
 
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
         this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
@@ -927,7 +911,6 @@ let activeScene = null;
 const config = {
     type: Phaser.AUTO,
     parent: 'game-container',
-    dom: { createContainer: true },
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
