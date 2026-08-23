@@ -14,7 +14,6 @@
     <meta name="theme-color" content="#060612">
     <link rel="manifest" href="manifest.json">
 
-    <!-- SDK SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -25,48 +24,32 @@
             touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
         }
+        
+        /* FIX DEFINITIVO iOS: BLOCCA IL SITO AI 4 ANGOLI SENZA SCORRIMENTO */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100dvh;
+            height: 100%;
             overflow: hidden;
-            background-color: #060612; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: #060612;
+            position: fixed; 
         }
+        
         #app-wrapper {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             width: 100%;
             height: 100%;
-            max-width: 360px;
-            max-height: 740px;
             background: #060612;
-            box-shadow: 0 0 35px rgba(255, 0, 85, 0.25);
-            border: 1px solid rgba(255, 0, 85, 0.25);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-        }
-
-        /* FIX FULLSCREEN MOBILE SENZA BARRE NERE */
-        @media (max-width: 600px) {
-            #app-wrapper {
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100vw;
-                height: 100dvh;
-                max-width: 100vw;
-                max-height: 100dvh;
-                border: none;
-                box-shadow: none;
-            }
         }
 
         #landing-screen {
@@ -478,7 +461,7 @@ function renderLandingButtons() {
         btnContinue.innerText = "CONTINUA ►";
         btnContinue.onclick = () => {
             sessionStorage.setItem('arcade_session_active', 'true');
-            window.location.replace("index.html"); // SOSTITUITO CON REPLACE
+            window.location.replace("index.html");
         };
 
         const btnLogout = document.createElement('button');
@@ -555,7 +538,7 @@ document.getElementById('login-submit-btn').onclick = async () => {
     if (loggedUser) {
         localStorage.setItem('arcade_current_user', JSON.stringify(loggedUser));
         sessionStorage.setItem('arcade_session_active', 'true');
-        window.location.replace("index.html"); // SOSTITUITO CON REPLACE
+        window.location.replace("index.html");
     } else {
         alert("Credenziali errate o utente non trovato!");
     }
@@ -681,7 +664,7 @@ stepBtn.onclick = async () => {
 
     } else if (stepData.type === "finish") {
         sessionStorage.setItem('arcade_session_active', 'true');
-        window.location.replace("index.html"); // SOSTITUITO CON REPLACE
+        window.location.replace("index.html"); 
         return;
     }
 
@@ -690,7 +673,7 @@ stepBtn.onclick = async () => {
         renderStep();
     } else {
         sessionStorage.setItem('arcade_session_active', 'true');
-        window.location.replace("index.html"); // SOSTITUITO CON REPLACE
+        window.location.replace("index.html"); 
     }
 };
 
