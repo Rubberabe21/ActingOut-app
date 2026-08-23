@@ -5,16 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade</title>
 
-    <!-- ICONA WEB APP E PWA FULLSCREEN -->
+    <!-- ICONA WEB APP E PWA -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#060612">
-    <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <!-- SDK SUPABASE PER CLASSIFICA MONDIALE REALE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -51,7 +49,7 @@
             align-items: center;
         }
 
-        /* REGOLE FULLSCREEN MOBILE IDENTICHE A START.HTML */
+        /* STESSO LAYOUT FULLSCREEN MOBILE DI START.HTML */
         @media (max-width: 600px) {
             #game-wrapper {
                 position: fixed;
@@ -73,7 +71,7 @@
             height: 100%;
         }
 
-        /* BARRA SUPERIORE HTML ALLINEATA ALLA NOTCH IOS */
+        /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
         #top-header-bar {
             position: absolute;
             top: max(env(safe-area-inset-top), 8px);
@@ -335,11 +333,13 @@ if (!sessionStorage.getItem('arcade_session_active')) {
 </script>
 
 <div id="game-wrapper">
+    <!-- BARRA HEADER HTML -->
     <div id="top-header-bar">
         <button id="header-user-btn" class="header-btn">👤 LOGIN</button>
         <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
     </div>
 
+    <!-- MODAL GAMER CARD PROFILO LOCALE -->
     <div id="profile-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <div class="profile-card-header">
@@ -386,6 +386,7 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         </div>
     </div>
 
+    <!-- MODAL CLASSIFICA MONDIALE DINAMICA -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <h2 style="color:#00ffcc;">🌍 CLASSIFICA MONDIALE</h2>
@@ -410,6 +411,7 @@ if (!sessionStorage.getItem('arcade_session_active')) {
 </div>
 
 <script>
+// PARAMETRI SUPABASE REALI
 const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
 
@@ -418,6 +420,7 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
+// --- GESTIONE STATISTICHE E UTENTE ---
 class AuthManager {
     constructor() {
         this.currentUser = null;
@@ -452,7 +455,7 @@ class AuthManager {
     getRankInfo() {
         let totalPts = 0;
         if (this.currentUser) {
-            let s = auth.currentUser.stats;
+            let s = this.currentUser.stats;
             totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
         }
 
@@ -500,6 +503,7 @@ document.getElementById('header-score-btn').addEventListener('click', () => {
     openProfileModal();
 });
 
+// --- SCENA PRINCIPALE PHASER ---
 class MainHub extends Phaser.Scene {
     constructor() {
         super({ key: 'MainHub' });
@@ -508,7 +512,6 @@ class MainHub extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
-
         this.load.video('npc_video', 'assets/hub/personaggio.webm', 'loadeddata', false, true);
         this.load.video('gabri_video', 'assets/hub/gabri.webm', 'loadeddata', false, true);
         this.load.video('raffa_video', 'assets/hub/raffa.webm', 'loadeddata', false, true);
@@ -531,8 +534,8 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        const vWidth = this.scale.width;
-        const vHeight = this.scale.height;
+        const vWidth = 360;
+        const vHeight = 740;
 
         let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
         let bgScale = vHeight / bg.height;
@@ -541,16 +544,16 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        /* VIDEO WEBM RENDERIZZATI IN WEBGL CON ADDITIVE BLENDMODE PER AZZERARE LO SFONDO NERO */
-        this.gabri = this.add.video(150, vHeight * 0.75, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        // RENDER DEI WEBM IN WEBGL CON BLENDMODE ADD (ELIMINA IL NERO SU SAFARI/IOS)
+        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         this.gabri.setBlendMode(Phaser.BlendModes.ADD);
         this.gabri.play(true); this.gabri.setMute(true);
 
-        this.npc = this.add.video(860, vHeight * 0.76, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         this.npc.setBlendMode(Phaser.BlendModes.ADD);
         this.npc.play(true); this.npc.setMute(true);
 
-        this.raffa = this.add.video(2210, vHeight * 0.77, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
         this.raffa.setBlendMode(Phaser.BlendModes.ADD);
         this.raffa.play(true); this.raffa.setMute(true);
 
@@ -560,7 +563,7 @@ class MainHub extends Phaser.Scene {
         let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
         let savedY = parseFloat(localStorage.getItem('arcade_player_y'));
         let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
-        let startY = (!isNaN(savedY) && savedY > 0) ? savedY : (vHeight * 0.77);
+        let startY = (!isNaN(savedY) && savedY > 0) ? savedY : 568;
 
         this.player = this.physics.add.sprite(startX, startY, 'player');
         this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
@@ -581,15 +584,13 @@ class MainHub extends Phaser.Scene {
 
         updateHeaderDOM();
 
-        let cabY = vHeight * 0.74;
-        let badgeY = vHeight * 0.45;
-
+        // Configurazione Cabinati
         this.cabinets = [
-            { x: 1471, y: cabY, badgeX: 1471, badgeY: badgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "invaders.html" },
-            { x: 1610, y: cabY, badgeX: 1610, badgeY: badgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "pacman.html" },
-            { x: 1742, y: cabY, badgeX: 1742, badgeY: badgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "PixelPunch.html" },
-            { x: 1882, y: cabY, badgeX: 1882, badgeY: badgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "frogger.html" },
-            { x: 2800, y: cabY, badgeX: 2800, badgeY: badgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
+            { x: 1471, y: 548, badgeX: 1471, badgeY: 330, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "invaders.html" },
+            { x: 1610, y: 548, badgeX: 1610, badgeY: 330, title: "CYBER RUN", key: "cyberRun", type: "game", url: "pacman.html" },
+            { x: 1742, y: 548, badgeX: 1742, badgeY: 330, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "PixelPunch.html" },
+            { x: 1882, y: 548, badgeX: 1882, badgeY: 330, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "frogger.html" },
+            { x: 2800, y: 548, badgeX: 2800, badgeY: 330, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
         this.cabinetSprites = [];
@@ -875,7 +876,7 @@ class MainHub extends Phaser.Scene {
         let activeCabinet = null;
 
         if (distGabri < 70) {
-            this.infoBox.setPosition(this.gabri.x, this.scale.height * 0.45);
+            this.infoBox.setPosition(this.gabri.x, 330);
             this.boxTitleText.setText("Gabri");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
@@ -883,7 +884,7 @@ class MainHub extends Phaser.Scene {
         }
 
         if (distNpc < 70) {
-            this.infoBox.setPosition(this.npc.x, this.scale.height * 0.45);
+            this.infoBox.setPosition(this.npc.x, 330);
             this.boxTitleText.setText("Giovannone");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
@@ -891,7 +892,7 @@ class MainHub extends Phaser.Scene {
         }
 
         if (distRaffa < 70) {
-            this.infoBox.setPosition(this.raffa.x, this.scale.height * 0.45);
+            this.infoBox.setPosition(this.raffa.x, 330);
             this.boxTitleText.setText("Raffa");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
@@ -926,16 +927,11 @@ class MainHub extends Phaser.Scene {
 
 let activeScene = null;
 
-/* RESIZE DINAMICO PER PHASER: RIEMPIE AL 100% IL WRAPPER FIXED SENZA LASCIARE BANDE NERE */
+// RENDERER IMPOSTATO ESPLICITAMENTE A WEBGL
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
-    backgroundColor: '#060612',
-    scale: { 
-        mode: Phaser.Scale.RESIZE, 
-        width: '100%', 
-        height: '100%' 
-    },
+    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
 };
