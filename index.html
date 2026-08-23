@@ -380,7 +380,7 @@ class BlackKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
                 void main() {
                     vec4 texColor = texture2D(uMainSampler, outTexCoord);
                     float brightness = max(texColor.r, max(texColor.g, texColor.b));
-                    if (brightness < 0.02) {
+                    if (brightness < 0.07) {
                         discard;
                     } else {
                         gl_FragColor = texColor * outTint;
