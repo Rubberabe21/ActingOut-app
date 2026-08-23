@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agency Arcade</title>
+
+    <!-- ICONA WEB APP E PWA -->
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="apple-touch-icon" href="assets/icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <!-- SDK SUPABASE PER CLASSIFICA MONDIALE REALE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -73,7 +82,7 @@
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
-        /* OVERLAY HTML PROFILO */
+        /* OVERLAY HTML PROFILO E CLASSIFICHE */
         .auth-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -122,6 +131,12 @@
             align-items: center;
             font-size: 22px;
             box-shadow: 0 0 10px #ff0055;
+            overflow: hidden;
+        }
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .profile-rank-title {
             color: #ffff00;
@@ -197,6 +212,67 @@
             font-weight: bold;
         }
 
+        /* TABS E TABELLA CLASSIFICA MONDIALE */
+        .tab-selector {
+            display: flex;
+            justify-content: space-around;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        .tab-btn {
+            background: #101528;
+            border: 1px solid #00ffcc;
+            color: #00ffcc;
+            font-size: 9px;
+            padding: 5px 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-btn.active {
+            background: #ff0055;
+            color: #fff;
+            border-color: #ff0055;
+            box-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
+        }
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 10px 0;
+            max-height: 190px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        .leaderboard-row {
+            background: #04040a;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 6px;
+            padding: 6px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .leaderboard-row .rank-pos {
+            color: #ffff00;
+            font-size: 11px;
+            font-weight: bold;
+            width: 24px;
+        }
+        .leaderboard-row .player-name {
+            color: #ffffff;
+            font-size: 11px;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .leaderboard-row .score-val {
+            color: #00ffcc;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
         .auth-btn {
             width: 100%;
             padding: 10px;
@@ -227,19 +303,29 @@
 </head>
 <body>
 
+<script>
+// SE SI AGGIORNA LA PAGINA (RELOAD), REINDIRIZZA SEMPRE A START.HTML
+if (!sessionStorage.getItem('arcade_session_active')) {
+    window.location.href = 'start.html';
+} else {
+    // Consuma il flag così che un refresh successivo rimandi a start.html
+    sessionStorage.removeItem('arcade_session_active');
+}
+</script>
+
 <div id="game-wrapper">
-    <!-- BARRA HEADER HTML PERFETTAMENTE CLICCABILE -->
+    <!-- BARRA HEADER HTML -->
     <div id="top-header-bar">
         <button id="header-user-btn" class="header-btn">👤 LOGIN</button>
         <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
     </div>
 
-    <!-- MODAL GAMER CARD PROFILO -->
+    <!-- MODAL GAMER CARD PROFILO LOCALE -->
     <div id="profile-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <div class="profile-card-header">
                 <div class="profile-avatar-row">
-                    <div class="profile-avatar">👾</div>
+                    <div class="profile-avatar" id="profile-avatar-box">👾</div>
                     <div>
                         <div id="profile-rank" class="profile-rank-title">ROOKIE 🐣</div>
                         <div id="profile-username" class="profile-username">PLAYER_1</div>
@@ -282,11 +368,40 @@
         </div>
     </div>
 
+    <!-- MODAL CLASSIFICA MONDIALE DINAMICA -->
+    <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
+        <div class="auth-box">
+            <h2 style="color:#00ffcc;">🌍 CLASSIFICA MONDIALE</h2>
+
+            <div class="tab-selector">
+                <button class="tab-btn active" id="tab-feedbackInvaders" onclick="switchLBTab('feedbackInvaders')">INVADERS</button>
+                <button class="tab-btn" id="tab-cyberRun" onclick="switchLBTab('cyberRun')">CYBER RUN</button>
+                <button class="tab-btn" id="tab-pixelPunch" onclick="switchLBTab('pixelPunch')">PUNCH</button>
+                <button class="tab-btn" id="tab-deadlineDrive" onclick="switchLBTab('deadlineDrive')">DODGE</button>
+            </div>
+
+            <div class="leaderboard-list" id="lb-records-list">
+                <div class="leaderboard-row"><span class="player-name">Caricamento classifiche...</span></div>
+            </div>
+
+            <button id="lb-close-btn" class="auth-btn">CHIUDI CLASSIFICA</button>
+        </div>
+    </div>
+
     <div id="game-container"></div>
     <div class="crt-overlay"></div>
 </div>
 
 <script>
+// PARAMETRI SUPABASE REALI
+const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtLMpejqT7nsew_Ivhd7...";
+
+let supabaseClient = null;
+if (window.supabase && SUPABASE_URL.includes("supabase.co")) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 // --- GESTIONE STATISTICHE E UTENTE ---
 class AuthManager {
     constructor() {
@@ -307,7 +422,7 @@ class AuthManager {
             if (this.currentUser.stats.pixelPunch === undefined) this.currentUser.stats.pixelPunch = 0;
             if (this.currentUser.stats.deadlineDrive === undefined) this.currentUser.stats.deadlineDrive = 0;
         } else {
-            this.loginAsGuest();
+            window.location.href = 'start.html';
         }
     }
 
@@ -317,34 +432,6 @@ class AuthManager {
 
     saveUsers(users) {
         localStorage.setItem('arcade_users', JSON.stringify(users));
-    }
-
-    loginAsGuest() {
-        this.currentUser = {
-            username: "GUEST_" + Math.floor(Math.random() * 900 + 100),
-            stats: { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 }
-        };
-        localStorage.setItem('arcade_current_user', JSON.stringify(this.currentUser));
-    }
-
-    updateStat(gameKey, addPoints) {
-        if (!this.currentUser) return;
-        this.currentUser.stats.gamesPlayed++;
-        if (gameKey && this.currentUser.stats[gameKey] !== undefined) {
-            this.currentUser.stats[gameKey] += addPoints;
-        }
-
-        localStorage.setItem('arcade_current_user', JSON.stringify(this.currentUser));
-
-        if (!this.currentUser.username.startsWith("GUEST_")) {
-            let users = this.getUsers();
-            if (users[this.currentUser.username]) {
-                users[this.currentUser.username].stats = this.currentUser.stats;
-                this.saveUsers(users);
-            }
-        }
-
-        updateHeaderDOM();
     }
 
     getRankInfo() {
@@ -363,7 +450,7 @@ class AuthManager {
 
     logout() {
         localStorage.removeItem('arcade_current_user');
-        window.location.href = 'login.html';
+        window.location.href = 'start.html';
     }
 }
 
@@ -372,8 +459,8 @@ const auth = new AuthManager();
 function updateHeaderDOM() {
     const userBtn = document.getElementById('header-user-btn');
     const scoreBtn = document.getElementById('header-score-btn');
-    
-    if (auth.currentUser && !auth.currentUser.username.startsWith("GUEST_")) {
+
+    if (auth.currentUser && auth.currentUser.username) {
         userBtn.innerText = "👤 " + auth.currentUser.username;
     } else {
         userBtn.innerText = "👤 LOGIN";
@@ -386,10 +473,9 @@ function updateHeaderDOM() {
     }
 }
 
-// BINDING EVENTI CLICK SULLA HEADER BAR PER APRIRE IL PROFILO
 document.getElementById('header-user-btn').addEventListener('click', () => {
-    if (!auth.currentUser || auth.currentUser.username.startsWith("GUEST_")) {
-        window.location.href = 'login.html';
+    if (!auth.currentUser) {
+        window.location.href = 'start.html';
     } else {
         openProfileModal();
     }
@@ -453,16 +539,16 @@ class MainHub extends Phaser.Scene {
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
         this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
 
+        // CALCOLO POSIZIONE INIZIALE: SE È LA PRIMA VOLTA, IL GIOCATORE PARTE AD AD UN TERZO (1/3) DELLO SFONDO
         let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
         let savedY = parseFloat(localStorage.getItem('arcade_player_y'));
-        let startX = (!isNaN(savedX) && savedX > 0) ? savedX : 100;
+        let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
         let startY = (!isNaN(savedY) && savedY > 0) ? savedY : 568;
 
         this.player = this.physics.add.sprite(startX, startY, 'player');
         this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
         this.player.play('idle');
 
-        // Logo Animato
         let logo = this.add.image(vWidth / 2, 85, 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
         logo.setDisplaySize(280, (logo.height / logo.width) * 280);
 
@@ -484,7 +570,7 @@ class MainHub extends Phaser.Scene {
             { x: 1610, y: 548, badgeX: 1610, badgeY: 330, title: "CYBER RUN", key: "cyberRun", type: "game", url: "pacman.html" },
             { x: 1742, y: 548, badgeX: 1742, badgeY: 330, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "PixelPunch.html" },
             { x: 1882, y: 548, badgeX: 1882, badgeY: 330, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "frogger.html" },
-            { x: 2800, y: 548, badgeX: 2800, badgeY: 330, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: "leaderboard.html" }
+            { x: 2800, y: 548, badgeX: 2800, badgeY: 330, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
         this.cabinetSprites = [];
@@ -495,7 +581,7 @@ class MainHub extends Phaser.Scene {
             this.cabinetSprites.push(sprite);
         });
 
-        // BADGE INTERATTIVO CHE MOSTRA IL RECORD DEL SINGOLO GIOCO
+        // BADGE INTERATTIVO RECORD LOCALE
         this.infoBox = this.add.container(0, 0).setDepth(80);
         let boxBg = this.add.graphics();
         boxBg.fillStyle(0x050515, 0.95);
@@ -503,17 +589,8 @@ class MainHub extends Phaser.Scene {
         boxBg.fillRoundedRect(-85, -22, 170, 44, 10);
         boxBg.strokeRoundedRect(-85, -22, 170, 44, 10);
 
-        this.boxTitleText = this.add.text(0, -9, "", {
-            font: "bold 10px monospace",
-            fill: "#ffff00",
-            align: "center"
-        }).setOrigin(0.5);
-
-        this.boxActionText = this.add.text(0, 9, "GIOCA 🕹️", {
-            font: "bold 10px monospace",
-            fill: "#00ffcc",
-            align: "center"
-        }).setOrigin(0.5);
+        this.boxTitleText = this.add.text(0, -9, "", { font: "bold 10px monospace", fill: "#ffff00", align: "center" }).setOrigin(0.5);
+        this.boxActionText = this.add.text(0, 9, "GIOCA 🕹️", { font: "bold 10px monospace", fill: "#00ffcc", align: "center" }).setOrigin(0.5);
 
         this.infoBox.add([boxBg, this.boxTitleText, this.boxActionText]);
         this.infoBox.setSize(170, 44);
@@ -525,8 +602,6 @@ class MainHub extends Phaser.Scene {
         this.infoBox.setVisible(false);
 
         this.createDialogueSystem();
-        this.createInGameModal(vWidth, vHeight);
-
         this.cameras.main.setBounds(0, 0, worldWidth, vHeight);
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 
@@ -540,17 +615,8 @@ class MainHub extends Phaser.Scene {
     createDialogueSystem() {
         this.dialogueContainer = this.add.container(0, 0).setDepth(160);
         this.dialogueBg = this.add.graphics();
-        this.dialogueText = this.add.text(0, 0, "", {
-            font: "bold 12px monospace",
-            fill: "#0b0c10",
-            align: "center",
-            wordWrap: { width: 180 }
-        }).setOrigin(0.5);
-
-        this.dialoguePrompt = this.add.text(0, 0, "► TAP", {
-            font: "bold 10px monospace",
-            fill: "#ff0055"
-        }).setOrigin(0.5);
+        this.dialogueText = this.add.text(0, 0, "", { font: "bold 12px monospace", fill: "#0b0c10", align: "center", wordWrap: { width: 180 } }).setOrigin(0.5);
+        this.dialoguePrompt = this.add.text(0, 0, "► TAP", { font: "bold 10px monospace", fill: "#ff0055" }).setOrigin(0.5);
 
         this.dialogueContainer.add([this.dialogueBg, this.dialogueText, this.dialoguePrompt]);
         this.dialogueContainer.setVisible(false);
@@ -621,7 +687,7 @@ class MainHub extends Phaser.Scene {
     showDialogueLine() {
         let line = this.npcLines[this.dialogueIndex];
         this.dialogueText.setText(line);
-        
+
         let boxW = 200;
         let boxH = this.dialogueText.height + 40;
         if (boxH < 65) boxH = 65;
@@ -654,73 +720,6 @@ class MainHub extends Phaser.Scene {
     closeDialogue() {
         this.isDialogueOpen = false;
         this.dialogueContainer.setVisible(false);
-    }
-
-    createInGameModal(vWidth, vHeight) {
-        this.modalContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(200);
-        
-        let overlay = this.add.graphics();
-        overlay.fillStyle(0x000000, 0.78);
-        overlay.fillRect(0, 0, vWidth, vHeight);
-        overlay.setInteractive(new Phaser.Geom.Rectangle(0, 0, vWidth, vHeight), Phaser.Geom.Rectangle.Contains);
-        overlay.on('pointerdown', (pointer, localX, localY, event) => {
-            if (event) event.stopPropagation();
-            this.closeModal();
-        });
-
-        let modalBox = this.add.graphics();
-        modalBox.fillStyle(0x090918, 0.96);
-        modalBox.lineStyle(3, 0xff0055, 1);
-        modalBox.fillRoundedRect(30, 220, 300, 240, 16);
-        modalBox.strokeRoundedRect(30, 220, 300, 240, 16);
-
-        modalBox.lineStyle(1, 0x00ffcc, 0.6);
-        modalBox.strokeRoundedRect(36, 226, 288, 228, 12);
-        modalBox.setInteractive(new Phaser.Geom.Rectangle(30, 220, 300, 240), Phaser.Geom.Rectangle.Contains);
-
-        this.modalTitle = this.add.text(vWidth / 2, 260, "", {
-            font: "bold 18px monospace", fill: "#ffff00", align: "center", wordWrap: { width: 260 }
-        }).setOrigin(0.5);
-
-        this.modalDesc = this.add.text(vWidth / 2, 310, "Vuoi iniziare a giocare?", {
-            font: "13px monospace", fill: "#ffffff", align: "center"
-        }).setOrigin(0.5);
-
-        let btnPlay = this.add.container(vWidth / 2 - 60, 390);
-        let gPlay = this.add.graphics();
-        gPlay.fillStyle(0xff0055, 0.95);
-        gPlay.fillRoundedRect(-45, -18, 90, 36, 8);
-        let tPlay = this.add.text(0, 0, "AVVIA", { font: "bold 13px monospace", fill: "#ffffff" }).setOrigin(0.5);
-        btnPlay.add([gPlay, tPlay]);
-        btnPlay.setInteractive(new Phaser.Geom.Rectangle(-45, -18, 90, 36), Phaser.Geom.Rectangle.Contains);
-        
-        btnPlay.on('pointerup', (pointer, localX, localY, event) => {
-            if (event) event.stopPropagation();
-            if (this.activeTargetUrl) window.location.href = this.activeTargetUrl;
-        });
-
-        let btnClose = this.add.container(vWidth / 2 + 60, 390);
-        let gClose = this.add.graphics();
-        gClose.fillStyle(0x1a1a2e, 0.95);
-        gClose.lineStyle(2, 0x00ffcc, 0.9);
-        gClose.fillRoundedRect(-45, -18, 90, 36, 8);
-        gClose.strokeRoundedRect(-45, -18, 90, 36, 8);
-        let tClose = this.add.text(0, 0, "CHIUDI", { font: "bold 13px monospace", fill: "#00ffcc" }).setOrigin(0.5);
-        btnClose.add([gClose, tClose]);
-        btnClose.setInteractive(new Phaser.Geom.Rectangle(-45, -18, 90, 36), Phaser.Geom.Rectangle.Contains);
-        btnClose.on('pointerup', (pointer, localX, localY, event) => {
-            if (event) event.stopPropagation();
-            this.closeModal();
-        });
-
-        this.modalContainer.add([overlay, modalBox, this.modalTitle, this.modalDesc, btnPlay, btnClose]);
-        this.modalContainer.setVisible(false);
-        this.isModalOpen = false;
-    }
-
-    closeModal() {
-        this.modalContainer.setVisible(false);
-        this.isModalOpen = false;
     }
 
     setupTouchControls(width, height) {
@@ -792,7 +791,6 @@ class MainHub extends Phaser.Scene {
 
     interact() {
         if (this.isDialogueOpen) { this.advanceDialogue(); return; }
-        if (this.isModalOpen) { this.closeModal(); return; }
 
         let distGabri = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y);
         if (distGabri < 70) { this.startDialogue('gabri'); return; }
@@ -806,7 +804,12 @@ class MainHub extends Phaser.Scene {
         for (let cab of this.cabinetSprites) {
             let dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y);
             if (dist < 60) {
-                if (cab.gameData.url) window.location.href = cab.gameData.url;
+                if (cab.gameData.type === "leaderboard") {
+                    openLeaderboardModal('feedbackInvaders');
+                } else if (cab.gameData.url) {
+                    sessionStorage.setItem('arcade_session_active', 'true');
+                    window.location.href = cab.gameData.url;
+                }
                 return;
             }
         }
@@ -815,11 +818,10 @@ class MainHub extends Phaser.Scene {
     update() {
         if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
             if (this.isDialogueOpen) this.closeDialogue();
-            if (this.isModalOpen) this.closeModal();
             return;
         }
 
-        if (this.isModalOpen || this.isDialogueOpen) {
+        if (this.isDialogueOpen) {
             this.player.setVelocityX(0);
             this.player.play('idle', true);
             this.infoBox.setVisible(false);
@@ -892,7 +894,7 @@ class MainHub extends Phaser.Scene {
             this.boxTitleText.setText(data.title);
 
             if (data.type === "leaderboard") {
-                this.boxActionText.setText("ENTRA 🏆");
+                this.boxActionText.setText("VEDI RECORD 🏆");
             } else {
                 let myRecord = (auth.currentUser && auth.currentUser.stats) ? (auth.currentUser.stats[data.key] || 0) : 0;
                 this.boxActionText.setText(`REC: ${myRecord} PTS | GIOCA 🕹️`);
@@ -909,26 +911,14 @@ let activeScene = null;
 const config = {
     type: Phaser.AUTO,
     parent: 'game-container',
-    scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 360,
-        height: 740
-    },
-    physics: {
-        default: 'arcade',
-        arcade: { gravity: { y: 0 }, debug: false }
-    },
+    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
+    physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
 };
 
 const game = new Phaser.Game(config);
 
-game.events.on('ready', () => {
-    activeScene = game.scene.getScene('MainHub');
-});
-
-const profileModal = document.getElementById('profile-modal');
+let currentLBGameKey = 'feedbackInvaders';
 
 function openProfileModal() {
     if (!auth.currentUser) return;
@@ -939,22 +929,94 @@ function openProfileModal() {
     document.getElementById('profile-rank').innerText = rank.title;
     document.getElementById('profile-xp-fill').style.width = rank.xpPct + '%';
 
+    const avatarBox = document.getElementById('profile-avatar-box');
+    if (auth.currentUser.avatar) {
+        avatarBox.innerHTML = `<img src="${auth.currentUser.avatar}" alt="Avatar">`;
+    } else {
+        avatarBox.innerText = "👾";
+    }
+
     document.getElementById('stat-invaders').innerText = (s.feedbackInvaders || 0).toLocaleString() + " PTS";
     document.getElementById('stat-cyber').innerText = (s.cyberRun || 0).toLocaleString() + " PTS";
     document.getElementById('stat-punch').innerText = (s.pixelPunch || 0).toLocaleString() + " PTS";
     document.getElementById('stat-dodge').innerText = (s.deadlineDrive || 0).toLocaleString() + " PTS";
 
-    let totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
-    document.getElementById('badge-1').classList.toggle('unlocked', (s.gamesPlayed || 0) > 0);
-    document.getElementById('badge-2').classList.toggle('unlocked', totalPts >= 100);
-    document.getElementById('badge-3').classList.toggle('unlocked', totalPts >= 500);
-    document.getElementById('badge-4').classList.toggle('unlocked', totalPts >= 1000);
+    document.getElementById('profile-modal').style.display = 'flex';
+}
 
-    profileModal.style.display = 'flex';
+async function openLeaderboardModal(gameKey) {
+    if (gameKey) currentLBGameKey = gameKey;
+    document.getElementById('leaderboard-modal').style.display = 'flex';
+    await fetchLeaderboardFromSupabase(currentLBGameKey);
+}
+
+async function fetchLeaderboardFromSupabase(gameKey) {
+    currentLBGameKey = gameKey;
+
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    let activeTabBtn = document.getElementById('tab-' + gameKey);
+    if (activeTabBtn) activeTabBtn.classList.add('active');
+
+    const listEl = document.getElementById('lb-records-list');
+    listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Caricamento classifiche...</span></div>';
+
+    let records = [];
+
+    if (supabaseClient) {
+        try {
+            let { data, error } = await supabaseClient
+                .from('leaderboard')
+                .select('username, score')
+                .eq('game_key', gameKey)
+                .order('score', { ascending: false })
+                .limit(10);
+
+            if (!error && data) {
+                records = data;
+            }
+        } catch (e) {
+            console.warn("Supabase non raggiungibile.");
+        }
+    }
+
+    if (records.length === 0) {
+        let users = auth.getUsers();
+        for (let uname in users) {
+            let sc = users[uname].stats ? (users[uname].stats[gameKey] || 0) : 0;
+            if (sc > 0) records.push({ username: uname, score: sc });
+        }
+        if (auth.currentUser && auth.currentUser.stats) {
+            let mySc = auth.currentUser.stats[gameKey] || 0;
+            if (mySc > 0 && !records.some(r => r.username === auth.currentUser.username)) {
+                records.push({ username: auth.currentUser.username, score: mySc });
+            }
+        }
+        records.sort((a, b) => b.score - a.score);
+    }
+
+    if (records.length === 0) {
+        listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Nessun record registrato per questo gioco!</span></div>';
+    } else {
+        listEl.innerHTML = records.map((r, i) => `
+            <div class="leaderboard-row">
+                <span class="rank-pos">#${i + 1}</span>
+                <span class="player-name">${r.username}</span>
+                <span class="score-val">${r.score.toLocaleString()} PTS</span>
+            </div>
+        `).join('');
+    }
+}
+
+function switchLBTab(gameKey) {
+    fetchLeaderboardFromSupabase(gameKey);
 }
 
 document.getElementById('profile-close-btn').addEventListener('click', () => {
-    profileModal.style.display = 'none';
+    document.getElementById('profile-modal').style.display = 'none';
+});
+
+document.getElementById('lb-close-btn').addEventListener('click', () => {
+    document.getElementById('leaderboard-modal').style.display = 'none';
 });
 
 document.getElementById('profile-logout-btn').addEventListener('click', () => {

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agency Arcade - Benvenuto</title>
+
+    <!-- ICONA WEB APP E PWA -->
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <link rel="apple-touch-icon" href="assets/icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- SDK SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #030305;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #app-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 360px;
+            max-height: 740px;
+            background: #060612;
+            box-shadow: 0 0 35px rgba(255, 0, 85, 0.25);
+            border: 1px solid rgba(255, 0, 85, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* LANDING PAGE INIZIALE */
+        #landing-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 24px;
+            text-align: center;
+            gap: 12px;
+        }
+        .main-logo {
+            width: 250px;
+            height: auto;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 204, 0.4));
+            animation: floatLogo 2s ease-in-out infinite alternate;
+        }
+        @keyframes floatLogo {
+            0% { transform: translateY(0px) scale(1); }
+            100% { transform: translateY(-8px) scale(1.02); }
+        }
+        .arcade-main-btn {
+            width: 85%;
+            padding: 14px;
+            background: linear-gradient(180deg, #ff0055 0%, #b3003b 100%);
+            border: 2px solid #ffffff;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 1.2px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 0 18px rgba(255, 0, 85, 0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+            transition: transform 0.1s;
+        }
+        .arcade-main-btn:active { transform: scale(0.95); }
+        .arcade-secondary-btn {
+            width: 85%;
+            padding: 12px;
+            background: #101528;
+            border: 1.5px solid #00ffcc;
+            color: #00ffcc;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+        .arcade-secondary-btn:active { transform: scale(0.95); }
+
+        /* MODAL LOGIN */
+        #login-modal {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 3, 10, 0.95);
+            z-index: 180;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 310px;
+            background: #090918;
+            border: 2px solid #ff0055;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* ONBOARDING GIOVANNONE */
+        #onboarding-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 16px;
+            background-color: #060612;
+        }
+
+        /* CONTENITORE CENTRALE NUVOLETTA + GIOVANNONE */
+        .center-stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            gap: 12px;
+        }
+
+        /* NUVOLETTA DIALOGO STILE INDEX */
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border: 3px solid #00ffcc;
+            border-radius: 16px;
+            padding: 14px 16px;
+            color: #000000;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            width: 100%;
+            z-index: 10;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 13px 11px 0;
+            border-style: solid;
+            border-color: #ffffff transparent;
+            display: block;
+            width: 0;
+            z-index: 2;
+        }
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -17px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 16px 13px 0;
+            border-style: solid;
+            border-color: #00ffcc transparent;
+            display: block;
+            width: 0;
+            z-index: 1;
+        }
+        .npc-title {
+            color: #ff0055;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            text-align: left;
+        }
+        
+        .dialogue-text {
+            color: #000000;
+            font-size: 14px;
+            line-height: 1.4;
+            font-weight: 800;
+            min-height: 52px;
+            text-align: left;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .npc-stage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            overflow: hidden;
+        }
+        .npc-video {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 204, 0.3));
+        }
+
+        .input-group {
+            margin-top: 6px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .arcade-input {
+            width: 100%;
+            padding: 12px;
+            background: #04040a;
+            border: 2px solid #ff0055;
+            color: #00ffcc;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* GRIGLIA SELEZIONE AVATAR ESPANSA */
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            max-height: 460px;
+            overflow-y: auto;
+            padding: 6px;
+            background: #04040a;
+            border: 2px solid #00ffcc;
+            box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2), 0 0 15px rgba(0, 255, 204, 0.3);
+            border-radius: 12px;
+            margin-bottom: 4px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .avatar-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .avatar-grid::-webkit-scrollbar-track {
+            background: #060612;
+            border-radius: 4px;
+        }
+        .avatar-grid::-webkit-scrollbar-thumb {
+            background: #00ffcc;
+            border-radius: 4px;
+            box-shadow: 0 0 8px #00ffcc;
+        }
+
+        .avatar-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            border: 2px solid #1a1a3a;
+            background: #0c0c20;
+            cursor: pointer;
+            object-fit: cover;
+            transition: all 0.15s ease-in-out;
+        }
+        .avatar-option.selected {
+            border-color: #00ffcc;
+            box-shadow: 0 0 12px #00ffcc;
+            transform: scale(1.08);
+            z-index: 5;
+        }
+
+        .arcade-next-btn {
+            width: 100%;
+            padding: 13px;
+            background: #00ffcc;
+            border: none;
+            color: #000000;
+            font-size: 14px;
+            font-weight: 900;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.5);
+            transition: opacity 0.2s ease, transform 0.1s ease;
+        }
+        .arcade-next-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none !important;
+        }
+        .arcade-next-btn:active:not(:disabled) { transform: scale(0.96); }
+
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 6px 100%;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-wrapper">
+    <!-- LANDING PAGE -->
+    <div id="landing-screen">
+        <img src="assets/hub/logo.png" alt="Agency Arcade Logo" class="main-logo">
+        <div id="action-buttons-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;"></div>
+    </div>
+
+    <!-- MODAL ACCEDI / LOGIN -->
+    <div id="login-modal">
+        <div class="login-box">
+            <h3 style="color:#ffff00; font-size:15px; margin-bottom:4px;">LOGIN GIOCATORE</h3>
+            <input type="text" id="login-username-input" class="arcade-input" placeholder="NOME UTENTE" maxlength="12">
+            <input type="password" id="login-password-input" class="arcade-input" placeholder="PASSWORD">
+            <button id="login-submit-btn" class="arcade-main-btn" style="width:100%; padding:10px;">ACCEDI</button>
+            <button id="login-cancel-btn" class="arcade-secondary-btn" style="width:100%;">ANNULLA</button>
+        </div>
+    </div>
+
+    <!-- ONBOARDING GIOVANNONE -->
+    <div id="onboarding-screen">
+        <div class="center-stage">
+            <div class="speech-bubble">
+                <div class="npc-title">💬 GIOVANNONE</div>
+                <div id="dialogue-text" class="dialogue-text"></div>
+            </div>
+
+            <div class="npc-stage" id="npc-stage-box">
+                <video id="giovannone-video" class="npc-video" autoplay loop muted playsinline>
+                    <source src="assets/hub/personaggio.webm" type="video/webm">
+                </video>
+            </div>
+        </div>
+
+        <div id="input-group" class="input-group">
+            <input type="text" id="arcade-input-field" class="arcade-input" autocomplete="off" placeholder="" style="display:none;">
+            <div id="avatar-grid" class="avatar-grid" style="display: none;"></div>
+            <button id="step-btn" class="arcade-next-btn">AVANTI ►</button>
+        </div>
+    </div>
+
+    <div class="crt-overlay"></div>
+</div>
+
+<script>
+// CONFIGURAZIONE SUPABASE (INCOLLA LA CHIAVE COMPLETA SENZA '...')
+const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtLMpejqT7nsew_Ivhd7..."; 
+
+let supabaseClient = null;
+if (window.supabase && SUPABASE_URL.includes("supabase.co")) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+// LISTA DI 102 AVATAR TESTE
+const AVATAR_LIST = Array.from({ length: 102 }, (_, i) => `assets/avatars/testa${i + 1}.png`);
+
+// SEQUENZA ESATTA DEI DIALOGHI
+const DIALOGUE_STEPS = [
+    { text: "Ehi! Non so se ti ricordi di me… sono Giovannone.", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "... ...", type: "none", btn: "AVANTI ►" },
+    { text: "... ... ...", type: "none", btn: "AVANTI ►" },
+    { text: "Va bene… partiamo benissimo.", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Comunque, io sono quello che affitta una stanza qui dentro.", type: "none", btn: "AVANTI ►" },
+    { text: "Non lavoro in studio, eh…", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Però ormai passo così tanto tempo qui che, a quanto pare, ho iniziato a dare consigli alla gente.", type: "none", btn: "AVANTI ►" },
+    { text: "E oggi…", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Evidentemente…", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "tocca a te.", type: "none", btn: "AVANTI ►" },
+    { text: "Perché sì…", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Parliamo un attimo di te.", type: "none", btn: "AVANTI ►" },
+    { text: "Chi sei?", type: "username", placeholder: "NOME UTENTE", btn: "CONFERMA NOME ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Che fai?", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "E soprattutto…", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "che personaggio sei?", type: "avatar", btn: "SCEGLI QUESTA TESTA ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Non ti preoccupare.", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Non serve una risposta filosofica.", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Mi bastano un paio di dati.", type: "none", btn: "AVANTI ►" },
+    { text: "Nome… faccia… qualche informazione su di te…", type: "password", placeholder: "PASSWORD", btn: "SALVA PASSWORD ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Insomma, le solite cose che servono per capire con chi abbiamo a che fare.", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Dai.", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "direi che abbiamo tutto", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Io intanto resto qui.", type: "none", btn: "AVANTI ►" },
+    { text: "Non perché lavori qui, eh…", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "anche se è un po come se lo fosse", type: "none", btn: "AVANTI ►" },
+    { text: "...", type: "none", btn: "AVANTI ►" },
+    { text: "Ora torno a lavoro, buon lavoro anche a te.", type: "finish", btn: "ENTRA NELLO STUDIO 🚀" }
+];
+
+function getSavedUser() {
+    try {
+        const u = localStorage.getItem('arcade_current_user');
+        return u ? JSON.parse(u) : null;
+    } catch(e) { return null; }
+}
+
+function getUsers() {
+    try {
+        return JSON.parse(localStorage.getItem('arcade_users')) || {};
+    } catch(e) { return {}; }
+}
+
+const landingScreen = document.getElementById('landing-screen');
+const onboardingScreen = document.getElementById('onboarding-screen');
+const loginModal = document.getElementById('login-modal');
+const actionButtonsContainer = document.getElementById('action-buttons-container');
+const npcStageBox = document.getElementById('npc-stage-box');
+
+const dialogueText = document.getElementById('dialogue-text');
+const inputField = document.getElementById('arcade-input-field');
+const avatarGrid = document.getElementById('avatar-grid');
+const stepBtn = document.getElementById('step-btn');
+
+function renderLandingButtons() {
+    const currentUser = getSavedUser();
+    const isLoggedIn = currentUser && currentUser.username && !currentUser.username.startsWith("GUEST_");
+
+    actionButtonsContainer.innerHTML = "";
+
+    if (isLoggedIn) {
+        const btnContinue = document.createElement('button');
+        btnContinue.className = "arcade-main-btn";
+        btnContinue.innerText = "CONTINUA ►";
+        btnContinue.onclick = () => {
+            sessionStorage.setItem('arcade_session_active', 'true');
+            window.location.href = "index.html";
+        };
+
+        const btnLogout = document.createElement('button');
+        btnLogout.className = "arcade-secondary-btn";
+        btnLogout.innerText = "ESCI 🚪";
+        btnLogout.onclick = () => {
+            localStorage.removeItem('arcade_current_user');
+            renderLandingButtons();
+        };
+
+        actionButtonsContainer.appendChild(btnContinue);
+        actionButtonsContainer.appendChild(btnLogout);
+    } else {
+        const btnStart = document.createElement('button');
+        btnStart.className = "arcade-main-btn";
+        btnStart.innerText = "INIZIA 🕹️";
+        btnStart.onclick = () => { startOnboarding(); };
+
+        const btnLogin = document.createElement('button');
+        btnLogin.className = "arcade-secondary-btn";
+        btnLogin.innerText = "ACCEDI / LOGIN 👤";
+        btnLogin.onclick = () => { loginModal.style.display = "flex"; };
+
+        actionButtonsContainer.appendChild(btnStart);
+        actionButtonsContainer.appendChild(btnLogin);
+    }
+}
+
+renderLandingButtons();
+
+// MODAL LOGIN CON AUTENTICAZIONE SUPABASE
+document.getElementById('login-cancel-btn').onclick = () => {
+    loginModal.style.display = "none";
+};
+
+document.getElementById('login-submit-btn').onclick = async () => {
+    const uVal = document.getElementById('login-username-input').value.trim();
+    const pVal = document.getElementById('login-password-input').value.trim();
+
+    if (!uVal || !pVal) { alert("Inserisci Nome Utente e Password!"); return; }
+
+    const defaultStats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
+    let loggedUser = null;
+
+    // 1. VERIFICA SU DATABASE SUPABASE
+    if (supabaseClient) {
+        try {
+            let { data, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('username', uVal)
+                .eq('password', pVal)
+                .maybeSingle();
+
+            if (data) {
+                loggedUser = {
+                    username: data.username,
+                    avatar: data.avatar || "assets/avatars/testa1.png",
+                    stats: data.stats || defaultStats
+                };
+            } else if (error) {
+                console.error("Errore lettura Supabase:", error);
+            }
+        } catch (e) { console.warn("Errore login Supabase:", e); }
+    }
+
+    // 2. FALLBACK SU LOCALSTORAGE
+    if (!loggedUser) {
+        let users = getUsers();
+        if (users[uVal] && users[uVal].password === pVal) {
+            loggedUser = {
+                username: uVal,
+                avatar: users[uVal].avatar || "assets/avatars/testa1.png",
+                stats: users[uVal].stats || defaultStats
+            };
+        }
+    }
+
+    if (loggedUser) {
+        localStorage.setItem('arcade_current_user', JSON.stringify(loggedUser));
+        sessionStorage.setItem('arcade_session_active', 'true');
+        window.location.href = "index.html";
+    } else {
+        alert("Credenziali errate o utente non trovato!");
+    }
+};
+
+// ONBOARDING ENGINE
+let currentStepIdx = 0;
+let tempUsername = "";
+let tempPassword = "";
+let tempAvatar = AVATAR_LIST[0];
+let isTyping = false;
+
+function startOnboarding() {
+    landingScreen.style.display = "none";
+    onboardingScreen.style.display = "flex";
+    currentStepIdx = 0;
+    renderStep();
+}
+
+function renderStep() {
+    const stepData = DIALOGUE_STEPS[currentStepIdx];
+    inputField.style.display = "none";
+    avatarGrid.style.display = "none";
+    inputField.value = "";
+
+    stepBtn.innerText = stepData.btn || "AVANTI ►";
+
+    if (stepData.type === "avatar") {
+        npcStageBox.style.display = "none";
+    } else {
+        npcStageBox.style.display = "flex";
+    }
+
+    typeWriter(stepData.text, () => {
+        if (stepData.type === "username") {
+            inputField.style.display = "block";
+            inputField.type = "text";
+            inputField.placeholder = stepData.placeholder;
+            inputField.maxLength = 12;
+            inputField.focus();
+        } else if (stepData.type === "password") {
+            inputField.style.display = "block";
+            inputField.type = "password";
+            inputField.placeholder = stepData.placeholder;
+            inputField.maxLength = 20;
+            inputField.focus();
+        } else if (stepData.type === "avatar") {
+            renderAvatarGrid();
+            avatarGrid.style.display = "grid";
+        }
+    });
+}
+
+function renderAvatarGrid() {
+    avatarGrid.innerHTML = "";
+    AVATAR_LIST.forEach((src) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.loading = "lazy";
+        img.className = `avatar-option ${src === tempAvatar ? 'selected' : ''}`;
+        img.onerror = () => { img.style.display = 'none'; };
+
+        img.onclick = () => {
+            tempAvatar = src;
+            document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+            img.classList.add('selected');
+        };
+        avatarGrid.appendChild(img);
+    });
+}
+
+stepBtn.onclick = async () => {
+    if (isTyping) return;
+
+    const stepData = DIALOGUE_STEPS[currentStepIdx];
+
+    if (stepData.type === "username") {
+        const val = inputField.value.trim();
+        if (!val) { alert("Inserisci un nome utente!"); return; }
+
+        if (supabaseClient) {
+            try {
+                let { data } = await supabaseClient.from('profiles').select('username').eq('username', val).maybeSingle();
+                if (data) { alert("Nome utente già esistente nel database!"); return; }
+            } catch (e) {}
+        }
+
+        let users = getUsers();
+        if (users[val]) { alert("Nome utente già esistente nel browser!"); return; }
+        tempUsername = val;
+
+    } else if (stepData.type === "password") {
+        const pass = inputField.value.trim();
+        if (!pass) { alert("Inserisci una password!"); return; }
+        tempPassword = pass;
+
+        const defaultStats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
+
+        // 1. CREAZIONE ACCOUNT SU DATABASE SUPABASE CON GESTIONE ERRORE
+        if (supabaseClient) {
+            try {
+                const { data, error } = await supabaseClient.from('profiles').upsert({
+                    username: tempUsername,
+                    password: tempPassword,
+                    avatar: tempAvatar,
+                    stats: defaultStats
+                });
+
+                if (error) {
+                    console.error("Errore salvataggio Supabase:", error.message, error.details);
+                } else {
+                    console.log("Profilo registrato con successo su Supabase!");
+                }
+            } catch (e) { console.warn("Eccezione Supabase:", e); }
+        }
+
+        // 2. SALVATAGGIO LOCALE
+        let users = getUsers();
+        users[tempUsername] = { password: tempPassword, avatar: tempAvatar, stats: defaultStats };
+        localStorage.setItem('arcade_users', JSON.stringify(users));
+
+        const newUser = { username: tempUsername, avatar: tempAvatar, stats: defaultStats };
+        localStorage.setItem('arcade_current_user', JSON.stringify(newUser));
+
+    } else if (stepData.type === "finish") {
+        sessionStorage.setItem('arcade_session_active', 'true');
+        window.location.href = "index.html";
+        return;
+    }
+
+    currentStepIdx++;
+    if (currentStepIdx < DIALOGUE_STEPS.length) {
+        renderStep();
+    } else {
+        sessionStorage.setItem('arcade_session_active', 'true');
+        window.location.href = "index.html";
+    }
+};
+
+function typeWriter(text, onComplete) {
+    isTyping = true;
+    stepBtn.disabled = true;
+
+    dialogueText.textContent = "";
+    let i = 0;
+    const speed = 18;
+
+    function type() {
+        if (i < text.length) {
+            dialogueText.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        } else {
+            isTyping = false;
+            stepBtn.disabled = false;
+            if (onComplete) onComplete();
+        }
+    }
+    type();
+}
+</script>
+</body>
+</html>
