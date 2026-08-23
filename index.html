@@ -27,7 +27,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #060612; /* Sfondo identico all'app per evitare bordi neri */
+            background-color: #060612;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -48,7 +48,7 @@
             align-items: center;
         }
 
-        /* IDENTICA REGOLA CSS FULLSCREEN DI START.HTML */
+        /* REGOLE FULLSCREEN PER SMARTPHONE (IDENTICHE A START.HTML) */
         @media (max-width: 600px) {
             #game-wrapper {
                 position: fixed;
@@ -70,7 +70,7 @@
             height: 100%;
         }
 
-        /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
+        /* BARRA SUPERIORE HTML */
         #top-header-bar {
             position: absolute;
             top: max(env(safe-area-inset-top), 8px);
@@ -104,6 +104,7 @@
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
+        /* OVERLAY HTML PROFILO E CLASSIFICHE */
         .auth-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -537,6 +538,7 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
+        // VIDEO WEBM RENDERIZZATI IN WEBGL CON BLENDMODE ADD
         this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         this.gabri.setBlendMode(Phaser.BlendModes.ADD);
         this.gabri.play(true); this.gabri.setMute(true);
@@ -918,10 +920,11 @@ class MainHub extends Phaser.Scene {
 
 let activeScene = null;
 
+/* EXACT_FIT STIRA IL CANVAS A 100% LARGHEZZA E ALTEZZA DEL CONTENITORE FIXED */
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
+    scale: { mode: Phaser.Scale.EXACT_FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
 };
