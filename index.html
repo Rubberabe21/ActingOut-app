@@ -16,7 +16,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
         * {
             box-sizing: border-box;
@@ -25,12 +24,12 @@
             touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
         }
-
         html, body {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             background-color: #060612;
             display: flex;
@@ -38,7 +37,6 @@
             align-items: center;
             touch-action: none;
         }
-
         #game-wrapper {
             position: relative;
             width: 100%;
@@ -63,21 +61,27 @@
                 left: 0;
                 right: 0;
                 width: 100vw;
-                height: 100%;
-                max-width: none;
-                max-height: none;
+                height: 100dvh;
+                max-width: 100vw;
+                max-height: 100dvh;
                 border: none;
                 box-shadow: none;
             }
         }
-        
+
         #game-container {
             width: 100%;
             height: 100%;
             overflow: hidden;
         }
 
-        /* BARRA SUPERIORE HTML */
+        #game-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* BARRA SUPERIORE HTML AD ALTA CLICCABILITÀ */
         #top-header-bar {
             position: absolute;
             top: max(env(safe-area-inset-top), 8px);
@@ -100,7 +104,7 @@
             padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
         }
         .header-btn:active { transform: scale(0.95); }
         #header-score-btn {
@@ -109,7 +113,7 @@
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
-        /* OVERLAY PROFILO E CLASSIFICHE */
+        /* OVERLAY HTML PROFILO E CLASSIFICHE */
         .auth-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -140,117 +144,33 @@
             padding: 10px;
             margin-bottom: 12px;
         }
-        .profile-avatar-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-align: left;
-        }
-        .profile-avatar {
-            width: 44px;
-            height: 44px;
-            background: #250515;
-            border: 2px solid #ff0055;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
-            box-shadow: 0 0 10px #ff0055;
-            overflow: hidden;
-        }
+        .profile-avatar-row { display: flex; align-items: center; gap: 10px; text-align: left; }
+        .profile-avatar { width: 44px; height: 44px; background: #250515; border: 2px solid #ff0055; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 0 10px #ff0055; overflow: hidden; }
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .profile-rank-title { color: #ffff00; font-size: 11px; font-weight: bold; letter-spacing: 1px; }
         .profile-username { color: #ffffff; font-size: 15px; font-weight: bold; }
+        .xp-bar-container { width: 100%; background: #04040a; border: 1px solid #00ffcc; height: 10px; border-radius: 5px; margin-top: 8px; overflow: hidden; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #00ffcc, #ff0055); width: 0%; box-shadow: 0 0 8px #00ffcc; transition: width 0.4s ease; }
         
-        .xp-bar-container {
-            width: 100%;
-            background: #04040a;
-            border: 1px solid #00ffcc;
-            height: 10px;
-            border-radius: 5px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        .xp-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ffcc, #ff0055);
-            width: 0%;
-            box-shadow: 0 0 8px #00ffcc;
-            transition: width 0.4s ease;
-        }
-        
-        .badges-row {
-            display: flex;
-            justify-content: space-around;
-            background: #04040a;
-            border: 1px dashed rgba(255, 0, 85, 0.4);
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 12px;
-        }
+        .badges-row { display: flex; justify-content: space-around; background: #04040a; border: 1px dashed rgba(255, 0, 85, 0.4); border-radius: 8px; padding: 8px; margin-bottom: 12px; }
         .badge-item { font-size: 18px; filter: grayscale(1); opacity: 0.3; transition: all 0.3s; }
         .badge-item.unlocked { filter: grayscale(0); opacity: 1; transform: scale(1.1); }
         
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
-        .stat-card {
-            background: #04040a;
-            border: 1px solid rgba(0, 255, 204, 0.4);
-            border-radius: 8px;
-            padding: 8px 4px;
-            text-align: center;
-        }
+        .stat-card { background: #04040a; border: 1px solid rgba(0, 255, 204, 0.4); border-radius: 8px; padding: 8px 4px; text-align: center; }
         .stat-card .val { color: #ffff00; font-size: 13px; font-weight: bold; }
         .stat-card .lbl { color: #00ffcc; font-size: 8px; margin-top: 2px; text-transform: uppercase; font-weight: bold; }
 
         .tab-selector { display: flex; justify-content: space-around; gap: 4px; margin-bottom: 10px; }
-        .tab-btn {
-            background: #101528;
-            border: 1px solid #00ffcc;
-            color: #00ffcc;
-            font-size: 9px;
-            padding: 5px 6px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .tab-btn { background: #101528; border: 1px solid #00ffcc; color: #00ffcc; font-size: 9px; padding: 5px 6px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .tab-btn.active { background: #ff0055; color: #fff; border-color: #ff0055; box-shadow: 0 0 8px rgba(255, 0, 85, 0.6); }
-        
-        .leaderboard-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin: 10px 0;
-            max-height: 190px;
-            overflow-y: auto;
-            text-align: left;
-        }
-        .leaderboard-row {
-            background: #04040a;
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            border-radius: 6px;
-            padding: 6px 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .leaderboard-list { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; max-height: 190px; overflow-y: auto; text-align: left; }
+        .leaderboard-row { background: #04040a; border: 1px solid rgba(0, 255, 204, 0.3); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; }
         .leaderboard-row .rank-pos { color: #ffff00; font-size: 11px; font-weight: bold; width: 24px; }
         .leaderboard-row .player-name { color: #ffffff; font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .leaderboard-row .score-val { color: #00ffcc; font-size: 11px; font-weight: bold; }
 
-        .auth-btn {
-            width: 100%;
-            padding: 10px;
-            margin-top: 4px;
-            background: #ff0055;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
-        }
+        .auth-btn { width: 100%; padding: 10px; margin-top: 4px; background: #ff0055; color: #fff; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 0 10px rgba(255, 0, 85, 0.6); }
         .auth-btn:active { transform: scale(0.96); }
 
         .crt-overlay {
@@ -350,8 +270,8 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// SHADER SHADER PIPELINE PER ELIMINARE LO SFONDO NERO DEI WEBM SU QUALSIASI DISPOSITIVO
-class BlackKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
+// WEBGL SHADER PIPELINE PER TRASPARENZA NERO SUI WEBM
+class ChromaKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
     constructor(game) {
         super({
             game: game,
@@ -363,9 +283,8 @@ class BlackKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 
                 void main() {
                     vec4 texColor = texture2D(uMainSampler, outTexCoord);
-                    float maxColor = max(texColor.r, max(texColor.g, texColor.b));
-                    if (maxColor < 0.15) {
-                        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+                    if (texColor.r < 0.15 && texColor.g < 0.15 && texColor.b < 0.15) {
+                        discard;
                     } else {
                         gl_FragColor = texColor * outTint;
                     }
@@ -467,12 +386,11 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        const vWidth = 360;
-        const vHeight = 740;
+        const vWidth = this.scale.width;
+        const vHeight = this.scale.height;
 
-        // REGISTRAZIONE PIPELINE
-        if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('BlackKey')) {
-            this.game.renderer.pipelines.add('BlackKey', new BlackKeyPipeline(this.game));
+        if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('ChromaKey')) {
+            this.game.renderer.pipelines.add('ChromaKey', new ChromaKeyPipeline(this.game));
         }
 
         let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
@@ -481,17 +399,19 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // VIDEO WEBM RENDERIZZATI CON PIPELINE BLACKKEY
-        this.gabri = this.add.video(150, 558, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
-        if (this.gabri.setPipeline) this.gabri.setPipeline('BlackKey');
+        // VIDEO WEBM RENDERIZZATI IN WEBGL CON CHROMAKEY PIPELINE
+        const floorY = vHeight * (568 / 740);
+
+        this.gabri = this.add.video(150, vHeight * (558 / 740), 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        if (this.gabri.setPipeline) this.gabri.setPipeline('ChromaKey');
         this.gabri.play(true); this.gabri.setMute(true);
 
-        this.npc = this.add.video(860, 563, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
-        if (this.npc.setPipeline) this.npc.setPipeline('BlackKey');
+        this.npc = this.add.video(860, vHeight * (563 / 740), 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        if (this.npc.setPipeline) this.npc.setPipeline('ChromaKey');
         this.npc.play(true); this.npc.setMute(true);
 
-        this.raffa = this.add.video(2210, 568, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
-        if (this.raffa.setPipeline) this.raffa.setPipeline('BlackKey');
+        this.raffa = this.add.video(2210, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        if (this.raffa.setPipeline) this.raffa.setPipeline('ChromaKey');
         this.raffa.play(true); this.raffa.setMute(true);
 
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
@@ -500,7 +420,7 @@ class MainHub extends Phaser.Scene {
         let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
         let savedY = parseFloat(localStorage.getItem('arcade_player_y'));
         let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
-        let startY = (!isNaN(savedY) && savedY > 0) ? savedY : 568;
+        let startY = (!isNaN(savedY) && savedY > 0) ? savedY : floorY;
 
         this.player = this.physics.add.sprite(startX, startY, 'player');
         this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
@@ -513,12 +433,15 @@ class MainHub extends Phaser.Scene {
 
         updateHeaderDOM();
 
+        const cabY = vHeight * (548 / 740);
+        const badgeY = vHeight * (330 / 740);
+
         this.cabinets = [
-            { x: 1471, y: 548, badgeX: 1471, badgeY: 330, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
-            { x: 1610, y: 548, badgeX: 1610, badgeY: 330, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
-            { x: 1742, y: 548, badgeX: 1742, badgeY: 330, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
-            { x: 1882, y: 548, badgeX: 1882, badgeY: 330, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
-            { x: 2800, y: 548, badgeX: 2800, badgeY: 330, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
+            { x: 1471, y: cabY, badgeX: 1471, badgeY: badgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
+            { x: 1610, y: cabY, badgeX: 1610, badgeY: badgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
+            { x: 1742, y: cabY, badgeX: 1742, badgeY: badgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
+            { x: 1882, y: cabY, badgeX: 1882, badgeY: badgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
+            { x: 2800, y: cabY, badgeX: 2800, badgeY: badgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
         this.cabinetSprites = [];
@@ -682,14 +605,16 @@ class MainHub extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(this.keyEnter)) this.interact();
 
         let activeCabinet = null;
+        const badgeYPos = this.scale.height * (330 / 740);
+
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y) < 70) {
-            this.infoBox.setPosition(this.gabri.x, 330); this.boxTitleText.setText("Gabri"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+            this.infoBox.setPosition(this.gabri.x, badgeYPos); this.boxTitleText.setText("Gabri"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
         }
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y) < 70) {
-            this.infoBox.setPosition(this.npc.x, 330); this.boxTitleText.setText("Giovannone"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+            this.infoBox.setPosition(this.npc.x, badgeYPos); this.boxTitleText.setText("Giovannone"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
         }
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y) < 70) {
-            this.infoBox.setPosition(this.raffa.x, 330); this.boxTitleText.setText("Raffa"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+            this.infoBox.setPosition(this.raffa.x, badgeYPos); this.boxTitleText.setText("Raffa"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
         }
 
         for (let cab of this.cabinetSprites) {
@@ -706,12 +631,16 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// RIPRISTINATO Phaser.Scale.ENVELOP PER EVITARE LE BANDE NELL'INDEX
+// CONFIGURAZIONE RESIZE PER COPRIRE 100% DELLO SCHERMO SENZA BARRE NERE LATERALI O INFERIORI
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
     backgroundColor: '#060612',
-    scale: { mode: Phaser.Scale.ENVELOP, autoCenter: Phaser.Scale.CENTER_BOTH, width: 360, height: 740 },
+    scale: { 
+        mode: Phaser.Scale.RESIZE, 
+        width: '100%', 
+        height: '100%' 
+    },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
 };
