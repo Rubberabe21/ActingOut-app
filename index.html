@@ -79,19 +79,16 @@
         }
 
         /* ---------------------------------------------------- */
-        /* FIX DEFINITIVO TRASPARENZA WEBM (SAFARI/IOS)         */
+        /* VIDEO WEBM CON ALPHA NATIVO (SAFARI/IOS)             */
         /* ---------------------------------------------------- */
         .npc-video {
             object-fit: contain;
-            mix-blend-mode: screen;
             background: transparent;
             pointer-events: none;
         }
         
-        /* Phaser crea un div genitore per gli oggetti DOM. 
-           Se questo non ha il blend mode, il video rimane nero. */
+        /* Phaser crea un div genitore per gli oggetti DOM. */
         #game-container > div {
-            mix-blend-mode: screen !important;
             pointer-events: none !important;
         }
 
