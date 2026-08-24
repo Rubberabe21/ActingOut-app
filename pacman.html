@@ -28,16 +28,16 @@ body {
   width: 100vw;
   height: 100vh;
   max-width: 380px;
-  max-height: 760px;
+  max-height: 820px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 6px;
+  padding: 8px;
   background: #080816;
-  border: 1.5px solid rgba(0, 255, 204, 0.3);
+  border: 2px solid rgba(0, 255, 204, 0.4);
   box-shadow: 0 0 35px rgba(0, 255, 204, 0.2);
-  border-radius: 14px;
+  border-radius: 16px;
 }
 #canvas-container {
   position: relative;
@@ -47,6 +47,7 @@ body {
   justify-content: center;
   align-items: flex-start;
   overflow: hidden;
+  min-height: 0;
 }
 canvas {
   width: 100%;
@@ -60,74 +61,54 @@ canvas {
   cursor: pointer;
 }
 
-/* PLANCIA CONTROLLI CABINATO ARCADE XL ERGONOMICA */
+/* PLANCIA CONTROLLI CON JOYSTICK VIRTUAL TOUCH */
 .control-deck {
   width: 100%;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 12px 16px;
+  padding: 10px 12px;
   background: linear-gradient(180deg, #121428 0%, #050610 100%);
   border: 2px solid #00ffcc;
   box-shadow: inset 0 0 15px rgba(0,255,204,0.15), 0 0 20px rgba(0,255,204,0.25);
   border-radius: 14px;
-  margin-top: 4px;
-}
-.joystick-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: 8px; /* Staccato dal bordo sinistro */
-}
-.dpad-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 46px);
-  grid-template-rows: repeat(3, 42px);
-  gap: 3px;
-}
-.ctrl-btn {
-  background: linear-gradient(180deg, #252a54 0%, #0e1028 100%);
-  border: 2px solid #00ffcc;
-  color: #00ffcc;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #007788, inset 0 1px 0 rgba(255,255,255,0.3);
-  text-shadow: 0 0 6px #00ffcc;
-}
-.ctrl-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #007788;
-  background: #00ffcc;
-  color: #000;
-  text-shadow: none;
-}
-.ctrl-btn-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #050610;
-  border-radius: 50%;
-  border: 1.5px solid rgba(0,255,204,0.4);
-}
-.dpad-core {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #00ffcc 0%, #006677 100%);
-  box-shadow: 0 0 10px #00ffcc;
+  margin-top: 6px;
 }
 
-/* TASTO ACTION 3D ARCADE PUSH BUTTON XL */
+/* JOYSTICK RETRO */
+.joystick-zone {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
+  border: 3px solid #00ffcc;
+  border-radius: 50%;
+  box-shadow: inset 0 0 18px rgba(0, 255, 204, 0.4), 0 0 12px rgba(0, 255, 204, 0.3);
+  touch-action: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.joystick-knob {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 15px #ff007f;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* TASTO BOMBA ARCADE XL */
 .arcade-action-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-right: 6px;
 }
 .arcade-push-btn {
   width: 104px;
@@ -164,7 +145,7 @@ canvas {
 
 .exit-btn {
   width: 100%;
-  margin-top: 4px;
+  margin-top: 6px;
   padding: 10px;
   background: #1a1a2e;
   border: 1.5px solid #ff0055;
@@ -186,14 +167,12 @@ canvas {
   </div>
 
   <div class="control-deck">
-    <div class="joystick-container">
-      <div class="dpad-grid">
-        <div style="visibility:hidden"></div><div class="ctrl-btn" id="btnUp">▲</div><div style="visibility:hidden"></div>
-        <div class="ctrl-btn" id="btnLeft">◄</div><div class="ctrl-btn-center"><div class="dpad-core"></div></div><div class="ctrl-btn" id="btnRight">►</div>
-        <div style="visibility:hidden"></div><div class="ctrl-btn" id="btnDown">▼</div><div style="visibility:hidden"></div>
-      </div>
+    <!-- JOYSTICK VIRTUAL TOUCH -->
+    <div class="joystick-zone" id="joyZone">
+      <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
+    <!-- TASTO SPARO / BOMBA -->
     <div class="arcade-action-container">
       <button class="arcade-push-btn" id="btnBomb">
         <span class="btn-top">💣 BOMBA</span>
@@ -292,46 +271,61 @@ const CHARACTERS = {
 let currentTheme = CHARACTERS.LAURA;
 let highScore = parseInt(localStorage.getItem('cyberRun_highScore')) || 0;
 
-// Audio sintetizzato
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playSound(type) {
+// AUDIO SINTETIZZATO RETRO (WEB AUDIO API)
+let audioCtx = null;
+function getAC() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain); gain.connect(audioCtx.destination);
+  return audioCtx;
+}
 
-  if (type === 'bomb') {
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.12);
-    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.12);
-  } else if (type === 'hit_block') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(320, audioCtx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.08);
-  } else if (type === 'explode') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(250, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.25);
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-  } else if (type === 'powerup') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(523, audioCtx.currentTime);
-    osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.08);
-    osc.frequency.setValueAtTime(783, audioCtx.currentTime + 0.16);
-    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.24);
-  } else if (type === 'fail') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-  }
+function playSound(type) {
+  try {
+    const ac = getAC();
+    const t = ac.currentTime;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+
+    if (type === 'bomb') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, t);
+      osc.frequency.exponentialRampToValueAtTime(110, t + 0.12);
+      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      osc.start(t); osc.stop(t + 0.12);
+    } else if (type === 'hit_block') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(200, t);
+      osc.frequency.exponentialRampToValueAtTime(350, t + 0.08);
+      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      osc.start(t); osc.stop(t + 0.08);
+    } else if (type === 'explode') {
+      const dur = 0.28;
+      const buf = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const src = ac.createBufferSource(); src.buffer = buf;
+      const filt = ac.createBiquadFilter(); filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(800, t); filt.frequency.exponentialRampToValueAtTime(60, t + dur);
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      src.connect(filt); filt.connect(g); g.connect(ac.destination);
+      src.start(t);
+    } else if (type === 'powerup') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523, t);
+      osc.frequency.setValueAtTime(659, t + 0.08);
+      osc.frequency.setValueAtTime(783, t + 0.16);
+      gain.gain.setValueAtTime(0.18, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+      osc.start(t); osc.stop(t + 0.24);
+    } else if (type === 'fail') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(240, t);
+      osc.frequency.linearRampToValueAtTime(50, t + 0.35);
+      gain.gain.setValueAtTime(0.25, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      osc.start(t); osc.stop(t + 0.35);
+    }
+  } catch(e) {}
 }
 
 let map = [];
@@ -346,7 +340,6 @@ let score = 0;
 let lives = 3;
 let animTimer = 0;
 
-// Giocatore in PURE GRID SPACE (0 .. COLS*CELL_SIZE, 0 .. ROWS*CELL_SIZE)
 let player = {
   x: 1 * CELL_SIZE + CELL_SIZE / 2,
   y: 1 * CELL_SIZE + CELL_SIZE / 2,
@@ -360,7 +353,56 @@ let player = {
 };
 
 let enemies = [];
+
+// JOYSTICK STATE
+let joyDX = 0, joyDY = 0, joyActive = false;
 let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
+
+// CONTROLLO JOYSTICK TOUCH
+const joyZone = document.getElementById('joyZone');
+const joyKnob = document.getElementById('joyKnob');
+
+function handleJoyMove(clientX, clientY) {
+  const rect = joyZone.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  let dx = clientX - centerX;
+  let dy = clientY - centerY;
+
+  const dist = Math.hypot(dx, dy);
+  const maxRadius = rect.width / 2 - 10;
+
+  if (dist > maxRadius) {
+    dx = (dx / dist) * maxRadius;
+    dy = (dy / dist) * maxRadius;
+  }
+
+  joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+
+  joyDX = dx / maxRadius;
+  joyDY = dy / maxRadius;
+}
+
+function resetJoy() {
+  joyActive = false;
+  joyDX = 0; joyDY = 0;
+  joyKnob.style.transform = `translate(-50%, -50%)`;
+}
+
+joyZone.addEventListener('pointerdown', e => {
+  joyActive = true;
+  joyZone.setPointerCapture(e.pointerId);
+  getAC();
+  handleJoyMove(e.clientX, e.clientY);
+});
+
+joyZone.addEventListener('pointermove', e => {
+  if (joyActive) handleJoyMove(e.clientX, e.clientY);
+});
+
+joyZone.addEventListener('pointerup', resetJoy);
+joyZone.addEventListener('pointercancel', resetJoy);
 
 function selectCharacter(charKey) {
   currentTheme = CHARACTERS[charKey];
@@ -396,6 +438,7 @@ function loadLevel() {
   map = [];
   blockData = [];
 
+  // Mappa
   for (let r = 0; r < ROWS; r++) {
     map[r] = [];
     blockData[r] = [];
@@ -407,7 +450,7 @@ function loadLevel() {
         map[r][c] = 0;
         blockData[r][c] = null;
       } else {
-        if (Math.random() < (0.60 + Math.min(level * 0.03, 0.20))) {
+        if (Math.random() < (0.55 + Math.min(level * 0.03, 0.15))) {
           map[r][c] = 2;
 
           let pool = [];
@@ -428,14 +471,32 @@ function loadLevel() {
     }
   }
 
+  // SPAWN NEMICI IN SICUREZZA (NO CICLI INFINITI / NO FREEZE)
+  let emptyCells = [];
+  for (let r = 1; r < ROWS - 1; r++) {
+    for (let c = 1; c < COLS - 1; c++) {
+      if (map[r][c] === 0 && !(r <= 3 && c <= 3)) {
+        emptyCells.push({ r, c });
+      }
+    }
+  }
+
   let enemyColors = ['#ff0055', '#ff66cc', '#00ffff', '#ffaa00'];
   let enemyCount = 2 + Math.min(level, 5);
+
   for (let i = 0; i < enemyCount; i++) {
     let er, ec;
-    do {
-      er = Math.floor(Math.random() * (ROWS - 2)) + 1;
-      ec = Math.floor(Math.random() * (COLS - 2)) + 1;
-    } while (map[er][ec] !== 0 || (er <= 3 && ec <= 3));
+    if (emptyCells.length > 0) {
+      let idx = Math.floor(Math.random() * emptyCells.length);
+      er = emptyCells[idx].r;
+      ec = emptyCells[idx].c;
+      emptyCells.splice(idx, 1);
+    } else {
+      er = ROWS - 2;
+      ec = COLS - 2;
+      map[er][ec] = 0;
+      blockData[er][ec] = null;
+    }
 
     enemies.push({
       gx: ec, gy: er,
@@ -547,9 +608,8 @@ function updateBombPassability() {
   });
 }
 
-// CORREZIONE DEFINITIVA E REATTIVA DELLE COLLISIONI GIOCATORE
 function isBlocked(nx, ny) {
-  let eps = 0.5; // Epsilon di sicurezza per evitare falsi positivi sui bordi
+  let eps = 0.5;
   let left = nx - player.w / 2 + eps;
   let right = nx + player.w / 2 - eps;
   let top = ny - player.h / 2 + eps;
@@ -574,15 +634,24 @@ function isBlocked(nx, ny) {
 
 function updatePlayer() {
   let dx = 0, dy = 0;
-  if (keyPressed('ArrowLeft') || keyPressed('KeyA') || moveLeft) { dx -= player.speed; player.facingLeft = true; }
-  if (keyPressed('ArrowRight') || keyPressed('KeyD') || moveRight) { dx += player.speed; player.facingLeft = false; }
-  if (keyPressed('ArrowUp') || keyPressed('KeyW') || moveUp) dy -= player.speed;
-  if (keyPressed('ArrowDown') || keyPressed('KeyS') || moveDown) dy += player.speed;
+
+  if (joyActive && (Math.abs(joyDX) > 0.12 || Math.abs(joyDY) > 0.12)) {
+    dx = joyDX * player.speed;
+    dy = joyDY * player.speed;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      player.facingLeft = dx < 0;
+    }
+  } else {
+    if (keyPressed('ArrowLeft') || keyPressed('KeyA') || moveLeft) { dx -= player.speed; player.facingLeft = true; }
+    if (keyPressed('ArrowRight') || keyPressed('KeyD') || moveRight) { dx += player.speed; player.facingLeft = false; }
+    if (keyPressed('ArrowUp') || keyPressed('KeyW') || moveUp) dy -= player.speed;
+    if (keyPressed('ArrowDown') || keyPressed('KeyS') || moveDown) dy += player.speed;
+  }
 
   player.isMoving = (dx !== 0 || dy !== 0);
   if (player.isMoving) animTimer++;
 
-  // Movimento Asse X con Corner Nudging Y
+  // Movimento Asse X
   if (dx !== 0) {
     if (!isBlocked(player.x + dx, player.y)) {
       player.x += dx;
@@ -598,7 +667,7 @@ function updatePlayer() {
     }
   }
 
-  // Movimento Asse Y con Corner Nudging X
+  // Movimento Asse Y
   if (dy !== 0) {
     if (!isBlocked(player.x, player.y + dy)) {
       player.y += dy;
@@ -635,7 +704,6 @@ function updatePlayer() {
   }
 }
 
-// COLLISIONI E PERCORSO NEMICI 100% PULITO E Sincronizzato
 function updateEnemies() {
   enemies.forEach(e => {
     let targetX = (e.gx + 0.5) * CELL_SIZE;
@@ -751,7 +819,6 @@ function hitPlayer() {
   }
 }
 
-// RENDERING CON PROSPETTIVA E CORRETTO Y-SORTING SUI PIEDI
 function drawGameWorld() {
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
@@ -833,7 +900,7 @@ function drawSingleBlock(r, c) {
   let x = c * CELL_SIZE;
   let y = r * CELL_SIZE + HUD_HEIGHT;
 
-  if (map[r][c] === 1) { // Muro Indistruttibile
+  if (map[r][c] === 1) {
     ctx.fillStyle = '#080820';
     ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
     ctx.strokeStyle = currentTheme.wallCol;
@@ -842,7 +909,7 @@ function drawSingleBlock(r, c) {
     
     ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.fillRect(x + 2, y + 2, CELL_SIZE - 4, 3);
-  } else if (map[r][c] === 2) { // Blocco Formato File
+  } else if (map[r][c] === 2) {
     let blk = blockData[r][c];
     if (blk) {
       ctx.fillStyle = blk.bg;
@@ -859,7 +926,6 @@ function drawSingleBlock(r, c) {
       ctx.textAlign = 'center';
       ctx.fillText(blk.label, x + CELL_SIZE / 2, y + CELL_SIZE / 2 - (blk.hp > 1 ? 1 : -3));
 
-      // Barrametro Salute
       if (blk.hp > 1) {
         let barW = CELL_SIZE - 6;
         let barH = 3;
@@ -1045,7 +1111,7 @@ function drawTutorial() {
   ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace';
   ctx.fillText('CONTROLLI PC & SMARTPHONE', 22, 258);
   ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-  ctx.fillText('Usa il D-Pad / WASD per muoverti', 22, 278);
+  ctx.fillText('Usa il Joystick Touch o WASD', 22, 278);
   ctx.fillText('Premi 💣 BOMBA o SPAZIO per sparare!', 22, 294);
 
   ctx.fillStyle = '#ffff00'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
@@ -1162,6 +1228,7 @@ function gameLoop() {
 }
 
 canvas.addEventListener('pointerdown', (e) => {
+  getAC();
   let rect = canvas.getBoundingClientRect();
   let x = (e.clientX - rect.left) * (canvas.width / rect.width);
   let y = (e.clientY - rect.top) * (canvas.height / rect.height);
@@ -1186,32 +1253,26 @@ canvas.addEventListener('pointerdown', (e) => {
   }
 });
 
-function bindBtn(id, onPress) {
+// TASTO BOMBA AZIONE
+function bindBombBtn(id) {
   let btn = document.getElementById(id);
   if (!btn) return;
   btn.addEventListener('pointerdown', (e) => {
     e.preventDefault();
+    getAC();
     if (gameState === 'TUTORIAL' || gameState === 'GAME_OVER') {
       gameState = 'CHAR_SELECT';
-    } else {
-      onPress(true);
+    } else if (gameState === 'PLAYING') {
+      placeBomb();
     }
   });
-  btn.addEventListener('pointerup', (e) => {
-    e.preventDefault();
-    onPress(false);
-  });
 }
-
-bindBtn('btnUp', isDown => { moveUp = isDown; });
-bindBtn('btnDown', isDown => { moveDown = isDown; });
-bindBtn('btnLeft', isDown => { moveLeft = isDown; });
-bindBtn('btnRight', isDown => { moveRight = isDown; });
-bindBtn('btnBomb', isDown => { if (isDown) placeBomb(); });
+bindBombBtn('btnBomb');
 
 const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.code] = true;
+  getAC();
   if (gameState === 'TUTORIAL') {
     if (e.code === 'Space' || e.code === 'Enter') gameState = 'CHAR_SELECT';
     return;
