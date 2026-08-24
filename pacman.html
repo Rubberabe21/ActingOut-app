@@ -5,183 +5,310 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Cyber Run - Grid Bomber</title>
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  touch-action: none !important;
-  font-family: 'Courier New', Courier, monospace;
-}
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: #030305;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-#game-wrapper {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  max-width: 380px;
-  max-height: 820px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px;
-  background: #080816;
-  border: 2px solid rgba(0, 255, 204, 0.4);
-  box-shadow: 0 0 35px rgba(0, 255, 204, 0.2);
-  border-radius: 16px;
-}
-#canvas-container {
-  position: relative;
-  width: 100%;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  overflow: hidden;
-  min-height: 0;
-}
-canvas {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 338 / 434;
-  object-fit: contain;
-  border: 2px solid #00ffcc;
-  box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2), 0 0 20px rgba(0, 255, 204, 0.15);
-  border-radius: 10px;
-  background: #04040c;
-  cursor: pointer;
-}
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none !important;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #05020a;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #game-wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    max-width: 440px;
+    max-height: 860px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #0e051b;
+    border: 4px solid #ff007f;
+    box-shadow: 0 0 25px #ff007f, inset 0 0 20px #00f0ff;
+    border-radius: 18px;
+  }
 
-/* PLANCIA CONTROLLI CABINATO ARCADE ANNI '80 */
-.control-deck {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 8px;
-  background: linear-gradient(180deg, #160a2c 0%, #080314 100%);
-  border: 3px solid #ffea00;
-  box-shadow: inset 0 0 15px rgba(255, 234, 0, 0.2), 0 0 20px rgba(255, 234, 0, 0.3);
-  border-radius: 14px;
-  margin-top: 6px;
-}
+  /* TOP BAR CON TASTO OPZIONI */
+  .top-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 6px;
+    margin-bottom: 4px;
+  }
+  .header-title {
+    color: #00f0ff;
+    font-size: 11px;
+    font-weight: bold;
+    text-shadow: 0 0 6px #00f0ff;
+    letter-spacing: 1px;
+  }
+  .opt-btn {
+    background: #1a0836;
+    border: 1.5px solid #ffea00;
+    color: #ffea00;
+    padding: 4px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
+  }
+  .opt-btn:active { transform: scale(0.92); }
 
-/* JOYSTICK RETRO ANNI '80 */
-.joystick-zone {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, #2a1048 30%, #0c0418 90%);
-  border: 3px solid #00ffcc;
-  border-radius: 50%;
-  box-shadow: inset 0 0 18px rgba(0, 255, 204, 0.5), 0 0 15px rgba(0, 255, 204, 0.4);
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.joystick-knob {
-  position: absolute;
-  width: 52px;
-  height: 52px;
-  background: radial-gradient(circle at 35% 35%, #ff0055, #88002d);
-  border: 3px solid #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.8), 0 0 15px #ff0055;
-  pointer-events: none;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+  #canvas-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    min-height: 0;
+  }
+  canvas {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    aspect-ratio: 338 / 434;
+    border: 3px solid #00f0ff;
+    box-shadow: 0 0 15px #00f0ff;
+    image-rendering: pixelated;
+    background: #060212;
+    cursor: pointer;
+    border-radius: 8px;
+  }
 
-/* TASTO BOMBA ARCADE XL */
-.arcade-action-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.arcade-push-btn {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: #2b0012;
-  border: 3px solid #ff0055;
-  padding: 5px;
-  box-shadow: 0 0 22px rgba(255, 0, 85, 0.45), inset 0 0 12px rgba(0, 0, 0, 0.9);
-  cursor: pointer;
-  outline: none;
-}
-.arcade-push-btn .btn-top {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ff3377, #cc0044 60%, #88002d 100%);
-  border: 2px solid #ff77bb;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  font-weight: bold;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  box-shadow: inset 0 4px 8px rgba(255,255,255,0.4), 0 5px 0 #55001b;
-  text-shadow: 0 1px 2px #000;
-}
-.arcade-push-btn:active .btn-top {
-  transform: translateY(4px);
-  box-shadow: inset 0 1px 4px rgba(0,0,0,0.6), 0 1px 0 #55001b;
-}
+  /* DECK DI CONTROLLO CON JOYSTICK RETRO */
+  .control-deck {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 10px;
+    background: #160a2c;
+    border: 3px solid #ffea00;
+    border-radius: 14px;
+    margin-top: 4px;
+    box-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
+  }
 
-.exit-btn {
-  width: 100%;
-  margin-top: 6px;
-  padding: 10px;
-  background: #1a1a2e;
-  border: 1.5px solid #ff0055;
-  color: #ff0055;
-  font-weight: bold;
-  font-size: 11px;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-}
-.exit-btn:active { transform: scale(0.96); }
+  /* BASE DEL JOYSTICK VIRTUAL TOUCH */
+  .joystick-zone {
+    position: relative;
+    width: 125px;
+    height: 125px;
+    background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
+    border: 3px solid #00f0ff;
+    border-radius: 50%;
+    box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.5), 0 0 12px rgba(0, 240, 255, 0.4);
+    touch-action: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .joystick-knob {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #ff007f;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* PULSANTE ROSSO ARCADE PER LA BOMBA */
+  .fire-btn {
+    width: 110px;
+    height: 110px;
+    background: radial-gradient(circle at 35% 35%, #ff3366, #990026);
+    border: 4px solid #ffffff;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 900;
+    border-radius: 50%;
+    box-shadow: 0 6px 0 #66001a, 0 0 18px rgba(255, 0, 85, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px #000;
+    cursor: pointer;
+  }
+  .fire-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #66001a;
+    background: #ff0033;
+  }
+
+  .exit-btn {
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px;
+    background: #100826;
+    border: 2px solid #ff007f;
+    color: #ff007f;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 11px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+  }
+  .exit-btn:active { transform: scale(0.96); }
+
+  /* OVERLAY MODALE OPZIONI */
+  .modal-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(5, 2, 10, 0.94);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+  }
+  .modal-box {
+    width: 100%;
+    max-width: 320px;
+    background: #0e051b;
+    border: 3px solid #00f0ff;
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: #ffffff;
+    text-align: center;
+  }
+  .modal-title {
+    color: #ffea00;
+    font-size: 16px;
+    font-weight: 900;
+    text-shadow: 0 0 8px #ffea00;
+    margin-bottom: 2px;
+  }
+  .option-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #160a2c;
+    padding: 10px;
+    border: 1px solid rgba(255,0,127,0.4);
+    border-radius: 8px;
+  }
+  .option-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #00f0ff;
+  }
+  .toggle-btn {
+    width: 100%;
+    padding: 8px;
+    background: #2a144a;
+    border: 2px solid #ff007f;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .toggle-btn.active {
+    border-color: #00ff66;
+    color: #00ff66;
+    background: #082814;
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+  }
+  .sens-slider {
+    width: 100%;
+    accent-color: #ff007f;
+    cursor: pointer;
+  }
+  .close-modal-btn {
+    padding: 10px;
+    background: linear-gradient(180deg, #ff007f, #a30052);
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+  }
 </style>
 </head>
 <body>
 
 <div id="game-wrapper">
+  <!-- TOP BAR CON PULSANTE OPZIONI -->
+  <div class="top-header">
+    <span class="header-title">CYBER RUN - GRID BOMBER</span>
+    <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+  </div>
+
   <div id="canvas-container">
     <canvas id="game"></canvas>
   </div>
 
   <div class="control-deck">
-    <!-- JOYSTICK VIRTUAL TOUCH ANNI '80 -->
+    <!-- JOYSTICK VIRTUAL TOUCH -->
     <div class="joystick-zone" id="joyZone">
       <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
-    <!-- TASTO BOMBA -->
-    <div class="arcade-action-container">
-      <button class="arcade-push-btn" id="btnBomb">
-        <span class="btn-top">💣 BOMBA</span>
-      </button>
+    <!-- TASTO BOMBA TONDO ARCADE -->
+    <div class="fire-btn" id="btnBomb">
+      <span>💣</span>
+      <span>BOMBA</span>
     </div>
   </div>
 
   <button class="exit-btn" onclick="exitGame()">◄ TORNA ALL'HUB ARCADE</button>
+
+  <!-- MODALE OPZIONI -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-title">⚙️ OPZIONI GIOCO</div>
+
+      <div class="option-item">
+        <span class="option-label">SENSIBILITÀ JOYSTICK: <span id="sensValText">1.0x</span></span>
+        <input type="range" class="sens-slider" id="sensSlider" min="0.5" max="2.0" step="0.25" value="1.0">
+      </div>
+
+      <div class="option-item">
+        <span class="option-label">EFFETTI SONORI (SFX)</span>
+        <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
+      </div>
+
+      <button class="close-modal-btn" id="btnCloseSettings">SALVA E CHIUDI ►</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -209,6 +336,135 @@ function drawRoundRect(c, x, y, w, h, r) {
   c.arcTo(x, y + h, x, y, r);
   c.arcTo(x, y, x + w, y, r);
   c.closePath();
+}
+
+// --- CONFIGURAZIONE E SALVATAGGIO OPZIONI ---
+let joySensitivity = parseFloat(localStorage.getItem('cyberRun_joySens')) || 1.0;
+let sfxEnabled = localStorage.getItem('cyberRun_sfx') !== 'false';
+
+const settingsModal = document.getElementById('settingsModal');
+const btnOpenSettings = document.getElementById('btnOpenSettings');
+const btnCloseSettings = document.getElementById('btnCloseSettings');
+const sensSlider = document.getElementById('sensSlider');
+const sensValText = document.getElementById('sensValText');
+const btnToggleSfx = document.getElementById('btnToggleSfx');
+
+sensSlider.value = joySensitivity;
+sensValText.innerText = joySensitivity.toFixed(2) + 'x';
+
+function renderOptionButtons() {
+  btnToggleSfx.className = `toggle-btn ${sfxEnabled ? 'active' : ''}`;
+  btnToggleSfx.innerText = sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
+}
+renderOptionButtons();
+
+sensSlider.oninput = () => {
+  joySensitivity = parseFloat(sensSlider.value);
+  sensValText.innerText = joySensitivity.toFixed(2) + 'x';
+  localStorage.setItem('cyberRun_joySens', joySensitivity);
+};
+
+btnToggleSfx.onclick = () => {
+  sfxEnabled = !sfxEnabled;
+  localStorage.setItem('cyberRun_sfx', sfxEnabled);
+  renderOptionButtons();
+};
+
+btnOpenSettings.onclick = () => {
+  if (gameState === 'PLAYING') {
+    gameState = 'PAUSE';
+  }
+  settingsModal.style.display = 'flex';
+};
+
+btnCloseSettings.onclick = () => {
+  settingsModal.style.display = 'none';
+  getAC();
+  if (gameState === 'PAUSE') {
+    gameState = 'PLAYING';
+  }
+};
+
+// AUDIO SINTETIZZATO RETRO CON BUFFER SICURO SU MOBILE
+let audioCtx = null;
+let noiseBuffer = null;
+
+function getAC() {
+  try {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+        const bufferSize = Math.floor(audioCtx.sampleRate * 0.25);
+        noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  } catch(e) {}
+  return audioCtx;
+}
+
+function playSound(type) {
+  if (!sfxEnabled) return;
+  try {
+    const ac = getAC();
+    if (!ac) return;
+    const t = ac.currentTime;
+
+    if (type === 'explode') {
+      if (!noiseBuffer) return;
+      const dur = 0.22;
+      const src = ac.createBufferSource();
+      src.buffer = noiseBuffer;
+      const filt = ac.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(800, t);
+      filt.frequency.exponentialRampToValueAtTime(Math.max(1, 50), t + dur);
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.2, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(filt); filt.connect(g); g.connect(ac.destination);
+      src.start(t); src.stop(t + dur);
+      return;
+    }
+
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+
+    if (type === 'bomb') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, t);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(1, 110), t + 0.12);
+      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+      osc.start(t); osc.stop(t + 0.12);
+    } else if (type === 'hit_block') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(200, t);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(1, 350), t + 0.08);
+      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+      osc.start(t); osc.stop(t + 0.08);
+    } else if (type === 'powerup') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523, t);
+      osc.frequency.setValueAtTime(659, t + 0.08);
+      osc.frequency.setValueAtTime(783, t + 0.16);
+      gain.gain.setValueAtTime(0.18, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+      osc.start(t); osc.stop(t + 0.24);
+    } else if (type === 'fail') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(240, t);
+      osc.frequency.linearRampToValueAtTime(50, t + 0.35);
+      gain.gain.setValueAtTime(0.25, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+      osc.start(t); osc.stop(t + 0.35);
+    }
+  } catch(e) {}
 }
 
 // Assets Grafici Studio
@@ -269,9 +525,6 @@ const CHARACTERS = {
   }
 };
 
-let currentTheme = CHARACTERS.LAURA;
-let highScore = parseInt(localStorage.getItem('cyberRun_highScore')) || 0;
-
 let map = [];
 let blockData = [];
 let bombs = [];
@@ -327,7 +580,7 @@ function handleJoyMove(clientX, clientY) {
 
   moveUp = false; moveDown = false; moveLeft = false; moveRight = false;
 
-  const deadZone = 10;
+  const deadZone = 10 / joySensitivity;
   if (dist > deadZone) {
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) moveLeft = true;
@@ -349,6 +602,7 @@ joyZone.addEventListener('pointerdown', e => {
   if (e.cancelable) e.preventDefault();
   joyActive = true;
   try { joyZone.setPointerCapture(e.pointerId); } catch(err) {}
+  getAC();
   handleJoyMove(e.clientX, e.clientY);
 }, { passive: false });
 
@@ -373,6 +627,7 @@ function selectCharacter(charKey) {
   canvas.style.boxShadow = `inset 0 0 15px ${currentTheme.primary}`;
   initGame();
   gameState = 'PLAYING';
+  playSound('powerup');
 }
 
 function initGame() {
@@ -491,11 +746,14 @@ function placeBomb() {
     range: player.bombRange,
     exploded: false
   });
+
+  playSound('bomb');
 }
 
 function triggerExplosion(b) {
   if (!b || b.exploded) return;
   b.exploded = true;
+  playSound('explode');
 
   let fireCells = [{ gx: b.gx, gy: b.gy }];
   let dirs = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }];
@@ -531,6 +789,8 @@ function triggerExplosion(b) {
                 type: types[Math.floor(Math.random() * types.length)]
               });
             }
+          } else {
+            playSound('hit_block');
           }
         }
         break;
@@ -640,6 +900,7 @@ function updatePlayer() {
   for (let i = powerups.length - 1; i >= 0; i--) {
     let pw = powerups[i];
     if (pw && pw.gx === pGx && pw.gy === pGy) {
+      playSound('powerup');
       if (pw.type === 'BOMB_UP') player.maxBombs++;
       else if (pw.type === 'FIRE_UP') player.bombRange++;
       else if (pw.type === 'SPEED_UP') player.speed += 0.35;
@@ -752,6 +1013,7 @@ function updateBombsAndExplosions() {
     score += Math.floor(1000 * level * currentTheme.scoreMult);
     level++;
     gameState = 'LEVEL_CLEAR';
+    playSound('powerup');
     setTimeout(() => {
       if (gameState === 'LEVEL_CLEAR') {
         loadLevel();
@@ -766,6 +1028,7 @@ function hitPlayer() {
 
   lives--;
   player.invTimer = 90;
+  playSound('fail');
 
   if (lives <= 0) {
     gameState = 'GAME_OVER';
@@ -777,6 +1040,7 @@ function hitPlayer() {
   }
 }
 
+// RENDERING SENZA ALLOCAZIONI OBJECT AD OGNI FRAME
 function drawGameWorld() {
   ctx.strokeStyle = '#0d0d22';
   ctx.lineWidth = 1;
@@ -1138,6 +1402,14 @@ function drawGameOver() {
   ctx.fillText('► TOCCA PER GIOCARE ANCORA ◄', canvas.width / 2, canvas.height / 2 + 80);
 }
 
+function drawPause() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#ffea00'; ctx.font = 'bold 26px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('IN PAUSA', canvas.width / 2, canvas.height / 2 - 10);
+  ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 11px monospace';
+  ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', canvas.width / 2, canvas.height / 2 + 20);
+}
+
 function gameLoop() {
   try {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1154,6 +1426,10 @@ function gameLoop() {
       updateBombsAndExplosions();
       drawGameWorld();
       drawHUD();
+    } else if (gameState === 'PAUSE') {
+      drawGameWorld();
+      drawHUD();
+      drawPause();
     } else if (gameState === 'LEVEL_CLEAR') {
       drawGameWorld();
       drawLevelClear();
@@ -1171,6 +1447,7 @@ function gameLoop() {
 
 canvas.addEventListener('pointerdown', (e) => {
   if (e.cancelable) e.preventDefault();
+  getAC();
   let rect = canvas.getBoundingClientRect();
   let x = (e.clientX - rect.left) * (canvas.width / rect.width);
   let y = (e.clientY - rect.top) * (canvas.height / rect.height);
@@ -1178,6 +1455,7 @@ canvas.addEventListener('pointerdown', (e) => {
   if (gameState === 'TUTORIAL') {
     if (y >= 330) {
       gameState = 'CHAR_SELECT';
+      playSound('powerup');
     }
     return;
   }
@@ -1185,6 +1463,16 @@ canvas.addEventListener('pointerdown', (e) => {
   if (gameState === 'CHAR_SELECT') {
     if (y >= 44 && y <= 204) selectCharacter('LAURA');
     else if (y >= 216 && y <= 376) selectCharacter('GUIDO');
+    return;
+  }
+
+  if (gameState === 'PLAYING') {
+    gameState = 'PAUSE';
+    return;
+  }
+
+  if (gameState === 'PAUSE') {
+    gameState = 'PLAYING';
     return;
   }
 
@@ -1202,6 +1490,7 @@ function bindBombBtn(id) {
   if (!btn) return;
   btn.addEventListener('pointerdown', (e) => {
     if (e.cancelable) e.preventDefault();
+    getAC();
     if (gameState === 'TUTORIAL') {
       gameState = 'CHAR_SELECT';
     } else if (gameState === 'GAME_OVER') {
@@ -1216,6 +1505,7 @@ bindBombBtn('btnBomb');
 const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.code] = true;
+  getAC();
   if (gameState === 'TUTORIAL') {
     if (e.code === 'Space' || e.code === 'Enter') gameState = 'CHAR_SELECT';
     return;
