@@ -2,11 +2,19 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+>
 
 <title>Deadline Drive - Premiere Pro Timeline Rush</title>
 
 <style>
+
+/* =========================================================
+   RESET
+========================================================= */
 
 * {
   margin: 0;
@@ -29,34 +37,34 @@
     sans-serif;
 }
 
+
+/* =========================================================
+   BODY
+========================================================= */
+
 html,
 body {
+
   width: 100%;
   height: 100%;
 
-  min-width: 100%;
   min-height: 100%;
 
   overflow: hidden;
 
   background: #1e1e1e;
+
   color: #e0e0e0;
 
   margin: 0;
   padding: 0;
 
-  display: block;
-}
-
-body {
-  border: 0 !important;
-  outline: 0 !important;
 }
 
 
 /* =========================================================
-   CONTENITORE PRINCIPALE
-   ========================================================= */
+   GAME WRAPPER
+========================================================= */
 
 #game-wrapper {
 
@@ -64,14 +72,10 @@ body {
 
   inset: 0;
 
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100dvh;
 
-  min-width: 0;
-  min-height: 0;
-
-  max-width: none;
-  max-height: none;
+  min-height: 100dvh;
 
   display: flex;
 
@@ -82,43 +86,43 @@ body {
   justify-content: flex-start;
 
   padding-top:
-    max(
-      env(safe-area-inset-top),
-      4px
-    );
+    max(env(safe-area-inset-top), 4px);
 
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
 
-  padding-bottom: 0;
+  padding-bottom:
+    max(env(safe-area-inset-bottom), 4px);
 
   background: #1e1e1e;
 
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+
   border-radius: 0 !important;
 
   overflow: hidden;
+
 }
 
 
 /* =========================================================
-   TOP BAR
-   ========================================================= */
+   TOP HEADER
+========================================================= */
 
 .top-header {
 
   width: 100%;
 
   height: 34px;
-  min-height: 34px;
 
-  flex: 0 0 34px;
+  min-height: 34px;
 
   display: flex;
 
   justify-content: space-between;
+
   align-items: center;
 
   padding: 4px 6px;
@@ -128,27 +132,24 @@ body {
   border: none !important;
   outline: none !important;
 
-  border-radius: 6px 6px 0 0;
+  border-radius: 7px;
 
-  margin: 0;
+  flex-shrink: 0;
 
-  position: relative;
-  z-index: 5;
 }
+
 
 .header-title {
 
   color: #00d2ff;
 
-  font-size: 10px;
+  font-size: 11px;
 
   font-weight: 700;
 
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
   white-space: nowrap;
 
@@ -156,12 +157,10 @@ body {
 
   text-overflow: ellipsis;
 
-  padding-right: 6px;
 }
 
-.opt-btn {
 
-  flex-shrink: 0;
+.opt-btn {
 
   background: #333333;
 
@@ -169,29 +168,33 @@ body {
 
   color: #ffea00;
 
-  padding: 4px 8px;
+  padding: 3px 8px;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
-  font-size: 9px;
+  font-size: 10px;
 
   font-weight: bold;
 
   border-radius: 4px;
 
   cursor: pointer;
+
+  flex-shrink: 0;
+
 }
 
+
 .opt-btn:active {
+
   transform: scale(0.92);
+
 }
 
 
 /* =========================================================
-   AREA DEL GIOCO
-   ========================================================= */
+   AREA GIOCO
+========================================================= */
 
 #canvas-container {
 
@@ -200,9 +203,11 @@ body {
   width: 100%;
 
   /*
-   * È QUESTO CHE FA PRENDERE AL GIOCO
-   * TUTTO LO SPAZIO POSSIBILE.
-   */
+    IMPORTANTE:
+    il canvas prende tutto lo spazio disponibile
+    prima dei controlli.
+  */
+
   flex: 1 1 auto;
 
   min-height: 0;
@@ -210,35 +215,37 @@ body {
   display: flex;
 
   justify-content: center;
+
   align-items: center;
 
   overflow: hidden;
 
-  margin: 0;
+  padding: 4px 0 2px 0;
 
-  padding: 3px 0;
-
-  background: #1e1e1e;
 }
 
+
+/* =========================================================
+   CANVAS
+========================================================= */
 
 canvas {
 
   display: block;
 
-  /*
-   * La canvas può allargarsi completamente
-   * senza essere schiacciata.
-   */
   width: auto;
   height: auto;
+
+  /*
+    Più spazio verticale disponibile.
+  */
 
   max-width: 100%;
   max-height: 100%;
 
-  aspect-ratio: 338 / 486;
-
   object-fit: contain;
+
+  aspect-ratio: 338 / 486;
 
   border: 1.5px solid #3a3a3a;
 
@@ -249,64 +256,84 @@ canvas {
 
   cursor: pointer;
 
-  border-radius: 5px;
+  border-radius: 6px;
 
-  flex-shrink: 1;
+}
+
+
+/* =========================================================
+   AREA CONTROLLI + EXIT
+========================================================= */
+
+.bottom-area {
+
+  width: 100%;
+
+  /*
+    NON usare space-between qui.
+    Questa area viene spinta naturalmente
+    verso il fondo del display.
+  */
+
+  flex: 0 0 auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  padding: 0;
+
 }
 
 
 /* =========================================================
    CONTROL DECK
-   ========================================================= */
+========================================================= */
 
 .control-deck {
 
   width: 100%;
 
-  /*
-   * Altezza importante:
-   * il joystick viene realmente portato
-   * verso il fondo dello schermo.
-   */
-  flex: 0 0 auto;
-
-  min-height: 196px;
-
   display: flex;
 
   justify-content: center;
+
   align-items: center;
+
+  /*
+    Joystick più grande e più basso.
+  */
 
   padding:
 
-    10px
+    8px
 
-    0
+    12px
 
-    12px;
+    6px;
 
   background: #232323;
 
   border: none !important;
-  border-top: none !important;
-  border-bottom: none !important;
 
   outline: none !important;
 
-  border-radius: 10px;
-
-  margin: 0;
+  border-radius: 12px;
 
   box-shadow: none !important;
 
-  position: relative;
-  z-index: 10;
+  flex-shrink: 0;
+
 }
 
 
 /* =========================================================
    JOYSTICK
-   ========================================================= */
+========================================================= */
 
 .joystick-container {
 
@@ -315,9 +342,9 @@ canvas {
   display: flex;
 
   justify-content: center;
+
   align-items: center;
 
-  height: 100%;
 }
 
 
@@ -329,26 +356,23 @@ canvas {
     repeat(3, 76px);
 
   grid-template-rows:
-    repeat(3, 58px);
+    repeat(3, 64px);
 
   gap: 5px;
 
-  width: max-content;
-
-  height: max-content;
 }
 
 
 /* =========================================================
-   PULSANTI JOYSTICK
-   ========================================================= */
+   CONTROL BUTTON
+========================================================= */
 
 .ctrl-btn {
 
   background:
     linear-gradient(
       180deg,
-      #383844 0%,
+      #32323e 0%,
       #1c1c24 100%
     );
 
@@ -357,30 +381,34 @@ canvas {
 
   color: #00d2ff;
 
-  font-size: 27px;
+  font-size: 28px;
 
   font-weight: bold;
 
-  border-radius: 10px;
+  border-radius: 11px;
 
   display: flex;
 
   justify-content: center;
+
   align-items: center;
 
   cursor: pointer;
 
   box-shadow:
+
     0 4px 0 #005f73,
-    inset 0 1px 0
-      rgba(255,255,255,0.2);
+
+    inset
+    0 1px 0
+    rgba(255,255,255,0.2);
 
   text-shadow:
     0 0 6px
     rgba(0, 210, 255, 0.6);
 
-  min-width: 0;
 }
+
 
 .ctrl-btn:active {
 
@@ -395,18 +423,20 @@ canvas {
   color: #000;
 
   text-shadow: none;
+
 }
 
 
 /* =========================================================
-   CENTRO JOYSTICK
-   ========================================================= */
+   JOYSTICK CENTRALE
+========================================================= */
 
 .ctrl-btn-center {
 
   display: flex;
 
   justify-content: center;
+
   align-items: center;
 
   background: #18181c;
@@ -422,8 +452,8 @@ canvas {
 
 .dpad-core {
 
-  width: 26px;
-  height: 26px;
+  width: 25px;
+  height: 25px;
 
   border-radius: 50%;
 
@@ -435,28 +465,26 @@ canvas {
     );
 
   box-shadow:
-    0 0 14px #00d2ff;
+    0 0 12px #00d2ff;
+
 }
 
 
 /* =========================================================
-   TORNA IN STUDIO
-   ========================================================= */
+   EXIT BUTTON
+========================================================= */
 
 .exit-btn {
 
   width: 100%;
 
-  /*
-   * Niente margin-bottom.
-   * Il pulsante è l'ultimo elemento reale
-   * del flex container.
-   */
   margin: 0;
 
-  flex: 0 0 auto;
-
-  min-height: 38px;
+  /*
+    Questo è il punto fondamentale:
+    niente margine sotto e nessuno spazio
+    artificiale dopo il pulsante.
+  */
 
   padding:
 
@@ -464,10 +492,7 @@ canvas {
 
     7px
 
-    max(
-      env(safe-area-inset-bottom),
-      8px
-    );
+    max(8px, env(safe-area-inset-bottom));
 
   background: #222222;
 
@@ -477,9 +502,7 @@ canvas {
 
   color: #ff3366;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
   font-weight: bold;
 
@@ -491,21 +514,21 @@ canvas {
 
   text-align: center;
 
-  position: relative;
+  flex-shrink: 0;
 
-  z-index: 20;
 }
+
 
 .exit-btn:active {
 
-  transform:
-    scale(0.97);
+  transform: scale(0.98);
+
 }
 
 
 /* =========================================================
    MODALE
-   ========================================================= */
+========================================================= */
 
 .modal-overlay {
 
@@ -520,14 +543,16 @@ canvas {
   height: 100%;
 
   background:
-    rgba(18,18,18,0.95);
+    rgba(18, 18, 18, 0.95);
 
   z-index: 200;
 
   justify-content: center;
+
   align-items: center;
 
   padding: 16px;
+
 }
 
 
@@ -544,7 +569,7 @@ canvas {
 
   box-shadow:
     0 0 25px
-    rgba(0,210,255,0.3);
+    rgba(0, 210, 255, 0.3);
 
   border-radius: 12px;
 
@@ -559,6 +584,7 @@ canvas {
   color: #ffffff;
 
   text-align: center;
+
 }
 
 
@@ -570,9 +596,8 @@ canvas {
 
   font-weight: 900;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
+
 }
 
 
@@ -594,6 +619,7 @@ canvas {
     1px solid #3a3a3a;
 
   border-radius: 6px;
+
 }
 
 
@@ -605,9 +631,8 @@ canvas {
 
   color: #00d2ff;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
+
 }
 
 
@@ -628,13 +653,12 @@ canvas {
 
   font-size: 12px;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
   border-radius: 6px;
 
   cursor: pointer;
+
 }
 
 
@@ -645,6 +669,7 @@ canvas {
   color: #00ff66;
 
   background: #122818;
+
 }
 
 
@@ -662,90 +687,66 @@ canvas {
 
   font-size: 12px;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
   border-radius: 6px;
 
   cursor: pointer;
+
 }
 
 
 /* =========================================================
-   SCHERMI BASSI
-   ========================================================= */
+   MOBILE
+========================================================= */
 
-@media (max-height: 700px) {
+@media (max-width: 440px) {
+
+  #game-wrapper {
+
+    width: 100vw;
+
+    height: 100dvh;
+
+    min-height: 100dvh;
+
+    padding-left: 5px;
+
+    padding-right: 5px;
+
+    padding-top:
+      max(env(safe-area-inset-top), 3px);
+
+    padding-bottom: 0;
+
+  }
+
 
   .top-header {
 
-    height: 30px;
-    min-height: 30px;
+    height: 32px;
 
-    flex-basis: 30px;
+    min-height: 32px;
+
   }
 
 
-  .control-deck {
+  /*
+    Qui il gioco diventa più grande:
+    lasciamo solo pochi pixel di separazione.
+  */
 
-    min-height: 158px;
+  #canvas-container {
 
     padding:
-      7px
-      0
-      8px;
+      3px 0 2px;
+
   }
 
 
-  .dpad-grid {
-
-    grid-template-columns:
-      repeat(3, 64px);
-
-    grid-template-rows:
-      repeat(3, 48px);
-
-    gap: 4px;
-  }
-
-
-  .ctrl-btn {
-
-    font-size: 23px;
-  }
-
-
-  .dpad-core {
-
-    width: 22px;
-    height: 22px;
-  }
-
-
-  .exit-btn {
-
-    min-height: 34px;
-
-    padding:
-      6px
-      7px
-      max(
-        env(safe-area-inset-bottom),
-        6px
-      );
-  }
-
-}
-
-
-@media (min-height: 850px) {
-
-  .control-deck {
-
-    min-height: 215px;
-  }
-
+  /*
+    Joystick più grande.
+  */
 
   .dpad-grid {
 
@@ -753,123 +754,124 @@ canvas {
       repeat(3, 82px);
 
     grid-template-rows:
-      repeat(3, 64px);
+      repeat(3, 67px);
 
     gap: 5px;
+
   }
 
 
   .ctrl-btn {
 
-    font-size: 29px;
+    font-size: 30px;
+
+    border-radius: 12px;
+
   }
 
 
   .dpad-core {
 
-    width: 28px;
-    height: 28px;
-  }
+    width: 27px;
+    height: 27px;
 
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 440px) {
-
-  #game-wrapper {
-
-    width: 100%;
-
-    height: 100%;
-
-    max-width: none;
-    max-height: none;
-
-    border-radius: 0 !important;
-
-    border: none !important;
-
-    padding-left: 5px;
-    padding-right: 5px;
-  }
-
-
-  .top-header {
-
-    border-radius:
-      0 0 5px 5px;
-  }
-
-
-  #canvas-container {
-
-    padding:
-      2px
-      0;
   }
 
 
   .control-deck {
 
-    width: 100%;
+    padding:
+      7px
+      0
+      5px;
 
-    border: none !important;
+    border-radius: 10px;
 
-    border-top: none !important;
-
-    border-bottom: none !important;
-
-    box-shadow: none !important;
-
-    border-radius: 8px 8px 0 0;
   }
 
 
   .exit-btn {
 
-    border: none !important;
+    padding:
+      8px
+      7px
+      max(8px, env(safe-area-inset-bottom));
 
-    border-radius:
-      0 !important;
   }
 
 }
 
 
 /* =========================================================
-   IPHONE / SAFE AREA
-   ========================================================= */
+   SCHERMI MOLTO ALTI
+========================================================= */
 
-@supports (height: 100dvh) {
+@media (max-width: 440px) and (min-height: 750px) {
 
-  #game-wrapper {
+  .dpad-grid {
 
-    height: 100dvh;
+    grid-template-columns:
+      repeat(3, 86px);
+
+    grid-template-rows:
+      repeat(3, 70px);
+
+  }
+
+
+  .control-deck {
+
+    padding-top: 8px;
+
+    padding-bottom: 6px;
 
   }
 
 }
 
 
-/*
- * IMPORTANTISSIMO:
- * quando Safari mostra la barra inferiore,
- * non creiamo uno spazio nero extra.
- */
+/* =========================================================
+   SCHERMI BASSI
+========================================================= */
 
-@supports (height: 100svh) {
+@media (max-width: 440px) and (max-height: 700px) {
 
-  @media (max-height: 700px) {
+  .dpad-grid {
 
-    #game-wrapper {
+    grid-template-columns:
+      repeat(3, 68px);
 
-      min-height: 100svh;
+    grid-template-rows:
+      repeat(3, 55px);
 
-    }
+    gap: 4px;
+
+  }
+
+
+  .ctrl-btn {
+
+    font-size: 24px;
+
+  }
+
+
+  .control-deck {
+
+    padding:
+      5px
+      0
+      4px;
+
+  }
+
+
+  .exit-btn {
+
+    padding:
+      6px
+      7px
+      max(6px, env(safe-area-inset-bottom));
 
   }
 
@@ -888,12 +890,16 @@ canvas {
   loop
   autoplay
   playsinline
-  style="display:none;">
-</audio>
+  style="display:none;"
+></audio>
 
 
 <div id="game-wrapper">
 
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
 
   <div class="top-header">
 
@@ -903,14 +909,17 @@ canvas {
 
     <button
       class="opt-btn"
-      id="btnOpenSettings">
-
+      id="btnOpenSettings"
+    >
       ⚙️ OPZIONI
-
     </button>
 
   </div>
 
+
+  <!-- =====================================================
+       GAME CANVAS
+  ====================================================== -->
 
   <div id="canvas-container">
 
@@ -919,83 +928,106 @@ canvas {
   </div>
 
 
-  <div class="control-deck">
+  <!-- =====================================================
+       BLOCCO INFERIORE
+  ====================================================== -->
 
-    <div class="joystick-container">
+  <div class="bottom-area">
 
-      <div class="dpad-grid">
 
-        <div style="visibility:hidden"></div>
+    <!-- JOYSTICK -->
 
-        <div
-          class="ctrl-btn"
-          id="btnUp">
+    <div class="control-deck">
 
-          ▲
+      <div class="joystick-container">
+
+        <div class="dpad-grid">
+
+
+          <div style="visibility:hidden"></div>
+
+
+          <div
+            class="ctrl-btn"
+            id="btnUp"
+          >
+            ▲
+          </div>
+
+
+          <div style="visibility:hidden"></div>
+
+
+          <div
+            class="ctrl-btn"
+            id="btnLeft"
+          >
+            ◄
+          </div>
+
+
+          <div class="ctrl-btn-center">
+
+            <div class="dpad-core"></div>
+
+          </div>
+
+
+          <div
+            class="ctrl-btn"
+            id="btnRight"
+          >
+            ►
+          </div>
+
+
+          <div style="visibility:hidden"></div>
+
+
+          <div
+            class="ctrl-btn"
+            id="btnDown"
+          >
+            ▼
+          </div>
+
+
+          <div style="visibility:hidden"></div>
+
 
         </div>
-
-        <div style="visibility:hidden"></div>
-
-
-        <div
-          class="ctrl-btn"
-          id="btnLeft">
-
-          ◄
-
-        </div>
-
-
-        <div class="ctrl-btn-center">
-
-          <div class="dpad-core"></div>
-
-        </div>
-
-
-        <div
-          class="ctrl-btn"
-          id="btnRight">
-
-          ►
-
-        </div>
-
-
-        <div style="visibility:hidden"></div>
-
-        <div
-          class="ctrl-btn"
-          id="btnDown">
-
-          ▼
-
-        </div>
-
-        <div style="visibility:hidden"></div>
 
       </div>
 
     </div>
 
+
+    <!-- =================================================
+         EXIT
+    ================================================== -->
+
+    <button
+      class="exit-btn"
+      onclick="exitGame()"
+    >
+      ◄ TORNA IN STUDIO
+    </button>
+
+
   </div>
 
 
-  <button
-    class="exit-btn"
-    onclick="exitGame()">
-
-    ◄ TORNA IN STUDIO
-
-  </button>
-
+  <!-- =====================================================
+       SETTINGS MODAL
+  ====================================================== -->
 
   <div
     class="modal-overlay"
-    id="settingsModal">
+    id="settingsModal"
+  >
 
     <div class="modal-box">
+
 
       <div class="modal-title">
         ⚙️ TIMELINE SETTINGS
@@ -1010,10 +1042,9 @@ canvas {
 
         <button
           class="toggle-btn active"
-          id="btnToggleMusic">
-
+          id="btnToggleMusic"
+        >
           ON 🎵
-
         </button>
 
       </div>
@@ -1027,10 +1058,9 @@ canvas {
 
         <button
           class="toggle-btn active"
-          id="btnToggleSfx">
-
+          id="btnToggleSfx"
+        >
           ON 🔊
-
         </button>
 
       </div>
@@ -1038,11 +1068,11 @@ canvas {
 
       <button
         class="close-modal-btn"
-        id="btnCloseSettings">
-
+        id="btnCloseSettings"
+      >
         SALVA E CHIUDI ►
-
       </button>
+
 
     </div>
 
@@ -1054,6 +1084,9 @@ canvas {
 
 <script>
 
+/* =========================================================
+   CANVAS
+========================================================= */
 
 const canvas =
   document.getElementById('game');
@@ -1063,14 +1096,19 @@ const ctx =
 
 
 const COLS = 13;
+
 const ROWS = 17;
+
 const CELL_SIZE = 26;
+
 const HUD_HEIGHT = 44;
+
 const TRACK_HEADER_W = 38;
 
 
 const CANVAS_W =
   COLS * CELL_SIZE;
+
 
 const CANVAS_H =
   ROWS * CELL_SIZE +
@@ -1080,13 +1118,14 @@ const CANVAS_H =
 canvas.width =
   CANVAS_W;
 
+
 canvas.height =
   CANVAS_H;
 
 
 /* =========================================================
-   UTILITY
-   ========================================================= */
+   ROUNDED RECT
+========================================================= */
 
 function drawRoundRect(
   c,
@@ -1106,11 +1145,13 @@ function drawRoundRect(
 
   c.beginPath();
 
+
   c.moveTo(
     x + r,
     y
   );
 
+
   c.arcTo(
     x + w,
     y,
@@ -1118,6 +1159,7 @@ function drawRoundRect(
     y + h,
     r
   );
+
 
   c.arcTo(
     x + w,
@@ -1127,6 +1169,7 @@ function drawRoundRect(
     r
   );
 
+
   c.arcTo(
     x,
     y + h,
@@ -1135,6 +1178,7 @@ function drawRoundRect(
     r
   );
 
+
   c.arcTo(
     x,
     y,
@@ -1142,14 +1186,16 @@ function drawRoundRect(
     y,
     r
   );
+
 
   c.closePath();
+
 }
 
 
 /* =========================================================
    AUDIO
-   ========================================================= */
+========================================================= */
 
 let musicEnabled =
   localStorage.getItem(
@@ -1164,7 +1210,9 @@ let sfxEnabled =
 
 
 const bgMusic =
-  document.getElementById('bgMusic');
+  document.getElementById(
+    'bgMusic'
+  );
 
 
 bgMusic.volume = 0.4;
@@ -1234,6 +1282,10 @@ function updateMusicState() {
 }
 
 
+/* =========================================================
+   SETTINGS
+========================================================= */
+
 const settingsModal =
   document.getElementById(
     'settingsModal'
@@ -1273,6 +1325,7 @@ function renderOptionButtons() {
         : ''
     }`;
 
+
   btnToggleMusic.innerText =
     musicEnabled
       ? 'ON 🎵'
@@ -1285,6 +1338,7 @@ function renderOptionButtons() {
         ? 'active'
         : ''
     }`;
+
 
   btnToggleSfx.innerText =
     sfxEnabled
@@ -1302,10 +1356,12 @@ btnToggleMusic.onclick = () => {
   musicEnabled =
     !musicEnabled;
 
+
   localStorage.setItem(
     'deadlineDrive_music',
     musicEnabled
   );
+
 
   renderOptionButtons();
 
@@ -1319,10 +1375,12 @@ btnToggleSfx.onclick = () => {
   sfxEnabled =
     !sfxEnabled;
 
+
   localStorage.setItem(
     'deadlineDrive_sfx',
     sfxEnabled
   );
+
 
   renderOptionButtons();
 
@@ -1339,6 +1397,7 @@ btnOpenSettings.onclick = () => {
 
   }
 
+
   settingsModal.style.display =
     'flex';
 
@@ -1350,16 +1409,18 @@ btnCloseSettings.onclick = () => {
   settingsModal.style.display =
     'none';
 
+
   getAC();
+
 
   if (
     gameState === 'PAUSE'
   ) {
 
-    gameState =
-      'PLAYING';
+    gameState = 'PLAYING';
 
   }
+
 
   updateMusicState();
 
@@ -1368,7 +1429,7 @@ btnCloseSettings.onclick = () => {
 
 /* =========================================================
    AUDIO SYNTH
-   ========================================================= */
+========================================================= */
 
 let audioCtx = null;
 
@@ -1383,6 +1444,7 @@ function getAC() {
         window.AudioContext ||
         window.webkitAudioContext;
 
+
       if (AudioContextClass) {
 
         audioCtx =
@@ -1395,7 +1457,8 @@ function getAC() {
 
     if (
       audioCtx &&
-      audioCtx.state === 'suspended'
+      audioCtx.state ===
+        'suspended'
     ) {
 
       audioCtx
@@ -1411,6 +1474,7 @@ function getAC() {
 
   playBgMusic();
 
+
   return audioCtx;
 
 }
@@ -1424,7 +1488,9 @@ function playSound(type) {
 
   try {
 
-    const ac = getAC();
+    const ac =
+      getAC();
+
 
     if (!ac)
       return;
@@ -1432,6 +1498,7 @@ function playSound(type) {
 
     const osc =
       ac.createOscillator();
+
 
     const gain =
       ac.createGain();
@@ -1444,9 +1511,7 @@ function playSound(type) {
     );
 
 
-    if (
-      type === 'cross'
-    ) {
+    if (type === 'cross') {
 
       osc.type =
         'triangle';
@@ -1493,11 +1558,10 @@ function playSound(type) {
       );
 
 
-      osc.frequency
-        .exponentialRampToValueAtTime(
-          40,
-          ac.currentTime + 0.25
-        );
+      osc.frequency.exponentialRampToValueAtTime(
+        40,
+        ac.currentTime + 0.25
+      );
 
 
       gain.gain.setValueAtTime(
@@ -1529,11 +1593,10 @@ function playSound(type) {
       );
 
 
-      osc.frequency
-        .linearRampToValueAtTime(
-          1200,
-          ac.currentTime + 0.1
-        );
+      osc.frequency.linearRampToValueAtTime(
+        1200,
+        ac.currentTime + 0.1
+      );
 
 
       gain.gain.setValueAtTime(
@@ -1600,11 +1663,10 @@ function playSound(type) {
       );
 
 
-      osc.frequency
-        .linearRampToValueAtTime(
-          80,
-          ac.currentTime + 0.2
-        );
+      osc.frequency.linearRampToValueAtTime(
+        80,
+        ac.currentTime + 0.2
+      );
 
 
       gain.gain.setValueAtTime(
@@ -1636,11 +1698,10 @@ function playSound(type) {
       );
 
 
-      osc.frequency
-        .linearRampToValueAtTime(
-          50,
-          ac.currentTime + 0.3
-        );
+      osc.frequency.linearRampToValueAtTime(
+        50,
+        ac.currentTime + 0.3
+      );
 
 
       gain.gain.setValueAtTime(
@@ -1665,8 +1726,8 @@ function playSound(type) {
 
 
 /* =========================================================
-   RITRATTI
-   ========================================================= */
+   IMMAGINI
+========================================================= */
 
 const imgGiulia =
   new Image();
@@ -1697,107 +1758,182 @@ imgLuca.src =
 
 
 /* =========================================================
-   CLIP
-   ========================================================= */
+   CLIPS
+========================================================= */
 
 const PREMIERE_CLIPS = {
 
   BLUE_A_ROLL: {
+
     type: 'A_ROLL',
+
     label: 'A001_C004.MOV',
+
     bg: '#2b52a1',
+
     border: '#5682e8',
+
     textCol: '#d0e0ff',
+
     topBar: '#00ff66',
+
     wMult: 2.2,
+
     hMult: 1
+
   },
 
 
   PURPLE_B_ROLL: {
+
     type: 'B_ROLL',
+
     label: 'B002_DRONE.MP4',
+
     bg: '#7f22a7',
+
     border: '#b842df',
+
     textCol: '#f2c8ff',
+
     topBar: '#ff0055',
+
     wMult: 2.5,
+
     hMult: 1
+
   },
 
 
   ROSE_LUMETRI: {
+
     type: 'LUMETRI',
+
     label: 'LUMETRI COLOR',
+
     bg: '#a11b43',
+
     border: '#e64273',
+
     textCol: '#ffd4e2',
+
     topBar: '#ffee00',
+
     wMult: 2.0,
+
     hMult: 1
+
   },
 
 
   GOLD_VOICEOVER: {
+
     type: 'VOICEOVER',
+
     label: 'VO_MASTER_V2',
+
     bg: '#8f7d18',
+
     border: '#dbc330',
+
     textCol: '#fdf8c2',
+
     topBar: '#00ff66',
+
     isAudio: true,
+
     wMult: 2.0,
+
     hMult: 1
+
   },
 
 
   GREEN_SFX: {
+
     type: 'SFX_WAVE',
+
     label: 'SFX_WHOOSH.WAV',
+
     bg: '#2d7a3a',
+
     border: '#4ec462',
+
     textCol: '#d2f8da',
+
     topBar: '#00ff66',
+
     isAudio: true,
+
     wMult: 1.8,
+
     hMult: 1
+
   },
 
 
   TEAL_MUSIC: {
+
     type: 'MUSIC',
+
     label: 'BEAT_TRACK_FLAC',
+
     bg: '#147b85',
+
     border: '#23b3be',
+
     textCol: '#c2f8fc',
+
     topBar: '#00ff66',
+
     isAudio: true,
+
     wMult: 2.8,
+
     hMult: 1
+
   },
 
 
   NESTED_SEQ: {
+
     type: 'NESTED',
+
     label: 'NEST_INTRO_SEQ',
+
     bg: '#5b1e8a',
+
     border: '#8b3adb',
+
     textCol: '#e8cbff',
+
     topBar: '#ffee00',
+
     wMult: 3.0,
+
     hMult: 1
+
   },
 
 
   OFFLINE_RED: {
+
     type: 'OFFLINE',
+
     label: 'MEDIA OFFLINE! 🔴',
+
     bg: '#8b0000',
+
     border: '#ff3333',
+
     textCol: '#ffffff',
+
     topBar: '#ff0000',
+
     wMult: 3.2,
+
     hMult: 1
+
   }
 
 };
@@ -1805,51 +1941,67 @@ const PREMIERE_CLIPS = {
 
 /* =========================================================
    LEVEL THEMES
-   ========================================================= */
+========================================================= */
 
 const LEVEL_THEMES = [
 
   {
+
     levelMin: 1,
+
     title:
       "STAGE 1: ASSEMBLY TIMELINE",
+
     msg:
       "Primi stacchi video: pochi ostacoli e flusso regolare!"
+
   },
 
 
   {
+
     levelMin: 2,
+
     title:
       "STAGE 2: MONTAGGIO RUSH",
+
     msg:
       "Aumentano le clip b-roll e le tracce audio!"
+
   },
 
 
   {
+
     levelMin: 3,
+
     title:
       "STAGE 3: COLOR & FX MULTI-LAYER",
+
     msg:
       "Lumetri Color, Nested Sequences e tracce complesse!"
+
   },
 
 
   {
+
     levelMin: 4,
+
     title:
       "STAGE 4: EXPORT FINALE PRE-DEADLINE",
+
     msg:
       "Massima densità e velocità sulla Timeline!"
+
   }
 
 ];
 
 
 /* =========================================================
-   PERSONAGGI
-   ========================================================= */
+   CHARACTERS
+========================================================= */
 
 const CHARACTERS = {
 
@@ -1868,26 +2020,20 @@ const CHARACTERS = {
     perkMalus:
       "MALUS: Sensibile al Glitch",
 
-    primary:
-      "#00d2ff",
+    primary: "#00d2ff",
 
-    bg:
-      "#181818",
+    bg: "#181818",
 
-    img:
-      imgGiulia,
+    img: imgGiulia,
 
-    arrowCol:
-      "#00d2ff",
+    arrowCol: "#00d2ff",
 
-    arrowGlow:
-      "#005f73",
+    arrowGlow: "#005f73",
 
-    speed:
-      2.8,
+    speed: 2.8,
 
-    scoreMult:
-      1.25
+    scoreMult: 1.25
+
   },
 
 
@@ -1906,26 +2052,20 @@ const CHARACTERS = {
     perkMalus:
       "MALUS: Punteggio Base (-10%)",
 
-    primary:
-      "#ffd700",
+    primary: "#ffd700",
 
-    bg:
-      "#181818",
+    bg: "#181818",
 
-    img:
-      imgTobi,
+    img: imgTobi,
 
-    arrowCol:
-      "#ffd700",
+    arrowCol: "#ffd700",
 
-    arrowGlow:
-      "#886600",
+    arrowGlow: "#886600",
 
-    speed:
-      3.4,
+    speed: 3.4,
 
-    scoreMult:
-      0.9
+    scoreMult: 0.9
+
   },
 
 
@@ -1944,26 +2084,20 @@ const CHARACTERS = {
     perkMalus:
       "MALUS: Passo Pesante (-20% Velocità)",
 
-    primary:
-      "#ff0055",
+    primary: "#ff0055",
 
-    bg:
-      "#181818",
+    bg: "#181818",
 
-    img:
-      imgDave,
+    img: imgDave,
 
-    arrowCol:
-      "#ff0055",
+    arrowCol: "#ff0055",
 
-    arrowGlow:
-      "#880022",
+    arrowGlow: "#880022",
 
-    speed:
-      2.0,
+    speed: 2.0,
 
-    scoreMult:
-      1.3
+    scoreMult: 1.3
+
   },
 
 
@@ -1982,153 +2116,126 @@ const CHARACTERS = {
     perkMalus:
       "MALUS: Meno Vite Iniziali",
 
-    primary:
-      "#ffaa00",
+    primary: "#ffaa00",
 
-    bg:
-      "#181818",
+    bg: "#181818",
 
-    img:
-      imgLuca,
+    img: imgLuca,
 
-    arrowCol:
-      "#ffaa00",
+    arrowCol: "#ffaa00",
 
-    arrowGlow:
-      "#885500",
+    arrowGlow: "#885500",
 
-    speed:
-      3.2,
+    speed: 3.2,
 
-    scoreMult:
-      1.15
+    scoreMult: 1.15
+
   }
 
 };
 
 
 const CHARACTER_LIST = [
+
   'GIULIA',
   'TOBI',
   'DAVE',
   'LUCA'
+
 ];
 
 
 /* =========================================================
-   PICKUP
-   ========================================================= */
+   PICKUPS
+========================================================= */
 
 const PICKUP_TYPES = {
 
   AUTO_SAVE: {
 
-    type:
-      'AUTOSAVE',
+    type: 'AUTOSAVE',
 
-    label:
-      '💾 SAVE',
+    label: '💾 SAVE',
 
-    pts:
-      300,
+    pts: 300,
 
-    isMalus:
-      false
+    isMalus: false
+
   },
 
 
   PROXY_ON: {
 
-    type:
-      'PROXY',
+    type: 'PROXY',
 
-    label:
-      '🎬 PROXY 2X',
+    label: '🎬 PROXY 2X',
 
-    pts:
-      400,
+    pts: 400,
 
-    isMalus:
-      false,
+    isMalus: false,
 
-    scoreBoost:
-      2.0
+    scoreBoost: 2.0
+
   },
 
 
   CACHE_BOOST: {
 
-    type:
-      'CACHE',
+    type: 'CACHE',
 
-    label:
-      '⚡ CACHE',
+    label: '⚡ CACHE',
 
-    pts:
-      150,
+    pts: 150,
 
-    isMalus:
-      false,
+    isMalus: false,
 
-    speedBoost:
-      1.3
+    speedBoost: 1.3
+
   },
 
 
   GUARD: {
 
-    type:
-      'GUARD',
+    type: 'GUARD',
 
-    label:
-      '🛡️ RENDER',
+    label: '🛡️ RENDER',
 
-    pts:
-      250,
+    pts: 250,
 
-    isMalus:
-      false,
+    isMalus: false,
 
-    shieldDuration:
-      180
+    shieldDuration: 180
+
   },
 
 
   DROP_FRAME: {
 
-    type:
-      'DROP_FRAME',
+    type: 'DROP_FRAME',
 
-    label:
-      '🐌 DROP',
+    label: '🐌 DROP',
 
-    pts:
-      -100,
+    pts: -100,
 
-    isMalus:
-      true,
+    isMalus: true,
 
-    slowFactor:
-      0.6
+    slowFactor: 0.6
+
   },
 
 
   DISK_FULL: {
 
-    type:
-      'DISK_FULL',
+    type: 'DISK_FULL',
 
-    label:
-      '⚠️ FULL DISK',
+    label: '⚠️ FULL DISK',
 
-    pts:
-      -200,
+    pts: -200,
 
-    isMalus:
-      true,
+    isMalus: true,
 
-    invertControls:
-      true
+    invertControls: true
+
   }
 
 };
@@ -2136,7 +2243,7 @@ const PICKUP_TYPES = {
 
 /* =========================================================
    GAME STATE
-   ========================================================= */
+========================================================= */
 
 let currentTheme =
   CHARACTERS.GIULIA;
@@ -2152,14 +2259,17 @@ let highScore =
 
 let activeLanes = [];
 
+
 let gameState =
   'TUTORIAL';
+
 
 let level = 1;
 
 let score = 0;
 
 let lives = 3;
+
 
 let visualScrollOffset = 0;
 
@@ -2174,49 +2284,45 @@ let player = {
   gy:
     ROWS - 2,
 
-  w:
-    16,
+  w: 16,
 
-  h:
-    16,
+  h: 16,
 
-  facingLeft:
-    false,
+  facingLeft: false,
 
-  invTimer:
-    0,
+  invTimer: 0,
 
-  guardTimer:
-    0,
+  guardTimer: 0,
 
-  nextMoveAllowedTimer:
-    0,
+  nextMoveAllowedTimer: 0,
 
-  speedMult:
-    1.0,
+  speedMult: 1.0,
 
-  tempScoreMult:
-    1.0,
+  tempScoreMult: 1.0,
 
-  glitchTimer:
-    0
+  glitchTimer: 0
 
 };
 
 
 let moveUp = false;
+
 let moveDown = false;
+
 let moveLeft = false;
+
 let moveRight = false;
 
+
 let selectedCharIndex = 0;
+
 
 let particles = [];
 
 
 /* =========================================================
-   LANES
-   ========================================================= */
+   CREATE LANE
+========================================================= */
 
 function createNewLane(
   isInitialSetup = false,
@@ -2229,8 +2335,7 @@ function createNewLane(
   let safeChance =
     Math.max(
       0.20,
-      0.45 -
-      (level * 0.08)
+      0.45 - level * 0.08
     );
 
 
@@ -2250,7 +2355,6 @@ function createNewLane(
 
   }
 
-
   else {
 
     let topLane =
@@ -2265,7 +2369,6 @@ function createNewLane(
       isSafe = false;
 
     }
-
 
     else {
 
@@ -2285,7 +2388,8 @@ function createNewLane(
 
 
   let dir =
-    Math.random() < 0.5
+    Math.random() <
+    0.5
       ? 1
       : -1;
 
@@ -2318,44 +2422,38 @@ function createNewLane(
 
   if (r % 5 === 0) {
 
-    trackLabel =
-      "V3";
+    trackLabel = "V3";
 
   }
 
   else if (r % 5 === 1) {
 
-    trackLabel =
-      "V2";
+    trackLabel = "V2";
 
   }
 
   else if (r % 5 === 2) {
 
-    trackLabel =
-      "V1";
+    trackLabel = "V1";
 
   }
 
   else if (r % 5 === 3) {
 
-    trackLabel =
-      "A1";
+    trackLabel = "A1";
 
   }
 
   else {
 
-    trackLabel =
-      "A2";
+    trackLabel = "A2";
 
   }
 
 
   let laneObj = {
 
-    type:
-      laneType,
+    type: laneType,
 
     trackLabel:
       isSafe
@@ -2367,17 +2465,13 @@ function createNewLane(
         ? '#1c2230'
         : '#141416',
 
-    dir:
-      dir,
+    dir: dir,
 
-    speed:
-      baseSpeed,
+    speed: baseSpeed,
 
-    objects:
-      [],
+    objects: [],
 
-    pickups:
-      []
+    pickups: []
 
   };
 
@@ -2394,8 +2488,7 @@ function createNewLane(
     let minGap =
       Math.max(
         4.0,
-        10.0 -
-        (level * 1.5)
+        10.0 - level * 1.5
       );
 
 
@@ -2404,8 +2497,7 @@ function createNewLane(
       x +=
         CELL_SIZE *
         (
-          Math.random() *
-          2.5 +
+          Math.random() * 2.5 +
           minGap
         );
 
@@ -2427,11 +2519,9 @@ function createNewLane(
 
         laneObj.objects.push({
 
-          x:
-            x,
+          x: x,
 
-          type:
-            vType,
+          type: vType,
 
           w:
             vType.wMult *
@@ -2499,8 +2589,8 @@ function createNewLane(
 
 
 /* =========================================================
-   START
-   ========================================================= */
+   START GAME
+========================================================= */
 
 function startInfiniteScroll() {
 
@@ -2537,39 +2627,34 @@ function resetPlayer() {
       COLS / 2
     );
 
+
   player.gy =
     ROWS - 2;
 
-  player.w =
-    16;
 
-  player.h =
-    16;
+  player.w = 16;
 
-  player.invTimer =
-    0;
+  player.h = 16;
 
-  player.guardTimer =
-    0;
 
-  player.nextMoveAllowedTimer =
-    0;
+  player.invTimer = 0;
 
-  player.speedMult =
-    1.0;
+  player.guardTimer = 0;
 
-  player.tempScoreMult =
-    1.0;
+  player.nextMoveAllowedTimer = 0;
 
-  player.glitchTimer =
-    0;
+  player.speedMult = 1.0;
+
+  player.tempScoreMult = 1.0;
+
+  player.glitchTimer = 0;
 
 }
 
 
 /* =========================================================
-   PLAYER
-   ========================================================= */
+   UPDATE PLAYER
+========================================================= */
 
 function updatePlayer() {
 
@@ -2596,6 +2681,7 @@ function updatePlayer() {
   ) {
 
     let dx = 0;
+
     let dy = 0;
 
 
@@ -2628,13 +2714,20 @@ function updatePlayer() {
     ) {
 
       let tempL = inLeft;
+
       let tempR = inRight;
+
       let tempU = inUp;
+
       let tempD = inDown;
 
+
       inLeft = tempR;
+
       inRight = tempL;
+
       inUp = tempD;
+
       inDown = tempU;
 
     }
@@ -2644,8 +2737,7 @@ function updatePlayer() {
 
       dx--;
 
-      player.facingLeft =
-        true;
+      player.facingLeft = true;
 
     }
 
@@ -2653,8 +2745,7 @@ function updatePlayer() {
 
       dx++;
 
-      player.facingLeft =
-        false;
+      player.facingLeft = false;
 
     }
 
@@ -2680,6 +2771,7 @@ function updatePlayer() {
       let ngx =
         player.gx + dx;
 
+
       let ngy =
         player.gy + dy;
 
@@ -2694,11 +2786,9 @@ function updatePlayer() {
         ngy < ROWS
       ) {
 
-        player.gx =
-          ngx;
+        player.gx = ngx;
 
-        player.gy =
-          ngy;
+        player.gy = ngy;
 
 
         if (
@@ -2710,24 +2800,19 @@ function updatePlayer() {
 
         }
 
-        else if (
-          dy < 0
-        ) {
+        else if (dy < 0) {
 
-          score +=
-            Math.floor(
-              10 *
-              level *
-              currentTheme.scoreMult *
-              player.tempScoreMult
-            );
+          score += Math.floor(
+            10 *
+            level *
+            currentTheme.scoreMult *
+            player.tempScoreMult
+          );
 
         }
 
 
-        playSound(
-          'cross'
-        );
+        playSound('cross');
 
 
         let effSpeed =
@@ -2776,8 +2861,8 @@ function updatePlayer() {
 
 
 /* =========================================================
-   SCROLL
-   ========================================================= */
+   SCROLL WORLD
+========================================================= */
 
 function scrollWorldDown() {
 
@@ -2796,13 +2881,12 @@ function scrollWorldDown() {
     CELL_SIZE;
 
 
-  score +=
-    Math.floor(
-      15 *
-      level *
-      currentTheme.scoreMult *
-      player.tempScoreMult
-    );
+  score += Math.floor(
+    15 *
+    level *
+    currentTheme.scoreMult *
+    player.tempScoreMult
+  );
 
 
   if (
@@ -2818,8 +2902,8 @@ function scrollWorldDown() {
 
 
 /* =========================================================
-   VEHICLES
-   ========================================================= */
+   UPDATE VEHICLES
+========================================================= */
 
 function updateVehicles() {
 
@@ -2837,8 +2921,7 @@ function updateVehicles() {
     ) < 0.1
   ) {
 
-    visualScrollOffset =
-      0;
+    visualScrollOffset = 0;
 
   }
 
@@ -2861,8 +2944,8 @@ function updateVehicles() {
             if (
               lane.dir > 0 &&
               obj.x >
-              CANVAS_W +
-              obj.w
+                CANVAS_W +
+                obj.w
             ) {
 
               obj.x =
@@ -2871,12 +2954,11 @@ function updateVehicles() {
 
             }
 
-
             else if (
               lane.dir < 0 &&
               obj.x <
-              TRACK_HEADER_W -
-              obj.w
+                TRACK_HEADER_W -
+                obj.w
             ) {
 
               obj.x =
@@ -2930,7 +3012,7 @@ function updateVehicles() {
 
 /* =========================================================
    PARTICLES
-   ========================================================= */
+========================================================= */
 
 function addParticles(
   x,
@@ -2947,29 +3029,23 @@ function addParticles(
 
     particles.push({
 
-      x:
-        x,
+      x: x,
 
-      y:
-        y,
+      y: y,
 
       vx:
         (
-          Math.random() -
-          0.5
+          Math.random() - 0.5
         ) * 6,
 
       vy:
         (
-          Math.random() -
-          0.5
+          Math.random() - 0.5
         ) * 6,
 
-      life:
-        16,
+      life: 16,
 
-      color:
-        color
+      color: color
 
     });
 
@@ -2980,7 +3056,7 @@ function addParticles(
 
 /* =========================================================
    PICKUPS
-   ========================================================= */
+========================================================= */
 
 function checkPickups() {
 
@@ -3015,20 +3091,17 @@ function checkPickups() {
       p.gx === player.gx
     ) {
 
-      score +=
-        Math.floor(
-          p.type.pts *
-          currentTheme.scoreMult
-        );
+      score += Math.floor(
+        p.type.pts *
+        currentTheme.scoreMult
+      );
 
 
       if (
         p.type.isMalus
       ) {
 
-        playSound(
-          'malus'
-        );
+        playSound('malus');
 
 
         if (
@@ -3052,12 +3125,9 @@ function checkPickups() {
 
       }
 
-
       else {
 
-        playSound(
-          'pickup'
-        );
+        playSound('pickup');
 
 
         if (
@@ -3129,7 +3199,7 @@ function checkPickups() {
 
 /* =========================================================
    COLLISION
-   ========================================================= */
+========================================================= */
 
 function isInvincible() {
 
@@ -3166,8 +3236,7 @@ function checkCollisions() {
   ) {
 
     let checkLaneIdx =
-      player.gy -
-      offset;
+      player.gy - offset;
 
 
     if (
@@ -3212,6 +3281,7 @@ function checkCollisions() {
         let oLeft =
           obj.x;
 
+
         let oRight =
           obj.x +
           obj.w;
@@ -3248,9 +3318,7 @@ function hitPlayer() {
 
   lives--;
 
-  playSound(
-    'crash'
-  );
+  playSound('crash');
 
 
   addParticles(
@@ -3277,14 +3345,11 @@ function hitPlayer() {
     gameState =
       'GAME_OVER';
 
-    playSound(
-      'fail'
-    );
+    playSound('fail');
 
     saveScore();
 
   }
-
 
   else {
 
@@ -3300,11 +3365,11 @@ function hitPlayer() {
 
       if (
         activeLanes[r] &&
-        activeLanes[r].type === 'SAFE'
+        activeLanes[r].type ===
+          'SAFE'
       ) {
 
-        respawnGy =
-          r;
+        respawnGy = r;
 
         break;
 
@@ -3318,20 +3383,18 @@ function hitPlayer() {
         COLS / 2
       );
 
+
     player.gy =
       respawnGy;
 
-    player.invTimer =
-      90;
 
-    player.glitchTimer =
-      0;
+    player.invTimer = 90;
 
-    player.speedMult =
-      1.0;
+    player.glitchTimer = 0;
 
-    player.tempScoreMult =
-      1.0;
+    player.speedMult = 1.0;
+
+    player.tempScoreMult = 1.0;
 
   }
 
@@ -3339,8 +3402,8 @@ function hitPlayer() {
 
 
 /* =========================================================
-   WORLD
-   ========================================================= */
+   WORLD DRAW
+========================================================= */
 
 function drawGameWorld() {
 
@@ -3382,8 +3445,8 @@ function drawGameWorld() {
       ctx.strokeStyle =
         '#222226';
 
-      ctx.lineWidth =
-        1;
+
+      ctx.lineWidth = 1;
 
 
       ctx.strokeRect(
@@ -3510,8 +3573,8 @@ function drawGameWorld() {
       ctx.strokeStyle =
         '#323238';
 
-      ctx.lineWidth =
-        1;
+
+      ctx.lineWidth = 1;
 
 
       ctx.strokeRect(
@@ -3541,8 +3604,7 @@ function drawGameWorld() {
       ctx.fillText(
         lane.trackLabel,
         TRACK_HEADER_W / 2,
-        y +
-          CELL_SIZE / 2
+        y + CELL_SIZE / 2
       );
 
     }
@@ -3580,10 +3642,10 @@ function drawGameWorld() {
 
 
   ctx.strokeStyle =
-    'rgba(0,210,255,0.4)';
+    'rgba(0, 210, 255, 0.4)';
 
-  ctx.lineWidth =
-    1.5;
+
+  ctx.lineWidth = 1.5;
 
 
   ctx.beginPath();
@@ -3611,7 +3673,7 @@ function drawGameWorld() {
 
 /* =========================================================
    OBSTACLES
-   ========================================================= */
+========================================================= */
 
 function drawObstacles(
   lane,
@@ -3624,11 +3686,14 @@ function drawObstacles(
       let x =
         obj.x;
 
+
       let y =
         laneY;
 
+
       let vData =
         obj.type;
+
 
       let blockW =
         obj.w;
@@ -3683,8 +3748,8 @@ function drawObstacles(
       ctx.strokeStyle =
         vData.border;
 
-      ctx.lineWidth =
-        1;
+
+      ctx.lineWidth = 1;
 
 
       ctx.strokeRect(
@@ -3737,8 +3802,8 @@ function drawObstacles(
         ctx.strokeStyle =
           'rgba(255,255,255,0.18)';
 
-        ctx.lineWidth =
-          1;
+
+        ctx.lineWidth = 1;
 
 
         ctx.beginPath();
@@ -3752,17 +3817,13 @@ function drawObstacles(
 
         ctx.moveTo(
           x + 18,
-          y +
-            blockH / 2
+          y + blockH / 2
         );
 
 
         ctx.lineTo(
-          x +
-            blockW -
-            6,
-          y +
-            blockH / 2
+          x + blockW - 6,
+          y + blockH / 2
         );
 
 
@@ -3811,8 +3872,8 @@ function drawObstacles(
 
 
 /* =========================================================
-   PLAYER DRAW
-   ========================================================= */
+   PLAYER
+========================================================= */
 
 function drawSinglePlayer() {
 
@@ -3866,8 +3927,9 @@ function drawSinglePlayer() {
   ctx.shadowColor =
     '#00d2ff';
 
-  ctx.shadowBlur =
-    10;
+
+  ctx.shadowBlur = 10;
+
 
   ctx.fillStyle =
     '#00d2ff';
@@ -3909,8 +3971,8 @@ function drawSinglePlayer() {
   ctx.strokeStyle =
     '#ffffff';
 
-  ctx.lineWidth =
-    1.5;
+
+  ctx.lineWidth = 1.5;
 
 
   ctx.stroke();
@@ -3922,6 +3984,7 @@ function drawSinglePlayer() {
 
     ctx.fillStyle =
       '#ff0055';
+
 
     ctx.font =
       'bold 10px monospace';
@@ -3943,14 +4006,15 @@ function drawSinglePlayer() {
     ctx.shadowColor =
       '#00ff66';
 
-    ctx.shadowBlur =
-      12;
+
+    ctx.shadowBlur = 12;
+
 
     ctx.strokeStyle =
       '#00ff66';
 
-    ctx.lineWidth =
-      2;
+
+    ctx.lineWidth = 2;
 
 
     ctx.beginPath();
@@ -3977,7 +4041,7 @@ function drawSinglePlayer() {
 
 /* =========================================================
    HUD
-   ========================================================= */
+========================================================= */
 
 function drawHUD() {
 
@@ -3996,8 +4060,8 @@ function drawHUD() {
   ctx.strokeStyle =
     '#383840';
 
-  ctx.lineWidth =
-    1.5;
+
+  ctx.lineWidth = 1.5;
 
 
   ctx.strokeRect(
@@ -4090,7 +4154,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-    `VITE: ${'❤️'.repeat(lives)}`,
+    `VITE: ${
+      '❤️'.repeat(lives)
+    }`,
     canvas.width - 8,
     34
   );
@@ -4100,7 +4166,7 @@ function drawHUD() {
 
 /* =========================================================
    TUTORIAL
-   ========================================================= */
+========================================================= */
 
 function drawTutorial() {
 
@@ -4148,14 +4214,16 @@ function drawTutorial() {
   ctx.fillStyle =
     '#282830';
 
+
   ctx.fill();
 
 
   ctx.strokeStyle =
     '#00d2ff';
 
-  ctx.lineWidth =
-    2;
+
+  ctx.lineWidth = 2;
+
 
   ctx.stroke();
 
@@ -4163,8 +4231,10 @@ function drawTutorial() {
   ctx.fillStyle =
     '#00d2ff';
 
+
   ctx.font =
     'bold 12px monospace';
+
 
   ctx.textAlign =
     'left';
@@ -4180,6 +4250,7 @@ function drawTutorial() {
   ctx.fillStyle =
     '#ffffff';
 
+
   ctx.font =
     '11px sans-serif';
 
@@ -4192,14 +4263,14 @@ function drawTutorial() {
 
 
   ctx.fillText(
-    '  Lumetri FX e tracce audio fuori sync!',
+    "  Lumetri FX e tracce audio fuori sync!",
     22,
     106
   );
 
 
   ctx.fillText(
-    '• Avanza verso l\'alto per fare punti!',
+    "• Avanza verso l'alto per fare punti!",
     22,
     122
   );
@@ -4218,14 +4289,16 @@ function drawTutorial() {
   ctx.fillStyle =
     '#282830';
 
+
   ctx.fill();
 
 
   ctx.strokeStyle =
     '#00ff66';
 
-  ctx.lineWidth =
-    2;
+
+  ctx.lineWidth = 2;
+
 
   ctx.stroke();
 
@@ -4233,8 +4306,10 @@ function drawTutorial() {
   ctx.fillStyle =
     '#00ff66';
 
+
   ctx.font =
     'bold 12px monospace';
+
 
   ctx.textAlign =
     'left';
@@ -4249,6 +4324,7 @@ function drawTutorial() {
 
   ctx.fillStyle =
     '#ffffff';
+
 
   ctx.font =
     '11px sans-serif';
@@ -4288,14 +4364,16 @@ function drawTutorial() {
   ctx.fillStyle =
     '#282830';
 
+
   ctx.fill();
 
 
   ctx.strokeStyle =
     '#ff0055';
 
-  ctx.lineWidth =
-    2;
+
+  ctx.lineWidth = 2;
+
 
   ctx.stroke();
 
@@ -4303,8 +4381,10 @@ function drawTutorial() {
   ctx.fillStyle =
     '#ff0055';
 
+
   ctx.font =
     'bold 12px monospace';
+
 
   ctx.textAlign =
     'left';
@@ -4319,6 +4399,7 @@ function drawTutorial() {
 
   ctx.fillStyle =
     '#ffffff';
+
 
   ctx.font =
     '11px sans-serif';
@@ -4341,8 +4422,10 @@ function drawTutorial() {
   ctx.fillStyle =
     '#ffff00';
 
+
   ctx.font =
     'bold 12px monospace';
+
 
   ctx.textAlign =
     'center';
@@ -4368,20 +4451,23 @@ function drawTutorial() {
   ctx.fillStyle =
     '#00d2ff';
 
+
   ctx.fill();
 
 
   ctx.strokeStyle =
     '#ffffff';
 
-  ctx.lineWidth =
-    1.5;
+
+  ctx.lineWidth = 1.5;
+
 
   ctx.stroke();
 
 
   ctx.fillStyle =
     '#000000';
+
 
   ctx.font =
     'bold 12px monospace';
@@ -4398,7 +4484,7 @@ function drawTutorial() {
 
 /* =========================================================
    CHARACTER SELECT
-   ========================================================= */
+========================================================= */
 
 function drawCharSelect() {
 
@@ -4417,8 +4503,10 @@ function drawCharSelect() {
   ctx.fillStyle =
     '#ffff00';
 
+
   ctx.font =
     'bold 13px monospace';
+
 
   ctx.textAlign =
     'center';
@@ -4442,6 +4530,7 @@ function drawCharSelect() {
 
 
   let cardW = 318;
+
   let cardH = 395;
 
 
@@ -4468,19 +4557,22 @@ function drawCharSelect() {
   ctx.fillStyle =
     '#25252d';
 
+
   ctx.fill();
 
 
   ctx.strokeStyle =
     c.primary;
 
-  ctx.lineWidth =
-    2.5;
+
+  ctx.lineWidth = 2.5;
+
 
   ctx.stroke();
 
 
   let boxW = 160;
+
   let boxH = 160;
 
 
@@ -4527,11 +4619,11 @@ function drawCharSelect() {
 
   }
 
-
   else {
 
     ctx.fillStyle =
       '#181822';
+
 
     ctx.fill();
 
@@ -4539,8 +4631,10 @@ function drawCharSelect() {
     ctx.fillStyle =
       c.primary;
 
+
     ctx.font =
       'bold 36px monospace';
+
 
     ctx.textAlign =
       'center';
@@ -4571,8 +4665,9 @@ function drawCharSelect() {
   ctx.strokeStyle =
     c.primary;
 
-  ctx.lineWidth =
-    2;
+
+  ctx.lineWidth = 2;
+
 
   ctx.stroke();
 
@@ -4580,8 +4675,10 @@ function drawCharSelect() {
   ctx.fillStyle =
     c.primary;
 
+
   ctx.font =
     'bold 20px -apple-system, sans-serif';
+
 
   ctx.textAlign =
     'center';
@@ -4597,6 +4694,7 @@ function drawCharSelect() {
   ctx.fillStyle =
     '#ffffff';
 
+
   ctx.font =
     'bold 11px -apple-system, sans-serif';
 
@@ -4610,6 +4708,7 @@ function drawCharSelect() {
 
   ctx.fillStyle =
     '#ffff00';
+
 
   ctx.font =
     '10px monospace';
@@ -4636,6 +4735,7 @@ function drawCharSelect() {
   ctx.fillStyle =
     c.primary;
 
+
   ctx.font =
     'bold 12px monospace';
 
@@ -4656,15 +4756,17 @@ function drawCharSelect() {
   ctx.fillStyle =
     '#00d2ff';
 
+
   ctx.font =
     'bold 16px monospace';
+
 
   ctx.textAlign =
     'center';
 
 
   ctx.fillText(
-    '◄  CAMBIA PERSONAGGIO  ►',
+    '◄ CAMBIA PERSONAGGIO ►',
     CANVAS_W / 2,
     arrowY
   );
@@ -4672,17 +4774,12 @@ function drawCharSelect() {
 }
 
 
-function handleSelectionInput(
-  dir
-) {
+function handleSelectionInput(dir) {
 
-  playSound(
-    'cross'
-  );
+  playSound('cross');
 
 
-  selectedCharIndex +=
-    dir;
+  selectedCharIndex += dir;
 
 
   if (
@@ -4690,8 +4787,7 @@ function handleSelectionInput(
   ) {
 
     selectedCharIndex =
-      CHARACTER_LIST.length -
-      1;
+      CHARACTER_LIST.length - 1;
 
   }
 
@@ -4701,8 +4797,7 @@ function handleSelectionInput(
     CHARACTER_LIST.length
   ) {
 
-    selectedCharIndex =
-      0;
+    selectedCharIndex = 0;
 
   }
 
@@ -4711,7 +4806,7 @@ function handleSelectionInput(
 
 /* =========================================================
    LEVEL CLEAR
-   ========================================================= */
+========================================================= */
 
 function drawLevelClear() {
 
@@ -4739,8 +4834,10 @@ function drawLevelClear() {
   ctx.fillStyle =
     currentTheme.primary;
 
+
   ctx.font =
     'bold 16px monospace';
+
 
   ctx.textAlign =
     'center';
@@ -4756,6 +4853,7 @@ function drawLevelClear() {
   ctx.fillStyle =
     '#00d2ff';
 
+
   ctx.font =
     'bold 10px monospace';
 
@@ -4770,16 +4868,19 @@ function drawLevelClear() {
   ctx.fillStyle =
     '#ffff00';
 
+
   ctx.font =
     'bold 13px monospace';
 
 
   ctx.fillText(
-    `BONUS STAGE: +${Math.floor(
-      1000 *
-      (level - 1) *
-      currentTheme.scoreMult
-    )} PTS`,
+    `BONUS STAGE: +${
+      Math.floor(
+        1000 *
+        (level - 1) *
+        currentTheme.scoreMult
+      )
+    } PTS`,
     canvas.width / 2,
     canvas.height / 2 + 35
   );
@@ -4789,7 +4890,7 @@ function drawLevelClear() {
 
 /* =========================================================
    GAME OVER
-   ========================================================= */
+========================================================= */
 
 function drawGameOver() {
 
@@ -4808,8 +4909,10 @@ function drawGameOver() {
   ctx.fillStyle =
     '#ff0055';
 
+
   ctx.font =
     'bold 22px monospace';
+
 
   ctx.textAlign =
     'center';
@@ -4825,6 +4928,7 @@ function drawGameOver() {
   ctx.fillStyle =
     '#ffff00';
 
+
   ctx.font =
     'bold 15px monospace';
 
@@ -4838,6 +4942,7 @@ function drawGameOver() {
 
   ctx.fillStyle =
     '#00d2ff';
+
 
   ctx.font =
     'bold 11px monospace';
@@ -4873,7 +4978,7 @@ function drawGameOver() {
 
 /* =========================================================
    PAUSE
-   ========================================================= */
+========================================================= */
 
 function drawPause() {
 
@@ -4892,8 +4997,10 @@ function drawPause() {
   ctx.fillStyle =
     '#ffea00';
 
+
   ctx.font =
     'bold 26px monospace';
+
 
   ctx.textAlign =
     'center';
@@ -4908,6 +5015,7 @@ function drawPause() {
 
   ctx.fillStyle =
     '#00d2ff';
+
 
   ctx.font =
     'bold 11px monospace';
@@ -4924,7 +5032,7 @@ function drawPause() {
 
 /* =========================================================
    GAME LOOP
-   ========================================================= */
+========================================================= */
 
 function gameLoop() {
 
@@ -5028,7 +5136,7 @@ function gameLoop() {
 
 /* =========================================================
    CHARACTER SELECT
-   ========================================================= */
+========================================================= */
 
 function selectCharacter(
   charKey
@@ -5053,26 +5161,21 @@ function selectCharacter(
     'PLAYING';
 
 
-  playSound(
-    'pickup'
-  );
+  playSound('pickup');
 
 }
 
 
 /* =========================================================
    CANVAS TOUCH
-   ========================================================= */
+========================================================= */
 
 canvas.addEventListener(
   'pointerdown',
-  (e) => {
+  e => {
 
-    if (e.cancelable) {
-
+    if (e.cancelable)
       e.preventDefault();
-
-    }
 
 
     getAC();
@@ -5105,7 +5208,8 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'TUTORIAL'
+      gameState ===
+      'TUTORIAL'
     ) {
 
       if (
@@ -5115,11 +5219,11 @@ canvas.addEventListener(
         gameState =
           'CHAR_SELECT';
 
-        playSound(
-          'cross'
-        );
+
+        playSound('cross');
 
       }
+
 
       return;
 
@@ -5127,7 +5231,8 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'CHAR_SELECT'
+      gameState ===
+      'CHAR_SELECT'
     ) {
 
       if (
@@ -5165,13 +5270,15 @@ canvas.addEventListener(
 
       }
 
+
       return;
 
     }
 
 
     if (
-      gameState === 'PLAYING'
+      gameState ===
+      'PLAYING'
     ) {
 
       if (
@@ -5181,9 +5288,11 @@ canvas.addEventListener(
         gameState =
           'PAUSE';
 
+
         updateMusicState();
 
       }
+
 
       return;
 
@@ -5191,13 +5300,16 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'PAUSE'
+      gameState ===
+      'PAUSE'
     ) {
 
       gameState =
         'PLAYING';
 
+
       updateMusicState();
+
 
       return;
 
@@ -5205,28 +5317,25 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'GAME_OVER'
+      gameState ===
+      'GAME_OVER'
     ) {
 
       gameState =
         'CHAR_SELECT';
 
-      return;
-
     }
 
   },
-
   {
     passive: false
   }
-
 );
 
 
 /* =========================================================
-   CONTROLLI
-   ========================================================= */
+   BUTTON BINDING
+========================================================= */
 
 function bindBtn(
   id,
@@ -5243,21 +5352,20 @@ function bindBtn(
 
   btn.addEventListener(
     'pointerdown',
-    (e) => {
+    e => {
 
-      if (e.cancelable) {
-
+      if (e.cancelable)
         e.preventDefault();
-
-      }
 
 
       getAC();
 
 
       if (
-        gameState === 'TUTORIAL' ||
-        gameState === 'GAME_OVER'
+        gameState ===
+        'TUTORIAL' ||
+        gameState ===
+        'GAME_OVER'
       ) {
 
         gameState =
@@ -5267,7 +5375,8 @@ function bindBtn(
 
 
       else if (
-        gameState === 'CHAR_SELECT'
+        gameState ===
+        'CHAR_SELECT'
       ) {
 
         selectCharacter(
@@ -5286,33 +5395,26 @@ function bindBtn(
       }
 
     },
-
     {
       passive: false
     }
-
   );
 
 
   btn.addEventListener(
     'pointerup',
-    (e) => {
+    e => {
 
-      if (e.cancelable) {
-
+      if (e.cancelable)
         e.preventDefault();
-
-      }
 
 
       onPress(false);
 
     },
-
     {
       passive: false
     }
-
   );
 
 
@@ -5323,7 +5425,6 @@ function bindBtn(
       onPress(false);
 
     }
-
   );
 
 }
@@ -5333,8 +5434,7 @@ bindBtn(
   'btnUp',
   isDown => {
 
-    moveUp =
-      isDown;
+    moveUp = isDown;
 
   }
 );
@@ -5344,8 +5444,7 @@ bindBtn(
   'btnDown',
   isDown => {
 
-    moveDown =
-      isDown;
+    moveDown = isDown;
 
   }
 );
@@ -5355,8 +5454,7 @@ bindBtn(
   'btnLeft',
   isDown => {
 
-    moveLeft =
-      isDown;
+    moveLeft = isDown;
 
   }
 );
@@ -5366,8 +5464,7 @@ bindBtn(
   'btnRight',
   isDown => {
 
-    moveRight =
-      isDown;
+    moveRight = isDown;
 
   }
 );
@@ -5375,7 +5472,7 @@ bindBtn(
 
 /* =========================================================
    KEYBOARD
-   ========================================================= */
+========================================================= */
 
 const keys = {};
 
@@ -5384,15 +5481,15 @@ window.addEventListener(
   'keydown',
   e => {
 
-    keys[e.code] =
-      true;
+    keys[e.code] = true;
 
 
     getAC();
 
 
     if (
-      gameState === 'TUTORIAL' &&
+      gameState ===
+      'TUTORIAL' &&
       (
         e.code === 'Space' ||
         e.code === 'Enter'
@@ -5406,7 +5503,8 @@ window.addEventListener(
 
 
     else if (
-      gameState === 'CHAR_SELECT'
+      gameState ===
+      'CHAR_SELECT'
     ) {
 
       if (
@@ -5450,7 +5548,8 @@ window.addEventListener(
 
 
     else if (
-      gameState === 'GAME_OVER' &&
+      gameState ===
+      'GAME_OVER' &&
       (
         e.code === 'Space' ||
         e.code === 'Enter'
@@ -5470,16 +5569,13 @@ window.addEventListener(
   'keyup',
   e => {
 
-    keys[e.code] =
-      false;
+    keys[e.code] = false;
 
   }
 );
 
 
-function keyPressed(
-  code
-) {
+function keyPressed(code) {
 
   return !!keys[code];
 
@@ -5488,15 +5584,14 @@ function keyPressed(
 
 /* =========================================================
    SAVE SCORE
-   ========================================================= */
+========================================================= */
 
 function saveScore() {
 
   try {
 
     if (
-      score >
-      highScore
+      score > highScore
     ) {
 
       highScore =
@@ -5526,11 +5621,8 @@ function saveScore() {
       );
 
 
-    if (!rawUser) {
-
+    if (!rawUser)
       return;
-
-    }
 
 
     let curUser =
@@ -5560,9 +5652,7 @@ function saveScore() {
 
       localStorage.setItem(
         'arcade_current_user',
-        JSON.stringify(
-          curUser
-        )
+        JSON.stringify(curUser)
       );
 
 
@@ -5601,9 +5691,7 @@ function saveScore() {
 
           localStorage.setItem(
             'arcade_users',
-            JSON.stringify(
-              users
-            )
+            JSON.stringify(users)
           );
 
         }
@@ -5627,12 +5715,13 @@ function saveScore() {
 
 
 /* =========================================================
-   USCITA
-   ========================================================= */
+   EXIT
+========================================================= */
 
 function exitGame() {
 
   saveScore();
+
 
   bgMusic.pause();
 
@@ -5645,7 +5734,7 @@ function exitGame() {
 
 /* =========================================================
    START
-   ========================================================= */
+========================================================= */
 
 requestAnimationFrame(
   gameLoop
