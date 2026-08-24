@@ -339,7 +339,7 @@ let level = 1;
 let score = 0;
 let lives = 3;
 let animTimer = 0;
-let gameOverLockTimer = 0; // Protezione da tap accidentali su gameover
+let gameOverLockTimer = 0;
 
 let player = {
   x: 1 * CELL_SIZE + CELL_SIZE / 2,
@@ -356,7 +356,7 @@ let player = {
 let enemies = [];
 let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
 
-// CONTROLLO JOYSTICK TOUCH (RIGIDEMENTE LIMITATO A 4 DIREZIONI CARDINALI)
+// CONTROLLO JOYSTICK TOUCH (ESCLUSIONE RIGIDA MOVIMENTO OBLIQUO)
 const joyZone = document.getElementById('joyZone');
 const joyKnob = document.getElementById('joyKnob');
 let joyActive = false;
@@ -383,7 +383,6 @@ function handleJoyMove(clientX, clientY) {
 
   const deadZone = 12;
   if (dist > deadZone) {
-    // RIGIDA ESCLUSIONE DELLE DIAGONALI: Prende solo l'asse con lo spostamento maggiore
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) moveLeft = true;
       else moveRight = true;
@@ -537,14 +536,12 @@ function placeBomb() {
     gx, gy,
     timer: 130,
     range: player.bombRange,
-    exploded: false,
-    ownerInside: true
+    exploded: false
   });
 
   playSound('bomb');
 }
 
-// INNESCO SICURO ESPLOSIONI A CATENA (NESSUNA RICORSIONE INFINITA O CRASH)
 function triggerExplosion(b) {
   if (!b || b.exploded) return;
   b.exploded = true;
@@ -610,16 +607,7 @@ function overlapsTile(px, py, pw, ph, gx, gy) {
   return (pLeft < tRight && pRight > tLeft && pTop < tBottom && pBottom > tTop);
 }
 
-function updateBombPassability() {
-  bombs.forEach(b => {
-    if (b && b.ownerInside && !b.exploded) {
-      if (!overlapsTile(player.x, player.y, player.w, player.h, b.gx, b.gy)) {
-        b.ownerInside = false;
-      }
-    }
-  });
-}
-
+// COLLISIONI DINAMICHE: LA BOMBA DIVENTA UN OSTACHETTO SOLIDO SOLO QUANDO IL GIOCATORE NE ESCI COMPLETAMENTE
 function isBlocked(nx, ny) {
   let eps = 0.5;
   let left = nx - player.w / 2 + eps;
@@ -637,14 +625,21 @@ function isBlocked(nx, ny) {
       if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return true;
       if (map[r][c] !== 0) return true;
 
-      let hasSolidBomb = bombs.some(b => b && !b.exploded && b.gx === c && b.gy === r && !b.ownerInside);
-      if (hasSolidBomb) return true;
+      for (let i = 0; i < bombs.length; i++) {
+        let b = bombs[i];
+        if (b && !b.exploded && b.gx === c && b.gy === r) {
+          let currentlyInside = overlapsTile(player.x, player.y, player.w, player.h, b.gx, b.gy);
+          if (!currentlyInside) {
+            return true;
+          }
+        }
+      }
     }
   }
   return false;
 }
 
-// MOVIMENTO BOMBERMAN COMPLETO: GUIDA RIGIDA AL CENTRO DELLA CORSIA
+// GUIDA RIGIDA AL CENTRO CORSIA SENZA DEVIAZIONI/DRIFT
 function updatePlayer() {
   let dx = 0, dy = 0;
 
@@ -661,36 +656,35 @@ function updatePlayer() {
   player.isMoving = (dx !== 0 || dy !== 0);
   if (player.isMoving) animTimer++;
 
-  // Movimento orizzontale: blocco perfetto dell'asse Y al centro riga
   if (dx !== 0) {
     let centerY = (Math.floor(player.y / CELL_SIZE) + 0.5) * CELL_SIZE;
     let diffY = centerY - player.y;
+    let targetY = player.y;
     if (Math.abs(diffY) > 0.1) {
-      player.y += Math.sign(diffY) * Math.min(Math.abs(diffY), player.speed);
+      targetY += Math.sign(diffY) * Math.min(Math.abs(diffY), player.speed);
     } else {
-      player.y = centerY;
+      targetY = centerY;
     }
 
-    if (!isBlocked(player.x + dx, player.y)) {
+    if (!isBlocked(player.x + dx, targetY)) {
       player.x += dx;
+      player.y = targetY;
     }
-  } 
-  // Movimento verticale: blocco perfetto dell'asse X al centro colonna
-  else if (dy !== 0) {
+  } else if (dy !== 0) {
     let centerX = (Math.floor(player.x / CELL_SIZE) + 0.5) * CELL_SIZE;
     let diffX = centerX - player.x;
+    let targetX = player.x;
     if (Math.abs(diffX) > 0.1) {
-      player.x += Math.sign(diffX) * Math.min(Math.abs(diffX), player.speed);
+      targetX += Math.sign(diffX) * Math.min(Math.abs(diffX), player.speed);
     } else {
-      player.x = centerX;
+      targetX = centerX;
     }
 
-    if (!isBlocked(player.x, player.y + dy)) {
+    if (!isBlocked(targetX, player.y + dy)) {
+      player.x = targetX;
       player.y += dy;
     }
   }
-
-  updateBombPassability();
 
   if (player.invTimer > 0) player.invTimer--;
 
@@ -820,20 +814,19 @@ function updateBombsAndExplosions() {
   }
 }
 
-// PROTEZIONE RIGIDA CONTRO DANNO RIGENERATO O MULTIPLI SULLO STESSO FRAME
 function hitPlayer() {
-  if (player.invTimer > 0) return; // Se già immune, ignora altri danni sullo stesso frame
+  if (player.invTimer > 0) return;
 
   lives--;
   playSound('fail');
   if (lives <= 0) {
     gameState = 'GAME_OVER';
-    gameOverLockTimer = 60; // 60 frame di blocco totale per evitare salto menu accidentale
+    gameOverLockTimer = 60;
     saveScore();
   } else {
     player.x = 1 * CELL_SIZE + CELL_SIZE / 2;
     player.y = 1 * CELL_SIZE + CELL_SIZE / 2;
-    player.invTimer = 90; // 1.5 secondi di invulnerabilità
+    player.invTimer = 90;
   }
 }
 
