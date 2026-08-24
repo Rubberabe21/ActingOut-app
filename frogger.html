@@ -19,7 +19,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #121212;
+    background-color: #030305;
     color: #e0e0e0;
     display: flex;
     justify-content: center;
@@ -97,13 +97,12 @@
     border-radius: 6px;
   }
 
-  /* DECK DI CONTROLLO CON D-PAD GRANDISSIMO ED ERGONOMICO */
+  /* DECK DI CONTROLLO CENTRATO CON D-PAD XL */
   .control-deck {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 28px;
     padding: 10px 12px;
     background: #232323;
     border: 1.5px solid #383838;
@@ -113,7 +112,7 @@
     flex-shrink: 0;
   }
 
-  /* D-PAD A CROCE CON TASTI XL */
+  /* D-PAD A CROCE CON TASTI XL CENTRATO */
   .joystick-container {
     display: flex;
     justify-content: center;
@@ -121,17 +120,17 @@
   }
   .dpad-grid {
     display: grid;
-    grid-template-columns: repeat(3, 56px);
-    grid-template-rows: repeat(3, 50px);
+    grid-template-columns: repeat(3, 62px);
+    grid-template-rows: repeat(3, 54px);
     gap: 4px;
   }
   .ctrl-btn {
     background: linear-gradient(180deg, #32323e 0%, #1c1c24 100%);
     border: 1.5px solid #00d2ff;
     color: #00d2ff;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
-    border-radius: 8px;
+    border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -155,51 +154,11 @@
     border: 1.5px solid rgba(0,210,255,0.3);
   }
   .dpad-core {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: radial-gradient(circle, #00d2ff 0%, #005f73 100%);
     box-shadow: 0 0 10px #00d2ff;
-  }
-
-  /* TASTO ACTION RENDER GUARD XL */
-  .arcade-action-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .arcade-push-btn {
-    width: 104px;
-    height: 104px;
-    border-radius: 50%;
-    background: #2b0012;
-    border: 3px solid #ff0055;
-    padding: 5px;
-    box-shadow: 0 0 20px rgba(255, 0, 85, 0.45), inset 0 0 12px rgba(0, 0, 0, 0.9);
-    cursor: pointer;
-    outline: none;
-  }
-  .arcade-push-btn .btn-top {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ff3377, #cc0044 60%, #88002d 100%);
-    border: 2px solid #ff77bb;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    font-weight: bold;
-    font-size: 11px;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 0.5px;
-    box-shadow: inset 0 4px 8px rgba(255,255,255,0.4), 0 5px 0 #55001b;
-    text-shadow: 0 1px 2px #000;
-  }
-  .arcade-push-btn:active .btn-top {
-    transform: translateY(4px);
-    box-shadow: inset 0 1px 4px rgba(0,0,0,0.6), 0 1px 0 #55001b;
   }
 
   .exit-btn {
@@ -312,23 +271,13 @@
   </div>
 
   <div class="control-deck">
-    <!-- D-PAD A CROCE XL -->
+    <!-- D-PAD A CROCE XL CENTRATO -->
     <div class="joystick-container">
       <div class="dpad-grid">
         <div style="visibility:hidden"></div><div class="ctrl-btn" id="btnUp">▲</div><div style="visibility:hidden"></div>
         <div class="ctrl-btn" id="btnLeft">◄</div><div class="ctrl-btn-center"><div class="dpad-core"></div></div><div class="ctrl-btn" id="btnRight">►</div>
         <div style="visibility:hidden"></div><div class="ctrl-btn" id="btnDown">▼</div><div style="visibility:hidden"></div>
       </div>
-    </div>
-
-    <!-- TASTO ACTION RENDER GUARD -->
-    <div class="arcade-action-container">
-      <button class="arcade-push-btn" id="btnGuard">
-        <span class="btn-top">
-          <span style="font-size:16px;">🛡️</span>
-          <span>RENDER</span>
-        </span>
-      </button>
     </div>
   </div>
 
@@ -362,7 +311,7 @@ const COLS = 13;
 const ROWS = 17;
 const CELL_SIZE = 26;
 const HUD_HEIGHT = 44;
-const TRACK_HEADER_W = 38; // Larghezza della colonna sinistra intestazione tracce (V3, V2, V1, A1...)
+const TRACK_HEADER_W = 38;
 
 const CANVAS_W = COLS * CELL_SIZE; // 338px
 const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; // 486px
@@ -525,7 +474,7 @@ const imgTobi   = new Image(); imgTobi.src   = 'assets/frogger/tobi.png';
 const imgDave   = new Image(); imgDave.src   = 'assets/frogger/dave.png';
 const imgLuca   = new Image(); imgLuca.src   = 'assets/frogger/luca.png';
 
-// PALETTE COLORI ORIGINALE ADOBE PREMIERE PRO TIMELINE
+// PALETTE COLORI ADOBE PREMIERE PRO TIMELINE
 const PREMIERE_CLIPS = {
   BLUE_A_ROLL:    { type: 'A_ROLL',    label: 'A001_C004.MOV',  bg: '#2b52a1', border: '#5682e8', textCol: '#d0e0ff', topBar: '#00ff66', wMult: 2.2, hMult: 1 },
   PURPLE_B_ROLL:  { type: 'B_ROLL',    label: 'B002_DRONE.MP4', bg: '#7f22a7', border: '#b842df', textCol: '#f2c8ff', topBar: '#ff0055', wMult: 2.5, hMult: 1 },
@@ -548,10 +497,10 @@ const CHARACTERS = {
   GIULIA: {
     id: 'GIULIA', name: "GIULIA", subtitle: "Lead Video Editor",
     perkBonus: "BONUS: Precisione (Punti 1.25x)",
-    perkMalus: "MALUS: Ricarica Render Lenta (+25%)",
+    perkMalus: "MALUS: Sensibile al Glitch",
     primary: "#00d2ff", bg: "#181818", img: imgGiulia,
     arrowCol: "#00d2ff", arrowGlow: "#005f73",
-    speed: 2.8, guardCooldown: 400, scoreMult: 1.25
+    speed: 2.8, scoreMult: 1.25
   },
   TOBI: {
     id: 'TOBI', name: "TOBI", subtitle: "Assistant Video Editor",
@@ -559,7 +508,7 @@ const CHARACTERS = {
     perkMalus: "MALUS: Punteggio Base (-10%)",
     primary: "#ffd700", bg: "#181818", img: imgTobi,
     arrowCol: "#ffd700", arrowGlow: "#886600",
-    speed: 3.4, guardCooldown: 320, scoreMult: 0.9
+    speed: 3.4, scoreMult: 0.9
   },
   DAVE: {
     id: 'DAVE', name: "DAVE", subtitle: "Focused Director",
@@ -567,15 +516,15 @@ const CHARACTERS = {
     perkMalus: "MALUS: Passo Pesante (-20% Velocità)",
     primary: "#ff0055", bg: "#181818", img: imgDave,
     arrowCol: "#ff0055", arrowGlow: "#880022",
-    speed: 2.0, guardCooldown: 320, scoreMult: 1.3
+    speed: 2.0, scoreMult: 1.3
   },
   LUCA: {
     id: 'LUCA', name: "LUCA", subtitle: "VFX Artist Whiz",
-    perkBonus: "BONUS: VFX Ricarica (Render -15%)",
-    perkMalus: "MALUS: Render Fragile",
+    perkBonus: "BONUS: VFX Master (+15% Punti)",
+    perkMalus: "MALUS: Meno Vite Iniziali",
     primary: "#ffaa00", bg: "#181818", img: imgLuca,
     arrowCol: "#ffaa00", arrowGlow: "#885500",
-    speed: 3.2, guardCooldown: 270, scoreMult: 1.15
+    speed: 3.2, scoreMult: 1.15
   }
 };
 
@@ -585,6 +534,7 @@ const PICKUP_TYPES = {
   AUTO_SAVE:  { type: 'AUTOSAVE',  label: '💾 SAVE',     pts: 300, isMalus: false },
   PROXY_ON:   { type: 'PROXY',     label: '🎬 PROXY 2X', pts: 400, isMalus: false, scoreBoost: 2.0 },
   CACHE_BOOST:{ type: 'CACHE',     label: '⚡ CACHE',    pts: 150, isMalus: false, speedBoost: 1.3 },
+  GUARD:      { type: 'GUARD',     label: '🛡️ RENDER',  pts: 250, isMalus: false, shieldDuration: 180 },
   DROP_FRAME: { type: 'DROP_FRAME',label: '🐌 DROP',     pts: -100, isMalus: true,  slowFactor: 0.6 },
   DISK_FULL:  { type: 'DISK_FULL', label: '⚠️ FULL DISK',pts: -200, isMalus: true,  invertControls: true }
 };
@@ -606,7 +556,6 @@ let player = {
   facingLeft: false,
   invTimer: 0,
   guardTimer: 0,
-  guardCooldownTimer: 0,
   nextMoveAllowedTimer: 0,
   speedMult: 1.0,
   tempScoreMult: 1.0,
@@ -617,7 +566,6 @@ let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
 let selectedCharIndex = 0;
 let particles = [];
 
-// CREAZIONE TRACCE CLEAN PREMIERE STYLE
 function createNewLane(isInitialSetup = false, r = 0) {
   let isSafe = false;
 
@@ -637,13 +585,11 @@ function createNewLane(isInitialSetup = false, r = 0) {
   let laneType = isSafe ? 'SAFE' : 'ROAD';
   let dir = (Math.random() < 0.5) ? 1 : -1;
 
-  // Curva di velocità graduale per partenza pulita
   let speedFactor = 0.38 + Math.min(level * 0.16, 1.2);
   let baseSpeed = (0.45 + Math.random() * 0.35) * speedFactor;
 
   let vTypes = Object.values(PREMIERE_CLIPS);
 
-  // Etichette Traccia ufficiali Premiere
   let trackLabel = "V1";
   if (r % 5 === 0) trackLabel = "V3";
   else if (r % 5 === 1) trackLabel = "V2";
@@ -663,7 +609,6 @@ function createNewLane(isInitialSetup = false, r = 0) {
 
   if (laneType === 'ROAD') {
     let x = TRACK_HEADER_W - CELL_SIZE * 3;
-    // Ampio distanziamento al livello 1 per un inizio disteso e ordinato
     let minGap = Math.max(4.0, 10.0 - (level * 1.5));
     
     do {
@@ -700,21 +645,10 @@ function resetPlayer() {
   player.w = 16; player.h = 16;
   player.invTimer = 0;
   player.guardTimer = 0;
-  player.guardCooldownTimer = 0;
   player.nextMoveAllowedTimer = 0;
   player.speedMult = 1.0;
   player.tempScoreMult = 1.0;
   player.glitchTimer = 0;
-}
-
-function activateGuard() {
-  if (gameState !== 'PLAYING') return;
-  if (player.guardCooldownTimer > 0) return;
-
-  player.guardTimer = 180;
-  player.guardCooldownTimer = currentTheme.guardCooldown;
-  playSound('guard_active');
-  addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, '#00d2ff', 12);
 }
 
 function updatePlayer() {
@@ -744,7 +678,6 @@ function updatePlayer() {
       let ngx = player.gx + dx;
       let ngy = player.gy + dy;
 
-      // Limita movimento sul bordo sinistro per non coprire l'intestazione traccia
       let minGx = 2; 
       
       if (ngx >= minGx && ngx < COLS && ngy >= 0 && ngy < ROWS) {
@@ -766,7 +699,6 @@ function updatePlayer() {
 
   if (player.invTimer > 0) player.invTimer--;
   if (player.guardTimer > 0) player.guardTimer--;
-  if (player.guardCooldownTimer > 0) player.guardCooldownTimer--;
 
   checkPickups();
   checkCollisions();
@@ -836,8 +768,12 @@ function checkPickups() {
         playSound('pickup');
         if (p.type.speedBoost) player.speedMult = p.type.speedBoost;
         if (p.type.scoreBoost) player.tempScoreMult = p.type.scoreBoost;
+        if (p.type.shieldDuration) {
+          player.guardTimer = p.type.shieldDuration;
+          playSound('guard_active');
+        }
       }
-      addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, p.type.isMalus ? '#ff0055' : '#ffff00', 10);
+      addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, p.type.isMalus ? '#ff0055' : '#00d2ff', 10);
       currentLane.pickups.splice(i, 1);
     }
   }
@@ -872,37 +808,48 @@ function checkCollisions() {
   }
 }
 
+// RESPAWN ALLA PRIMA CORSIA SAFE INDIETRO
 function hitPlayer() {
   lives--;
   playSound('crash');
   addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, '#ff0055', 20);
+  
   if (lives <= 0) {
     gameState = 'GAME_OVER';
     playSound('fail');
     saveScore();
   } else {
-    resetPlayer();
+    // Cerca la prima corsia SAFE alla posizione attuale o indietro (aumentando gy)
+    let respawnGy = ROWS - 2;
+    for (let r = player.gy; r < ROWS; r++) {
+      if (activeLanes[r] && activeLanes[r].type === 'SAFE') {
+        respawnGy = r;
+        break;
+      }
+    }
+    player.gx = Math.floor(COLS / 2);
+    player.gy = respawnGy;
     player.invTimer = 90;
+    player.glitchTimer = 0;
+    player.speedMult = 1.0;
+    player.tempScoreMult = 1.0;
   }
 }
 
-// RENDER TIMELINE UNIFORME E ORDINATO IN STILE ADOBE PREMIERE PRO
 function drawGameWorld() {
   ctx.fillStyle = '#181818'; 
   ctx.fillRect(0, HUD_HEIGHT, CANVAS_W, CANVAS_H - HUD_HEIGHT);
 
-  // 1. Sfondi Traccia
   activeLanes.forEach((lane, r) => {
     let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
     ctx.fillStyle = lane.bg;
     ctx.fillRect(0, y, CANVAS_W, CELL_SIZE);
     
-    ctx.strokeStyle = '#222222';
+    ctx.strokeStyle = '#222226';
     ctx.lineWidth = 1;
     ctx.strokeRect(0, y, CANVAS_W, CELL_SIZE);
   });
 
-  // 2. Pickups
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'SAFE') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
@@ -918,7 +865,6 @@ function drawGameWorld() {
     }
   });
 
-  // 3. Ostacoli Clip Premiere
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'ROAD') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
@@ -926,7 +872,6 @@ function drawGameWorld() {
     }
   });
 
-  // 4. Intestazioni Traccia a Sinistra (V3, V2, V1, A1, A2) come in Premiere
   activeLanes.forEach((lane, r) => {
     let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
     ctx.fillStyle = '#222226';
@@ -942,14 +887,12 @@ function drawGameWorld() {
     ctx.fillText(lane.trackLabel, TRACK_HEADER_W / 2, y + CELL_SIZE / 2);
   });
 
-  // 5. Particelle
   for (let i = 0; i < particles.length; i++) {
     let p = particles[i];
     ctx.fillStyle = p.color;
     ctx.fillRect(p.x, p.y, 4, 4);
   }
 
-  // 6. Cyan Playhead Line (Linea del Cursore di Riproduzione)
   let playheadX = player.gx * CELL_SIZE + CELL_SIZE / 2;
   ctx.strokeStyle = 'rgba(0, 210, 255, 0.4)';
   ctx.lineWidth = 1.5;
@@ -958,7 +901,6 @@ function drawGameWorld() {
   ctx.lineTo(playheadX, CANVAS_H);
   ctx.stroke();
 
-  // 7. Giocatore
   drawSinglePlayer();
 }
 
@@ -970,24 +912,19 @@ function drawObstacles(lane, laneY) {
     let blockW = obj.w;
     let blockH = (obj.hMult === 2 ? CELL_SIZE * 2 : CELL_SIZE) - 2;
 
-    // Non disegnare sopra l'intestazione sinistra traccia
     if (x + blockW < TRACK_HEADER_W) return;
 
     ctx.save();
-    // Clip Body
     ctx.fillStyle = vData.bg;
     ctx.fillRect(x + 1, y + 1, blockW - 2, blockH);
-
-    // Render Status Bar (2px top)
+    
     ctx.fillStyle = vData.topBar || '#00ff66';
     ctx.fillRect(x + 1, y + 1, blockW - 2, 2);
 
-    // Border
     ctx.strokeStyle = vData.border;
     ctx.lineWidth = 1;
     ctx.strokeRect(x + 1, y + 1, blockW - 2, blockH);
 
-    // Small 'fx' badge
     ctx.fillStyle = 'rgba(0,0,0,0.4)';
     ctx.fillRect(x + 4, y + 4, 13, 10);
     ctx.fillStyle = '#00d2ff';
@@ -996,7 +933,6 @@ function drawObstacles(lane, laneY) {
     ctx.textBaseline = 'middle';
     ctx.fillText('fx', x + 10, y + 9);
 
-    // Waveform Dashed Lines se clip audio
     if (vData.isAudio) {
       ctx.strokeStyle = 'rgba(255,255,255,0.18)';
       ctx.lineWidth = 1;
@@ -1008,7 +944,6 @@ function drawObstacles(lane, laneY) {
       ctx.setLineDash([]);
     }
 
-    // Clip Label Text
     ctx.fillStyle = vData.textCol;
     ctx.font = 'bold 9px -apple-system, sans-serif';
     ctx.textAlign = 'center';
@@ -1031,7 +966,6 @@ function drawSinglePlayer() {
     ctx.scale(-1, 1);
   }
 
-  // Cursore/Playhead Diamond Marker Cyan Premiere Style
   ctx.shadowColor = '#00d2ff';
   ctx.shadowBlur = 10;
   ctx.fillStyle = '#00d2ff';
@@ -1092,23 +1026,9 @@ function drawHUD() {
   ctx.fillText(`REC: ${highScore}`, canvas.width - 8, 16);
   ctx.fillStyle = '#ff0055';
   ctx.fillText(`VITE: ${'❤️'.repeat(lives)}`, canvas.width - 8, 34);
-
-  if (currentTheme.guardCooldown > 0) {
-    let barW = 70;
-    let barH = 4;
-    let barX = (canvas.width - barW) / 2;
-    let barY = HUD_HEIGHT - 7;
-    ctx.fillStyle = '#111114';
-    ctx.fillRect(barX, barY, barW, barH);
-    let fillPct = 1 - (player.guardCooldownTimer / currentTheme.guardCooldown);
-    ctx.fillStyle = (player.guardCooldownTimer <= 0) ? '#00d2ff' : '#005f73';
-    ctx.fillRect(barX, barY, barW * fillPct, barH);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(barX, barY, barW, barH);
-  }
 }
 
+// SCHERMATA TUTORIAL CON TESTI GRANDI E SPIEGAZIONE DETTAGLIATA BONUS/MALUS
 function drawTutorial() {
   ctx.fillStyle = 'rgba(20, 20, 24, 0.96)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1116,37 +1036,42 @@ function drawTutorial() {
   ctx.fillStyle = '#00d2ff';
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('PREMIERE TIMELINE RUSH 🎬', canvas.width / 2, 40);
+  ctx.fillText('PREMIERE TIMELINE RUSH 🎬', canvas.width / 2, 38);
 
-  drawRoundRect(ctx, 12, 60, 314, 78, 10);
+  // Card 1: Regole Base
+  drawRoundRect(ctx, 12, 52, 314, 85, 10);
   ctx.fillStyle = '#282830'; ctx.fill();
   ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-  ctx.fillText('SCHIVA LE CLIP DI PREMIERE', 22, 82);
-  ctx.fillStyle = '#ffffff'; ctx.font = '10px sans-serif';
-  ctx.fillText('Risali le tracce V1, V2, V3 ed evita', 22, 100);
-  ctx.fillText('Media Offline, GPU Crash e Unrendered!', 22, 116);
+  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
+  ctx.fillText('1. RISALI LA TIMELINE', 22, 72);
+  ctx.fillStyle = '#ffffff'; ctx.font = '11px sans-serif';
+  ctx.fillText('• Evita i blocchi clip: Media Offline, GPU Crash,', 22, 90);
+  ctx.fillText('  Lumetri FX e tracce audio fuori sync!', 22, 106);
+  ctx.fillText('• Avanza verso l\'alto per fare punti!', 22, 122);
 
-  drawRoundRect(ctx, 12, 148, 314, 78, 10);
+  // Card 2: Bonus
+  drawRoundRect(ctx, 12, 145, 314, 88, 10);
+  ctx.fillStyle = '#282830'; ctx.fill();
+  ctx.strokeStyle = '#00ff66'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#00ff66'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
+  ctx.fillText('2. POTENZIAMENTI BONUS 🎁', 22, 165);
+  ctx.fillStyle = '#ffffff'; ctx.font = '11px sans-serif';
+  ctx.fillText('• 💾 Auto-Save (+300 PTS) | 🎬 Proxy (2X Punti)', 22, 183);
+  ctx.fillText('• ⚡ Cache (+150 PTS & Boost Velocità)', 22, 199);
+  ctx.fillText('• 🛡️ Render Shield: Scudo invincibile temporaneo!', 22, 215);
+
+  // Card 3: Malus
+  drawRoundRect(ctx, 12, 241, 314, 80, 10);
   ctx.fillStyle = '#282830'; ctx.fill();
   ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace';
-  ctx.fillText('PROTEZIONE RENDER GUARD', 22, 170);
-  ctx.fillStyle = '#ffffff'; ctx.font = '10px sans-serif';
-  ctx.fillText('Premi 🛡️ RENDER sotto', 22, 190);
-  ctx.fillText('per diventare invincibile temporaneamente!', 22, 206);
-
-  drawRoundRect(ctx, 12, 236, 314, 78, 10);
-  ctx.fillStyle = '#282830'; ctx.fill();
-  ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 11px monospace';
-  ctx.fillText('CONTROLLI PC & TOUCH', 22, 258);
-  ctx.fillStyle = '#ffffff'; ctx.font = '10px sans-serif';
-  ctx.fillText('Usa i tasti direzionali grandi o WASD.', 22, 278);
-  ctx.fillText('Seleziona il tuo videomaker preferito!', 22, 294);
+  ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
+  ctx.fillText('3. MALUS TRAPPOLA ⚠️', 22, 261);
+  ctx.fillStyle = '#ffffff'; ctx.font = '11px sans-serif';
+  ctx.fillText('• 🐌 Drop Frame: Rallenta temporaneamente (-100)', 22, 279);
+  ctx.fillText('• ⚠️ Full Disk: Inverte i comandi di guida! (-200)', 22, 297);
 
   ctx.fillStyle = '#ffff00';
-  ctx.font = 'bold 11px monospace';
+  ctx.font = 'bold 12px monospace';
   ctx.textAlign = 'center';
   ctx.fillText(`RECORD ATTUALE: ${highScore} PTS`, canvas.width / 2, 342);
 
@@ -1179,7 +1104,6 @@ function drawCharSelect() {
   ctx.fillStyle = '#25252d'; ctx.fill();
   ctx.strokeStyle = c.primary; ctx.lineWidth = 2.5; ctx.stroke();
 
-  // BOX FOTO GRANDISSIMO 160x160px
   let boxW = 160;
   let boxH = 160;
   let boxX = (CANVAS_W - boxW) / 2;
@@ -1392,7 +1316,6 @@ bindBtn('btnUp', isDown => { moveUp = isDown; });
 bindBtn('btnDown', isDown => { moveDown = isDown; });
 bindBtn('btnLeft', isDown => { moveLeft = isDown; });
 bindBtn('btnRight', isDown => { moveRight = isDown; });
-bindBtn('btnGuard', isDown => { if (isDown) activateGuard(); });
 
 const keys = {};
 window.addEventListener('keydown', e => {
@@ -1406,8 +1329,6 @@ window.addEventListener('keydown', e => {
     if (e.code === 'Space' || e.code === 'Enter') selectCharacter(CHARACTER_LIST[selectedCharIndex]);
   } else if (gameState === 'GAME_OVER' && (e.code === 'Space' || e.code === 'Enter')) {
     gameState = 'CHAR_SELECT';
-  } else if (gameState === 'PLAYING' && (e.code === 'Space' || e.code === 'KeyZ')) {
-    activateGuard();
   }
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
