@@ -6,109 +6,284 @@
 <title>Deadline Drive - Premiere Pro Timeline Rush</title>
 
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-html, body { width: 100%; height: 100%; height: 100dvh; overflow: hidden; background: #111; color: #e0e0e0; margin: 0; padding: 0; position: fixed; inset: 0; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+html, body {
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background: #000000;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+}
+
+/* =========================================================
+   LAYOUT FLEXBOX FLUIDO (ZERO SOVRAPPOSIZIONI)
+   ========================================================= */
 
 #game-wrapper {
-  position: fixed;
-  top: env(safe-area-inset-top);
-  left: 0;
-  right: 0;
-  bottom: 181px;
+  position: absolute;
+  inset: 0;
   width: 100vw;
+  height: 100dvh;
   max-width: 440px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  background: #111;
-  padding: 5px 7px 0 7px;
-  z-index: 1;
-  min-height: 0;
+  background: #000000;
+  padding-top: max(env(safe-area-inset-top), 6px);
+  padding-bottom: max(env(safe-area-inset-bottom), 6px);
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
-.top-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 5px 7px; background: #282828; border-radius: 7px; margin-bottom: 4px; flex-shrink: 0; }
-.header-title { color: #00d2ff; font-size: 10px; font-weight: 700; letter-spacing: 0.6px; font-family: 'Courier New', monospace; white-space: nowrap; }
-.opt-btn { background: #333; border: 1px solid #555; color: #ffea00; padding: 4px 7px; font-family: 'Courier New', monospace; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; flex-shrink: 0; }
-.opt-btn:active { transform: scale(0.92); }
+.top-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: #222222;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
 
-#canvas-container { position: relative; width: 100%; flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-canvas { display: block; width: auto; height: 100%; max-width: 100%; max-height: 100%; aspect-ratio: 338 / 486; background: #181818; border: 1.5px solid #3a3a3a; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border-radius: 5px; cursor: pointer; }
+.header-title {
+  color: #00d2ff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+}
+
+.opt-btn {
+  background: #333333;
+  border: 1px solid #555555;
+  color: #ffea00;
+  padding: 4px 7px;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.opt-btn:active {
+  transform: scale(0.92);
+}
+
+/* =========================================================
+   CANVAS ADATTIVO
+   ========================================================= */
+
+#canvas-container {
+  flex: 1;
+  min-height: 0; /* Permette al canvas di scalare senza spingere in basso gli altri elementi */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  aspect-ratio: 338 / 486;
+  background: #181818;
+  border: 1.5px solid #3a3a3a;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* =========================================================
+   JOYSTICK D-PAD CORRETTO
+   ========================================================= */
 
 .control-deck {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 39px;
-  width: 100vw;
-  height: 142px;
+  flex-shrink: 0;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 50;
-  flex-shrink: 0;
-  background: #111;
+  padding: 4px 0;
 }
 
-.joystick-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-.dpad-grid { display: grid; grid-template-columns: 76px 76px 76px; grid-template-rows: 60px 60px; gap: 5px; transform: scale(1.08); }
-.ctrl-btn { position: relative; display: flex; justify-content: center; align-items: center; background: linear-gradient(180deg, #ff4d00 0%, #d50000 45%, #8b0000 100%); border: 3px solid #ffb000; color: #fff7b0; font-size: 30px; font-weight: 900; border-radius: 14px; cursor: pointer; box-shadow: 0 7px 0 #530000, 0 9px 14px rgba(0,0,0,0.55), inset 0 3px 0 rgba(255,255,255,0.35), inset 0 -4px 0 rgba(0,0,0,0.3); text-shadow: 0 2px 0 #7a0000, 0 0 8px rgba(255,230,0,0.6); transition: transform 0.04s linear, box-shadow 0.04s linear; }
-.ctrl-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 #530000, 0 3px 6px rgba(0,0,0,0.45), inset 0 2px 0 rgba(255,255,255,0.25); }
-.ctrl-btn-center { background: transparent; border: none; box-shadow: none; pointer-events: none; visibility: hidden; }
-
-.exit-btn {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 39px;
-  padding: 0;
+.joystick-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #111;
+}
+
+.dpad-grid {
+  display: grid;
+  grid-template-columns: 68px 68px 68px;
+  grid-template-rows: 48px 48px 48px; /* 3 righe corrette per evitare tagli */
+  gap: 4px;
+}
+
+.ctrl-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(180deg, #ff4d00 0%, #d50000 45%, #8b0000 100%);
+  border: 2px solid #ffb000;
+  color: #fff7b0;
+  font-size: 22px;
+  font-weight: 900;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #530000, 0 6px 10px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 0 #7a0000;
+  transition: transform 0.04s linear, box-shadow 0.04s linear;
+}
+
+.ctrl-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #530000, 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.ctrl-btn-center {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* =========================================================
+   TASTO ESCI
+   ========================================================= */
+
+.exit-btn {
+  flex-shrink: 0;
+  width: 100%;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #111111;
   color: #ff3366;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   font-size: 11px;
   letter-spacing: 0.5px;
-  border: none;
+  border: 1px solid #222222;
+  border-radius: 6px;
   cursor: pointer;
-  z-index: 100;
-  flex-shrink: 0;
-}
-.exit-btn:active { background: #1c1c1c; }
-
-.modal-overlay { display: none; position: fixed; inset: 0; width: 100vw; height: 100dvh; background: rgba(18,18,18,0.96); z-index: 200; justify-content: center; align-items: center; padding: 16px; }
-.modal-box { width: 100%; max-width: 300px; background: #232323; border: 2px solid #00d2ff; box-shadow: 0 0 25px rgba(0,210,255,0.3); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; color: #fff; text-align: center; }
-.modal-title { color: #ffea00; font-size: 14px; font-weight: 900; font-family: 'Courier New', monospace; }
-.option-item { display: flex; flex-direction: column; align-items: center; gap: 6px; background: #1a1a1a; padding: 8px; border: 1px solid #3a3a3a; border-radius: 6px; }
-.option-label { font-size: 11px; font-weight: bold; color: #00d2ff; font-family: 'Courier New', monospace; }
-.toggle-btn { width: 100%; padding: 8px; background: #2a2a2a; border: 1.5px solid #ff0055; color: #fff; font-weight: bold; font-size: 12px; font-family: 'Courier New', monospace; border-radius: 6px; cursor: pointer; }
-.toggle-btn.active { border-color: #00ff66; color: #00ff66; background: #122818; }
-.close-modal-btn { padding: 10px; background: #00d2ff; border: none; color: #000; font-weight: bold; font-size: 12px; font-family: 'Courier New', monospace; border-radius: 6px; cursor: pointer; }
-
-@media (max-width: 440px) {
-  #game-wrapper { width: 100vw; max-width: none; top: env(safe-area-inset-top); bottom: 181px; padding: 5px 7px 0 7px; }
-  .top-header { border-radius: 0 0 7px 7px; }
-  .control-deck { height: 142px; bottom: 39px; }
-  .dpad-grid { grid-template-columns: 72px 72px 72px; grid-template-rows: 57px 57px; gap: 5px; transform: scale(1.08); }
-  .ctrl-btn { font-size: 28px; border-radius: 13px; }
-  .exit-btn { height: 39px; bottom: 0; }
 }
 
-@media (min-height: 780px) and (max-width: 440px) {
-  #game-wrapper { bottom: 184px; }
-  .control-deck { height: 145px; bottom: 39px; }
-  .dpad-grid { transform: scale(1.12); }
+.exit-btn:active {
+  background: #1c1c1c;
 }
 
-@media (max-height: 700px) {
-  #game-wrapper { bottom: 160px; }
-  .control-deck { height: 125px; bottom: 35px; }
-  .dpad-grid { grid-template-columns: 64px 64px 64px; grid-template-rows: 48px 48px; gap: 4px; transform: scale(1.05); }
-  .ctrl-btn { font-size: 24px; border-width: 2px; border-radius: 11px; }
-  .exit-btn { height: 35px; bottom: 0; }
+/* =========================================================
+   MODALE OPZIONI
+   ========================================================= */
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  background: rgba(0,0,0,0.95);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 300px;
+  background: #1c1c1c;
+  border: 2px solid #00d2ff;
+  box-shadow: 0 0 25px rgba(0,210,255,0.3);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.modal-title {
+  color: #ffea00;
+  font-size: 14px;
+  font-weight: 900;
+  font-family: 'Courier New', monospace;
+}
+
+.option-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #111111;
+  padding: 8px;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+}
+
+.option-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #00d2ff;
+  font-family: 'Courier New', monospace;
+}
+
+.toggle-btn {
+  width: 100%;
+  padding: 8px;
+  background: #2a2a2a;
+  border: 1.5px solid #ff0055;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  border-color: #00ff66;
+  color: #00ff66;
+  background: #122818;
+}
+
+.close-modal-btn {
+  padding: 10px;
+  background: #00d2ff;
+  border: none;
+  color: #000000;
+  font-weight: bold;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  border-radius: 6px;
+  cursor: pointer;
 }
 </style>
 </head>
@@ -122,28 +297,31 @@ canvas { display: block; width: auto; height: 100%; max-width: 100%; max-height:
     <span class="header-title">SEQUENCE: TIMELINE_RUSH_2026</span>
     <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
   </div>
+
   <div id="canvas-container">
     <canvas id="game"></canvas>
   </div>
-</div>
 
-<div class="control-deck">
-  <div class="joystick-container">
-    <div class="dpad-grid">
-      <div style="visibility:hidden"></div>
-      <div class="ctrl-btn" id="btnUp">▲</div>
-      <div style="visibility:hidden"></div>
-      <div class="ctrl-btn" id="btnLeft">◀</div>
-      <div class="ctrl-btn-center"></div>
-      <div class="ctrl-btn" id="btnRight">▶</div>
-      <div style="visibility:hidden"></div>
-      <div class="ctrl-btn" id="btnDown">▼</div>
-      <div style="visibility:hidden"></div>
+  <div class="control-deck">
+    <div class="joystick-container">
+      <div class="dpad-grid">
+        <div style="visibility:hidden"></div>
+        <div class="ctrl-btn" id="btnUp">▲</div>
+        <div style="visibility:hidden"></div>
+
+        <div class="ctrl-btn" id="btnLeft">◀</div>
+        <div class="ctrl-btn-center"></div>
+        <div class="ctrl-btn" id="btnRight">▶</div>
+
+        <div style="visibility:hidden"></div>
+        <div class="ctrl-btn" id="btnDown">▼</div>
+        <div style="visibility:hidden"></div>
+      </div>
     </div>
   </div>
-</div>
 
-<button class="exit-btn" onclick="exitGame()">◄ TORNA IN STUDIO</button>
+  <button class="exit-btn" onclick="exitGame()">◄ TORNA IN STUDIO</button>
+</div>
 
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
@@ -164,10 +342,17 @@ canvas { display: block; width: auto; height: 100%; max-width: 100%; max-height:
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-const COLS = 13, ROWS = 17, CELL_SIZE = 26, HUD_HEIGHT = 44, TRACK_HEADER_W = 38;
+const COLS = 13;
+const ROWS = 17;
+const CELL_SIZE = 26;
+const HUD_HEIGHT = 44;
+const TRACK_HEADER_W = 38;
+
 const CANVAS_W = COLS * CELL_SIZE;
 const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT;
-canvas.width = CANVAS_W; canvas.height = CANVAS_H;
+
+canvas.width = CANVAS_W;
+canvas.height = CANVAS_H;
 
 function drawRoundRect(c, x, y, w, h, r) {
   if (w < 2 * r) r = w / 2;
@@ -183,12 +368,16 @@ function drawRoundRect(c, x, y, w, h, r) {
 
 let musicEnabled = localStorage.getItem('deadlineDrive_music') !== 'false';
 let sfxEnabled = localStorage.getItem('deadlineDrive_sfx') !== 'false';
+
 const bgMusic = document.getElementById('bgMusic');
 bgMusic.volume = 0.4;
 
 function playBgMusic() {
-  if (musicEnabled && bgMusic.paused) bgMusic.play().catch(() => {});
+  if (musicEnabled && bgMusic.paused) {
+    bgMusic.play().catch(() => {});
+  }
 }
+
 playBgMusic();
 window.addEventListener('DOMContentLoaded', playBgMusic);
 window.addEventListener('load', playBgMusic);
@@ -197,8 +386,7 @@ window.addEventListener('load', playBgMusic);
 });
 
 function updateMusicState() {
-  if (musicEnabled) playBgMusic();
-  else bgMusic.pause();
+  if (musicEnabled) { playBgMusic(); } else { bgMusic.pause(); }
 }
 
 const settingsModal = document.getElementById('settingsModal');
@@ -215,10 +403,30 @@ function renderOptionButtons() {
 }
 renderOptionButtons();
 
-btnToggleMusic.onclick = () => { musicEnabled = !musicEnabled; localStorage.setItem('deadlineDrive_music', musicEnabled); renderOptionButtons(); updateMusicState(); };
-btnToggleSfx.onclick = () => { sfxEnabled = !sfxEnabled; localStorage.setItem('deadlineDrive_sfx', sfxEnabled); renderOptionButtons(); };
-btnOpenSettings.onclick = () => { if (gameState === 'PLAYING') gameState = 'PAUSE'; settingsModal.style.display = 'flex'; };
-btnCloseSettings.onclick = () => { settingsModal.style.display = 'none'; getAC(); if (gameState === 'PAUSE') gameState = 'PLAYING'; updateMusicState(); };
+btnToggleMusic.onclick = () => {
+  musicEnabled = !musicEnabled;
+  localStorage.setItem('deadlineDrive_music', musicEnabled);
+  renderOptionButtons();
+  updateMusicState();
+};
+
+btnToggleSfx.onclick = () => {
+  sfxEnabled = !sfxEnabled;
+  localStorage.setItem('deadlineDrive_sfx', sfxEnabled);
+  renderOptionButtons();
+};
+
+btnOpenSettings.onclick = () => {
+  if (gameState === 'PLAYING') gameState = 'PAUSE';
+  settingsModal.style.display = 'flex';
+};
+
+btnCloseSettings.onclick = () => {
+  settingsModal.style.display = 'none';
+  getAC();
+  if (gameState === 'PAUSE') gameState = 'PLAYING';
+  updateMusicState();
+};
 
 let audioCtx = null;
 function getAC() {
@@ -227,7 +435,9 @@ function getAC() {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (AudioContextClass) audioCtx = new AudioContextClass();
     }
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
   } catch(e) {}
   playBgMusic();
   return audioCtx;
@@ -238,8 +448,10 @@ function playSound(type) {
   try {
     const ac = getAC();
     if (!ac) return;
-    const osc = ac.createOscillator(), gain = ac.createGain();
-    osc.connect(gain); gain.connect(ac.destination);
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain);
+    gain.connect(ac.destination);
 
     if (type === 'cross') {
       osc.type = 'triangle';
@@ -310,6 +522,7 @@ const CHARACTERS = {
   DAVE: { id: 'DAVE', name: "DAVE", subtitle: "Focused Director", perkBonus: "BONUS: Autorità (+30% Punteggio)", perkMalus: "MALUS: Passo Pesante (-20% Velocità)", primary: "#ff0055", bg: "#181818", img: imgDave, arrowCol: "#ff0055", arrowGlow: "#880022", speed: 2.0, scoreMult: 1.3 },
   LUCA: { id: 'LUCA', name: "LUCA", subtitle: "VFX Artist Whiz", perkBonus: "BONUS: VFX Master (+15% Punti)", perkMalus: "MALUS: Meno Vite Iniziali", primary: "#ffaa00", bg: "#181818", img: imgLuca, arrowCol: "#ffaa00", arrowGlow: "#885500", speed: 3.2, scoreMult: 1.15 }
 };
+
 const CHARACTER_LIST = ['GIULIA', 'TOBI', 'DAVE', 'LUCA'];
 
 const PICKUP_TYPES = {
