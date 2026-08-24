@@ -6,10 +6,6 @@
 <title>Deadline Drive - Premiere Pro Timeline Rush</title>
 
 <style>
-/* =========================================================
-   RESET
-========================================================= */
-
 * {
   margin: 0;
   padding: 0;
@@ -35,39 +31,32 @@ body {
   inset: 0;
 }
 
-
 /* =========================================================
    AREA GIOCO
-========================================================= */
+   ========================================================= */
 
 #game-wrapper {
   position: fixed;
-
   top: env(safe-area-inset-top);
   left: 0;
-
   width: 100vw;
 
-  /*
-    39px = barra "TORNA IN STUDIO"
-    160px = joystick
-    quindi il gioco occupa tutto ciò che resta.
-  */
+  /* spazio reale riservato SOLO a joystick + pulsante uscita */
   height: calc(
     100dvh
     - env(safe-area-inset-top)
     - env(safe-area-inset-bottom)
-    - 199px
+    - 175px
   );
 
   min-height: 0;
+  max-width: 440px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
   background: #111;
-
   padding: 4px 6px 0 6px;
 
   z-index: 1;
@@ -75,7 +64,6 @@ body {
 
 .top-header {
   width: 100%;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -84,8 +72,7 @@ body {
 
   background: #282828;
   border-radius: 7px;
-
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 
   flex-shrink: 0;
 }
@@ -103,15 +90,11 @@ body {
   background: #333;
   border: 1px solid #555;
   color: #ffea00;
-
   padding: 4px 7px;
-
   font-family: 'Courier New', monospace;
   font-size: 9px;
   font-weight: bold;
-
   border-radius: 4px;
-
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -120,16 +103,9 @@ body {
   transform: scale(0.92);
 }
 
-
-/* =========================================================
-   CANVAS
-========================================================= */
-
 #canvas-container {
   position: relative;
-
   width: 100%;
-
   flex: 1;
   min-height: 0;
 
@@ -143,11 +119,8 @@ body {
 canvas {
   display: block;
 
-  /*
-    Il canvas mantiene SEMPRE il rapporto originale.
-  */
   width: auto;
-  height: auto;
+  height: 100%;
 
   max-width: 100%;
   max-height: 100%;
@@ -155,21 +128,17 @@ canvas {
   aspect-ratio: 338 / 486;
 
   background: #181818;
-
   border: 1.5px solid #3a3a3a;
 
-  box-shadow:
-    0 4px 20px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
 
   border-radius: 5px;
-
   cursor: pointer;
 }
 
-
 /* =========================================================
-   JOYSTICK
-========================================================= */
+   CONTROL DECK
+   ========================================================= */
 
 .control-deck {
   position: fixed;
@@ -178,26 +147,20 @@ canvas {
   right: 0;
 
   /*
-    La barra inferiore è alta 39px.
-    Il joystick parte esattamente sopra.
-  */
-  bottom: calc(
-    env(safe-area-inset-bottom) + 39px
-  );
+   * Parte immediatamente sopra il pulsante "TORNA IN STUDIO".
+   * L'altezza è stata aumentata per far occupare al joystick
+   * praticamente tutto lo spazio disponibile.
+   */
+  bottom: calc(env(safe-area-inset-bottom) + 39px);
 
   width: 100vw;
-
-  height: 160px;
+  height: 136px;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
   z-index: 50;
-
-  flex-shrink: 0;
-
-  background: #111;
 }
 
 .joystick-container {
@@ -209,20 +172,16 @@ canvas {
   align-items: center;
 }
 
-
-/* =========================================================
-   D-PAD GRANDE
-========================================================= */
-
 .dpad-grid {
   display: grid;
 
   grid-template-columns: 82px 82px 82px;
-  grid-template-rows: 64px 64px 64px;
+  grid-template-rows: 61px 61px 61px;
 
-  gap: 6px;
+  gap: 5px;
 
-  transform: scale(1.08);
+  transform: scale(1.12);
+  transform-origin: center center;
 }
 
 .ctrl-btn {
@@ -244,10 +203,10 @@ canvas {
 
   color: #fff7b0;
 
-  font-size: 31px;
+  font-size: 30px;
   font-weight: 900;
 
-  border-radius: 15px;
+  border-radius: 14px;
 
   cursor: pointer;
 
@@ -283,16 +242,14 @@ canvas {
   visibility: hidden;
 }
 
-
 /* =========================================================
-   BARRA USCITA
-========================================================= */
+   EXIT
+   ========================================================= */
 
 .exit-btn {
   position: fixed;
 
   left: 0;
-
   bottom: env(safe-area-inset-bottom);
 
   width: 100vw;
@@ -303,7 +260,6 @@ canvas {
   align-items: center;
 
   background: #111;
-
   color: #ff3366;
 
   font-family: 'Courier New', monospace;
@@ -315,8 +271,6 @@ canvas {
 
   z-index: 100;
 
-  flex-shrink: 0;
-
   border: none;
 }
 
@@ -324,10 +278,9 @@ canvas {
   background: #1c1c1c;
 }
 
-
 /* =========================================================
-   MODALE
-========================================================= */
+   MODAL
+   ========================================================= */
 
 .modal-overlay {
   display: none;
@@ -356,8 +309,7 @@ canvas {
 
   border: 2px solid #00d2ff;
 
-  box-shadow:
-    0 0 25px rgba(0,210,255,0.3);
+  box-shadow: 0 0 25px rgba(0,210,255,0.3);
 
   border-radius: 12px;
 
@@ -365,20 +317,16 @@ canvas {
 
   display: flex;
   flex-direction: column;
-
   gap: 14px;
 
   color: #fff;
-
   text-align: center;
 }
 
 .modal-title {
   color: #ffea00;
-
   font-size: 14px;
   font-weight: 900;
-
   font-family: 'Courier New', monospace;
 }
 
@@ -386,7 +334,6 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-
   gap: 6px;
 
   background: #1a1a1a;
@@ -394,16 +341,13 @@ canvas {
   padding: 8px;
 
   border: 1px solid #3a3a3a;
-
   border-radius: 6px;
 }
 
 .option-label {
   font-size: 11px;
   font-weight: bold;
-
   color: #00d2ff;
-
   font-family: 'Courier New', monospace;
 }
 
@@ -453,10 +397,9 @@ canvas {
   cursor: pointer;
 }
 
-
 /* =========================================================
    TELEFONI
-========================================================= */
+   ========================================================= */
 
 @media (max-width: 440px) {
 
@@ -468,13 +411,12 @@ canvas {
       100dvh
       - env(safe-area-inset-top)
       - env(safe-area-inset-bottom)
-      - 199px
+      - 175px
     );
 
     top: env(safe-area-inset-top);
 
-    padding-left: 5px;
-    padding-right: 5px;
+    padding: 3px 5px 0 5px;
   }
 
   .top-header {
@@ -482,52 +424,7 @@ canvas {
   }
 
   .control-deck {
-    height: 160px;
-
-    bottom: calc(
-      env(safe-area-inset-bottom) + 39px
-    );
-  }
-
-  .dpad-grid {
-    grid-template-columns: 78px 78px 78px;
-    grid-template-rows: 62px 62px 62px;
-
-    gap: 6px;
-
-    transform: scale(1.08);
-  }
-
-  .ctrl-btn {
-    font-size: 29px;
-    border-radius: 14px;
-  }
-
-  .exit-btn {
-    height: 39px;
-
-    bottom: env(safe-area-inset-bottom);
-  }
-}
-
-
-/* =========================================================
-   IPHONE GRANDI / SCHERMI ALTI
-========================================================= */
-
-@media (min-height: 780px) and (max-width: 440px) {
-
-  #game-wrapper {
-    height: calc(
-      100dvh
-      - env(safe-area-inset-top)
-      - env(safe-area-inset-bottom)
-      - 199px
-    );
-  }
-
-  .control-deck {
-    height: 160px;
+    height: 136px;
 
     bottom: calc(
       env(safe-area-inset-bottom) + 39px
@@ -536,18 +433,60 @@ canvas {
 
   .dpad-grid {
     grid-template-columns: 82px 82px 82px;
-    grid-template-rows: 64px 64px 64px;
+    grid-template-rows: 61px 61px 61px;
 
-    gap: 6px;
+    gap: 5px;
 
     transform: scale(1.08);
   }
+
+  .ctrl-btn {
+    font-size: 29px;
+    border-radius: 13px;
+  }
+
+  .exit-btn {
+    height: 39px;
+    bottom: env(safe-area-inset-bottom);
+  }
 }
 
+/* =========================================================
+   IPHONE CON SCHERMO ALTO
+   ========================================================= */
+
+@media (min-height: 780px) and (max-width: 440px) {
+
+  #game-wrapper {
+    height: calc(
+      100dvh
+      - env(safe-area-inset-top)
+      - env(safe-area-inset-bottom)
+      - 175px
+    );
+  }
+
+  .control-deck {
+    height: 140px;
+  }
+
+  .dpad-grid {
+    grid-template-columns: 84px 84px 84px;
+    grid-template-rows: 62px 62px 62px;
+
+    gap: 5px;
+
+    transform: scale(1.08);
+  }
+
+  .ctrl-btn {
+    font-size: 30px;
+  }
+}
 
 /* =========================================================
    SCHERMI BASSI
-========================================================= */
+   ========================================================= */
 
 @media (max-height: 700px) {
 
@@ -556,21 +495,21 @@ canvas {
       100dvh
       - env(safe-area-inset-top)
       - env(safe-area-inset-bottom)
-      - 174px
+      - 150px
     );
   }
 
   .control-deck {
-    height: 135px;
+    height: 112px;
 
     bottom: calc(
-      env(safe-area-inset-bottom) + 39px
+      env(safe-area-inset-bottom) + 35px
     );
   }
 
   .dpad-grid {
-    grid-template-columns: 68px 68px 68px;
-    grid-template-rows: 50px 50px 50px;
+    grid-template-columns: 66px 66px 66px;
+    grid-template-rows: 48px 48px 48px;
 
     gap: 4px;
 
@@ -579,13 +518,12 @@ canvas {
 
   .ctrl-btn {
     font-size: 24px;
-
     border-width: 2px;
     border-radius: 11px;
   }
 
   .exit-btn {
-    height: 39px;
+    height: 35px;
   }
 }
 </style>
@@ -602,23 +540,14 @@ canvas {
   style="display:none;">
 </audio>
 
-
-<!-- =====================================================
-     GAME
-===================================================== -->
-
 <div id="game-wrapper">
 
   <div class="top-header">
-
-    <span class="header-title">
-      SEQUENCE: TIMELINE_RUSH_2026
-    </span>
+    <span class="header-title">SEQUENCE: TIMELINE_RUSH_2026</span>
 
     <button class="opt-btn" id="btnOpenSettings">
       ⚙️ OPZIONI
     </button>
-
   </div>
 
   <div id="canvas-container">
@@ -626,11 +555,6 @@ canvas {
   </div>
 
 </div>
-
-
-<!-- =====================================================
-     JOYSTICK
-===================================================== -->
 
 <div class="control-deck">
 
@@ -672,19 +596,9 @@ canvas {
 
 </div>
 
-
-<!-- =====================================================
-     EXIT
-===================================================== -->
-
 <button class="exit-btn" onclick="exitGame()">
   ◄ TORNA IN STUDIO
 </button>
-
-
-<!-- =====================================================
-     SETTINGS
-===================================================== -->
 
 <div class="modal-overlay" id="settingsModal">
 
@@ -726,11 +640,7 @@ canvas {
 
 </div>
 
-
 <script>
-/* =========================================================
-   CANVAS
-========================================================= */
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -747,10 +657,6 @@ const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT;
 canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
 
-
-/* =========================================================
-   UTILITY
-========================================================= */
 
 function drawRoundRect(c, x, y, w, h, r) {
 
@@ -797,28 +703,21 @@ function drawRoundRect(c, x, y, w, h, r) {
 }
 
 
-/* =========================================================
-   AUDIO
-========================================================= */
-
 let musicEnabled =
   localStorage.getItem('deadlineDrive_music') !== 'false';
 
 let sfxEnabled =
   localStorage.getItem('deadlineDrive_sfx') !== 'false';
 
-const bgMusic =
-  document.getElementById('bgMusic');
+
+const bgMusic = document.getElementById('bgMusic');
 
 bgMusic.volume = 0.4;
 
 
 function playBgMusic() {
 
-  if (
-    musicEnabled &&
-    bgMusic.paused
-  ) {
+  if (musicEnabled && bgMusic.paused) {
     bgMusic.play().catch(() => {});
   }
 }
@@ -862,10 +761,6 @@ function updateMusicState() {
 }
 
 
-/* =========================================================
-   SETTINGS
-========================================================= */
-
 const settingsModal =
   document.getElementById('settingsModal');
 
@@ -888,19 +783,16 @@ function renderOptionButtons() {
     `toggle-btn ${musicEnabled ? 'active' : ''}`;
 
   btnToggleMusic.innerText =
-    musicEnabled
-      ? 'ON 🎵'
-      : 'OFF 🔇';
+    musicEnabled ? 'ON 🎵' : 'OFF 🔇';
 
 
   btnToggleSfx.className =
     `toggle-btn ${sfxEnabled ? 'active' : ''}`;
 
   btnToggleSfx.innerText =
-    sfxEnabled
-      ? 'ON 🔊'
-      : 'OFF 🔇';
+    sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
 }
+
 
 renderOptionButtons();
 
@@ -960,10 +852,6 @@ btnCloseSettings.onclick = () => {
 };
 
 
-/* =========================================================
-   SOUND ENGINE
-========================================================= */
-
 let audioCtx = null;
 
 
@@ -1008,11 +896,8 @@ function playSound(type) {
 
     if (!ac) return;
 
-    const osc =
-      ac.createOscillator();
-
-    const gain =
-      ac.createGain();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
 
     osc.connect(gain);
     gain.connect(ac.destination);
@@ -1045,7 +930,6 @@ function playSound(type) {
 
     }
 
-
     else if (type === 'crash') {
 
       osc.type = 'sawtooth';
@@ -1072,7 +956,6 @@ function playSound(type) {
       );
 
     }
-
 
     else if (type === 'guard_active') {
 
@@ -1101,7 +984,6 @@ function playSound(type) {
 
     }
 
-
     else if (type === 'pickup') {
 
       osc.type = 'triangle';
@@ -1129,7 +1011,6 @@ function playSound(type) {
 
     }
 
-
     else if (type === 'malus') {
 
       osc.type = 'sawtooth';
@@ -1156,7 +1037,6 @@ function playSound(type) {
       );
 
     }
-
 
     else if (type === 'fail') {
 
@@ -1190,10 +1070,6 @@ function playSound(type) {
 }
 
 
-/* =========================================================
-   CHARACTERS
-========================================================= */
-
 const imgGiulia = new Image();
 imgGiulia.src = 'assets/frogger/giulia.png';
 
@@ -1206,10 +1082,6 @@ imgDave.src = 'assets/frogger/dave.png';
 const imgLuca = new Image();
 imgLuca.src = 'assets/frogger/luca.png';
 
-
-/* =========================================================
-   PREMIERE CLIPS
-========================================================= */
 
 const PREMIERE_CLIPS = {
 
@@ -1307,10 +1179,6 @@ const PREMIERE_CLIPS = {
 };
 
 
-/* =========================================================
-   LEVELS
-========================================================= */
-
 const LEVEL_THEMES = [
 
   {
@@ -1339,10 +1207,6 @@ const LEVEL_THEMES = [
 
 ];
 
-
-/* =========================================================
-   CHARACTERS DATA
-========================================================= */
 
 const CHARACTERS = {
 
@@ -1408,6 +1272,7 @@ const CHARACTERS = {
 
 };
 
+
 const CHARACTER_LIST = [
   'GIULIA',
   'TOBI',
@@ -1415,10 +1280,6 @@ const CHARACTER_LIST = [
   'LUCA'
 ];
 
-
-/* =========================================================
-   PICKUPS
-========================================================= */
 
 const PICKUP_TYPES = {
 
@@ -1472,10 +1333,6 @@ const PICKUP_TYPES = {
 };
 
 
-/* =========================================================
-   GAME STATE
-========================================================= */
-
 let currentTheme = CHARACTERS.GIULIA;
 
 let highScore =
@@ -1490,25 +1347,29 @@ let gameState = 'TUTORIAL';
 let level = 1;
 let score = 0;
 let lives = 3;
-
 let visualScrollOffset = 0;
 
 
 let player = {
 
   gx: Math.floor(COLS / 2),
+
   gy: ROWS - 2,
 
   w: 16,
+
   h: 16,
 
   facingLeft: false,
 
   invTimer: 0,
+
   guardTimer: 0,
+
   nextMoveAllowedTimer: 0,
 
   speedMult: 1.0,
+
   tempScoreMult: 1.0,
 
   glitchTimer: 0
@@ -1525,10 +1386,6 @@ let selectedCharIndex = 0;
 
 let particles = [];
 
-
-/* =========================================================
-   LANES
-========================================================= */
 
 function createNewLane(
   isInitialSetup = false,
@@ -1552,10 +1409,7 @@ function createNewLane(
         r === ROWS - 1 ||
         r === ROWS - 2 ||
         r === ROWS - 3 ||
-        (
-          r % 3 === 0 &&
-          level === 1
-        )
+        (r % 3 === 0 && level === 1)
       );
 
   } else {
@@ -1567,8 +1421,8 @@ function createNewLane(
         topLane &&
         topLane.type === 'SAFE'
       )
-        ? false
-        : Math.random() < safeChance;
+      ? false
+      : Math.random() < safeChance;
 
   }
 
@@ -1577,24 +1431,17 @@ function createNewLane(
     isSafe ? 'SAFE' : 'ROAD';
 
   let dir =
-    Math.random() < 0.5
-      ? 1
-      : -1;
+    Math.random() < 0.5 ? 1 : -1;
 
 
   let speedFactor =
     0.38 +
-    Math.min(
-      level * 0.16,
-      1.2
-    );
+    Math.min(level * 0.16, 1.2);
 
 
   let baseSpeed =
-    (
-      0.45 +
-      Math.random() * 0.35
-    ) * speedFactor;
+    (0.45 + Math.random() * 0.35) *
+    speedFactor;
 
 
   let vTypes =
@@ -1605,12 +1452,12 @@ function createNewLane(
     (r % 5 === 0)
       ? "V3"
       : (r % 5 === 1)
-        ? "V2"
-        : (r % 5 === 2)
-          ? "V1"
-          : (r % 5 === 3)
-            ? "A1"
-            : "A2";
+      ? "V2"
+      : (r % 5 === 2)
+      ? "V1"
+      : (r % 5 === 3)
+      ? "A1"
+      : "A2";
 
 
   let laneObj = {
@@ -1735,12 +1582,9 @@ function createNewLane(
 
 
   return laneObj;
+
 }
 
-
-/* =========================================================
-   START / RESET
-========================================================= */
 
 function startInfiniteScroll() {
 
@@ -1763,6 +1607,7 @@ function startInfiniteScroll() {
 
 
   resetPlayer();
+
 }
 
 
@@ -1783,14 +1628,10 @@ function resetPlayer() {
 
   player.speedMult = 1.0;
   player.tempScoreMult = 1.0;
-
   player.glitchTimer = 0;
+
 }
 
-
-/* =========================================================
-   PLAYER
-========================================================= */
 
 function updatePlayer() {
 
@@ -1837,20 +1678,19 @@ function updatePlayer() {
       moveDown;
 
 
-    if (
-      player.glitchTimer > 0
-    ) {
+    if (player.glitchTimer > 0) {
 
       let tL = inLeft;
       let tR = inRight;
       let tU = inUp;
       let tD = inDown;
 
+
       inLeft = tR;
       inRight = tL;
-
       inUp = tD;
       inDown = tU;
+
     }
 
 
@@ -1860,7 +1700,9 @@ function updatePlayer() {
 
       player.facingLeft = true;
 
-    } else if (inRight) {
+    }
+
+    else if (inRight) {
 
       dx++;
 
@@ -1871,7 +1713,9 @@ function updatePlayer() {
 
     if (inUp) {
       dy--;
-    } else if (inDown) {
+    }
+
+    else if (inDown) {
       dy++;
     }
 
@@ -1906,9 +1750,9 @@ function updatePlayer() {
 
           scrollWorldDown();
 
-        } else if (
-          dy < 0
-        ) {
+        }
+
+        else if (dy < 0) {
 
           score += Math.floor(
             10 *
@@ -1943,28 +1787,20 @@ function updatePlayer() {
   }
 
 
-  if (
-    player.invTimer > 0
-  ) {
+  if (player.invTimer > 0) {
     player.invTimer--;
   }
 
-
-  if (
-    player.guardTimer > 0
-  ) {
+  if (player.guardTimer > 0) {
     player.guardTimer--;
   }
 
 
   checkPickups();
   checkCollisions();
+
 }
 
-
-/* =========================================================
-   SCROLL
-========================================================= */
 
 function scrollWorldDown() {
 
@@ -1977,8 +1813,7 @@ function scrollWorldDown() {
 
   player.gy++;
 
-  visualScrollOffset -=
-    CELL_SIZE;
+  visualScrollOffset -= CELL_SIZE;
 
 
   score += Math.floor(
@@ -1993,17 +1828,11 @@ function scrollWorldDown() {
     score >
     level * 1200
   ) {
-
     level++;
-
   }
 
 }
 
-
-/* =========================================================
-   VEHICLES
-========================================================= */
 
 function updateVehicles() {
 
@@ -2013,65 +1842,55 @@ function updateVehicles() {
 
 
   if (
-    Math.abs(
-      visualScrollOffset
-    ) < 0.1
+    Math.abs(visualScrollOffset) <
+    0.1
   ) {
-
     visualScrollOffset = 0;
-
   }
 
 
-  activeLanes.forEach(
-    lane => {
+  activeLanes.forEach(lane => {
 
-      if (
-        lane.type === 'ROAD'
-      ) {
+    if (
+      lane.type === 'ROAD'
+    ) {
 
-        lane.objects.forEach(
-          obj => {
+      lane.objects.forEach(obj => {
 
-            obj.x +=
-              lane.speed *
-              lane.dir;
+        obj.x +=
+          lane.speed *
+          lane.dir;
 
 
-            if (
-              lane.dir > 0 &&
-              obj.x >
-                CANVAS_W +
-                obj.w
-            ) {
+        if (
+          lane.dir > 0 &&
+          obj.x >
+          CANVAS_W + obj.w
+        ) {
 
-              obj.x =
-                TRACK_HEADER_W -
-                obj.w;
+          obj.x =
+            TRACK_HEADER_W -
+            obj.w;
 
-            }
+        }
 
+        else if (
+          lane.dir < 0 &&
+          obj.x <
+          TRACK_HEADER_W - obj.w
+        ) {
 
-            else if (
-              lane.dir < 0 &&
-              obj.x <
-                TRACK_HEADER_W -
-                obj.w
-            ) {
+          obj.x =
+            CANVAS_W +
+            obj.w;
 
-              obj.x =
-                CANVAS_W +
-                obj.w;
+        }
 
-            }
-
-          }
-        );
-
-      }
+      });
 
     }
-  );
+
+  });
 
 
   for (
@@ -2084,12 +1903,10 @@ function updateVehicles() {
 
     p.x += p.vx;
     p.y += p.vy;
-
     p.life--;
 
-    if (
-      p.life <= 0
-    ) {
+
+    if (p.life <= 0) {
       particles.splice(i, 1);
     }
 
@@ -2097,10 +1914,6 @@ function updateVehicles() {
 
 }
 
-
-/* =========================================================
-   PARTICLES
-========================================================= */
 
 function addParticles(
   x,
@@ -2118,6 +1931,7 @@ function addParticles(
     particles.push({
 
       x: x,
+
       y: y,
 
       vx:
@@ -2136,10 +1950,6 @@ function addParticles(
 
 }
 
-
-/* =========================================================
-   PICKUPS
-========================================================= */
 
 function checkPickups() {
 
@@ -2183,9 +1993,7 @@ function checkPickups() {
         playSound('malus');
 
 
-        if (
-          p.type.slowFactor
-        ) {
+        if (p.type.slowFactor) {
 
           player.speedMult =
             p.type.slowFactor;
@@ -2197,8 +2005,7 @@ function checkPickups() {
           p.type.invertControls
         ) {
 
-          player.glitchTimer =
-            180;
+          player.glitchTimer = 180;
 
         }
 
@@ -2209,9 +2016,7 @@ function checkPickups() {
         playSound('pickup');
 
 
-        if (
-          p.type.speedBoost
-        ) {
+        if (p.type.speedBoost) {
 
           player.speedMult =
             p.type.speedBoost;
@@ -2219,9 +2024,7 @@ function checkPickups() {
         }
 
 
-        if (
-          p.type.scoreBoost
-        ) {
+        if (p.type.scoreBoost) {
 
           player.tempScoreMult =
             p.type.scoreBoost;
@@ -2244,10 +2047,13 @@ function checkPickups() {
 
 
       addParticles(
-        player.gx * CELL_SIZE +
+
+        player.gx *
+          CELL_SIZE +
           CELL_SIZE / 2,
 
-        player.gy * CELL_SIZE +
+        player.gy *
+          CELL_SIZE +
           HUD_HEIGHT,
 
         p.type.isMalus
@@ -2255,6 +2061,7 @@ function checkPickups() {
           : '#00d2ff',
 
         10
+
       );
 
 
@@ -2269,10 +2076,6 @@ function checkPickups() {
 
 }
 
-
-/* =========================================================
-   COLLISION
-========================================================= */
 
 function isInvincible() {
 
@@ -2330,54 +2133,45 @@ function checkCollisions() {
     }
 
 
-    lane.objects.forEach(
-      obj => {
+    lane.objects.forEach(obj => {
 
-        if (
-          offset === 1 &&
-          obj.hMult !== 2
-        ) {
-          return;
-        }
-
-
-        let oLeft =
-          obj.x;
-
-        let oRight =
-          obj.x +
-          obj.w;
+      if (
+        offset === 1 &&
+        obj.hMult !== 2
+      ) {
+        return;
+      }
 
 
-        let pLeft =
-          playerX -
-          player.w / 2;
-
-        let pRight =
-          playerX +
-          player.w / 2;
+      let oLeft = obj.x;
+      let oRight =
+        obj.x + obj.w;
 
 
-        if (
-          pLeft < oRight &&
-          pRight > oLeft
-        ) {
+      let pLeft =
+        playerX -
+        player.w / 2;
 
-          hitPlayer();
+      let pRight =
+        playerX +
+        player.w / 2;
 
-        }
+
+      if (
+        pLeft < oRight &&
+        pRight > oLeft
+      ) {
+
+        hitPlayer();
 
       }
-    );
+
+    });
 
   }
 
 }
 
-
-/* =========================================================
-   HIT
-========================================================= */
 
 function hitPlayer() {
 
@@ -2387,15 +2181,19 @@ function hitPlayer() {
 
 
   addParticles(
-    player.gx * CELL_SIZE +
+
+    player.gx *
+      CELL_SIZE +
       CELL_SIZE / 2,
 
-    player.gy * CELL_SIZE +
+    player.gy *
+      CELL_SIZE +
       HUD_HEIGHT,
 
     '#ff0055',
 
     20
+
   );
 
 
@@ -2430,6 +2228,7 @@ function hitPlayer() {
       ) {
 
         respawnGy = r;
+
         break;
 
       }
@@ -2438,45 +2237,33 @@ function hitPlayer() {
 
 
     player.gx =
-      Math.floor(
-        COLS / 2
-      );
+      Math.floor(COLS / 2);
 
     player.gy =
       respawnGy;
 
-    player.invTimer =
-      90;
+    player.invTimer = 90;
 
-    player.glitchTimer =
-      0;
+    player.glitchTimer = 0;
 
-    player.speedMult =
-      1.0;
+    player.speedMult = 1.0;
 
-    player.tempScoreMult =
-      1.0;
+    player.tempScoreMult = 1.0;
 
   }
 
 }
 
 
-/* =========================================================
-   DRAW WORLD
-========================================================= */
-
 function drawGameWorld() {
 
-  ctx.fillStyle =
-    '#181818';
+  ctx.fillStyle = '#181818';
 
   ctx.fillRect(
     0,
     HUD_HEIGHT,
     CANVAS_W,
-    CANVAS_H -
-      HUD_HEIGHT
+    CANVAS_H - HUD_HEIGHT
   );
 
 
@@ -2484,13 +2271,15 @@ function drawGameWorld() {
     (lane, r) => {
 
       let y =
-        r * CELL_SIZE +
+        r *
+          CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
 
       ctx.fillStyle =
         lane.bg;
+
 
       ctx.fillRect(
         0,
@@ -2504,6 +2293,7 @@ function drawGameWorld() {
         '#222226';
 
       ctx.lineWidth = 1;
+
 
       ctx.strokeRect(
         0,
@@ -2524,7 +2314,8 @@ function drawGameWorld() {
       ) {
 
         let y =
-          r * CELL_SIZE +
+          r *
+            CELL_SIZE +
           HUD_HEIGHT +
           visualScrollOffset;
 
@@ -2533,7 +2324,8 @@ function drawGameWorld() {
           p => {
 
             let px =
-              p.gx * CELL_SIZE +
+              p.gx *
+                CELL_SIZE +
               CELL_SIZE / 2;
 
             let py =
@@ -2581,7 +2373,8 @@ function drawGameWorld() {
 
         drawObstacles(
           lane,
-          r * CELL_SIZE +
+          r *
+            CELL_SIZE +
             HUD_HEIGHT +
             visualScrollOffset
         );
@@ -2596,13 +2389,15 @@ function drawGameWorld() {
     (lane, r) => {
 
       let y =
-        r * CELL_SIZE +
+        r *
+          CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
 
       ctx.fillStyle =
         '#222226';
+
 
       ctx.fillRect(
         0,
@@ -2616,6 +2411,7 @@ function drawGameWorld() {
         '#323238';
 
       ctx.lineWidth = 1;
+
 
       ctx.strokeRect(
         0,
@@ -2654,8 +2450,7 @@ function drawGameWorld() {
     i++
   ) {
 
-    let p =
-      particles[i];
+    let p = particles[i];
 
     ctx.fillStyle =
       p.color;
@@ -2681,6 +2476,7 @@ function drawGameWorld() {
 
   ctx.lineWidth = 1.5;
 
+
   ctx.beginPath();
 
   ctx.moveTo(
@@ -2701,10 +2497,6 @@ function drawGameWorld() {
 }
 
 
-/* =========================================================
-   OBSTACLES
-========================================================= */
-
 function drawObstacles(
   lane,
   laneY
@@ -2716,7 +2508,8 @@ function drawObstacles(
       let x = obj.x;
       let y = laneY;
 
-      let vData = obj.type;
+      let vData =
+        obj.type;
 
       let blockW =
         obj.w;
@@ -2744,6 +2537,7 @@ function drawObstacles(
       ctx.fillStyle =
         vData.bg;
 
+
       ctx.fillRect(
         x + 1,
         y + 1,
@@ -2755,6 +2549,7 @@ function drawObstacles(
       ctx.fillStyle =
         vData.topBar ||
         '#00ff66';
+
 
       ctx.fillRect(
         x + 1,
@@ -2769,6 +2564,7 @@ function drawObstacles(
 
       ctx.lineWidth = 1;
 
+
       ctx.strokeRect(
         x + 1,
         y + 1,
@@ -2779,6 +2575,7 @@ function drawObstacles(
 
       ctx.fillStyle =
         'rgba(0,0,0,0.4)';
+
 
       ctx.fillRect(
         x + 4,
@@ -2817,11 +2614,13 @@ function drawObstacles(
 
         ctx.lineWidth = 1;
 
+
         ctx.beginPath();
 
         ctx.setLineDash(
           [3, 3]
         );
+
 
         ctx.moveTo(
           x + 18,
@@ -2832,6 +2631,7 @@ function drawObstacles(
           x + blockW - 6,
           y + blockH / 2
         );
+
 
         ctx.stroke();
 
@@ -2869,21 +2669,19 @@ function drawObstacles(
 }
 
 
-/* =========================================================
-   PLAYER DRAW
-========================================================= */
-
 function drawSinglePlayer() {
 
   let playerY =
-    player.gy * CELL_SIZE +
+    player.gy *
+      CELL_SIZE +
     HUD_HEIGHT +
     CELL_SIZE / 2 +
     visualScrollOffset;
 
 
   let playerX =
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
     CELL_SIZE / 2;
 
 
@@ -2990,6 +2788,7 @@ function drawSinglePlayer() {
 
     ctx.lineWidth = 2;
 
+
     ctx.beginPath();
 
     ctx.arc(
@@ -3010,14 +2809,11 @@ function drawSinglePlayer() {
 }
 
 
-/* =========================================================
-   HUD
-========================================================= */
-
 function drawHUD() {
 
   ctx.fillStyle =
     '#222226';
+
 
   ctx.fillRect(
     0,
@@ -3031,6 +2827,7 @@ function drawHUD() {
     '#383840';
 
   ctx.lineWidth = 1.5;
+
 
   ctx.strokeRect(
     0,
@@ -3059,6 +2856,7 @@ function drawHUD() {
 
   ctx.fillStyle =
     '#ffff00';
+
 
   ctx.fillText(
     `PTS: ${score}`,
@@ -3113,6 +2911,7 @@ function drawHUD() {
   ctx.fillStyle =
     '#ff0055';
 
+
   ctx.fillText(
     `VITE: ${'❤️'.repeat(lives)}`,
     canvas.width - 8,
@@ -3122,14 +2921,11 @@ function drawHUD() {
 }
 
 
-/* =========================================================
-   TUTORIAL
-========================================================= */
-
 function drawTutorial() {
 
   ctx.fillStyle =
     'rgba(20,20,24,0.96)';
+
 
   ctx.fillRect(
     0,
@@ -3165,10 +2961,12 @@ function drawTutorial() {
     10
   );
 
+
   ctx.fillStyle =
     '#282830';
 
   ctx.fill();
+
 
   ctx.strokeStyle =
     '#00d2ff';
@@ -3232,10 +3030,12 @@ function drawTutorial() {
     10
   );
 
+
   ctx.fillStyle =
     '#282830';
 
   ctx.fill();
+
 
   ctx.strokeStyle =
     '#00ff66';
@@ -3299,10 +3099,12 @@ function drawTutorial() {
     10
   );
 
+
   ctx.fillStyle =
     '#282830';
 
   ctx.fill();
+
 
   ctx.strokeStyle =
     '#ff0055';
@@ -3376,10 +3178,12 @@ function drawTutorial() {
     10
   );
 
+
   ctx.fillStyle =
     '#00d2ff';
 
   ctx.fill();
+
 
   ctx.strokeStyle =
     '#ffffff';
@@ -3395,6 +3199,7 @@ function drawTutorial() {
   ctx.font =
     'bold 12px monospace';
 
+
   ctx.fillText(
     'AVANTI: SCEGLI VIDEOMAKER ►',
     canvas.width / 2,
@@ -3404,14 +3209,11 @@ function drawTutorial() {
 }
 
 
-/* =========================================================
-   CHARACTER SELECT
-========================================================= */
-
 function drawCharSelect() {
 
   ctx.fillStyle =
     'rgba(20,20,24,0.96)';
+
 
   ctx.fillRect(
     0,
@@ -3501,6 +3303,7 @@ function drawCharSelect() {
     12
   );
 
+
   ctx.clip();
 
 
@@ -3526,6 +3329,7 @@ function drawCharSelect() {
       '#181822';
 
     ctx.fill();
+
 
     ctx.fillStyle =
       c.primary;
@@ -3656,13 +3460,10 @@ function drawCharSelect() {
 }
 
 
-/* =========================================================
-   CHARACTER SELECTION INPUT
-========================================================= */
-
 function handleSelectionInput(dir) {
 
   playSound('cross');
+
 
   selectedCharIndex += dir;
 
@@ -3689,14 +3490,11 @@ function handleSelectionInput(dir) {
 }
 
 
-/* =========================================================
-   LEVEL CLEAR
-========================================================= */
-
 function drawLevelClear() {
 
   ctx.fillStyle =
     'rgba(20,20,24,0.88)';
+
 
   ctx.fillRect(
     0,
@@ -3766,14 +3564,11 @@ function drawLevelClear() {
 }
 
 
-/* =========================================================
-   GAME OVER
-========================================================= */
-
 function drawGameOver() {
 
   ctx.fillStyle =
     'rgba(20,20,24,0.94)';
+
 
   ctx.fillRect(
     0,
@@ -3849,14 +3644,11 @@ function drawGameOver() {
 }
 
 
-/* =========================================================
-   PAUSE
-========================================================= */
-
 function drawPause() {
 
   ctx.fillStyle =
     'rgba(0,0,0,0.75)';
+
 
   ctx.fillRect(
     0,
@@ -3898,10 +3690,6 @@ function drawPause() {
 
 }
 
-
-/* =========================================================
-   GAME LOOP
-========================================================= */
 
 function gameLoop() {
 
@@ -3972,7 +3760,9 @@ function gameLoop() {
 
     }
 
-  } catch (err) {
+  }
+
+  catch (err) {
 
     console.error(
       "Game Loop Error:",
@@ -3989,13 +3779,7 @@ function gameLoop() {
 }
 
 
-/* =========================================================
-   SELECT CHARACTER
-========================================================= */
-
-function selectCharacter(
-  charKey
-) {
+function selectCharacter(charKey) {
 
   currentTheme =
     CHARACTERS[charKey];
@@ -4011,6 +3795,7 @@ function selectCharacter(
 
   startInfiniteScroll();
 
+
   gameState =
     'PLAYING';
 
@@ -4019,10 +3804,6 @@ function selectCharacter(
 
 }
 
-
-/* =========================================================
-   CANVAS INPUT
-========================================================= */
 
 canvas.addEventListener(
   'pointerdown',
@@ -4041,34 +3822,20 @@ canvas.addEventListener(
 
 
     let x =
-      (
-        e.clientX -
-        rect.left
-      ) *
-      (
-        canvas.width /
-        rect.width
-      );
+      (e.clientX - rect.left) *
+      (canvas.width / rect.width);
 
 
     let y =
-      (
-        e.clientY -
-        rect.top
-      ) *
-      (
-        canvas.height /
-        rect.height
-      );
+      (e.clientY - rect.top) *
+      (canvas.height / rect.height);
 
 
     if (
       gameState === 'TUTORIAL'
     ) {
 
-      if (
-        y >= 330
-      ) {
+      if (y >= 330) {
 
         gameState =
           'CHAR_SELECT';
@@ -4086,9 +3853,7 @@ canvas.addEventListener(
       gameState === 'CHAR_SELECT'
     ) {
 
-      if (
-        y >= 400
-      ) {
+      if (y >= 400) {
 
         handleSelectionInput(
           x < CANVAS_W / 2
@@ -4117,9 +3882,7 @@ canvas.addEventListener(
       gameState === 'PLAYING'
     ) {
 
-      if (
-        y < HUD_HEIGHT
-      ) {
+      if (y < HUD_HEIGHT) {
 
         gameState =
           'PAUSE';
@@ -4165,10 +3928,6 @@ canvas.addEventListener(
 );
 
 
-/* =========================================================
-   BUTTON BINDINGS
-========================================================= */
-
 function bindBtn(
   id,
   onPress
@@ -4178,7 +3937,9 @@ function bindBtn(
     document.getElementById(id);
 
 
-  if (!btn) return;
+  if (!btn) {
+    return;
+  }
 
 
   btn.addEventListener(
@@ -4291,10 +4052,6 @@ bindBtn(
 );
 
 
-/* =========================================================
-   KEYBOARD
-========================================================= */
-
 const keys = {};
 
 
@@ -4394,10 +4151,6 @@ function keyPressed(code) {
 
 }
 
-
-/* =========================================================
-   SAVE SCORE
-========================================================= */
 
 function saveScore() {
 
@@ -4505,7 +4258,9 @@ function saveScore() {
 
     }
 
-  } catch(e) {
+  }
+
+  catch(e) {
 
     console.warn(
       "Save score error:",
@@ -4516,10 +4271,6 @@ function saveScore() {
 
 }
 
-
-/* =========================================================
-   EXIT
-========================================================= */
 
 function exitGame() {
 
@@ -4532,10 +4283,6 @@ function exitGame() {
 
 }
 
-
-/* =========================================================
-   START
-========================================================= */
 
 requestAnimationFrame(
   gameLoop
