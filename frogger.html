@@ -23,7 +23,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #000;
+  background: #000000;
   overflow: hidden;
   position: fixed;
   inset: 0;
@@ -31,29 +31,35 @@ body {
 }
 
 /* =========================================================
-   CONTENITORE PRINCIPALE
-   NIENTE FLEX + SPACE-BETWEEN
-   NIENTE SAFE AREA CHE CREA SPAZIO SOTTO
+   LAYOUT
    ========================================================= */
 
 #game-wrapper {
   position: fixed;
-  left: 50%;
   top: 0;
+  left: 50%;
   transform: translateX(-50%);
 
-  width: min(100vw, 440px);
+  width: 100vw;
   height: 100dvh;
+  max-width: 440px;
 
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
-
+  display: flex;
+  flex-direction: column;
   align-items: center;
 
-  background: #000;
+  background: #000000;
 
-  padding: 6px;
+  /*
+    La safe area viene gestita SOLO sopra.
+    Sotto NON aggiungiamo padding, così il pulsante
+    arriva realmente fino al fondo dello schermo.
+  */
+  padding-top: max(env(safe-area-inset-top), 6px);
   padding-bottom: 0;
+
+  padding-left: 6px;
+  padding-right: 6px;
 
   overflow: hidden;
 }
@@ -64,18 +70,16 @@ body {
 
 .top-header {
   width: 100%;
-  height: 30px;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   padding: 6px 8px;
 
-  background: #222;
+  background: #222222;
   border-radius: 8px;
 
-  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .header-title {
@@ -85,20 +89,22 @@ body {
   letter-spacing: 0.6px;
   font-family: 'Courier New', monospace;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .opt-btn {
-  background: #333;
-  border: 1px solid #555;
+  background: #333333;
+  border: 1px solid #555555;
   color: #ffea00;
+
   padding: 4px 7px;
+
   font-family: 'Courier New', monospace;
   font-size: 9px;
   font-weight: bold;
+
   border-radius: 4px;
   cursor: pointer;
+
   flex-shrink: 0;
 }
 
@@ -111,9 +117,10 @@ body {
    ========================================================= */
 
 #canvas-container {
-  width: 100%;
-  min-width: 0;
+  flex: 1;
   min-height: 0;
+
+  width: 100%;
 
   display: flex;
   justify-content: center;
@@ -121,23 +128,24 @@ body {
 
   overflow: hidden;
 
-  margin: 2px 0;
+  margin: 4px 0;
 }
 
 canvas {
   display: block;
 
-  width: auto;
-  height: auto;
-
   max-width: 100%;
   max-height: 100%;
+
+  width: auto;
+  height: auto;
 
   aspect-ratio: 338 / 486;
 
   background: #181818;
 
   border: 1.5px solid #3a3a3a;
+
   box-shadow: 0 4px 20px rgba(0,0,0,0.8);
 
   border-radius: 6px;
@@ -150,16 +158,15 @@ canvas {
    ========================================================= */
 
 .control-deck {
+  flex-shrink: 0;
+
   width: 100%;
-  height: 148px;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
-  padding: 0;
-
-  flex-shrink: 0;
+  padding: 4px 0;
 }
 
 .joystick-container {
@@ -223,27 +230,31 @@ canvas {
   background: transparent;
   border: none;
   box-shadow: none;
+
   pointer-events: none;
   visibility: hidden;
 }
 
 /* =========================================================
    TORNA IN STUDIO
-   È L'ULTIMO ELEMENTO DELLA GRID
-   E TOCCA ESATTAMENTE IL BORDO INFERIORE
    ========================================================= */
 
 .exit-btn {
+  flex-shrink: 0;
+
   width: 100%;
   height: 36px;
+  min-height: 36px;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
   margin: 0;
+  margin-bottom: 0;
 
-  background: #111;
+  background: #111111;
+
   color: #ff3366;
 
   font-family: 'Courier New', monospace;
@@ -251,12 +262,10 @@ canvas {
   font-size: 11px;
   letter-spacing: 0.5px;
 
-  border: 1px solid #222;
+  border: 1px solid #222222;
   border-radius: 6px 6px 0 0;
 
   cursor: pointer;
-
-  flex-shrink: 0;
 }
 
 .exit-btn:active {
@@ -302,17 +311,20 @@ canvas {
 
   display: flex;
   flex-direction: column;
+
   gap: 14px;
 
-  color: #fff;
+  color: #ffffff;
 
   text-align: center;
 }
 
 .modal-title {
   color: #ffea00;
+
   font-size: 14px;
   font-weight: 900;
+
   font-family: 'Courier New', monospace;
 }
 
@@ -320,20 +332,24 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
+
   gap: 6px;
 
-  background: #111;
+  background: #111111;
 
   padding: 8px;
 
   border: 1px solid #3a3a3a;
+
   border-radius: 6px;
 }
 
 .option-label {
   font-size: 11px;
   font-weight: bold;
+
   color: #00d2ff;
+
   font-family: 'Courier New', monospace;
 }
 
@@ -346,7 +362,7 @@ canvas {
 
   border: 1.5px solid #ff0055;
 
-  color: #fff;
+  color: #ffffff;
 
   font-weight: bold;
   font-size: 12px;
@@ -360,7 +376,9 @@ canvas {
 
 .toggle-btn.active {
   border-color: #00ff66;
+
   color: #00ff66;
+
   background: #122818;
 }
 
@@ -371,7 +389,7 @@ canvas {
 
   border: none;
 
-  color: #000;
+  color: #000000;
 
   font-weight: bold;
   font-size: 12px;
@@ -393,13 +411,15 @@ canvas {
   loop
   autoplay
   playsinline
-  style="display:none;"
-></audio>
+  style="display:none;">
+</audio>
 
 <div id="game-wrapper">
 
   <div class="top-header">
-    <span class="header-title">SEQUENCE: TIMELINE_RUSH_2026</span>
+    <span class="header-title">
+      SEQUENCE: TIMELINE_RUSH_2026
+    </span>
 
     <button class="opt-btn" id="btnOpenSettings">
       ⚙️ OPZIONI
@@ -479,6 +499,7 @@ canvas {
 </div>
 
 <script>
+
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
@@ -495,15 +516,46 @@ canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
 
 function drawRoundRect(c, x, y, w, h, r) {
+
   if (w < 2 * r) r = w / 2;
   if (h < 2 * r) r = h / 2;
 
   c.beginPath();
+
   c.moveTo(x + r, y);
-  c.arcTo(x + w, y, x + w, y + h, r);
-  c.arcTo(x + w, y + h, x, y + h, r);
-  c.arcTo(x, y + h, x, y, r);
-  c.arcTo(x, y, x + w, y, r);
+
+  c.arcTo(
+    x + w,
+    y,
+    x + w,
+    y + h,
+    r
+  );
+
+  c.arcTo(
+    x + w,
+    y + h,
+    x,
+    y + h,
+    r
+  );
+
+  c.arcTo(
+    x,
+    y + h,
+    x,
+    y,
+    r
+  );
+
+  c.arcTo(
+    x,
+    y,
+    x + w,
+    y,
+    r
+  );
+
   c.closePath();
 }
 
@@ -518,30 +570,54 @@ const bgMusic = document.getElementById('bgMusic');
 bgMusic.volume = 0.4;
 
 function playBgMusic() {
+
   if (musicEnabled && bgMusic.paused) {
+
     bgMusic.play().catch(() => {});
+
   }
+
 }
 
 playBgMusic();
 
-window.addEventListener('DOMContentLoaded', playBgMusic);
-window.addEventListener('load', playBgMusic);
+window.addEventListener(
+  'DOMContentLoaded',
+  playBgMusic
+);
 
-['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+window.addEventListener(
+  'load',
+  playBgMusic
+);
+
+[
+  'pointerdown',
+  'touchstart',
+  'click',
+  'keydown'
+].forEach(evt => {
+
   window.addEventListener(
     evt,
     () => playBgMusic(),
     { once: true }
   );
+
 });
 
 function updateMusicState() {
+
   if (musicEnabled) {
+
     playBgMusic();
+
   } else {
+
     bgMusic.pause();
+
   }
+
 }
 
 const settingsModal =
@@ -572,6 +648,7 @@ function renderOptionButtons() {
 
   btnToggleSfx.innerText =
     sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
+
 }
 
 renderOptionButtons();
@@ -586,7 +663,9 @@ btnToggleMusic.onclick = () => {
   );
 
   renderOptionButtons();
+
   updateMusicState();
+
 };
 
 btnToggleSfx.onclick = () => {
@@ -599,6 +678,7 @@ btnToggleSfx.onclick = () => {
   );
 
   renderOptionButtons();
+
 };
 
 btnOpenSettings.onclick = () => {
@@ -608,6 +688,7 @@ btnOpenSettings.onclick = () => {
   }
 
   settingsModal.style.display = 'flex';
+
 };
 
 btnCloseSettings.onclick = () => {
@@ -621,6 +702,7 @@ btnCloseSettings.onclick = () => {
   }
 
   updateMusicState();
+
 };
 
 let audioCtx = null;
@@ -638,13 +720,16 @@ function getAC() {
       if (AudioContextClass) {
         audioCtx = new AudioContextClass();
       }
+
     }
 
     if (
       audioCtx &&
       audioCtx.state === 'suspended'
     ) {
+
       audioCtx.resume().catch(() => {});
+
     }
 
   } catch(e) {}
@@ -690,7 +775,10 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.16);
+
+      osc.stop(
+        ac.currentTime + 0.16
+      );
 
     } else if (type === 'crash') {
 
@@ -712,7 +800,10 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.25);
+
+      osc.stop(
+        ac.currentTime + 0.25
+      );
 
     } else if (type === 'guard_active') {
 
@@ -734,7 +825,10 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.1);
+
+      osc.stop(
+        ac.currentTime + 0.1
+      );
 
     } else if (type === 'pickup') {
 
@@ -756,7 +850,10 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.2);
+
+      osc.stop(
+        ac.currentTime + 0.2
+      );
 
     } else if (type === 'malus') {
 
@@ -778,7 +875,10 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.2);
+
+      osc.stop(
+        ac.currentTime + 0.2
+      );
 
     } else if (type === 'fail') {
 
@@ -800,10 +900,15 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.3);
+
+      osc.stop(
+        ac.currentTime + 0.3
+      );
+
     }
 
   } catch(e) {}
+
 }
 
 const imgGiulia = new Image();
@@ -910,6 +1015,7 @@ const PREMIERE_CLIPS = {
     wMult: 3.2,
     hMult: 1
   }
+
 };
 
 const LEVEL_THEMES = [
@@ -937,6 +1043,7 @@ const LEVEL_THEMES = [
     title: "STAGE 4: EXPORT FINALE PRE-DEADLINE",
     msg: "Massima densità e velocità sulla Timeline!"
   }
+
 ];
 
 const CHARACTERS = {
@@ -1000,6 +1107,7 @@ const CHARACTERS = {
     speed: 3.2,
     scoreMult: 1.15
   }
+
 };
 
 const CHARACTER_LIST = [
@@ -1057,6 +1165,7 @@ const PICKUP_TYPES = {
     isMalus: true,
     invertControls: true
   }
+
 };
 
 let currentTheme = CHARACTERS.GIULIA;
@@ -1067,26 +1176,31 @@ let highScore =
   ) || 0;
 
 let activeLanes = [];
-
 let gameState = 'TUTORIAL';
-
 let level = 1;
 let score = 0;
 let lives = 3;
 let visualScrollOffset = 0;
 
 let player = {
+
   gx: Math.floor(COLS / 2),
   gy: ROWS - 2,
+
   w: 16,
   h: 16,
+
   facingLeft: false,
+
   invTimer: 0,
   guardTimer: 0,
   nextMoveAllowedTimer: 0,
+
   speedMult: 1.0,
   tempScoreMult: 1.0,
+
   glitchTimer: 0
+
 };
 
 let moveUp = false;
@@ -1095,7 +1209,6 @@ let moveLeft = false;
 let moveRight = false;
 
 let selectedCharIndex = 0;
-
 let particles = [];
 
 function createNewLane(
@@ -1131,8 +1244,9 @@ function createNewLane(
         topLane &&
         topLane.type === 'SAFE'
       )
-        ? false
-        : Math.random() < safeChance;
+      ? false
+      : Math.random() < safeChance;
+
   }
 
   let laneType =
@@ -1145,7 +1259,10 @@ function createNewLane(
 
   let speedFactor =
     0.38 +
-    Math.min(level * 0.16, 1.2);
+    Math.min(
+      level * 0.16,
+      1.2
+    );
 
   let baseSpeed =
     (0.45 + Math.random() * 0.35) *
@@ -1158,12 +1275,12 @@ function createNewLane(
     (r % 5 === 0)
       ? "V3"
       : (r % 5 === 1)
-      ? "V2"
-      : (r % 5 === 2)
-      ? "V1"
-      : (r % 5 === 3)
-      ? "A1"
-      : "A2";
+        ? "V2"
+        : (r % 5 === 2)
+          ? "V1"
+          : (r % 5 === 3)
+            ? "A1"
+            : "A2";
 
   let laneObj = {
 
@@ -1180,12 +1297,11 @@ function createNewLane(
         : '#141416',
 
     dir: dir,
-
     speed: baseSpeed,
 
     objects: [],
-
     pickups: []
+
   };
 
   if (laneType === 'ROAD') {
@@ -1211,8 +1327,7 @@ function createNewLane(
 
       if (
         x <
-        CANVAS_W +
-        CELL_SIZE * 3
+        CANVAS_W + CELL_SIZE * 3
       ) {
 
         let vType =
@@ -1224,17 +1339,25 @@ function createNewLane(
           ];
 
         laneObj.objects.push({
+
           x: x,
+
           type: vType,
-          w: vType.wMult * CELL_SIZE,
-          hMult: vType.hMult
+
+          w:
+            vType.wMult *
+            CELL_SIZE,
+
+          hMult:
+            vType.hMult
+
         });
+
       }
 
     } while (
       x <
-      CANVAS_W +
-      CELL_SIZE * 3
+      CANVAS_W + CELL_SIZE * 3
     );
 
   } else if (
@@ -1263,10 +1386,13 @@ function createNewLane(
 
       type:
         PICKUP_TYPES[chosenKey]
+
     });
+
   }
 
   return laneObj;
+
 }
 
 function startInfiniteScroll() {
@@ -1284,9 +1410,11 @@ function startInfiniteScroll() {
     activeLanes.push(
       createNewLane(true, r)
     );
+
   }
 
   resetPlayer();
+
 }
 
 function resetPlayer() {
@@ -1306,7 +1434,9 @@ function resetPlayer() {
 
   player.speedMult = 1.0;
   player.tempScoreMult = 1.0;
+
   player.glitchTimer = 0;
+
 }
 
 function updatePlayer() {
@@ -1314,13 +1444,17 @@ function updatePlayer() {
   if (
     player.nextMoveAllowedTimer > 0
   ) {
+
     player.nextMoveAllowedTimer--;
+
   }
 
   if (
     player.glitchTimer > 0
   ) {
+
     player.glitchTimer--;
+
   }
 
   if (
@@ -1350,7 +1484,9 @@ function updatePlayer() {
       keyPressed('KeyS') ||
       moveDown;
 
-    if (player.glitchTimer > 0) {
+    if (
+      player.glitchTimer > 0
+    ) {
 
       let tL = inLeft;
       let tR = inRight;
@@ -1361,6 +1497,7 @@ function updatePlayer() {
       inRight = tL;
       inUp = tD;
       inDown = tU;
+
     }
 
     if (inLeft) {
@@ -1372,6 +1509,7 @@ function updatePlayer() {
 
       dx++;
       player.facingLeft = false;
+
     }
 
     if (inUp) {
@@ -1410,12 +1548,14 @@ function updatePlayer() {
 
         } else if (dy < 0) {
 
-          score += Math.floor(
-            10 *
-            level *
-            currentTheme.scoreMult *
-            player.tempScoreMult
-          );
+          score +=
+            Math.floor(
+              10 *
+              level *
+              currentTheme.scoreMult *
+              player.tempScoreMult
+            );
+
         }
 
         playSound('cross');
@@ -1431,8 +1571,11 @@ function updatePlayer() {
               14 / effSpeed
             )
           );
+
       }
+
     }
+
   }
 
   if (player.invTimer > 0) {
@@ -1445,6 +1588,7 @@ function updatePlayer() {
 
   checkPickups();
   checkCollisions();
+
 }
 
 function scrollWorldDown() {
@@ -1459,19 +1603,23 @@ function scrollWorldDown() {
 
   visualScrollOffset -= CELL_SIZE;
 
-  score += Math.floor(
-    15 *
-    level *
-    currentTheme.scoreMult *
-    player.tempScoreMult
-  );
+  score +=
+    Math.floor(
+      15 *
+      level *
+      currentTheme.scoreMult *
+      player.tempScoreMult
+    );
 
   if (
     score >
     level * 1200
   ) {
+
     level++;
+
   }
+
 }
 
 function updateVehicles() {
@@ -1484,7 +1632,9 @@ function updateVehicles() {
     Math.abs(visualScrollOffset) <
     0.1
   ) {
+
     visualScrollOffset = 0;
+
   }
 
   activeLanes.forEach(lane => {
@@ -1512,16 +1662,19 @@ function updateVehicles() {
         } else if (
           lane.dir < 0 &&
           obj.x <
-          TRACK_HEADER_W -
-          obj.w
+          TRACK_HEADER_W - obj.w
         ) {
 
           obj.x =
             CANVAS_W +
             obj.w;
+
         }
+
       });
+
     }
+
   });
 
   for (
@@ -1530,16 +1683,24 @@ function updateVehicles() {
     i--
   ) {
 
-    let p = particles[i];
+    let p =
+      particles[i];
 
     p.x += p.vx;
     p.y += p.vy;
+
     p.life--;
 
-    if (p.life <= 0) {
+    if (
+      p.life <= 0
+    ) {
+
       particles.splice(i, 1);
+
     }
+
   }
+
 }
 
 function addParticles(
@@ -1558,20 +1719,24 @@ function addParticles(
     particles.push({
 
       x: x,
-
       y: y,
 
       vx:
-        (Math.random() - 0.5) * 6,
+        (Math.random() - 0.5) *
+        6,
 
       vy:
-        (Math.random() - 0.5) * 6,
+        (Math.random() - 0.5) *
+        6,
 
       life: 16,
 
       color: color
+
     });
+
   }
+
 }
 
 function checkPickups() {
@@ -1583,7 +1748,9 @@ function checkPickups() {
     !currentLane ||
     currentLane.pickups.length === 0
   ) {
+
     return;
+
   }
 
   for (
@@ -1600,12 +1767,15 @@ function checkPickups() {
       p.gx === player.gx
     ) {
 
-      score += Math.floor(
-        p.type.pts *
-        currentTheme.scoreMult
-      );
+      score +=
+        Math.floor(
+          p.type.pts *
+          currentTheme.scoreMult
+        );
 
-      if (p.type.isMalus) {
+      if (
+        p.type.isMalus
+      ) {
 
         playSound('malus');
 
@@ -1615,14 +1785,15 @@ function checkPickups() {
 
           player.speedMult =
             p.type.slowFactor;
+
         }
 
         if (
           p.type.invertControls
         ) {
 
-          player.glitchTimer =
-            180;
+          player.glitchTimer = 180;
+
         }
 
       } else {
@@ -1635,6 +1806,7 @@ function checkPickups() {
 
           player.speedMult =
             p.type.speedBoost;
+
         }
 
         if (
@@ -1643,6 +1815,7 @@ function checkPickups() {
 
           player.tempScoreMult =
             p.type.scoreBoost;
+
         }
 
         if (
@@ -1652,15 +1825,21 @@ function checkPickups() {
           player.guardTimer =
             p.type.shieldDuration;
 
-          playSound('guard_active');
+          playSound(
+            'guard_active'
+          );
+
         }
+
       }
 
       addParticles(
-        player.gx * CELL_SIZE +
+        player.gx *
+          CELL_SIZE +
           CELL_SIZE / 2,
 
-        player.gy * CELL_SIZE +
+        player.gy *
+          CELL_SIZE +
           HUD_HEIGHT,
 
         p.type.isMalus
@@ -1674,8 +1853,11 @@ function checkPickups() {
         i,
         1
       );
+
     }
+
   }
+
 }
 
 function isInvincible() {
@@ -1684,6 +1866,7 @@ function isInvincible() {
     player.invTimer > 0 ||
     player.guardTimer > 0
   );
+
 }
 
 function checkCollisions() {
@@ -1692,11 +1875,14 @@ function checkCollisions() {
     gameState !== 'PLAYING' ||
     isInvincible()
   ) {
+
     return;
+
   }
 
   let playerX =
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
     CELL_SIZE / 2;
 
   for (
@@ -1712,7 +1898,9 @@ function checkCollisions() {
       checkLaneIdx < 0 ||
       checkLaneIdx >= ROWS
     ) {
+
       continue;
+
     }
 
     let lane =
@@ -1722,7 +1910,9 @@ function checkCollisions() {
       !lane ||
       lane.type !== 'ROAD'
     ) {
+
       continue;
+
     }
 
     lane.objects.forEach(obj => {
@@ -1731,10 +1921,14 @@ function checkCollisions() {
         offset === 1 &&
         obj.hMult !== 2
       ) {
+
         return;
+
       }
 
-      let oLeft = obj.x;
+      let oLeft =
+        obj.x;
+
       let oRight =
         obj.x + obj.w;
 
@@ -1752,9 +1946,13 @@ function checkCollisions() {
       ) {
 
         hitPlayer();
+
       }
+
     });
+
   }
+
 }
 
 function hitPlayer() {
@@ -1764,10 +1962,12 @@ function hitPlayer() {
   playSound('crash');
 
   addParticles(
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
       CELL_SIZE / 2,
 
-    player.gy * CELL_SIZE +
+    player.gy *
+      CELL_SIZE +
       HUD_HEIGHT,
 
     '#ff0055',
@@ -1775,7 +1975,9 @@ function hitPlayer() {
     20
   );
 
-  if (lives <= 0) {
+  if (
+    lives <= 0
+  ) {
 
     gameState =
       'GAME_OVER';
@@ -1801,8 +2003,11 @@ function hitPlayer() {
       ) {
 
         respawnGy = r;
+
         break;
+
       }
+
     }
 
     player.gx =
@@ -1816,9 +2021,10 @@ function hitPlayer() {
     player.glitchTimer = 0;
 
     player.speedMult = 1.0;
-
     player.tempScoreMult = 1.0;
+
   }
+
 }
 
 function drawGameWorld() {
@@ -1836,7 +2042,8 @@ function drawGameWorld() {
     (lane, r) => {
 
       let y =
-        r * CELL_SIZE +
+        r *
+          CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
@@ -1861,6 +2068,7 @@ function drawGameWorld() {
         CANVAS_W,
         CELL_SIZE
       );
+
     }
   );
 
@@ -1872,43 +2080,46 @@ function drawGameWorld() {
       ) {
 
         let y =
-          r * CELL_SIZE +
+          r *
+            CELL_SIZE +
           HUD_HEIGHT +
           visualScrollOffset;
 
-        lane.pickups.forEach(
-          p => {
+        lane.pickups.forEach(p => {
 
-            let px =
-              p.gx * CELL_SIZE +
-              CELL_SIZE / 2;
+          let px =
+            p.gx *
+              CELL_SIZE +
+            CELL_SIZE / 2;
 
-            let py =
-              y +
-              CELL_SIZE / 2;
+          let py =
+            y +
+            CELL_SIZE / 2;
 
-            ctx.fillStyle =
-              p.type.isMalus
-                ? '#ff0055'
-                : '#ffff00';
+          ctx.fillStyle =
+            p.type.isMalus
+              ? '#ff0055'
+              : '#ffff00';
 
-            ctx.font =
-              '11px sans-serif';
+          ctx.font =
+            '11px sans-serif';
 
-            ctx.textAlign =
-              'center';
+          ctx.textAlign =
+            'center';
 
-            ctx.textBaseline =
-              'middle';
+          ctx.textBaseline =
+            'middle';
 
-            ctx.fillText(
-              p.type.label.split(' ')[0],
-              px,
-              py
-            );
-          }
-        );
+          ctx.fillText(
+            p.type.label.split(' ')[0],
+            px,
+            py
+          );
+
+        });
+
       }
+
     }
   );
 
@@ -1921,11 +2132,14 @@ function drawGameWorld() {
 
         drawObstacles(
           lane,
-          r * CELL_SIZE +
+          r *
+            CELL_SIZE +
             HUD_HEIGHT +
             visualScrollOffset
         );
+
       }
+
     }
   );
 
@@ -1933,7 +2147,8 @@ function drawGameWorld() {
     (lane, r) => {
 
       let y =
-        r * CELL_SIZE +
+        r *
+          CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
@@ -1976,6 +2191,7 @@ function drawGameWorld() {
         TRACK_HEADER_W / 2,
         y + CELL_SIZE / 2
       );
+
     }
   );
 
@@ -1997,10 +2213,12 @@ function drawGameWorld() {
       4,
       4
     );
+
   }
 
   let playheadX =
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
     CELL_SIZE / 2;
 
   ctx.strokeStyle =
@@ -2023,6 +2241,7 @@ function drawGameWorld() {
   ctx.stroke();
 
   drawSinglePlayer();
+
 }
 
 function drawObstacles(
@@ -2033,8 +2252,11 @@ function drawObstacles(
   lane.objects.forEach(
     obj => {
 
-      let x = obj.x;
-      let y = laneY;
+      let x =
+        obj.x;
+
+      let y =
+        laneY;
 
       let vData =
         obj.type;
@@ -2053,7 +2275,9 @@ function drawObstacles(
         x + blockW <
         TRACK_HEADER_W
       ) {
+
         return;
+
       }
 
       ctx.save();
@@ -2148,6 +2372,7 @@ function drawObstacles(
         ctx.stroke();
 
         ctx.setLineDash([]);
+
       }
 
       ctx.fillStyle =
@@ -2170,20 +2395,24 @@ function drawObstacles(
       );
 
       ctx.restore();
+
     }
   );
+
 }
 
 function drawSinglePlayer() {
 
   let playerY =
-    player.gy * CELL_SIZE +
+    player.gy *
+      CELL_SIZE +
     HUD_HEIGHT +
     CELL_SIZE / 2 +
     visualScrollOffset;
 
   let playerX =
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
     CELL_SIZE / 2;
 
   if (
@@ -2192,7 +2421,9 @@ function drawSinglePlayer() {
       player.invTimer / 4
     ) % 2 === 0
   ) {
+
     return;
+
   }
 
   ctx.save();
@@ -2205,7 +2436,9 @@ function drawSinglePlayer() {
   if (
     player.facingLeft
   ) {
+
     ctx.scale(-1, 1);
+
   }
 
   ctx.shadowColor =
@@ -2264,6 +2497,7 @@ function drawSinglePlayer() {
       0,
       -16
     );
+
   }
 
   if (
@@ -2291,9 +2525,11 @@ function drawSinglePlayer() {
     );
 
     ctx.stroke();
+
   }
 
   ctx.restore();
+
 }
 
 function drawHUD() {
@@ -2390,6 +2626,7 @@ function drawHUD() {
     canvas.width - 8,
     34
   );
+
 }
 
 function drawTutorial() {
@@ -2640,6 +2877,7 @@ function drawTutorial() {
     canvas.width / 2,
     396
   );
+
 }
 
 function drawCharSelect() {
@@ -2762,6 +3000,7 @@ function drawCharSelect() {
       CANVAS_W / 2,
       boxY + 95
     );
+
   }
 
   ctx.restore();
@@ -2856,6 +3095,7 @@ function drawCharSelect() {
     CANVAS_W / 2,
     cardY + cardH + 20
   );
+
 }
 
 function handleSelectionInput(dir) {
@@ -2867,16 +3107,21 @@ function handleSelectionInput(dir) {
   if (
     selectedCharIndex < 0
   ) {
+
     selectedCharIndex =
       CHARACTER_LIST.length - 1;
+
   }
 
   if (
     selectedCharIndex >=
     CHARACTER_LIST.length
   ) {
+
     selectedCharIndex = 0;
+
   }
+
 }
 
 function drawLevelClear() {
@@ -2941,6 +3186,7 @@ function drawLevelClear() {
     canvas.width / 2,
     canvas.height / 2 + 35
   );
+
 }
 
 function drawGameOver() {
@@ -3007,6 +3253,7 @@ function drawGameOver() {
     canvas.width / 2,
     canvas.height / 2 + 80
   );
+
 }
 
 function drawPause() {
@@ -3047,6 +3294,7 @@ function drawPause() {
     canvas.width / 2,
     canvas.height / 2 + 20
   );
+
 }
 
 function gameLoop() {
@@ -3078,6 +3326,7 @@ function gameLoop() {
 
       updateVehicles();
       updatePlayer();
+
       drawGameWorld();
       drawHUD();
 
@@ -3103,6 +3352,7 @@ function gameLoop() {
 
       drawGameWorld();
       drawGameOver();
+
     }
 
   } catch (err) {
@@ -3111,16 +3361,16 @@ function gameLoop() {
       "Game Loop Error:",
       err
     );
+
   }
 
   requestAnimationFrame(
     gameLoop
   );
+
 }
 
-function selectCharacter(
-  charKey
-) {
+function selectCharacter(charKey) {
 
   currentTheme =
     CHARACTERS[charKey];
@@ -3137,6 +3387,7 @@ function selectCharacter(
     'PLAYING';
 
   playSound('pickup');
+
 }
 
 canvas.addEventListener(
@@ -3170,9 +3421,11 @@ canvas.addEventListener(
           'CHAR_SELECT';
 
         playSound('cross');
+
       }
 
       return;
+
     }
 
     if (
@@ -3194,24 +3447,30 @@ canvas.addEventListener(
             selectedCharIndex
           ]
         );
+
       }
 
       return;
+
     }
 
     if (
       gameState === 'PLAYING'
     ) {
 
-      if (y < HUD_HEIGHT) {
+      if (
+        y < HUD_HEIGHT
+      ) {
 
         gameState =
           'PAUSE';
 
         updateMusicState();
+
       }
 
       return;
+
     }
 
     if (
@@ -3224,6 +3483,7 @@ canvas.addEventListener(
       updateMusicState();
 
       return;
+
     }
 
     if (
@@ -3234,6 +3494,7 @@ canvas.addEventListener(
         'CHAR_SELECT';
 
       return;
+
     }
 
   },
@@ -3283,6 +3544,7 @@ function bindBtn(
       } else {
 
         onPress(true);
+
       }
 
     },
@@ -3300,6 +3562,7 @@ function bindBtn(
       }
 
       onPress(false);
+
     },
     {
       passive: false
@@ -3315,6 +3578,7 @@ function bindBtn(
     'pointerleave',
     () => onPress(false)
   );
+
 }
 
 bindBtn(
@@ -3376,6 +3640,7 @@ window.addEventListener(
       ) {
 
         handleSelectionInput(-1);
+
       }
 
       if (
@@ -3384,6 +3649,7 @@ window.addEventListener(
       ) {
 
         handleSelectionInput(1);
+
       }
 
       if (
@@ -3396,6 +3662,7 @@ window.addEventListener(
             selectedCharIndex
           ]
         );
+
       }
 
     } else if (
@@ -3408,26 +3675,34 @@ window.addEventListener(
 
       gameState =
         'CHAR_SELECT';
+
     }
+
   }
 );
 
 window.addEventListener(
   'keyup',
   e => {
+
     keys[e.code] = false;
+
   }
 );
 
 function keyPressed(code) {
+
   return !!keys[code];
+
 }
 
 function saveScore() {
 
   try {
 
-    if (score > highScore) {
+    if (
+      score > highScore
+    ) {
 
       highScore = score;
 
@@ -3435,10 +3710,15 @@ function saveScore() {
         'deadlineDrive_highScore',
         highScore.toString()
       );
+
     }
 
-    if (score <= 0) {
+    if (
+      score <= 0
+    ) {
+
       return;
+
     }
 
     let rawUser =
@@ -3446,9 +3726,7 @@ function saveScore() {
         'arcade_current_user'
       );
 
-    if (!rawUser) {
-      return;
-    }
+    if (!rawUser) return;
 
     let curUser =
       JSON.parse(rawUser);
@@ -3496,15 +3774,20 @@ function saveScore() {
           users[curUser.username]
         ) {
 
-          users[curUser.username].stats =
+          users[
+            curUser.username
+          ].stats =
             curUser.stats;
 
           localStorage.setItem(
             'arcade_users',
             JSON.stringify(users)
           );
+
         }
+
       }
+
     }
 
   } catch(e) {
@@ -3513,7 +3796,9 @@ function saveScore() {
       "Save score error:",
       e
     );
+
   }
+
 }
 
 function exitGame() {
@@ -3524,11 +3809,13 @@ function exitGame() {
 
   window.location.href =
     'index.html';
+
 }
 
 requestAnimationFrame(
   gameLoop
 );
+
 </script>
 
 </body>
