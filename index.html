@@ -94,7 +94,7 @@
             top: max(env(safe-area-inset-top), 8px);
             left: 8px;
             right: 8px;
-            height: 38px;
+            height: 36px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -108,8 +108,8 @@
             color: #ffff00;
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
-            font-size: 13px;
-            padding: 6px 12px;
+            font-size: 11px;
+            padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
@@ -142,7 +142,7 @@
 
         .auth-box {
             width: 100%;
-            max-width: 330px;
+            max-width: 320px;
             background: #090918;
             border: 2px solid #ff0055 !important;
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
@@ -168,15 +168,15 @@
         }
 
         .profile-avatar {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             background: #250515;
             border: 2px solid #ff0055 !important;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 22px;
             box-shadow: 0 0 10px #ff0055;
             overflow: hidden;
         }
@@ -189,14 +189,14 @@
 
         .profile-rank-title {
             color: #ffff00;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
             letter-spacing: 1px;
         }
 
         .profile-username {
             color: #ffffff;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
         }
 
@@ -204,8 +204,8 @@
             width: 100%;
             background: #04040a;
             border: 1px solid #ff0055 !important;
-            height: 12px;
-            border-radius: 6px;
+            height: 10px;
+            border-radius: 5px;
             margin-top: 8px;
             overflow: hidden;
         }
@@ -229,7 +229,7 @@
         }
 
         .badge-item {
-            font-size: 20px;
+            font-size: 18px;
             filter: grayscale(1);
             opacity: 0.3;
             transition: all 0.3s;
@@ -244,7 +244,7 @@
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 12px;
         }
 
@@ -258,13 +258,13 @@
 
         .stat-card .val {
             color: #ffff00;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
         }
 
         .stat-card .lbl {
             color: #ff0055;
-            font-size: 10px;
+            font-size: 8px;
             margin-top: 2px;
             text-transform: uppercase;
             font-weight: bold;
@@ -281,8 +281,8 @@
             background: #101528;
             border: 1px solid #ff0055 !important;
             color: #ffffff;
-            font-size: 11px;
-            padding: 6px 8px;
+            font-size: 9px;
+            padding: 5px 6px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
@@ -300,7 +300,7 @@
             flex-direction: column;
             gap: 6px;
             margin: 10px 0;
-            max-height: 200px;
+            max-height: 190px;
             overflow-y: auto;
             text-align: left;
         }
@@ -309,7 +309,7 @@
             background: #04040a;
             border: 1px solid rgba(255, 0, 85, 0.3) !important;
             border-radius: 6px;
-            padding: 8px 10px;
+            padding: 6px 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -317,14 +317,14 @@
 
         .leaderboard-row .rank-pos {
             color: #ffff00;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
-            width: 28px;
+            width: 24px;
         }
 
         .leaderboard-row .player-name {
             color: #ffffff;
-            font-size: 13px;
+            font-size: 11px;
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -333,20 +333,20 @@
 
         .leaderboard-row .score-val {
             color: #ffff00;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
         }
 
         .auth-btn {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             margin-top: 4px;
             background: #ff0055;
             color: #fff;
             border: none !important;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
         }
@@ -383,7 +383,7 @@
 <body>
 
 <!-- AUDIO HUB -->
-<audio id="hubMusic" src="assets/hub/music_hub.mp3" loop playsinline style="display:none;"></audio>
+<audio id="hubMusic" src="assets/hub/music_hub.mp3" loop autoplay playsinline style="display:none;"></audio>
 
 <script>
 if (!sessionStorage.getItem('arcade_session_active')) {
@@ -392,17 +392,22 @@ if (!sessionStorage.getItem('arcade_session_active')) {
     sessionStorage.removeItem('arcade_session_active');
 }
 
-// RIPRODUZIONE MUSICA SOLO SU AZIONE DEL GIOCATORE
+// AVVIO AUTOMATICO MUSICA
 const hubMusic = document.getElementById('hubMusic');
 if (hubMusic) {
     hubMusic.volume = 0.4;
-    function playHubMusicOnInteraction() {
+    function playHubMusic() {
         if (hubMusic.paused) {
             hubMusic.play().catch(() => {});
         }
     }
+    // Prova avvio immediato all'apertura
+    playHubMusic();
+    window.addEventListener('DOMContentLoaded', playHubMusic);
+    window.addEventListener('load', playHubMusic);
+    // Fallback per blocchi di sicurezza dei browser mobile
     ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
-        window.addEventListener(evt, playHubMusicOnInteraction, { capture: true });
+        window.addEventListener(evt, playHubMusic, { capture: true });
     });
 }
 </script>
@@ -480,7 +485,7 @@ if (hubMusic) {
     <!-- LEADERBOARD -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
-            <h2 style="color:#ff0055; font-size:18px;">
+            <h2 style="color:#ff0055;">
                 🌍 CLASSIFICA MONDIALE
             </h2>
 
@@ -750,7 +755,6 @@ class MainHub extends Phaser.Scene {
             this.cabinetSprites.push(sprite);
         });
 
-        // INGRANDIMENTO BOX INFO POP-UP SUI CABINATI
         this.infoBox = this.add.container(0, 0).setDepth(80);
         let boxBg = this.add.graphics();
         boxBg.fillStyle(0x050515, 0.95);
@@ -883,13 +887,16 @@ class MainHub extends Phaser.Scene {
 
         let controlDeck = this.add.container(0, 0).setScrollFactor(0).setDepth(100);
 
+        // ALZATO IL DECK DI CONTROLLO DI 25 PX
+        let raiseY = 25;
+
         let deckBg = this.add.graphics();
         deckBg.fillStyle(0x060612, 0.94);
-        deckBg.fillRoundedRect(10, height - 98, width - 20, 86, 20);
+        deckBg.fillRoundedRect(10, height - 98 - raiseY, width - 20, 86, 20);
         deckBg.lineStyle(2, 0xff0055, 0.8);
-        deckBg.strokeRoundedRect(10, height - 98, width - 20, 86, 20);
+        deckBg.strokeRoundedRect(10, height - 98 - raiseY, width - 20, 86, 20);
 
-        let btnY = height - 55;
+        let btnY = height - 55 - raiseY;
 
         const createDPadBtn = (x, y, label, onPress) => {
             let container = this.add.container(x, y).setScrollFactor(0).setDepth(102);
