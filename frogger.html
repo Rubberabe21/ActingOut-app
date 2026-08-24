@@ -6,4140 +6,602 @@
 <title>Deadline Drive - Premiere Pro Timeline Rush</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  touch-action: none !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
-
-html {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: #000;
-  overflow: hidden;
-  position: fixed;
-  inset: 0;
-}
-
-body {
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
-  background: #000;
-  overflow: hidden;
-  position: fixed;
-  inset: 0;
-  touch-action: none !important;
-}
-
-#game-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  width: 100vw;
-
-  height: 100dvh;
-  min-height: 100dvh;
-  max-height: 100dvh;
-
-  margin: 0;
-  padding: 0 6px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-
-  background: #000;
-
-  overflow: hidden;
-
-  box-sizing: border-box;
-}
-
-.top-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 8px;
-  background: #222222;
-  border-radius: 8px;
-  flex: 0 0 auto;
-}
-
-.header-title {
-  color: #00d2ff;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  font-family: 'Courier New', monospace;
-  white-space: nowrap;
-}
-
-.opt-btn {
-  background: #333333;
-  border: 1px solid #555555;
-  color: #ffea00;
-  padding: 4px 7px;
-  font-family: 'Courier New', monospace;
-  font-size: 9px;
-  font-weight: bold;
-  border-radius: 4px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.opt-btn:active {
-  transform: scale(0.92);
-}
-
-#canvas-container {
-  flex: 1 1 auto;
-  min-height: 0;
-  min-width: 0;
-
-  width: 100%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  overflow: hidden;
-
-  margin: 4px 0;
-  padding: 0;
-}
-
-canvas {
-  display: block;
-
-  max-width: 100%;
-  max-height: 100%;
-
-  width: auto;
-  height: auto;
-
-  flex-shrink: 1;
-
-  aspect-ratio: 338 / 486;
-
-  background: #181818;
-
-  border: 1.5px solid #3a3a3a;
-
-  box-shadow: 0 4px 20px rgba(0,0,0,0.8);
-
-  border-radius: 6px;
-
-  cursor: pointer;
-}
-
-.control-deck {
-  flex: 0 0 auto;
-
-  width: 100%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  padding: 4px 0;
-  margin: 0;
-}
-
-.joystick-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.dpad-grid {
-  display: grid;
-  grid-template-columns: 68px 68px 68px;
-  grid-template-rows: 48px 48px 48px;
-  gap: 4px;
-}
-
-.ctrl-btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background: linear-gradient(
-    180deg,
-    #ff4d00 0%,
-    #d50000 45%,
-    #8b0000 100%
-  );
-
-  border: 2px solid #ffb000;
-  color: #fff7b0;
-
-  font-size: 22px;
-  font-weight: 900;
-
-  border-radius: 10px;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 4px 0 #530000,
-    0 6px 10px rgba(0,0,0,0.5);
-
-  text-shadow: 0 2px 0 #7a0000;
-
-  transition:
-    transform 0.04s linear,
-    box-shadow 0.04s linear;
-}
-
-.ctrl-btn:active {
-  transform: translateY(3px);
-
-  box-shadow:
-    0 1px 0 #530000,
-    0 2px 4px rgba(0,0,0,0.4);
-}
-
-.ctrl-btn-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background: #222;
-  border: 2px solid #555;
-
-  color: #ffea00;
-
-  font-size: 16px;
-  font-weight: 900;
-
-  border-radius: 10px;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 4px 0 #111,
-    0 6px 10px rgba(0,0,0,0.5);
-}
-
-.ctrl-btn-center:active {
-  transform: translateY(3px);
-
-  box-shadow:
-    0 1px 0 #111,
-    0 2px 4px rgba(0,0,0,0.4);
-}
-
-.exit-btn {
-  flex: 0 0 36px;
-
-  width: 100%;
-  height: 36px;
-  min-height: 36px;
-  max-height: 36px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background: #111111;
-  color: #ff3366;
-
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-
-  border: 1px solid #222222;
-  border-radius: 6px;
-
-  cursor: pointer;
-
-  margin: 0;
-  padding: 0;
-}
-
-.exit-btn:active {
-  background: #1c1c1c;
-}
-
-.modal-overlay {
-  display: none;
-
-  position: fixed;
-  inset: 0;
-
-  width: 100vw;
-  height: 100dvh;
-
-  background: rgba(0,0,0,0.95);
-
-  z-index: 200;
-
-  justify-content: center;
-  align-items: center;
-
-  padding: 16px;
-}
-
-.modal-box {
-  width: 100%;
-  max-width: 300px;
-
-  background: #1c1c1c;
-
-  border: 2px solid #00d2ff;
-
-  box-shadow:
-    0 0 25px rgba(0,210,255,0.3);
-
-  border-radius: 12px;
-
-  padding: 16px;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 14px;
-
-  color: #ffffff;
-
-  text-align: center;
-}
-
-.modal-title {
-  color: #ffea00;
-
-  font-size: 14px;
-  font-weight: 900;
-
-  font-family: 'Courier New', monospace;
-}
-
-.option-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  gap: 6px;
-
-  background: #111111;
-
-  padding: 8px;
-
-  border: 1px solid #3a3a3a;
-
-  border-radius: 6px;
-}
-
-.option-label {
-  font-size: 11px;
-  font-weight: bold;
-
-  color: #00d2ff;
-
-  font-family: 'Courier New', monospace;
-}
-
-.toggle-btn {
-  width: 100%;
-
-  padding: 8px;
-
-  background: #2a2a2a;
-
-  border: 1.5px solid #ff0055;
-
-  color: #ffffff;
-
-  font-weight: bold;
-  font-size: 12px;
-
-  font-family: 'Courier New', monospace;
-
-  border-radius: 6px;
-
-  cursor: pointer;
-}
-
-.toggle-btn.active {
-  border-color: #00ff66;
-
-  color: #00ff66;
-
-  background: #122818;
-}
-
-.close-modal-btn {
-  padding: 10px;
-
-  background: #00d2ff;
-
-  border: none;
-
-  color: #000000;
-
-  font-weight: bold;
-  font-size: 12px;
-
-  font-family: 'Courier New', monospace;
-
-  border-radius: 6px;
-
-  cursor: pointer;
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+html, body { width: 100%; height: 100%; min-height: 100%; margin: 0; padding: 0; background: #000; overflow: hidden; position: fixed; inset: 0; touch-action: none !important; }
+#game-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; min-height: 100dvh; max-height: 100dvh; margin: 0; padding: 0 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: #000; overflow: hidden; box-sizing: border-box; }
+.top-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #222; border-radius: 8px; flex: 0 0 auto; }
+.header-title { color: #00d2ff; font-size: 10px; font-weight: 700; letter-spacing: 0.6px; font-family: 'Courier New', monospace; white-space: nowrap; }
+.opt-btn { background: #333; border: 1px solid #555; color: #ffea00; padding: 4px 7px; font-family: 'Courier New', monospace; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; flex-shrink: 0; }
+.opt-btn:active { transform: scale(0.92); }
+#canvas-container { flex: 1 1 auto; min-height: 0; min-width: 0; width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; margin: 4px 0; padding: 0; }
+canvas { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; flex-shrink: 1; aspect-ratio: 338 / 486; background: #181818; border: 1.5px solid #3a3a3a; box-shadow: 0 4px 20px rgba(0,0,0,0.8); border-radius: 6px; cursor: pointer; }
+.control-deck { flex: 0 0 auto; width: 100%; display: flex; justify-content: center; align-items: center; padding: 4px 0; margin: 0; }
+.joystick-container { display: flex; justify-content: center; align-items: center; }
+.dpad-grid { display: grid; grid-template-columns: 68px 68px 68px; grid-template-rows: 48px 48px 48px; gap: 4px; }
+.ctrl-btn { display: flex; justify-content: center; align-items: center; background: linear-gradient(180deg, #ff4d00 0%, #d50000 45%, #8b0000 100%); border: 2px solid #ffb000; color: #fff7b0; font-size: 22px; font-weight: 900; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 0 #530000, 0 6px 10px rgba(0,0,0,0.5); text-shadow: 0 2px 0 #7a0000; transition: transform 0.04s linear, box-shadow 0.04s linear; }
+.ctrl-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #530000, 0 2px 4px rgba(0,0,0,0.4); }
+.ctrl-btn-center { display: flex; justify-content: center; align-items: center; background: #222; border: 2px solid #555; color: #ffea00; font-size: 16px; font-weight: 900; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 0 #111, 0 6px 10px rgba(0,0,0,0.5); }
+.ctrl-btn-center:active { transform: translateY(3px); box-shadow: 0 1px 0 #111, 0 2px 4px rgba(0,0,0,0.4); }
+.exit-btn { flex: 0 0 36px; width: 100%; height: 36px; min-height: 36px; max-height: 36px; display: flex; justify-content: center; align-items: center; background: #111; color: #ff3366; font-family: 'Courier New', monospace; font-weight: bold; font-size: 11px; letter-spacing: 0.5px; border: 1px solid #222; border-radius: 6px; cursor: pointer; margin: 0; padding: 0; }
+.exit-btn:active { background: #1c1c1c; }
+.modal-overlay { display: none; position: fixed; inset: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.95); z-index: 200; justify-content: center; align-items: center; padding: 16px; }
+.modal-box { width: 100%; max-width: 300px; background: #1c1c1c; border: 2px solid #00d2ff; box-shadow: 0 0 25px rgba(0,210,255,0.3); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; color: #fff; text-align: center; }
+.modal-title { color: #ffea00; font-size: 14px; font-weight: 900; font-family: 'Courier New', monospace; }
+.option-item { display: flex; flex-direction: column; align-items: center; gap: 6px; background: #111; padding: 8px; border: 1px solid #3a3a3a; border-radius: 6px; }
+.option-label { font-size: 11px; font-weight: bold; color: #00d2ff; font-family: 'Courier New', monospace; }
+.toggle-btn { width: 100%; padding: 8px; background: #2a2a2a; border: 1.5px solid #ff0055; color: #fff; font-weight: bold; font-size: 12px; font-family: 'Courier New', monospace; border-radius: 6px; cursor: pointer; }
+.toggle-btn.active { border-color: #00ff66; color: #00ff66; background: #122818; }
+.close-modal-btn { padding: 10px; background: #00d2ff; border: none; color: #000; font-weight: bold; font-size: 12px; font-family: 'Courier New', monospace; border-radius: 6px; cursor: pointer; }
 @supports (-webkit-touch-callout: none) {
-
-  html,
-  body {
-    height: 100dvh;
-    min-height: 100dvh;
-    max-height: 100dvh;
-
-    overflow: hidden;
-
-    background: #000;
-  }
-
-  #game-wrapper {
-    height: 100dvh;
-    min-height: 100dvh;
-    max-height: 100dvh;
-
-    padding-bottom: 0 !important;
-    margin-bottom: 0 !important;
-  }
-
-  .exit-btn {
-    margin-bottom: 0 !important;
-  }
+  html, body { height: 100dvh; min-height: 100dvh; max-height: 100dvh; overflow: hidden; background: #000; }
+  #game-wrapper { height: 100dvh; min-height: 100dvh; max-height: 100dvh; padding-bottom: 0 !important; margin-bottom: 0 !important; }
+  .exit-btn { margin-bottom: 0 !important; }
 }
 </style>
 </head>
 
 <body>
 
-<audio
-  id="bgMusic"
-  src="assets/frogger/music.mp3"
-  loop
-  autoplay
-  playsinline
-  style="display:none;"
-></audio>
+<audio id="bgMusic" src="assets/frogger/music.mp3" loop autoplay playsinline style="display:none;"></audio>
 
 <div id="game-wrapper">
-
   <div class="top-header">
-
-    <span class="header-title">
-      SEQUENCE: TIMELINE_RUSH_2026
-    </span>
-
-    <button
-      class="opt-btn"
-      id="btnOpenSettings"
-    >
-      ⚙️ OPZIONI
-    </button>
-
+    <span class="header-title">SEQUENCE: TIMELINE_RUSH_2026</span>
+    <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
   </div>
-
   <div id="canvas-container">
-
     <canvas id="game"></canvas>
-
   </div>
-
   <div class="control-deck">
-
     <div class="joystick-container">
-
       <div class="dpad-grid">
-
         <div style="visibility:hidden"></div>
-
-        <div
-          class="ctrl-btn"
-          id="btnUp"
-        >
-          ▲
-        </div>
-
+        <div class="ctrl-btn" id="btnUp">▲</div>
         <div style="visibility:hidden"></div>
-
-        <div
-          class="ctrl-btn"
-          id="btnLeft"
-        >
-          ◀
-        </div>
-
-        <div
-          class="ctrl-btn-center"
-          id="btnCenter"
-        >
-          OK
-        </div>
-
-        <div
-          class="ctrl-btn"
-          id="btnRight"
-        >
-          ▶
-        </div>
-
+        <div class="ctrl-btn" id="btnLeft">◀</div>
+        <div class="ctrl-btn-center" id="btnCenter">OK</div>
+        <div class="ctrl-btn" id="btnRight">▶</div>
         <div style="visibility:hidden"></div>
-
-        <div
-          class="ctrl-btn"
-          id="btnDown"
-        >
-          ▼
-        </div>
-
+        <div class="ctrl-btn" id="btnDown">▼</div>
         <div style="visibility:hidden"></div>
-
       </div>
-
     </div>
-
   </div>
-
-  <button
-    class="exit-btn"
-    onclick="exitGame()"
-  >
-    ◄ TORNA IN STUDIO
-  </button>
-
+  <button class="exit-btn" onclick="exitGame()">◄ TORNA IN STUDIO</button>
 </div>
 
-<div
-  class="modal-overlay"
-  id="settingsModal"
->
-
+<div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
-
-    <div class="modal-title">
-      ⚙️ TIMELINE SETTINGS
-    </div>
-
+    <div class="modal-title">⚙️ TIMELINE SETTINGS</div>
     <div class="option-item">
-
-      <span class="option-label">
-        MUSICA DI SOTTOFONDO
-      </span>
-
-      <button
-        class="toggle-btn active"
-        id="btnToggleMusic"
-      >
-        ON 🎵
-      </button>
-
+      <span class="option-label">MUSICA DI SOTTOFONDO</span>
+      <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
     </div>
-
     <div class="option-item">
-
-      <span class="option-label">
-        EFFETTI SONORI (SFX)
-      </span>
-
-      <button
-        class="toggle-btn active"
-        id="btnToggleSfx"
-      >
-        ON 🔊
-      </button>
-
+      <span class="option-label">EFFETTI SONORI (SFX)</span>
+      <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
     </div>
-
-    <button
-      class="close-modal-btn"
-      id="btnCloseSettings"
-    >
-      SALVA E CHIUDI ►
-    </button>
-
+    <button class="close-modal-btn" id="btnCloseSettings">SALVA E CHIUDI ►</button>
   </div>
-
 </div>
 
 <script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const COLS = 13, ROWS = 17, CELL_SIZE = 26, HUD_HEIGHT = 44, TRACK_HEADER_W = 38;
+const CANVAS_W = COLS * CELL_SIZE, CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT;
+canvas.width = CANVAS_W; canvas.height = CANVAS_H;
 
-const canvas =
-  document.getElementById('game');
-
-const ctx =
-  canvas.getContext('2d');
-
-const COLS = 13;
-const ROWS = 17;
-const CELL_SIZE = 26;
-const HUD_HEIGHT = 44;
-const TRACK_HEADER_W = 38;
-
-const CANVAS_W =
-  COLS * CELL_SIZE;
-
-const CANVAS_H =
-  ROWS * CELL_SIZE +
-  HUD_HEIGHT;
-
-canvas.width = CANVAS_W;
-canvas.height = CANVAS_H;
-
-function drawRoundRect(
-  c,
-  x,
-  y,
-  w,
-  h,
-  r
-) {
-
-  if (w < 2 * r) {
-    r = w / 2;
-  }
-
-  if (h < 2 * r) {
-    r = h / 2;
-  }
-
-  c.beginPath();
-
-  c.moveTo(
-    x + r,
-    y
-  );
-
-  c.arcTo(
-    x + w,
-    y,
-    x + w,
-    y + h,
-    r
-  );
-
-  c.arcTo(
-    x + w,
-    y + h,
-    x,
-    y + h,
-    r
-  );
-
-  c.arcTo(
-    x,
-    y + h,
-    x,
-    y,
-    r
-  );
-
-  c.arcTo(
-    x,
-    y,
-    x + w,
-    y,
-    r
-  );
-
-  c.closePath();
+function drawRoundRect(c, x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  c.beginPath(); c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
 }
 
-let musicEnabled =
-  localStorage.getItem(
-    'deadlineDrive_music'
-  ) !== 'false';
-
-let sfxEnabled =
-  localStorage.getItem(
-    'deadlineDrive_sfx'
-  ) !== 'false';
-
-const bgMusic =
-  document.getElementById(
-    'bgMusic'
-  );
-
+let musicEnabled = localStorage.getItem('deadlineDrive_music') !== 'false';
+let sfxEnabled = localStorage.getItem('deadlineDrive_sfx') !== 'false';
+const bgMusic = document.getElementById('bgMusic');
 bgMusic.volume = 0.4;
 
-function playBgMusic() {
-
-  if (
-    musicEnabled &&
-    bgMusic.paused
-  ) {
-
-    bgMusic
-      .play()
-      .catch(() => {});
-  }
-}
-
+function playBgMusic() { if (musicEnabled && bgMusic.paused) { bgMusic.play().catch(() => {}); } }
 playBgMusic();
+window.addEventListener('DOMContentLoaded', playBgMusic);
+window.addEventListener('load', playBgMusic);
+['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => { window.addEventListener(evt, () => playBgMusic(), { once: true }); });
 
-window.addEventListener(
-  'DOMContentLoaded',
-  playBgMusic
-);
+function updateMusicState() { if (musicEnabled) { playBgMusic(); } else { bgMusic.pause(); } }
 
-window.addEventListener(
-  'load',
-  playBgMusic
-);
-
-[
-  'pointerdown',
-  'touchstart',
-  'click',
-  'keydown'
-].forEach(evt => {
-
-  window.addEventListener(
-    evt,
-    () => playBgMusic(),
-    { once: true }
-  );
-
-});
-
-function updateMusicState() {
-
-  if (musicEnabled) {
-
-    playBgMusic();
-
-  } else {
-
-    bgMusic.pause();
-  }
-}
-
-const settingsModal =
-  document.getElementById(
-    'settingsModal'
-  );
-
-const btnOpenSettings =
-  document.getElementById(
-    'btnOpenSettings'
-  );
-
-const btnCloseSettings =
-  document.getElementById(
-    'btnCloseSettings'
-  );
-
-const btnToggleMusic =
-  document.getElementById(
-    'btnToggleMusic'
-  );
-
-const btnToggleSfx =
-  document.getElementById(
-    'btnToggleSfx'
-  );
+const settingsModal = document.getElementById('settingsModal');
+const btnOpenSettings = document.getElementById('btnOpenSettings');
+const btnCloseSettings = document.getElementById('btnCloseSettings');
+const btnToggleMusic = document.getElementById('btnToggleMusic');
+const btnToggleSfx = document.getElementById('btnToggleSfx');
 
 function renderOptionButtons() {
-
-  btnToggleMusic.className =
-    `toggle-btn ${
-      musicEnabled
-        ? 'active'
-        : ''
-    }`;
-
-  btnToggleMusic.innerText =
-    musicEnabled
-      ? 'ON 🎵'
-      : 'OFF 🔇';
-
-  btnToggleSfx.className =
-    `toggle-btn ${
-      sfxEnabled
-        ? 'active'
-        : ''
-    }`;
-
-  btnToggleSfx.innerText =
-    sfxEnabled
-      ? 'ON 🔊'
-      : 'OFF 🔇';
+  btnToggleMusic.className = `toggle-btn ${musicEnabled ? 'active' : ''}`;
+  btnToggleMusic.innerText = musicEnabled ? 'ON 🎵' : 'OFF 🔇';
+  btnToggleSfx.className = `toggle-btn ${sfxEnabled ? 'active' : ''}`;
+  btnToggleSfx.innerText = sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
 }
-
 renderOptionButtons();
 
-btnToggleMusic.onclick = () => {
-
-  musicEnabled =
-    !musicEnabled;
-
-  localStorage.setItem(
-    'deadlineDrive_music',
-    musicEnabled
-  );
-
-  renderOptionButtons();
-
-  updateMusicState();
-};
-
-btnToggleSfx.onclick = () => {
-
-  sfxEnabled =
-    !sfxEnabled;
-
-  localStorage.setItem(
-    'deadlineDrive_sfx',
-    sfxEnabled
-  );
-
-  renderOptionButtons();
-};
-
-btnOpenSettings.onclick = () => {
-
-  if (
-    gameState === 'PLAYING'
-  ) {
-
-    gameState = 'PAUSE';
-  }
-
-  settingsModal.style.display =
-    'flex';
-};
-
-btnCloseSettings.onclick = () => {
-
-  settingsModal.style.display =
-    'none';
-
-  getAC();
-
-  if (
-    gameState === 'PAUSE'
-  ) {
-
-    gameState = 'PLAYING';
-  }
-
-  updateMusicState();
-};
+btnToggleMusic.onclick = () => { musicEnabled = !musicEnabled; localStorage.setItem('deadlineDrive_music', musicEnabled); renderOptionButtons(); updateMusicState(); };
+btnToggleSfx.onclick = () => { sfxEnabled = !sfxEnabled; localStorage.setItem('deadlineDrive_sfx', sfxEnabled); renderOptionButtons(); };
+btnOpenSettings.onclick = () => { if (gameState === 'PLAYING') gameState = 'PAUSE'; settingsModal.style.display = 'flex'; };
+btnCloseSettings.onclick = () => { settingsModal.style.display = 'none'; getAC(); if (gameState === 'PAUSE') gameState = 'PLAYING'; updateMusicState(); };
 
 let audioCtx = null;
-
 function getAC() {
-
   try {
-
     if (!audioCtx) {
-
-      const AudioContextClass =
-        window.AudioContext ||
-        window.webkitAudioContext;
-
-      if (AudioContextClass) {
-
-        audioCtx =
-          new AudioContextClass();
-      }
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) audioCtx = new AudioContextClass();
     }
-
-    if (
-      audioCtx &&
-      audioCtx.state === 'suspended'
-    ) {
-
-      audioCtx
-        .resume()
-        .catch(() => {});
-    }
-
+    if (audioCtx && audioCtx.state === 'suspended') { audioCtx.resume().catch(() => {}); }
   } catch(e) {}
-
   playBgMusic();
-
   return audioCtx;
 }
 
 function playSound(type) {
-
-  if (!sfxEnabled) {
-    return;
-  }
-
+  if (!sfxEnabled) return;
   try {
+    const ac = getAC(); if (!ac) return;
+    const osc = ac.createOscillator(), gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
 
-    const ac = getAC();
-
-    if (!ac) {
-      return;
+    if (type === 'cross') {
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(523, ac.currentTime); osc.frequency.setValueAtTime(659, ac.currentTime + 0.08); gain.gain.setValueAtTime(0.18, ac.currentTime); osc.start(); osc.stop(ac.currentTime + 0.16);
+    } else if (type === 'crash') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(250, ac.currentTime); osc.frequency.exponentialRampToValueAtTime(40, ac.currentTime + 0.25); gain.gain.setValueAtTime(0.25, ac.currentTime); osc.start(); osc.stop(ac.currentTime + 0.25);
+    } else if (type === 'guard_active') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(600, ac.currentTime); osc.frequency.linearRampToValueAtTime(1200, ac.currentTime + 0.1); gain.gain.setValueAtTime(0.15, ac.currentTime); osc.start(); osc.stop(ac.currentTime + 0.1);
+    } else if (type === 'pickup') {
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(440, ac.currentTime); osc.frequency.setValueAtTime(880, ac.currentTime + 0.1); gain.gain.setValueAtTime(0.2, ac.currentTime); osc.start(); osc.stop(ac.currentTime + 0.2);
+    } else if (type === 'malus') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, ac.currentTime); osc.frequency.linearRampToValueAtTime(80, ac.currentTime + 0.2); gain.gain.setValueAtTime(0.2, ac.currentTime); osc.start(); osc.stop(ac.currentTime + 0.2);
+    } else if (type === 'fail') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(220, ac.currentTime); osc.frequency.linearRampToValueAtTime(50, ac.currentTime + 0.3); gain.gain.setValueAtTime(0.25, ac.currentTime); osc.start(); osc.stop(ac.currentTime + 0.3);
     }
-
-    const osc =
-      ac.createOscillator();
-
-    const gain =
-      ac.createGain();
-
-    osc.connect(gain);
-    gain.connect(ac.destination);
-
-    if (
-      type === 'cross'
-    ) {
-
-      osc.type =
-        'triangle';
-
-      osc.frequency.setValueAtTime(
-        523,
-        ac.currentTime
-      );
-
-      osc.frequency.setValueAtTime(
-        659,
-        ac.currentTime + 0.08
-      );
-
-      gain.gain.setValueAtTime(
-        0.18,
-        ac.currentTime
-      );
-
-      osc.start();
-
-      osc.stop(
-        ac.currentTime + 0.16
-      );
-
-    } else if (
-      type === 'crash'
-    ) {
-
-      osc.type =
-        'sawtooth';
-
-      osc.frequency.setValueAtTime(
-        250,
-        ac.currentTime
-      );
-
-      osc.frequency.exponentialRampToValueAtTime(
-        40,
-        ac.currentTime + 0.25
-      );
-
-      gain.gain.setValueAtTime(
-        0.25,
-        ac.currentTime
-      );
-
-      osc.start();
-
-      osc.stop(
-        ac.currentTime + 0.25
-      );
-
-    } else if (
-      type === 'guard_active'
-    ) {
-
-      osc.type =
-        'sine';
-
-      osc.frequency.setValueAtTime(
-        600,
-        ac.currentTime
-      );
-
-      osc.frequency.linearRampToValueAtTime(
-        1200,
-        ac.currentTime + 0.1
-      );
-
-      gain.gain.setValueAtTime(
-        0.15,
-        ac.currentTime
-      );
-
-      osc.start();
-
-      osc.stop(
-        ac.currentTime + 0.1
-      );
-
-    } else if (
-      type === 'pickup'
-    ) {
-
-      osc.type =
-        'triangle';
-
-      osc.frequency.setValueAtTime(
-        440,
-        ac.currentTime
-      );
-
-      osc.frequency.setValueAtTime(
-        880,
-        ac.currentTime + 0.1
-      );
-
-      gain.gain.setValueAtTime(
-        0.2,
-        ac.currentTime
-      );
-
-      osc.start();
-
-      osc.stop(
-        ac.currentTime + 0.2
-      );
-
-    } else if (
-      type === 'malus'
-    ) {
-
-      osc.type =
-        'sawtooth';
-
-      osc.frequency.setValueAtTime(
-        180,
-        ac.currentTime
-      );
-
-      osc.frequency.linearRampToValueAtTime(
-        80,
-        ac.currentTime + 0.2
-      );
-
-      gain.gain.setValueAtTime(
-        0.2,
-        ac.currentTime
-      );
-
-      osc.start();
-
-      osc.stop(
-        ac.currentTime + 0.2
-      );
-
-    } else if (
-      type === 'fail'
-    ) {
-
-      osc.type =
-        'sawtooth';
-
-      osc.frequency.setValueAtTime(
-        220,
-        ac.currentTime
-      );
-
-      osc.frequency.linearRampToValueAtTime(
-        50,
-        ac.currentTime + 0.3
-      );
-
-      gain.gain.setValueAtTime(
-        0.25,
-        ac.currentTime
-      );
-
-      osc.start();
-
-      osc.stop(
-        ac.currentTime + 0.3
-      );
-    }
-
   } catch(e) {}
 }
 
-const imgGiulia =
-  new Image();
-
-imgGiulia.src =
-  'assets/frogger/giulia.png';
-
-const imgTobi =
-  new Image();
-
-imgTobi.src =
-  'assets/frogger/tobi.png';
-
-const imgDave =
-  new Image();
-
-imgDave.src =
-  'assets/frogger/dave.png';
-
-const imgLuca =
-  new Image();
-
-imgLuca.src =
-  'assets/frogger/luca.png';
+const imgGiulia = new Image(); imgGiulia.src = 'assets/frogger/giulia.png';
+const imgTobi = new Image(); imgTobi.src = 'assets/frogger/tobi.png';
+const imgDave = new Image(); imgDave.src = 'assets/frogger/dave.png';
+const imgLuca = new Image(); imgLuca.src = 'assets/frogger/luca.png';
 
 const PREMIERE_CLIPS = {
-
-  BLUE_A_ROLL: {
-    type: 'A_ROLL',
-    label: 'A001_C004.MOV',
-    bg: '#2b52a1',
-    border: '#5682e8',
-    textCol: '#d0e0ff',
-    topBar: '#00ff66',
-    wMult: 2.2,
-    hMult: 1
-  },
-
-  PURPLE_B_ROLL: {
-    type: 'B_ROLL',
-    label: 'B002_DRONE.MP4',
-    bg: '#7f22a7',
-    border: '#b842df',
-    textCol: '#f2c8ff',
-    topBar: '#ff0055',
-    wMult: 2.5,
-    hMult: 1
-  },
-
-  ROSE_LUMETRI: {
-    type: 'LUMETRI',
-    label: 'LUMETRI COLOR',
-    bg: '#a11b43',
-    border: '#e64273',
-    textCol: '#ffd4e2',
-    topBar: '#ffee00',
-    wMult: 2.0,
-    hMult: 1
-  },
-
-  GOLD_VOICEOVER: {
-    type: 'VOICEOVER',
-    label: 'VO_MASTER_V2',
-    bg: '#8f7d18',
-    border: '#dbc330',
-    textCol: '#fdf8c2',
-    topBar: '#00ff66',
-    isAudio: true,
-    wMult: 2.0,
-    hMult: 1
-  },
-
-  GREEN_SFX: {
-    type: 'SFX_WAVE',
-    label: 'SFX_WHOOSH.WAV',
-    bg: '#2d7a3a',
-    border: '#4ec462',
-    textCol: '#d2f8da',
-    topBar: '#00ff66',
-    isAudio: true,
-    wMult: 1.8,
-    hMult: 1
-  },
-
-  TEAL_MUSIC: {
-    type: 'MUSIC',
-    label: 'BEAT_TRACK_FLAC',
-    bg: '#147b85',
-    border: '#23b3be',
-    textCol: '#c2f8fc',
-    topBar: '#00ff66',
-    isAudio: true,
-    wMult: 2.8,
-    hMult: 1
-  },
-
-  NESTED_SEQ: {
-    type: 'NESTED',
-    label: 'NEST_INTRO_SEQ',
-    bg: '#5b1e8a',
-    border: '#8b3adb',
-    textCol: '#e8cbff',
-    topBar: '#ffee00',
-    wMult: 3.0,
-    hMult: 1
-  },
-
-  OFFLINE_RED: {
-    type: 'OFFLINE',
-    label: 'MEDIA OFFLINE! 🔴',
-    bg: '#8b0000',
-    border: '#ff3333',
-    textCol: '#ffffff',
-    topBar: '#ff0000',
-    wMult: 3.2,
-    hMult: 1
-  }
+  BLUE_A_ROLL: { type: 'A_ROLL', label: 'A001_C004.MOV', bg: '#2b52a1', border: '#5682e8', textCol: '#d0e0ff', topBar: '#00ff66', wMult: 2.2, hMult: 1 },
+  PURPLE_B_ROLL: { type: 'B_ROLL', label: 'B002_DRONE.MP4', bg: '#7f22a7', border: '#b842df', textCol: '#f2c8ff', topBar: '#ff0055', wMult: 2.5, hMult: 1 },
+  ROSE_LUMETRI: { type: 'LUMETRI', label: 'LUMETRI COLOR', bg: '#a11b43', border: '#e64273', textCol: '#ffd4e2', topBar: '#ffee00', wMult: 2.0, hMult: 1 },
+  GOLD_VOICEOVER: { type: 'VOICEOVER', label: 'VO_MASTER_V2', bg: '#8f7d18', border: '#dbc330', textCol: '#fdf8c2', topBar: '#00ff66', isAudio: true, wMult: 2.0, hMult: 1 },
+  GREEN_SFX: { type: 'SFX_WAVE', label: 'SFX_WHOOSH.WAV', bg: '#2d7a3a', border: '#4ec462', textCol: '#d2f8da', topBar: '#00ff66', isAudio: true, wMult: 1.8, hMult: 1 },
+  TEAL_MUSIC: { type: 'MUSIC', label: 'BEAT_TRACK_FLAC', bg: '#147b85', border: '#23b3be', textCol: '#c2f8fc', topBar: '#00ff66', isAudio: true, wMult: 2.8, hMult: 1 },
+  NESTED_SEQ: { type: 'NESTED', label: 'NEST_INTRO_SEQ', bg: '#5b1e8a', border: '#8b3adb', textCol: '#e8cbff', topBar: '#ffee00', wMult: 3.0, hMult: 1 },
+  OFFLINE_RED: { type: 'OFFLINE', label: 'MEDIA OFFLINE! 🔴', bg: '#8b0000', border: '#ff3333', textCol: '#ffffff', topBar: '#ff0000', wMult: 3.2, hMult: 1 }
 };
 
 const LEVEL_THEMES = [
-
-  {
-    levelMin: 1,
-    title:
-      "STAGE 1: ASSEMBLY TIMELINE",
-    msg:
-      "Primi stacchi video: pochi ostacoli e flusso regolare!"
-  },
-
-  {
-    levelMin: 2,
-    title:
-      "STAGE 2: MONTAGGIO RUSH",
-    msg:
-      "Aumentano le clip b-roll e le tracce audio!"
-  },
-
-  {
-    levelMin: 3,
-    title:
-      "STAGE 3: COLOR & FX MULTI-LAYER",
-    msg:
-      "Lumetri Color, Nested Sequences e tracce complesse!"
-  },
-
-  {
-    levelMin: 4,
-    title:
-      "STAGE 4: EXPORT FINALE PRE-DEADLINE",
-    msg:
-      "Massima densità e velocità sulla Timeline!"
-  }
+  { levelMin: 1, title: "STAGE 1: ASSEMBLY TIMELINE", msg: "Primi stacchi video: pochi ostacoli e flusso regolare!" },
+  { levelMin: 2, title: "STAGE 2: MONTAGGIO RUSH", msg: "Aumentano le clip b-roll e le tracce audio!" },
+  { levelMin: 3, title: "STAGE 3: COLOR & FX MULTI-LAYER", msg: "Lumetri Color, Nested Sequences e tracce complesse!" },
+  { levelMin: 4, title: "STAGE 4: EXPORT FINALE PRE-DEADLINE", msg: "Massima densità e velocità sulla Timeline!" }
 ];
 
 const CHARACTERS = {
-
-  GIULIA: {
-    id: 'GIULIA',
-    name: "GIULIA",
-    subtitle: "Lead Video Editor",
-    perkBonus:
-      "BONUS: Precisione (Punti 1.25x)",
-    perkMalus:
-      "MALUS: Sensibile al Glitch",
-    primary: "#00d2ff",
-    bg: "#181818",
-    img: imgGiulia,
-    arrowCol: "#00d2ff",
-    arrowGlow: "#005f73",
-    speed: 2.8,
-    scoreMult: 1.25
-  },
-
-  TOBI: {
-    id: 'TOBI',
-    name: "TOBI",
-    subtitle: "Assistant Video Editor",
-    perkBonus:
-      "BONUS: Agilità (+20% Velocità)",
-    perkMalus:
-      "MALUS: Punteggio Base (-10%)",
-    primary: "#ffd700",
-    bg: "#181818",
-    img: imgTobi,
-    arrowCol: "#ffd700",
-    arrowGlow: "#886600",
-    speed: 3.4,
-    scoreMult: 0.9
-  },
-
-  DAVE: {
-    id: 'DAVE',
-    name: "DAVE",
-    subtitle: "Focused Director",
-    perkBonus:
-      "BONUS: Autorità (+30% Punteggio)",
-    perkMalus:
-      "MALUS: Passo Pesante (-20% Velocità)",
-    primary: "#ff0055",
-    bg: "#181818",
-    img: imgDave,
-    arrowCol: "#ff0055",
-    arrowGlow: "#880022",
-    speed: 2.0,
-    scoreMult: 1.3
-  },
-
-  LUCA: {
-    id: 'LUCA',
-    name: "LUCA",
-    subtitle: "VFX Artist Whiz",
-    perkBonus:
-      "BONUS: VFX Master (+15% Punti)",
-    perkMalus:
-      "MALUS: Meno Vite Iniziali",
-    primary: "#ffaa00",
-    bg: "#181818",
-    img: imgLuca,
-    arrowCol: "#ffaa00",
-    arrowGlow: "#885500",
-    speed: 3.2,
-    scoreMult: 1.15
-  }
+  GIULIA: { id: 'GIULIA', name: "GIULIA", subtitle: "Lead Video Editor", perkBonus: "BONUS: Precisione (Punti 1.25x)", perkMalus: "MALUS: Sensibile al Glitch", primary: "#00d2ff", bg: "#181818", img: imgGiulia, arrowCol: "#00d2ff", arrowGlow: "#005f73", speed: 2.8, scoreMult: 1.25 },
+  TOBI: { id: 'TOBI', name: "TOBI", subtitle: "Assistant Video Editor", perkBonus: "BONUS: Agilità (+20% Velocità)", perkMalus: "MALUS: Punteggio Base (-10%)", primary: "#ffd700", bg: "#181818", img: imgTobi, arrowCol: "#ffd700", arrowGlow: "#886600", speed: 3.4, scoreMult: 0.9 },
+  DAVE: { id: 'DAVE', name: "DAVE", subtitle: "Focused Director", perkBonus: "BONUS: Autorità (+30% Punteggio)", perkMalus: "MALUS: Passo Pesante (-20% Velocità)", primary: "#ff0055", bg: "#181818", img: imgDave, arrowCol: "#ff0055", arrowGlow: "#880022", speed: 2.0, scoreMult: 1.3 },
+  LUCA: { id: 'LUCA', name: "LUCA", subtitle: "VFX Artist Whiz", perkBonus: "BONUS: VFX Master (+15% Punti)", perkMalus: "MALUS: Meno Vite Iniziali", primary: "#ffaa00", bg: "#181818", img: imgLuca, arrowCol: "#ffaa00", arrowGlow: "#885500", speed: 3.2, scoreMult: 1.15 }
 };
-
-const CHARACTER_LIST = [
-  'GIULIA',
-  'TOBI',
-  'DAVE',
-  'LUCA'
-];
+const CHARACTER_LIST = ['GIULIA', 'TOBI', 'DAVE', 'LUCA'];
 
 const PICKUP_TYPES = {
-
-  AUTO_SAVE: {
-    type: 'AUTOSAVE',
-    label: '💾 SAVE',
-    pts: 300,
-    isMalus: false
-  },
-
-  PROXY_ON: {
-    type: 'PROXY',
-    label: '🎬 PROXY 2X',
-    pts: 400,
-    isMalus: false,
-    scoreBoost: 2.0
-  },
-
-  CACHE_BOOST: {
-    type: 'CACHE',
-    label: '⚡ CACHE',
-    pts: 150,
-    isMalus: false,
-    speedBoost: 1.3
-  },
-
-  GUARD: {
-    type: 'GUARD',
-    label: '🛡️ RENDER',
-    pts: 250,
-    isMalus: false,
-    shieldDuration: 180
-  },
-
-  DROP_FRAME: {
-    type: 'DROP_FRAME',
-    label: '🐌 DROP',
-    pts: -100,
-    isMalus: true,
-    slowFactor: 0.6
-  },
-
-  DISK_FULL: {
-    type: 'DISK_FULL',
-    label: '⚠️ FULL DISK',
-    pts: -200,
-    isMalus: true,
-    invertControls: true
-  }
+  AUTO_SAVE: { type: 'AUTOSAVE', label: '💾 SAVE', pts: 300, isMalus: false },
+  PROXY_ON: { type: 'PROXY', label: '🎬 PROXY 2X', pts: 400, isMalus: false, scoreBoost: 2.0 },
+  CACHE_BOOST: { type: 'CACHE', label: '⚡ CACHE', pts: 150, isMalus: false, speedBoost: 1.3 },
+  GUARD: { type: 'GUARD', label: '🛡️ RENDER', pts: 250, isMalus: false, shieldDuration: 180 },
+  DROP_FRAME: { type: 'DROP_FRAME', label: '🐌 DROP', pts: -100, isMalus: true, slowFactor: 0.6 },
+  DISK_FULL: { type: 'DISK_FULL', label: '⚠️ FULL DISK', pts: -200, isMalus: true, invertControls: true }
 };
 
-let currentTheme =
-  CHARACTERS.GIULIA;
+let currentTheme = CHARACTERS.GIULIA, highScore = parseInt(localStorage.getItem('deadlineDrive_highScore')) || 0;
+let activeLanes = [], gameState = 'TUTORIAL', level = 1, score = 0, lives = 3, visualScrollOffset = 0;
+let player = { gx: Math.floor(COLS / 2), gy: ROWS - 2, w: 16, h: 16, facingLeft: false, invTimer: 0, guardTimer: 0, nextMoveAllowedTimer: 0, speedMult: 1.0, tempScoreMult: 1.0, glitchTimer: 0 };
+let moveUp = false, moveDown = false, moveLeft = false, moveRight = false, selectedCharIndex = 0, particles = [];
 
-let highScore =
-  parseInt(
-    localStorage.getItem(
-      'deadlineDrive_highScore'
-    )
-  ) || 0;
+function createNewLane(isInitialSetup = false, r = 0) {
+  let isSafe = false, safeChance = Math.max(0.20, 0.45 - level * 0.08);
+  if (isInitialSetup) { isSafe = (r === 0 || r === ROWS - 1 || r === ROWS - 2 || r === ROWS - 3 || (r % 3 === 0 && level === 1)); }
+  else { let topLane = activeLanes[0]; isSafe = (topLane && topLane.type === 'SAFE') ? false : Math.random() < safeChance; }
 
-let activeLanes = [];
+  let laneType = isSafe ? 'SAFE' : 'ROAD';
+  let dir = Math.random() < 0.5 ? 1 : -1;
+  let speedFactor = 0.38 + Math.min(level * 0.16, 1.2);
+  let baseSpeed = (0.45 + Math.random() * 0.35) * speedFactor;
+  let vTypes = Object.values(PREMIERE_CLIPS);
+  let trackLabel = r % 5 === 0 ? "V3" : r % 5 === 1 ? "V2" : r % 5 === 2 ? "V1" : r % 5 === 3 ? "A1" : "A2";
+  let laneObj = { type: laneType, trackLabel: isSafe ? "SAFE" : trackLabel, bg: isSafe ? '#1c2230' : '#141416', dir, speed: baseSpeed, objects: [], pickups: [] };
 
-let gameState =
-  'TUTORIAL';
-
-let level = 1;
-let score = 0;
-let lives = 3;
-
-let visualScrollOffset = 0;
-
-let player = {
-
-  gx:
-    Math.floor(COLS / 2),
-
-  gy:
-    ROWS - 2,
-
-  w: 16,
-  h: 16,
-
-  facingLeft: false,
-
-  invTimer: 0,
-
-  guardTimer: 0,
-
-  nextMoveAllowedTimer: 0,
-
-  speedMult: 1.0,
-
-  tempScoreMult: 1.0,
-
-  glitchTimer: 0
-};
-
-let moveUp = false;
-let moveDown = false;
-let moveLeft = false;
-let moveRight = false;
-
-let selectedCharIndex = 0;
-
-let particles = [];
-
-function createNewLane(
-  isInitialSetup = false,
-  r = 0
-) {
-
-  let isSafe = false;
-
-  let safeChance =
-    Math.max(
-      0.20,
-      0.45 - level * 0.08
-    );
-
-  if (isInitialSetup) {
-
-    isSafe =
-      (
-        r === 0 ||
-        r === ROWS - 1 ||
-        r === ROWS - 2 ||
-        r === ROWS - 3 ||
-        (
-          r % 3 === 0 &&
-          level === 1
-        )
-      );
-
-  } else {
-
-    let topLane =
-      activeLanes[0];
-
-    isSafe =
-      (
-        topLane &&
-        topLane.type === 'SAFE'
-      )
-        ? false
-        : Math.random() < safeChance;
-  }
-
-  let laneType =
-    isSafe
-      ? 'SAFE'
-      : 'ROAD';
-
-  let dir =
-    Math.random() < 0.5
-      ? 1
-      : -1;
-
-  let speedFactor =
-    0.38 +
-    Math.min(
-      level * 0.16,
-      1.2
-    );
-
-  let baseSpeed =
-    (
-      0.45 +
-      Math.random() * 0.35
-    ) *
-    speedFactor;
-
-  let vTypes =
-    Object.values(
-      PREMIERE_CLIPS
-    );
-
-  let trackLabel =
-    r % 5 === 0
-      ? "V3"
-      : r % 5 === 1
-        ? "V2"
-        : r % 5 === 2
-          ? "V1"
-          : r % 5 === 3
-            ? "A1"
-            : "A2";
-
-  let laneObj = {
-
-    type: laneType,
-
-    trackLabel:
-      isSafe
-        ? "SAFE"
-        : trackLabel,
-
-    bg:
-      isSafe
-        ? '#1c2230'
-        : '#141416',
-
-    dir,
-
-    speed: baseSpeed,
-
-    objects: [],
-
-    pickups: []
-  };
-
-  if (
-    laneType === 'ROAD'
-  ) {
-
-    let x =
-      TRACK_HEADER_W -
-      CELL_SIZE * 3;
-
-    let minGap =
-      Math.max(
-        4.0,
-        10.0 -
-        level * 1.5
-      );
-
+  if (laneType === 'ROAD') {
+    let x = TRACK_HEADER_W - CELL_SIZE * 3, minGap = Math.max(4.0, 10.0 - level * 1.5);
     do {
-
-      x +=
-        CELL_SIZE *
-        (
-          Math.random() * 2.5 +
-          minGap
-        );
-
-      if (
-        x <
-        CANVAS_W +
-        CELL_SIZE * 3
-      ) {
-
-        let vType =
-          vTypes[
-            Math.floor(
-              Math.random() *
-              vTypes.length
-            )
-          ];
-
-        laneObj.objects.push({
-
-          x,
-
-          type: vType,
-
-          w:
-            vType.wMult *
-            CELL_SIZE,
-
-          hMult:
-            vType.hMult
-        });
+      x += CELL_SIZE * (Math.random() * 2.5 + minGap);
+      if (x < CANVAS_W + CELL_SIZE * 3) {
+        let vType = vTypes[Math.floor(Math.random() * vTypes.length)];
+        laneObj.objects.push({ x, type: vType, w: vType.wMult * CELL_SIZE, hMult: vType.hMult });
       }
-
-    } while (
-      x <
-      CANVAS_W +
-      CELL_SIZE * 3
-    );
-
-  } else if (
-    isSafe &&
-    Math.random() < 0.35
-  ) {
-
-    let pTypeKeys =
-      Object.keys(
-        PICKUP_TYPES
-      );
-
-    let chosenKey =
-      pTypeKeys[
-        Math.floor(
-          Math.random() *
-          pTypeKeys.length
-        )
-      ];
-
-    laneObj.pickups.push({
-
-      gx:
-        Math.floor(
-          Math.random() *
-          (COLS - 3)
-        ) + 2,
-
-      type:
-        PICKUP_TYPES[
-          chosenKey
-        ]
-    });
+    } while (x < CANVAS_W + CELL_SIZE * 3);
+  } else if (isSafe && Math.random() < 0.35) {
+    let pTypeKeys = Object.keys(PICKUP_TYPES);
+    let chosenKey = pTypeKeys[Math.floor(Math.random() * pTypeKeys.length)];
+    laneObj.pickups.push({ gx: Math.floor(Math.random() * (COLS - 3)) + 2, type: PICKUP_TYPES[chosenKey] });
   }
-
   return laneObj;
 }
 
-function startInfiniteScroll() {
-
-  activeLanes = [];
-
-  visualScrollOffset = 0;
-
-  for (
-    let r = 0;
-    r < ROWS;
-    r++
-  ) {
-
-    activeLanes.push(
-      createNewLane(
-        true,
-        r
-      )
-    );
-  }
-
-  resetPlayer();
-}
-
-function resetPlayer() {
-
-  player.gx =
-    Math.floor(
-      COLS / 2
-    );
-
-  player.gy =
-    ROWS - 2;
-
-  player.w = 16;
-  player.h = 16;
-
-  player.invTimer = 0;
-  player.guardTimer = 0;
-  player.nextMoveAllowedTimer = 0;
-
-  player.speedMult = 1.0;
-  player.tempScoreMult = 1.0;
-  player.glitchTimer = 0;
-}
+function startInfiniteScroll() { activeLanes = []; visualScrollOffset = 0; for (let r = 0; r < ROWS; r++) activeLanes.push(createNewLane(true, r)); resetPlayer(); }
+function resetPlayer() { player.gx = Math.floor(COLS / 2); player.gy = ROWS - 2; player.w = 16; player.h = 16; player.invTimer = 0; player.guardTimer = 0; player.nextMoveAllowedTimer = 0; player.speedMult = 1.0; player.tempScoreMult = 1.0; player.glitchTimer = 0; }
 
 function updatePlayer() {
+  if (player.nextMoveAllowedTimer > 0) player.nextMoveAllowedTimer--;
+  if (player.glitchTimer > 0) player.glitchTimer--;
 
-  if (
-    player.nextMoveAllowedTimer > 0
-  ) {
+  if (player.nextMoveAllowedTimer <= 0) {
+    let dx = 0, dy = 0;
+    let inLeft = keyPressed('ArrowLeft') || keyPressed('KeyA') || moveLeft;
+    let inRight = keyPressed('ArrowRight') || keyPressed('KeyD') || moveRight;
+    let inUp = keyPressed('ArrowUp') || keyPressed('KeyW') || moveUp;
+    let inDown = keyPressed('ArrowDown') || keyPressed('KeyS') || moveDown;
 
-    player.nextMoveAllowedTimer--;
-  }
+    if (player.glitchTimer > 0) { let tL = inLeft, tR = inRight, tU = inUp, tD = inDown; inLeft = tR; inRight = tL; inUp = tD; inDown = tU; }
+    if (inLeft) { dx--; player.facingLeft = true; } else if (inRight) { dx++; player.facingLeft = false; }
+    if (inUp) { dy--; } else if (inDown) { dy++; }
 
-  if (
-    player.glitchTimer > 0
-  ) {
-
-    player.glitchTimer--;
-  }
-
-  if (
-    player.nextMoveAllowedTimer <= 0
-  ) {
-
-    let dx = 0;
-    let dy = 0;
-
-    let inLeft =
-      keyPressed('ArrowLeft') ||
-      keyPressed('KeyA') ||
-      moveLeft;
-
-    let inRight =
-      keyPressed('ArrowRight') ||
-      keyPressed('KeyD') ||
-      moveRight;
-
-    let inUp =
-      keyPressed('ArrowUp') ||
-      keyPressed('KeyW') ||
-      moveUp;
-
-    let inDown =
-      keyPressed('ArrowDown') ||
-      keyPressed('KeyS') ||
-      moveDown;
-
-    if (
-      player.glitchTimer > 0
-    ) {
-
-      let tL = inLeft;
-      let tR = inRight;
-      let tU = inUp;
-      let tD = inDown;
-
-      inLeft = tR;
-      inRight = tL;
-      inUp = tD;
-      inDown = tU;
-    }
-
-    if (inLeft) {
-
-      dx--;
-
-      player.facingLeft = true;
-
-    } else if (
-      inRight
-    ) {
-
-      dx++;
-
-      player.facingLeft = false;
-    }
-
-    if (inUp) {
-
-      dy--;
-
-    } else if (
-      inDown
-    ) {
-
-      dy++;
-    }
-
-    if (
-      dx !== 0 ||
-      dy !== 0
-    ) {
-
-      let ngx =
-        player.gx + dx;
-
-      let ngy =
-        player.gy + dy;
-
-      if (
-        ngx >= 2 &&
-        ngx < COLS &&
-        ngy >= 0 &&
-        ngy < ROWS
-      ) {
-
-        player.gx = ngx;
-        player.gy = ngy;
-
-        if (
-          dy < 0 &&
-          player.gy < 6
-        ) {
-
-          scrollWorldDown();
-
-        } else if (
-          dy < 0
-        ) {
-
-          score +=
-            Math.floor(
-              10 *
-              level *
-              currentTheme.scoreMult *
-              player.tempScoreMult
-            );
-        }
-
+    if (dx !== 0 || dy !== 0) {
+      let ngx = player.gx + dx, ngy = player.gy + dy;
+      if (ngx >= 2 && ngx < COLS && ngy >= 0 && ngy < ROWS) {
+        player.gx = ngx; player.gy = ngy;
+        if (dy < 0 && player.gy < 6) { scrollWorldDown(); }
+        else if (dy < 0) { score += Math.floor(10 * level * currentTheme.scoreMult * player.tempScoreMult); }
         playSound('cross');
-
-        let effSpeed =
-          currentTheme.speed *
-          player.speedMult;
-
-        player.nextMoveAllowedTimer =
-          Math.max(
-            5,
-            Math.floor(
-              14 / effSpeed
-            )
-          );
+        let effSpeed = currentTheme.speed * player.speedMult;
+        player.nextMoveAllowedTimer = Math.max(5, Math.floor(14 / effSpeed));
       }
     }
   }
-
-  if (
-    player.invTimer > 0
-  ) {
-
-    player.invTimer--;
-  }
-
-  if (
-    player.guardTimer > 0
-  ) {
-
-    player.guardTimer--;
-  }
-
-  checkPickups();
-
-  checkCollisions();
+  if (player.invTimer > 0) player.invTimer--;
+  if (player.guardTimer > 0) player.guardTimer--;
+  checkPickups(); checkCollisions();
 }
 
 function scrollWorldDown() {
-
-  activeLanes.pop();
-
-  activeLanes.unshift(
-    createNewLane(false)
-  );
-
-  player.gy++;
-
-  visualScrollOffset -=
-    CELL_SIZE;
-
-  score +=
-    Math.floor(
-      15 *
-      level *
-      currentTheme.scoreMult *
-      player.tempScoreMult
-    );
-
-  if (
-    score >
-    level * 1200
-  ) {
-
-    level++;
-  }
+  activeLanes.pop(); activeLanes.unshift(createNewLane(false));
+  player.gy++; visualScrollOffset -= CELL_SIZE;
+  score += Math.floor(15 * level * currentTheme.scoreMult * player.tempScoreMult);
+  if (score > level * 1200) level++;
 }
 
 function updateVehicles() {
-
-  visualScrollOffset +=
-    (0 - visualScrollOffset) *
-    0.25;
-
-  if (
-    Math.abs(
-      visualScrollOffset
-    ) < 0.1
-  ) {
-
-    visualScrollOffset = 0;
-  }
-
-  activeLanes.forEach(
-    lane => {
-
-      if (
-        lane.type === 'ROAD'
-      ) {
-
-        lane.objects.forEach(
-          obj => {
-
-            obj.x +=
-              lane.speed *
-              lane.dir;
-
-            if (
-              lane.dir > 0 &&
-              obj.x >
-              CANVAS_W + obj.w
-            ) {
-
-              obj.x =
-                TRACK_HEADER_W -
-                obj.w;
-
-            } else if (
-              lane.dir < 0 &&
-              obj.x <
-              TRACK_HEADER_W -
-              obj.w
-            ) {
-
-              obj.x =
-                CANVAS_W +
-                obj.w;
-            }
-          }
-        );
-      }
+  visualScrollOffset += (0 - visualScrollOffset) * 0.25;
+  if (Math.abs(visualScrollOffset) < 0.1) visualScrollOffset = 0;
+  activeLanes.forEach(lane => {
+    if (lane.type === 'ROAD') {
+      lane.objects.forEach(obj => {
+        obj.x += lane.speed * lane.dir;
+        if (lane.dir > 0 && obj.x > CANVAS_W + obj.w) obj.x = TRACK_HEADER_W - obj.w;
+        else if (lane.dir < 0 && obj.x < TRACK_HEADER_W - obj.w) obj.x = CANVAS_W + obj.w;
+      });
     }
-  );
-
-  for (
-    let i =
-      particles.length - 1;
-    i >= 0;
-    i--
-  ) {
-
-    let p =
-      particles[i];
-
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life--;
-
-    if (
-      p.life <= 0
-    ) {
-
-      particles.splice(
-        i,
-        1
-      );
-    }
+  });
+  for (let i = particles.length - 1; i >= 0; i--) {
+    let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life--;
+    if (p.life <= 0) particles.splice(i, 1);
   }
 }
 
-function addParticles(
-  x,
-  y,
-  color,
-  count = 8
-) {
-
-  for (
-    let i = 0;
-    i < count;
-    i++
-  ) {
-
-    particles.push({
-
-      x,
-      y,
-
-      vx:
-        (
-          Math.random() - 0.5
-        ) * 6,
-
-      vy:
-        (
-          Math.random() - 0.5
-        ) * 6,
-
-      life: 16,
-
-      color
-    });
+function addParticles(x, y, color, count = 8) {
+  for (let i = 0; i < count; i++) {
+    particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 16, color });
   }
 }
 
 function checkPickups() {
-
-  let currentLane =
-    activeLanes[
-      player.gy
-    ];
-
-  if (
-    !currentLane ||
-    currentLane.pickups.length === 0
-  ) {
-
-    return;
-  }
-
-  for (
-    let i =
-      currentLane.pickups.length - 1;
-    i >= 0;
-    i--
-  ) {
-
-    let p =
-      currentLane.pickups[i];
-
-    if (
-      p.gx === player.gx
-    ) {
-
-      score +=
-        Math.floor(
-          p.type.pts *
-          currentTheme.scoreMult
-        );
-
-      if (
-        p.type.isMalus
-      ) {
-
+  let currentLane = activeLanes[player.gy];
+  if (!currentLane || currentLane.pickups.length === 0) return;
+  for (let i = currentLane.pickups.length - 1; i >= 0; i--) {
+    let p = currentLane.pickups[i];
+    if (p.gx === player.gx) {
+      score += Math.floor(p.type.pts * currentTheme.scoreMult);
+      if (p.type.isMalus) {
         playSound('malus');
-
-        if (
-          p.type.slowFactor
-        ) {
-
-          player.speedMult =
-            p.type.slowFactor;
-        }
-
-        if (
-          p.type.invertControls
-        ) {
-
-          player.glitchTimer =
-            180;
-        }
-
+        if (p.type.slowFactor) player.speedMult = p.type.slowFactor;
+        if (p.type.invertControls) player.glitchTimer = 180;
       } else {
-
         playSound('pickup');
-
-        if (
-          p.type.speedBoost
-        ) {
-
-          player.speedMult =
-            p.type.speedBoost;
-        }
-
-        if (
-          p.type.scoreBoost
-        ) {
-
-          player.tempScoreMult =
-            p.type.scoreBoost;
-        }
-
-        if (
-          p.type.shieldDuration
-        ) {
-
-          player.guardTimer =
-            p.type.shieldDuration;
-
-          playSound(
-            'guard_active'
-          );
-        }
+        if (p.type.speedBoost) player.speedMult = p.type.speedBoost;
+        if (p.type.scoreBoost) player.tempScoreMult = p.type.scoreBoost;
+        if (p.type.shieldDuration) { player.guardTimer = p.type.shieldDuration; playSound('guard_active'); }
       }
-
-      addParticles(
-
-        player.gx *
-          CELL_SIZE +
-          CELL_SIZE / 2,
-
-        player.gy *
-          CELL_SIZE +
-          HUD_HEIGHT,
-
-        p.type.isMalus
-          ? '#ff0055'
-          : '#00d2ff',
-
-        10
-      );
-
-      currentLane.pickups.splice(
-        i,
-        1
-      );
+      addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, p.type.isMalus ? '#ff0055' : '#00d2ff', 10);
+      currentLane.pickups.splice(i, 1);
     }
   }
 }
 
-function isInvincible() {
-
-  return (
-    player.invTimer > 0 ||
-    player.guardTimer > 0
-  );
-}
+function isInvincible() { return player.invTimer > 0 || player.guardTimer > 0; }
 
 function checkCollisions() {
+  if (gameState !== 'PLAYING' || isInvincible()) return;
+  let playerX = player.gx * CELL_SIZE + CELL_SIZE / 2;
+  for (let offset = 0; offset <= 1; offset++) {
+    let checkLaneIdx = player.gy - offset;
+    if (checkLaneIdx < 0 || checkLaneIdx >= ROWS) continue;
+    let lane = activeLanes[checkLaneIdx];
+    if (!lane || lane.type !== 'ROAD') continue;
 
-  if (
-    gameState !== 'PLAYING' ||
-    isInvincible()
-  ) {
-
-    return;
-  }
-
-  let playerX =
-    player.gx *
-      CELL_SIZE +
-    CELL_SIZE / 2;
-
-  for (
-    let offset = 0;
-    offset <= 1;
-    offset++
-  ) {
-
-    let checkLaneIdx =
-      player.gy -
-      offset;
-
-    if (
-      checkLaneIdx < 0 ||
-      checkLaneIdx >= ROWS
-    ) {
-
-      continue;
-    }
-
-    let lane =
-      activeLanes[
-        checkLaneIdx
-      ];
-
-    if (
-      !lane ||
-      lane.type !== 'ROAD'
-    ) {
-
-      continue;
-    }
-
-    lane.objects.forEach(
-      obj => {
-
-        if (
-          offset === 1 &&
-          obj.hMult !== 2
-        ) {
-
-          return;
-        }
-
-        let oLeft =
-          obj.x;
-
-        let oRight =
-          obj.x +
-          obj.w;
-
-        let pLeft =
-          playerX -
-          player.w / 2;
-
-        let pRight =
-          playerX +
-          player.w / 2;
-
-        if (
-          pLeft < oRight &&
-          pRight > oLeft
-        ) {
-
-          hitPlayer();
-        }
-      }
-    );
+    lane.objects.forEach(obj => {
+      if (offset === 1 && obj.hMult !== 2) return;
+      let oLeft = obj.x, oRight = obj.x + obj.w;
+      let pLeft = playerX - player.w / 2, pRight = playerX + player.w / 2;
+      if (pLeft < oRight && pRight > oLeft) hitPlayer();
+    });
   }
 }
 
 function hitPlayer() {
-
-  lives--;
-
-  playSound('crash');
-
-  addParticles(
-
-    player.gx *
-      CELL_SIZE +
-      CELL_SIZE / 2,
-
-    player.gy *
-      CELL_SIZE +
-      HUD_HEIGHT,
-
-    '#ff0055',
-
-    20
-  );
-
-  if (
-    lives <= 0
-  ) {
-
-    gameState =
-      'GAME_OVER';
-
-    playSound('fail');
-
-    saveScore();
-
-  } else {
-
-    let respawnGy =
-      ROWS - 2;
-
-    for (
-      let r = player.gy;
-      r < ROWS;
-      r++
-    ) {
-
-      if (
-        activeLanes[r] &&
-        activeLanes[r].type === 'SAFE'
-      ) {
-
-        respawnGy = r;
-
-        break;
-      }
-    }
-
-    player.gx =
-      Math.floor(
-        COLS / 2
-      );
-
-    player.gy =
-      respawnGy;
-
-    player.invTimer =
-      90;
-
-    player.glitchTimer =
-      0;
-
-    player.speedMult =
-      1.0;
-
-    player.tempScoreMult =
-      1.0;
+  lives--; playSound('crash');
+  addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, '#ff0055', 20);
+  if (lives <= 0) { gameState = 'GAME_OVER'; playSound('fail'); saveScore(); }
+  else {
+    let respawnGy = ROWS - 2;
+    for (let r = player.gy; r < ROWS; r++) { if (activeLanes[r] && activeLanes[r].type === 'SAFE') { respawnGy = r; break; } }
+    player.gx = Math.floor(COLS / 2); player.gy = respawnGy; player.invTimer = 90; player.glitchTimer = 0; player.speedMult = 1.0; player.tempScoreMult = 1.0;
   }
 }
 
 function drawGameWorld() {
-
-  ctx.fillStyle =
-    '#181818';
-
-  ctx.fillRect(
-    0,
-    HUD_HEIGHT,
-    CANVAS_W,
-    CANVAS_H -
-      HUD_HEIGHT
-  );
-
-  activeLanes.forEach(
-    (lane, r) => {
-
-      let y =
-        r *
-          CELL_SIZE +
-        HUD_HEIGHT +
-        visualScrollOffset;
-
-      ctx.fillStyle =
-        lane.bg;
-
-      ctx.fillRect(
-        0,
-        y,
-        CANVAS_W,
-        CELL_SIZE
-      );
-
-      ctx.strokeStyle =
-        '#222226';
-
-      ctx.lineWidth = 1;
-
-      ctx.strokeRect(
-        0,
-        y,
-        CANVAS_W,
-        CELL_SIZE
-      );
+  ctx.fillStyle = '#181818'; ctx.fillRect(0, HUD_HEIGHT, CANVAS_W, CANVAS_H - HUD_HEIGHT);
+  activeLanes.forEach((lane, r) => {
+    let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
+    ctx.fillStyle = lane.bg; ctx.fillRect(0, y, CANVAS_W, CELL_SIZE);
+    ctx.strokeStyle = '#222226'; ctx.lineWidth = 1; ctx.strokeRect(0, y, CANVAS_W, CELL_SIZE);
+  });
+  activeLanes.forEach((lane, r) => {
+    if (lane.type === 'SAFE') {
+      let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
+      lane.pickups.forEach(p => {
+        let px = p.gx * CELL_SIZE + CELL_SIZE / 2, py = y + CELL_SIZE / 2;
+        ctx.fillStyle = p.type.isMalus ? '#ff0055' : '#ffff00';
+        ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(p.type.label.split(' ')[0], px, py);
+      });
     }
-  );
-
-  activeLanes.forEach(
-    (lane, r) => {
-
-      if (
-        lane.type === 'SAFE'
-      ) {
-
-        let y =
-          r *
-            CELL_SIZE +
-          HUD_HEIGHT +
-          visualScrollOffset;
-
-        lane.pickups.forEach(
-          p => {
-
-            let px =
-              p.gx *
-                CELL_SIZE +
-              CELL_SIZE / 2;
-
-            let py =
-              y +
-              CELL_SIZE / 2;
-
-            ctx.fillStyle =
-              p.type.isMalus
-                ? '#ff0055'
-                : '#ffff00';
-
-            ctx.font =
-              '11px sans-serif';
-
-            ctx.textAlign =
-              'center';
-
-            ctx.textBaseline =
-              'middle';
-
-            ctx.fillText(
-              p.type.label
-                .split(' ')[0],
-              px,
-              py
-            );
-          }
-        );
-      }
-    }
-  );
-
-  activeLanes.forEach(
-    (lane, r) => {
-
-      if (
-        lane.type === 'ROAD'
-      ) {
-
-        drawObstacles(
-          lane,
-          r *
-            CELL_SIZE +
-            HUD_HEIGHT +
-            visualScrollOffset
-        );
-      }
-    }
-  );
-
-  activeLanes.forEach(
-    (lane, r) => {
-
-      let y =
-        r *
-          CELL_SIZE +
-        HUD_HEIGHT +
-        visualScrollOffset;
-
-      ctx.fillStyle =
-        '#222226';
-
-      ctx.fillRect(
-        0,
-        y,
-        TRACK_HEADER_W,
-        CELL_SIZE
-      );
-
-      ctx.strokeStyle =
-        '#323238';
-
-      ctx.lineWidth = 1;
-
-      ctx.strokeRect(
-        0,
-        y,
-        TRACK_HEADER_W,
-        CELL_SIZE
-      );
-
-      ctx.fillStyle =
-        '#8a8a95';
-
-      ctx.font =
-        'bold 9px -apple-system, sans-serif';
-
-      ctx.textAlign =
-        'center';
-
-      ctx.textBaseline =
-        'middle';
-
-      ctx.fillText(
-        lane.trackLabel,
-        TRACK_HEADER_W / 2,
-        y +
-          CELL_SIZE / 2
-      );
-    }
-  );
-
-  for (
-    let i = 0;
-    i < particles.length;
-    i++
-  ) {
-
-    let p =
-      particles[i];
-
-    ctx.fillStyle =
-      p.color;
-
-    ctx.fillRect(
-      p.x,
-      p.y,
-      4,
-      4
-    );
-  }
-
-  let playheadX =
-    player.gx *
-      CELL_SIZE +
-    CELL_SIZE / 2;
-
-  ctx.strokeStyle =
-    'rgba(0,210,255,0.4)';
-
-  ctx.lineWidth = 1.5;
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    playheadX,
-    HUD_HEIGHT
-  );
-
-  ctx.lineTo(
-    playheadX,
-    CANVAS_H
-  );
-
-  ctx.stroke();
-
+  });
+  activeLanes.forEach((lane, r) => { if (lane.type === 'ROAD') drawObstacles(lane, r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset); });
+  activeLanes.forEach((lane, r) => {
+    let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
+    ctx.fillStyle = '#222226'; ctx.fillRect(0, y, TRACK_HEADER_W, CELL_SIZE);
+    ctx.strokeStyle = '#323238'; ctx.lineWidth = 1; ctx.strokeRect(0, y, TRACK_HEADER_W, CELL_SIZE);
+    ctx.fillStyle = '#8a8a95'; ctx.font = 'bold 9px -apple-system, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(lane.trackLabel, TRACK_HEADER_W / 2, y + CELL_SIZE / 2);
+  });
+  for (let i = 0; i < particles.length; i++) { let p = particles[i]; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); }
+  let playheadX = player.gx * CELL_SIZE + CELL_SIZE / 2;
+  ctx.strokeStyle = 'rgba(0,210,255,0.4)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(playheadX, HUD_HEIGHT); ctx.lineTo(playheadX, CANVAS_H); ctx.stroke();
   drawSinglePlayer();
 }
 
-function drawObstacles(
-  lane,
-  laneY
-) {
-
-  lane.objects.forEach(
-    obj => {
-
-      let x = obj.x;
-      let y = laneY;
-
-      let vData =
-        obj.type;
-
-      let blockW =
-        obj.w;
-
-      let blockH =
-        (
-          obj.hMult === 2
-            ? CELL_SIZE * 2
-            : CELL_SIZE
-        ) - 2;
-
-      if (
-        x + blockW <
-        TRACK_HEADER_W
-      ) {
-
-        return;
-      }
-
-      ctx.save();
-
-      ctx.fillStyle =
-        vData.bg;
-
-      ctx.fillRect(
-        x + 1,
-        y + 1,
-        blockW - 2,
-        blockH
-      );
-
-      ctx.fillStyle =
-        vData.topBar ||
-        '#00ff66';
-
-      ctx.fillRect(
-        x + 1,
-        y + 1,
-        blockW - 2,
-        2
-      );
-
-      ctx.strokeStyle =
-        vData.border;
-
-      ctx.lineWidth = 1;
-
-      ctx.strokeRect(
-        x + 1,
-        y + 1,
-        blockW - 2,
-        blockH
-      );
-
-      ctx.fillStyle =
-        'rgba(0,0,0,0.4)';
-
-      ctx.fillRect(
-        x + 4,
-        y + 4,
-        13,
-        10
-      );
-
-      ctx.fillStyle =
-        '#00d2ff';
-
-      ctx.font =
-        'bold 8px sans-serif';
-
-      ctx.textAlign =
-        'center';
-
-      ctx.textBaseline =
-        'middle';
-
-      ctx.fillText(
-        'fx',
-        x + 10,
-        y + 9
-      );
-
-      if (
-        vData.isAudio
-      ) {
-
-        ctx.strokeStyle =
-          'rgba(255,255,255,0.18)';
-
-        ctx.lineWidth = 1;
-
-        ctx.beginPath();
-
-        ctx.setLineDash(
-          [3, 3]
-        );
-
-        ctx.moveTo(
-          x + 18,
-          y + blockH / 2
-        );
-
-        ctx.lineTo(
-          x + blockW - 6,
-          y + blockH / 2
-        );
-
-        ctx.stroke();
-
-        ctx.setLineDash([]);
-      }
-
-      ctx.fillStyle =
-        vData.textCol;
-
-      ctx.font =
-        'bold 9px -apple-system, sans-serif';
-
-      ctx.textAlign =
-        'center';
-
-      ctx.textBaseline =
-        'middle';
-
-      ctx.fillText(
-        vData.label,
-        x +
-          blockW / 2 +
-          6,
-        y +
-          blockH / 2 +
-          1,
-        blockW - 22
-      );
-
-      ctx.restore();
+function drawObstacles(lane, laneY) {
+  lane.objects.forEach(obj => {
+    let x = obj.x, y = laneY, vData = obj.type, blockW = obj.w;
+    let blockH = (obj.hMult === 2 ? CELL_SIZE * 2 : CELL_SIZE) - 2;
+    if (x + blockW < TRACK_HEADER_W) return;
+    ctx.save();
+    ctx.fillStyle = vData.bg; ctx.fillRect(x + 1, y + 1, blockW - 2, blockH);
+    ctx.fillStyle = vData.topBar || '#00ff66'; ctx.fillRect(x + 1, y + 1, blockW - 2, 2);
+    ctx.strokeStyle = vData.border; ctx.lineWidth = 1; ctx.strokeRect(x + 1, y + 1, blockW - 2, blockH);
+    ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(x + 4, y + 4, 13, 10);
+    ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('fx', x + 10, y + 9);
+    if (vData.isAudio) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.setLineDash([3, 3]); ctx.moveTo(x + 18, y + blockH / 2); ctx.lineTo(x + blockW - 6, y + blockH / 2); ctx.stroke(); ctx.setLineDash([]);
     }
-  );
+    ctx.fillStyle = vData.textCol; ctx.font = 'bold 9px -apple-system, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(vData.label, x + blockW / 2 + 6, y + blockH / 2 + 1, blockW - 22);
+    ctx.restore();
+  });
 }
 
 function drawSinglePlayer() {
-
-  let playerY =
-    player.gy *
-      CELL_SIZE +
-    HUD_HEIGHT +
-    CELL_SIZE / 2 +
-    visualScrollOffset;
-
-  let playerX =
-    player.gx *
-      CELL_SIZE +
-    CELL_SIZE / 2;
-
-  if (
-    player.invTimer > 0 &&
-    Math.floor(
-      player.invTimer / 4
-    ) % 2 === 0
-  ) {
-
-    return;
-  }
-
-  ctx.save();
-
-  ctx.translate(
-    playerX,
-    playerY
-  );
-
-  if (
-    player.facingLeft
-  ) {
-
-    ctx.scale(
-      -1,
-      1
-    );
-  }
-
-  ctx.shadowColor =
-    '#00d2ff';
-
-  ctx.shadowBlur = 10;
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    0,
-    -12
-  );
-
-  ctx.lineTo(
-    10,
-    0
-  );
-
-  ctx.lineTo(
-    0,
-    12
-  );
-
-  ctx.lineTo(
-    -10,
-    0
-  );
-
-  ctx.closePath();
-
-  ctx.fill();
-
-  ctx.strokeStyle =
-    '#ffffff';
-
-  ctx.lineWidth = 1.5;
-
-  ctx.stroke();
-
-  if (
-    player.glitchTimer > 0
-  ) {
-
-    ctx.fillStyle =
-      '#ff0055';
-
-    ctx.font =
-      'bold 10px monospace';
-
-    ctx.fillText(
-      '⚠',
-      0,
-      -16
-    );
-  }
-
-  if (
-    player.guardTimer > 0
-  ) {
-
-    ctx.shadowColor =
-      '#00ff66';
-
-    ctx.shadowBlur = 12;
-
-    ctx.strokeStyle =
-      '#00ff66';
-
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-
-    ctx.arc(
-      0,
-      0,
-      16,
-      0,
-      Math.PI * 2
-    );
-
-    ctx.stroke();
-  }
-
+  let playerY = player.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2 + visualScrollOffset;
+  let playerX = player.gx * CELL_SIZE + CELL_SIZE / 2;
+  if (player.invTimer > 0 && Math.floor(player.invTimer / 4) % 2 === 0) return;
+  ctx.save(); ctx.translate(playerX, playerY);
+  if (player.facingLeft) ctx.scale(-1, 1);
+  ctx.shadowColor = '#00d2ff'; ctx.shadowBlur = 10; ctx.fillStyle = '#00d2ff';
+  ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(10, 0); ctx.lineTo(0, 12); ctx.lineTo(-10, 0); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
+  if (player.glitchTimer > 0) { ctx.fillStyle = '#ff0055'; ctx.font = 'bold 10px monospace'; ctx.fillText('⚠', 0, -16); }
+  if (player.guardTimer > 0) { ctx.shadowColor = '#00ff66'; ctx.shadowBlur = 12; ctx.strokeStyle = '#00ff66'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.stroke(); }
   ctx.restore();
 }
 
 function drawHUD() {
-
-  ctx.fillStyle =
-    '#222226';
-
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    HUD_HEIGHT
-  );
-
-  ctx.strokeStyle =
-    '#383840';
-
-  ctx.lineWidth = 1.5;
-
-  ctx.strokeRect(
-    0,
-    0,
-    canvas.width,
-    HUD_HEIGHT
-  );
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.font =
-    'bold 11px monospace';
-
-  ctx.textAlign =
-    'left';
-
-  ctx.fillText(
-    `${currentTheme.name}`,
-    8,
-    16
-  );
-
-  ctx.fillStyle =
-    '#ffff00';
-
-  ctx.fillText(
-    `PTS: ${score}`,
-    8,
-    32
-  );
-
-  ctx.fillStyle =
-    '#ffffff';
-
-  ctx.font =
-    'bold 10px monospace';
-
-  ctx.textAlign =
-    'center';
-
-  let tData =
-    LEVEL_THEMES[
-      Math.min(
-        level - 1,
-        LEVEL_THEMES.length - 1
-      )
-    ];
-
-  ctx.fillText(
-    tData.title,
-    canvas.width / 2,
-    26
-  );
-
-  ctx.fillStyle =
-    '#00ffcc';
-
-  ctx.font =
-    'bold 10px monospace';
-
-  ctx.textAlign =
-    'right';
-
-  ctx.fillText(
-    `REC: ${highScore}`,
-    canvas.width - 8,
-    16
-  );
-
-  ctx.fillStyle =
-    '#ff0055';
-
-  ctx.fillText(
-    `VITE: ${'❤️'.repeat(lives)}`,
-    canvas.width - 8,
-    34
-  );
+  ctx.fillStyle = '#222226'; ctx.fillRect(0, 0, canvas.width, HUD_HEIGHT);
+  ctx.strokeStyle = '#383840'; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, canvas.width, HUD_HEIGHT);
+  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left'; ctx.fillText(`${currentTheme.name}`, 8, 16);
+  ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 8, 32);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+  let tData = LEVEL_THEMES[Math.min(level - 1, LEVEL_THEMES.length - 1)];
+  ctx.fillText(tData.title, canvas.width / 2, 26);
+  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'right'; ctx.fillText(`REC: ${highScore}`, canvas.width - 8, 16);
+  ctx.fillStyle = '#ff0055'; ctx.fillText(`VITE: ${'❤️'.repeat(lives)}`, canvas.width - 8, 34);
 }
 
 function drawTutorial() {
-
-  ctx.fillStyle =
-    'rgba(20,20,24,0.96)';
-
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.font =
-    'bold 18px monospace';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillText(
-    'PREMIERE TIMELINE RUSH 🎬',
-    canvas.width / 2,
-    38
-  );
-
-  drawRoundRect(
-    ctx,
-    12,
-    52,
-    314,
-    85,
-    10
-  );
-
-  ctx.fillStyle =
-    '#282830';
-
-  ctx.fill();
-
-  ctx.strokeStyle =
-    '#00d2ff';
-
-  ctx.lineWidth = 2;
-
-  ctx.stroke();
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.font =
-    'bold 12px monospace';
-
-  ctx.textAlign =
-    'left';
-
-  ctx.fillText(
-    '1. RISALI LA TIMELINE',
-    22,
-    72
-  );
-
-  ctx.fillStyle =
-    '#ffffff';
-
-  ctx.font =
-    '11px sans-serif';
-
-  ctx.fillText(
-    '• Evita i blocchi clip: Media Offline, GPU Crash,',
-    22,
-    90
-  );
-
-  ctx.fillText(
-    '  Lumetri FX e tracce audio fuori sync!',
-    22,
-    106
-  );
-
-  ctx.fillText(
-    '• Avanza verso l\'alto per fare punti!',
-    22,
-    122
-  );
-
-  drawRoundRect(
-    ctx,
-    12,
-    145,
-    314,
-    88,
-    10
-  );
-
-  ctx.fillStyle =
-    '#282830';
-
-  ctx.fill();
-
-  ctx.strokeStyle =
-    '#00ff66';
-
-  ctx.lineWidth = 2;
-
-  ctx.stroke();
-
-  ctx.fillStyle =
-    '#00ff66';
-
-  ctx.font =
-    'bold 12px monospace';
-
-  ctx.textAlign =
-    'left';
-
-  ctx.fillText(
-    '2. POTENZIAMENTI BONUS 🎁',
-    22,
-    165
-  );
-
-  ctx.fillStyle =
-    '#ffffff';
-
-  ctx.font =
-    '11px sans-serif';
-
-  ctx.fillText(
-    '• 💾 Auto-Save (+300 PTS) | 🎬 Proxy (2X Punti)',
-    22,
-    183
-  );
-
-  ctx.fillText(
-    '• ⚡ Cache (+150 PTS & Boost Velocità)',
-    22,
-    199
-  );
-
-  ctx.fillText(
-    '• 🛡️ Render Shield: Scudo invincibile temporaneo!',
-    22,
-    215
-  );
-
-  drawRoundRect(
-    ctx,
-    12,
-    241,
-    314,
-    80,
-    10
-  );
-
-  ctx.fillStyle =
-    '#282830';
-
-  ctx.fill();
-
-  ctx.strokeStyle =
-    '#ff0055';
-
-  ctx.lineWidth = 2;
-
-  ctx.stroke();
-
-  ctx.fillStyle =
-    '#ff0055';
-
-  ctx.font =
-    'bold 12px monospace';
-
-  ctx.textAlign =
-    'left';
-
-  ctx.fillText(
-    '3. MALUS TRAPPOLA ⚠️',
-    22,
-    261
-  );
-
-  ctx.fillStyle =
-    '#ffffff';
-
-  ctx.font =
-    '11px sans-serif';
-
-  ctx.fillText(
-    '• 🐌 Drop Frame: Rallenta temporaneamente (-100)',
-    22,
-    279
-  );
-
-  ctx.fillText(
-    '• ⚠️ Full Disk: Inverte i comandi di guida! (-200)',
-    22,
-    297
-  );
-
-  ctx.fillStyle =
-    '#ffff00';
-
-  ctx.font =
-    'bold 12px monospace';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillText(
-    `RECORD ATTUALE: ${highScore} PTS`,
-    canvas.width / 2,
-    342
-  );
-
-  drawRoundRect(
-    ctx,
-    16,
-    368,
-    306,
-    42,
-    10
-  );
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.fill();
-
-  ctx.strokeStyle =
-    '#ffffff';
-
-  ctx.lineWidth = 1.5;
-
-  ctx.stroke();
-
-  ctx.fillStyle =
-    '#000000';
-
-  ctx.font =
-    'bold 12px monospace';
-
-  ctx.fillText(
-    'AVANTI: SCEGLI VIDEOMAKER ►',
-    canvas.width / 2,
-    396
-  );
+  ctx.fillStyle = 'rgba(20,20,24,0.96)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 18px monospace'; ctx.textAlign = 'center'; ctx.fillText('PREMIERE TIMELINE RUSH 🎬', canvas.width / 2, 38);
+  drawRoundRect(ctx, 12, 52, 314, 85, 10); ctx.fillStyle = '#282830'; ctx.fill(); ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left'; ctx.fillText('1. RISALI LA TIMELINE', 22, 72);
+  ctx.fillStyle = '#ffffff'; ctx.font = '11px sans-serif'; ctx.fillText('• Evita i blocchi clip: Media Offline, GPU Crash,', 22, 90); ctx.fillText('  Lumetri FX e tracce audio fuori sync!', 22, 106); ctx.fillText('• Avanza verso l\'alto per fare punti!', 22, 122);
+  drawRoundRect(ctx, 12, 145, 314, 88, 10); ctx.fillStyle = '#282830'; ctx.fill(); ctx.strokeStyle = '#00ff66'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#00ff66'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left'; ctx.fillText('2. POTENZIAMENTI BONUS 🎁', 22, 165);
+  ctx.fillStyle = '#ffffff'; ctx.font = '11px sans-serif'; ctx.fillText('• 💾 Auto-Save (+300 PTS) | 🎬 Proxy (2X Punti)', 22, 183); ctx.fillText('• ⚡ Cache (+150 PTS & Boost Velocità)', 22, 199); ctx.fillText('• 🛡️ Render Shield: Scudo invincibile temporaneo!', 22, 215);
+  drawRoundRect(ctx, 12, 241, 314, 80, 10); ctx.fillStyle = '#282830'; ctx.fill(); ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left'; ctx.fillText('3. MALUS TRAPPOLA ⚠️', 22, 261);
+  ctx.fillStyle = '#ffffff'; ctx.font = '11px sans-serif'; ctx.fillText('• 🐌 Drop Frame: Rallenta temporaneamente (-100)', 22, 279); ctx.fillText('• ⚠️ Full Disk: Inverte i comandi di guida! (-200)', 22, 297);
+  ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.fillText(`RECORD ATTUALE: ${highScore} PTS`, canvas.width / 2, 342);
+  drawRoundRect(ctx, 16, 368, 306, 42, 10); ctx.fillStyle = '#00d2ff'; ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#000000'; ctx.font = 'bold 12px monospace'; ctx.fillText('AVANTI: SCEGLI VIDEOMAKER ►', canvas.width / 2, 396);
 }
 
 function drawCharSelect() {
-
-  ctx.fillStyle =
-    'rgba(20,20,24,0.96)';
-
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  ctx.fillStyle =
-    '#ffff00';
-
-  ctx.font =
-    'bold 13px monospace';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillText(
-    'Scegli il tuo Creativo in Deadline Drive',
-    canvas.width / 2,
-    28
-  );
-
-  let c =
-    CHARACTERS[
-      CHARACTER_LIST[
-        selectedCharIndex
-      ]
-    ];
-
-  let cardW = 318;
-  let cardH = 395;
-
-  let cardX =
-    (CANVAS_W - cardW) / 2;
-
-  let cardY = 38;
-
-  drawRoundRect(
-    ctx,
-    cardX,
-    cardY,
-    cardW,
-    cardH,
-    12
-  );
-
-  ctx.fillStyle =
-    '#25252d';
-
-  ctx.fill();
-
-  ctx.strokeStyle =
-    c.primary;
-
-  ctx.lineWidth = 2.5;
-
-  ctx.stroke();
-
-  let boxW = 160;
-  let boxH = 160;
-
-  let boxX =
-    (CANVAS_W - boxW) / 2;
-
-  let boxY =
-    cardY + 14;
-
-  ctx.save();
-
-  drawRoundRect(
-    ctx,
-    boxX,
-    boxY,
-    boxW,
-    boxH,
-    12
-  );
-
-  ctx.clip();
-
-  if (
-    c.img &&
-    c.img.complete &&
-    c.img.naturalWidth > 0
-  ) {
-
-    ctx.drawImage(
-      c.img,
-      boxX,
-      boxY,
-      boxW,
-      boxH
-    );
-
-  } else {
-
-    ctx.fillStyle =
-      '#181822';
-
-    ctx.fill();
-
-    ctx.fillStyle =
-      c.primary;
-
-    ctx.font =
-      'bold 36px monospace';
-
-    ctx.textAlign =
-      'center';
-
-    ctx.fillText(
-      c.name[0],
-      CANVAS_W / 2,
-      boxY + 95
-    );
-  }
-
+  ctx.fillStyle = 'rgba(20,20,24,0.96)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#ffff00'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center'; ctx.fillText('Scegli il tuo Creativo in Deadline Drive', canvas.width / 2, 28);
+  let c = CHARACTERS[CHARACTER_LIST[selectedCharIndex]];
+  let cardW = 318, cardH = 395, cardX = (CANVAS_W - cardW) / 2, cardY = 38;
+  drawRoundRect(ctx, cardX, cardY, cardW, cardH, 12); ctx.fillStyle = '#25252d'; ctx.fill(); ctx.strokeStyle = c.primary; ctx.lineWidth = 2.5; ctx.stroke();
+  let boxW = 160, boxH = 160, boxX = (CANVAS_W - boxW) / 2, boxY = cardY + 14;
+  ctx.save(); drawRoundRect(ctx, boxX, boxY, boxW, boxH, 12); ctx.clip();
+  if (c.img && c.img.complete && c.img.naturalWidth > 0) { ctx.drawImage(c.img, boxX, boxY, boxW, boxH); }
+  else { ctx.fillStyle = '#181822'; ctx.fill(); ctx.fillStyle = c.primary; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center'; ctx.fillText(c.name[0], CANVAS_W / 2, boxY + 95); }
   ctx.restore();
-
-  drawRoundRect(
-    ctx,
-    boxX,
-    boxY,
-    boxW,
-    boxH,
-    12
-  );
-
-  ctx.strokeStyle =
-    c.primary;
-
-  ctx.lineWidth = 2;
-
-  ctx.stroke();
-
-  ctx.fillStyle =
-    c.primary;
-
-  ctx.font =
-    'bold 20px -apple-system, sans-serif';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillText(
-    c.name,
-    CANVAS_W / 2,
-    cardY + 200
-  );
-
-  ctx.fillStyle =
-    '#ffffff';
-
-  ctx.font =
-    'bold 11px -apple-system, sans-serif';
-
-  ctx.fillText(
-    c.subtitle,
-    CANVAS_W / 2,
-    cardY + 222
-  );
-
-  ctx.fillStyle =
-    '#ffff00';
-
-  ctx.font =
-    '10px monospace';
-
-  ctx.fillText(
-    c.perkBonus,
-    CANVAS_W / 2,
-    cardY + 248
-  );
-
-  ctx.fillStyle =
-    '#ff0055';
-
-  ctx.fillText(
-    c.perkMalus,
-    CANVAS_W / 2,
-    cardY + 268
-  );
-
-  ctx.fillStyle =
-    c.primary;
-
-  ctx.font =
-    'bold 12px monospace';
-
-  ctx.fillText(
-    '► PREMERE OK PER CONFERMARE ◄',
-    CANVAS_W / 2,
-    cardY + 310
-  );
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.font =
-    'bold 16px monospace';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillText(
-    '◄  CAMBIA PERSONAGGIO  ►',
-    CANVAS_W / 2,
-    cardY + cardH + 20
-  );
+  drawRoundRect(ctx, boxX, boxY, boxW, boxH, 12); ctx.strokeStyle = c.primary; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = c.primary; ctx.font = 'bold 20px -apple-system, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(c.name, CANVAS_W / 2, cardY + 200);
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px -apple-system, sans-serif'; ctx.fillText(c.subtitle, CANVAS_W / 2, cardY + 222);
+  ctx.fillStyle = '#ffff00'; ctx.font = '10px monospace'; ctx.fillText(c.perkBonus, CANVAS_W / 2, cardY + 248);
+  ctx.fillStyle = '#ff0055'; ctx.fillText(c.perkMalus, CANVAS_W / 2, cardY + 268);
+  ctx.fillStyle = c.primary; ctx.font = 'bold 12px monospace'; ctx.fillText('► PREMERE OK PER CONFERMARE ◄', CANVAS_W / 2, cardY + 310);
+  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'center'; ctx.fillText('◄  CAMBIA PERSONAGGIO  ►', CANVAS_W / 2, cardY + cardH + 20);
 }
 
-function handleSelectionInput(
-  dir
-) {
-
-  playSound('cross');
-
-  selectedCharIndex += dir;
-
-  if (
-    selectedCharIndex < 0
-  ) {
-
-    selectedCharIndex =
-      CHARACTER_LIST.length - 1;
-  }
-
-  if (
-    selectedCharIndex >=
-    CHARACTER_LIST.length
-  ) {
-
-    selectedCharIndex = 0;
-  }
-}
-
-function confirmCharacterSelection() {
-
-  selectCharacter(
-    CHARACTER_LIST[
-      selectedCharIndex
-    ]
-  );
-}
+function handleSelectionInput(dir) { playSound('cross'); selectedCharIndex += dir; if (selectedCharIndex < 0) selectedCharIndex = CHARACTER_LIST.length - 1; if (selectedCharIndex >= CHARACTER_LIST.length) selectedCharIndex = 0; }
+function confirmCharacterSelection() { selectCharacter(CHARACTER_LIST[selectedCharIndex]); }
 
 function drawLevelClear() {
-
-  ctx.fillStyle =
-    'rgba(20,20,24,0.88)';
-
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  let tData =
-    LEVEL_THEMES[
-      Math.min(
-        level - 2,
-        LEVEL_THEMES.length - 1
-      )
-    ];
-
-  ctx.fillStyle =
-    currentTheme.primary;
-
-  ctx.font =
-    'bold 16px monospace';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillText(
-    `${tData.title} COMPLETE! 🎉`,
-    canvas.width / 2,
-    canvas.height / 2 - 30
-  );
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.font =
-    'bold 10px monospace';
-
-  ctx.fillText(
-    tData.msg,
-    canvas.width / 2,
-    canvas.height / 2
-  );
-
-  ctx.fillStyle =
-    '#ffff00';
-
-  ctx.font =
-    'bold 13px monospace';
-
-  ctx.fillText(
-    `BONUS STAGE: +${Math.floor(
-      1000 *
-      (level - 1) *
-      currentTheme.scoreMult
-    )} PTS`,
-    canvas.width / 2,
-    canvas.height / 2 + 35
-  );
+  ctx.fillStyle = 'rgba(20,20,24,0.88)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  let tData = LEVEL_THEMES[Math.min(level - 2, LEVEL_THEMES.length - 1)];
+  ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`${tData.title} COMPLETE! 🎉`, canvas.width / 2, canvas.height / 2 - 30);
+  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 10px monospace'; ctx.fillText(tData.msg, canvas.width / 2, canvas.height / 2);
+  ctx.fillStyle = '#ffff00'; ctx.font = 'bold 13px monospace'; ctx.fillText(`BONUS STAGE: +${Math.floor(1000 * (level - 1) * currentTheme.scoreMult)} PTS`, canvas.width / 2, canvas.height / 2 + 35);
 }
 
 function drawGameOver() {
-
-  ctx.fillStyle =
-    'rgba(20,20,24,0.94)';
-
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  ctx.fillStyle =
-    '#ff0055';
-
-  ctx.font =
-    'bold 22px monospace';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillText(
-    'DEADLINE MISSED! 💀',
-    canvas.width / 2,
-    canvas.height / 2 - 40
-  );
-
-  ctx.fillStyle =
-    '#ffff00';
-
-  ctx.font =
-    'bold 15px monospace';
-
-  ctx.fillText(
-    `PUNTEGGIO: ${score}`,
-    canvas.width / 2,
-    canvas.height / 2 + 5
-  );
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.font =
-    'bold 11px monospace';
-
-  ctx.fillText(
-    `RECORD ATTUALE: ${highScore}`,
-    canvas.width / 2,
-    canvas.height / 2 + 35
-  );
-
-  ctx.fillStyle =
-    Math.floor(
-      Date.now() / 400
-    ) % 2 === 0
-      ? '#ffffff'
-      : currentTheme.primary;
-
-  ctx.font =
-    'bold 11px monospace';
-
-  ctx.fillText(
-    '► TOCCA PER GIOCARE ANCORA ◄',
-    canvas.width / 2,
-    canvas.height / 2 + 80
-  );
+  ctx.fillStyle = 'rgba(20,20,24,0.94)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#ff0055'; ctx.font = 'bold 22px monospace'; ctx.textAlign = 'center'; ctx.fillText('DEADLINE MISSED! 💀', canvas.width / 2, canvas.height / 2 - 40);
+  ctx.fillStyle = '#ffff00'; ctx.font = 'bold 15px monospace'; ctx.fillText(`PUNTEGGIO: ${score}`, canvas.width / 2, canvas.height / 2 + 5);
+  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 11px monospace'; ctx.fillText(`RECORD ATTUALE: ${highScore}`, canvas.width / 2, canvas.height / 2 + 35);
+  ctx.fillStyle = Math.floor(Date.now() / 400) % 2 === 0 ? '#ffffff' : currentTheme.primary;
+  ctx.font = 'bold 11px monospace'; ctx.fillText('► TOCCA PER GIOCARE ANCORA ◄', canvas.width / 2, canvas.height / 2 + 80);
 }
 
 function drawPause() {
-
-  ctx.fillStyle =
-    'rgba(0,0,0,0.75)';
-
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  ctx.fillStyle =
-    '#ffea00';
-
-  ctx.font =
-    'bold 26px monospace';
-
-  ctx.textAlign =
-    'center';
-
-  ctx.fillText(
-    'IN PAUSA',
-    canvas.width / 2,
-    canvas.height / 2 - 10
-  );
-
-  ctx.fillStyle =
-    '#00d2ff';
-
-  ctx.font =
-    'bold 11px monospace';
-
-  ctx.fillText(
-    'TOCCA IL GIOCO PER RIPRENDERE',
-    canvas.width / 2,
-    canvas.height / 2 + 20
-  );
+  ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#ffea00'; ctx.font = 'bold 26px monospace'; ctx.textAlign = 'center'; ctx.fillText('IN PAUSA', canvas.width / 2, canvas.height / 2 - 10);
+  ctx.fillStyle = '#00d2ff'; ctx.font = 'bold 11px monospace'; ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', canvas.width / 2, canvas.height / 2 + 20);
 }
 
 function gameLoop() {
-
   try {
-
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    if (
-      gameState === 'TUTORIAL'
-    ) {
-
-      drawTutorial();
-
-    } else if (
-      gameState === 'CHAR_SELECT'
-    ) {
-
-      drawCharSelect();
-
-    } else if (
-      gameState === 'PLAYING'
-    ) {
-
-      updateVehicles();
-      updatePlayer();
-
-      drawGameWorld();
-      drawHUD();
-
-    } else if (
-      gameState === 'PAUSE'
-    ) {
-
-      drawGameWorld();
-      drawHUD();
-      drawPause();
-
-    } else if (
-      gameState === 'LEVEL_CLEAR'
-    ) {
-
-      drawGameWorld();
-      drawLevelClear();
-      drawHUD();
-
-    } else if (
-      gameState === 'GAME_OVER'
-    ) {
-
-      drawGameWorld();
-      drawGameOver();
-    }
-
-  } catch (err) {
-
-    console.error(
-      "Game Loop Error:",
-      err
-    );
-  }
-
-  requestAnimationFrame(
-    gameLoop
-  );
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (gameState === 'TUTORIAL') drawTutorial();
+    else if (gameState === 'CHAR_SELECT') drawCharSelect();
+    else if (gameState === 'PLAYING') { updateVehicles(); updatePlayer(); drawGameWorld(); drawHUD(); }
+    else if (gameState === 'PAUSE') { drawGameWorld(); drawHUD(); drawPause(); }
+    else if (gameState === 'LEVEL_CLEAR') { drawGameWorld(); drawLevelClear(); drawHUD(); }
+    else if (gameState === 'GAME_OVER') { drawGameWorld(); drawGameOver(); }
+  } catch (err) { console.error("Game Loop Error:", err); }
+  requestAnimationFrame(gameLoop);
 }
 
-function selectCharacter(
-  charKey
-) {
-
-  currentTheme =
-    CHARACTERS[
-      charKey
-    ];
-
-  canvas.style.borderColor =
-    currentTheme.primary;
-
-  canvas.style.boxShadow =
-    `inset 0 0 15px ${currentTheme.primary}`;
-
-  startInfiniteScroll();
-
-  gameState =
-    'PLAYING';
-
-  playSound('pickup');
+function selectCharacter(charKey) {
+  currentTheme = CHARACTERS[charKey];
+  canvas.style.borderColor = currentTheme.primary; canvas.style.boxShadow = `inset 0 0 15px ${currentTheme.primary}`;
+  startInfiniteScroll(); gameState = 'PLAYING'; playSound('pickup');
 }
 
-canvas.addEventListener(
-  'pointerdown',
-  e => {
+canvas.addEventListener('pointerdown', e => {
+  if (e.cancelable) e.preventDefault(); getAC();
+  let rect = canvas.getBoundingClientRect();
+  let x = (e.clientX - rect.left) * (canvas.width / rect.width);
+  let y = (e.clientY - rect.top) * (canvas.height / rect.height);
 
-    if (e.cancelable) {
-      e.preventDefault();
-    }
+  if (gameState === 'TUTORIAL') { if (y >= 330) { gameState = 'CHAR_SELECT'; playSound('cross'); } return; }
+  if (gameState === 'CHAR_SELECT') { if (y >= 400) { handleSelectionInput(x < CANVAS_W / 2 ? -1 : 1); } else { confirmCharacterSelection(); } return; }
+  if (gameState === 'PLAYING') { if (y < HUD_HEIGHT) { gameState = 'PAUSE'; updateMusicState(); } return; }
+  if (gameState === 'PAUSE') { gameState = 'PLAYING'; updateMusicState(); return; }
+  if (gameState === 'GAME_OVER') { gameState = 'CHAR_SELECT'; return; }
+}, { passive: false });
 
-    getAC();
-
-    let rect =
-      canvas.getBoundingClientRect();
-
-    let x =
-      (
-        e.clientX -
-        rect.left
-      ) *
-      (
-        canvas.width /
-        rect.width
-      );
-
-    let y =
-      (
-        e.clientY -
-        rect.top
-      ) *
-      (
-        canvas.height /
-        rect.height
-      );
-
-    if (
-      gameState === 'TUTORIAL'
-    ) {
-
-      if (
-        y >= 330
-      ) {
-
-        gameState =
-          'CHAR_SELECT';
-
-        playSound('cross');
-      }
-
-      return;
-    }
-
-    if (
-      gameState === 'CHAR_SELECT'
-    ) {
-
-      if (
-        y >= 400
-      ) {
-
-        handleSelectionInput(
-          x < CANVAS_W / 2
-            ? -1
-            : 1
-        );
-
-      } else {
-
-        confirmCharacterSelection();
-      }
-
-      return;
-    }
-
-    if (
-      gameState === 'PLAYING'
-    ) {
-
-      if (
-        y < HUD_HEIGHT
-      ) {
-
-        gameState =
-          'PAUSE';
-
-        updateMusicState();
-      }
-
-      return;
-    }
-
-    if (
-      gameState === 'PAUSE'
-    ) {
-
-      gameState =
-        'PLAYING';
-
-      updateMusicState();
-
-      return;
-    }
-
-    if (
-      gameState === 'GAME_OVER'
-    ) {
-
-      gameState =
-        'CHAR_SELECT';
-
-      return;
-    }
-
-  },
-  {
-    passive: false
-  }
-);
-
-function bindBtn(
-  id,
-  onPress
-) {
-
-  let btn =
-    document.getElementById(id);
-
-  if (!btn) {
-    return;
-  }
-
-  btn.addEventListener(
-    'pointerdown',
-    e => {
-
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-
-      getAC();
-
-      if (
-        gameState === 'TUTORIAL'
-      ) {
-
-        gameState =
-          'CHAR_SELECT';
-
-      } else if (
-        gameState === 'GAME_OVER'
-      ) {
-
-        gameState =
-          'CHAR_SELECT';
-
-      } else if (
-        gameState === 'CHAR_SELECT'
-      ) {
-
-        onPress(true);
-
-      } else {
-
-        onPress(true);
-      }
-
-    },
-    {
-      passive: false
-    }
-  );
-
-  btn.addEventListener(
-    'pointerup',
-    e => {
-
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-
-      onPress(false);
-
-    },
-    {
-      passive: false
-    }
-  );
-
-  btn.addEventListener(
-    'pointercancel',
-    () =>
-      onPress(false)
-  );
-
-  btn.addEventListener(
-    'pointerleave',
-    () =>
-      onPress(false)
-  );
+function bindBtn(id, onPress) {
+  let btn = document.getElementById(id); if (!btn) return;
+  btn.addEventListener('pointerdown', e => {
+    if (e.cancelable) e.preventDefault(); getAC();
+    if (gameState === 'TUTORIAL' || gameState === 'GAME_OVER') gameState = 'CHAR_SELECT';
+    else if (gameState === 'CHAR_SELECT') onPress(true);
+    else onPress(true);
+  }, { passive: false });
+  btn.addEventListener('pointerup', e => { if (e.cancelable) e.preventDefault(); onPress(false); }, { passive: false });
+  btn.addEventListener('pointercancel', () => onPress(false));
+  btn.addEventListener('pointerleave', () => onPress(false));
 }
 
-bindBtn(
-  'btnUp',
-  isDown => {
+bindBtn('btnUp', isDown => { if (gameState === 'CHAR_SELECT') { if (isDown) handleSelectionInput(1); return; } moveUp = isDown; });
+bindBtn('btnDown', isDown => { if (gameState === 'CHAR_SELECT') { if (isDown) handleSelectionInput(-1); return; } moveDown = isDown; });
+bindBtn('btnLeft', isDown => { if (gameState === 'CHAR_SELECT') { if (isDown) handleSelectionInput(-1); return; } moveLeft = isDown; });
+bindBtn('btnRight', isDown => { if (gameState === 'CHAR_SELECT') { if (isDown) handleSelectionInput(1); return; } moveRight = isDown; });
 
-    if (
-      gameState === 'CHAR_SELECT'
-    ) {
-
-      if (isDown) {
-        handleSelectionInput(1);
-      }
-
-      return;
-    }
-
-    moveUp = isDown;
-  }
-);
-
-bindBtn(
-  'btnDown',
-  isDown => {
-
-    if (
-      gameState === 'CHAR_SELECT'
-    ) {
-
-      if (isDown) {
-        handleSelectionInput(-1);
-      }
-
-      return;
-    }
-
-    moveDown = isDown;
-  }
-);
-
-bindBtn(
-  'btnLeft',
-  isDown => {
-
-    if (
-      gameState === 'CHAR_SELECT'
-    ) {
-
-      if (isDown) {
-        handleSelectionInput(-1);
-      }
-
-      return;
-    }
-
-    moveLeft = isDown;
-  }
-);
-
-bindBtn(
-  'btnRight',
-  isDown => {
-
-    if (
-      gameState === 'CHAR_SELECT'
-    ) {
-
-      if (isDown) {
-        handleSelectionInput(1);
-      }
-
-      return;
-    }
-
-    moveRight = isDown;
-  }
-);
-
-const btnCenter =
-  document.getElementById(
-    'btnCenter'
-  );
-
-btnCenter.addEventListener(
-  'pointerdown',
-  e => {
-
-    if (e.cancelable) {
-      e.preventDefault();
-    }
-
-    getAC();
-
-    if (
-      gameState === 'TUTORIAL'
-    ) {
-
-      gameState =
-        'CHAR_SELECT';
-
-      playSound('cross');
-
-    } else if (
-      gameState === 'CHAR_SELECT'
-    ) {
-
-      confirmCharacterSelection();
-
-    } else if (
-      gameState === 'GAME_OVER'
-    ) {
-
-      gameState =
-        'CHAR_SELECT';
-
-    } else if (
-      gameState === 'PAUSE'
-    ) {
-
-      gameState =
-        'PLAYING';
-
-      updateMusicState();
-    }
-
-  },
-  {
-    passive: false
-  }
-);
+const btnCenter = document.getElementById('btnCenter');
+btnCenter.addEventListener('pointerdown', e => {
+  if (e.cancelable) e.preventDefault(); getAC();
+  if (gameState === 'TUTORIAL') { gameState = 'CHAR_SELECT'; playSound('cross'); }
+  else if (gameState === 'CHAR_SELECT') confirmCharacterSelection();
+  else if (gameState === 'GAME_OVER') gameState = 'CHAR_SELECT';
+  else if (gameState === 'PAUSE') { gameState = 'PLAYING'; updateMusicState(); }
+}, { passive: false });
 
 const keys = {};
-
-window.addEventListener(
-  'keydown',
-  e => {
-
-    keys[e.code] = true;
-
-    getAC();
-
-    if (
-      gameState === 'TUTORIAL' &&
-      (
-        e.code === 'Space' ||
-        e.code === 'Enter'
-      )
-    ) {
-
-      gameState =
-        'CHAR_SELECT';
-
-    } else if (
-      gameState === 'CHAR_SELECT'
-    ) {
-
-      if (
-        e.key === 'ArrowLeft' ||
-        e.key === 'a'
-      ) {
-
-        handleSelectionInput(-1);
-      }
-
-      if (
-        e.key === 'ArrowRight' ||
-        e.key === 'd'
-      ) {
-
-        handleSelectionInput(1);
-      }
-
-      if (
-        e.key === 'ArrowUp' ||
-        e.key === 'w'
-      ) {
-
-        handleSelectionInput(1);
-      }
-
-      if (
-        e.key === 'ArrowDown' ||
-        e.key === 's'
-      ) {
-
-        handleSelectionInput(-1);
-      }
-
-      if (
-        e.code === 'Space' ||
-        e.code === 'Enter'
-      ) {
-
-        confirmCharacterSelection();
-      }
-
-    } else if (
-      gameState === 'GAME_OVER' &&
-      (
-        e.code === 'Space' ||
-        e.code === 'Enter'
-      )
-    ) {
-
-      gameState =
-        'CHAR_SELECT';
-    }
+window.addEventListener('keydown', e => {
+  keys[e.code] = true; getAC();
+  if (gameState === 'TUTORIAL' && (e.code === 'Space' || e.code === 'Enter')) gameState = 'CHAR_SELECT';
+  else if (gameState === 'CHAR_SELECT') {
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'ArrowDown' || e.key === 's') handleSelectionInput(-1);
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'ArrowUp' || e.key === 'w') handleSelectionInput(1);
+    if (e.code === 'Space' || e.code === 'Enter') confirmCharacterSelection();
   }
-);
-
-window.addEventListener(
-  'keyup',
-  e => {
-
-    keys[e.code] = false;
-  }
-);
-
-function keyPressed(code) {
-
-  return !!keys[code];
-}
+  else if (gameState === 'GAME_OVER' && (e.code === 'Space' || e.code === 'Enter')) gameState = 'CHAR_SELECT';
+});
+window.addEventListener('keyup', e => { keys[e.code] = false; });
+function keyPressed(code) { return !!keys[code]; }
 
 function saveScore() {
-
   try {
-
-    if (
-      score > highScore
-    ) {
-
-      highScore =
-        score;
-
-      localStorage.setItem(
-        'deadlineDrive_highScore',
-        highScore.toString()
-      );
-    }
-
-    if (
-      score <= 0
-    ) {
-
-      return;
-    }
-
-    let rawUser =
-      localStorage.getItem(
-        'arcade_current_user'
-      );
-
-    if (!rawUser) {
-      return;
-    }
-
-    let curUser =
-      JSON.parse(rawUser);
-
-    if (
-      curUser &&
-      curUser.stats
-    ) {
-
-      curUser.stats.gamesPlayed =
-        (
-          curUser.stats.gamesPlayed ||
-          0
-        ) + 1;
-
-      curUser.stats.deadlineDrive =
-        (
-          curUser.stats.deadlineDrive ||
-          0
-        ) + score;
-
-      localStorage.setItem(
-        'arcade_current_user',
-        JSON.stringify(curUser)
-      );
-
-      if (
-        curUser.username &&
-        !curUser.username.startsWith(
-          "GUEST_"
-        )
-      ) {
-
-        let rawUsers =
-          localStorage.getItem(
-            'arcade_users'
-          );
-
-        let users =
-          rawUsers
-            ? JSON.parse(rawUsers)
-            : {};
-
-        if (
-          users[curUser.username]
-        ) {
-
-          users[
-            curUser.username
-          ].stats =
-            curUser.stats;
-
-          localStorage.setItem(
-            'arcade_users',
-            JSON.stringify(users)
-          );
-        }
+    if (score > highScore) { highScore = score; localStorage.setItem('deadlineDrive_highScore', highScore.toString()); }
+    if (score <= 0) return;
+    let rawUser = localStorage.getItem('arcade_current_user'); if (!rawUser) return;
+    let curUser = JSON.parse(rawUser);
+    if (curUser && curUser.stats) {
+      curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
+      curUser.stats.deadlineDrive = (curUser.stats.deadlineDrive || 0) + score;
+      localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
+      if (curUser.username && !curUser.username.startsWith("GUEST_")) {
+        let rawUsers = localStorage.getItem('arcade_users');
+        let users = rawUsers ? JSON.parse(rawUsers) : {};
+        if (users[curUser.username]) { users[curUser.username].stats = curUser.stats; localStorage.setItem('arcade_users', JSON.stringify(users)); }
       }
     }
-
-  } catch(e) {
-
-    console.warn(
-      "Save score error:",
-      e
-    );
-  }
+  } catch(e) { console.warn("Save score error:", e); }
 }
 
-function exitGame() {
-
-  saveScore();
-
-  bgMusic.pause();
-
-  window.location.href =
-    'index.html';
-}
-
-requestAnimationFrame(
-  gameLoop
-);
-
+function exitGame() { saveScore(); bgMusic.pause(); window.location.href = 'index.html'; }
+requestAnimationFrame(gameLoop);
 </script>
-
 </body>
 </html>
