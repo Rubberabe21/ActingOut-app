@@ -62,13 +62,13 @@
     border-radius: 8px;
   }
 
-  /* DECK DI CONTROLLO IN STILE CABINATO ANNI '80 */
+  /* DECK DI CONTROLLO CON JOYSTICK RETRO */
   .control-deck {
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    padding: 10px 8px;
+    padding: 10px 12px;
     background: #160a2c;
     border: 3px solid #ffea00;
     border-radius: 14px;
@@ -76,81 +76,38 @@
     box-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
   }
 
-  /* D-PAD A CROCE CON TASTI GRANDI E COLORATI */
-  .dpad-container {
-    display: grid;
-    grid-template-columns: repeat(3, 58px);
-    grid-template-rows: repeat(3, 52px);
-    gap: 4px;
-    justify-content: center;
-    align-content: center;
-  }
-  .dpad-empty { visibility: hidden; }
-
-  .ctrl-btn {
-    background: #2a144a;
+  /* BASE DEL JOYSTICK VIRTUAL TOUCH */
+  .joystick-zone {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
     border: 3px solid #00f0ff;
-    color: #fff;
-    font-size: 24px;
-    font-weight: 900;
-    border-radius: 10px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.5), 0 0 12px rgba(0, 240, 255, 0.4);
+    touch-action: none;
+    cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
-    transition: transform 0.05s, box-shadow 0.05s;
   }
 
-  /* COLORI RETRO DISTINTI PER OGNI DIREZIONE */
-  #btnUp {
-    border-color: #ff007f;
-    color: #ff007f;
-    box-shadow: 0 5px 0 #a30052, 0 0 10px rgba(255, 0, 127, 0.5);
-  }
-  #btnUp:active {
-    transform: translateY(4px);
-    box-shadow: 0 1px 0 #a30052;
-    background: #ff007f;
-    color: #fff;
-  }
-
-  #btnDown {
-    border-color: #ffea00;
-    color: #ffea00;
-    box-shadow: 0 5px 0 #a39600, 0 0 10px rgba(255, 234, 0, 0.5);
-  }
-  #btnDown:active {
-    transform: translateY(4px);
-    box-shadow: 0 1px 0 #a39600;
-    background: #ffea00;
-    color: #000;
+  /* MANOPOLE / STICK MOBILE */
+  .joystick-knob {
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #ff007f;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
-  #btnLeft {
-    border-color: #00ff66;
-    color: #00ff66;
-    box-shadow: 0 5px 0 #00a341, 0 0 10px rgba(0, 255, 102, 0.5);
-  }
-  #btnLeft:active {
-    transform: translateY(4px);
-    box-shadow: 0 1px 0 #00a341;
-    background: #00ff66;
-    color: #000;
-  }
-
-  #btnRight {
-    border-color: #00f0ff;
-    color: #00f0ff;
-    box-shadow: 0 5px 0 #0099a3, 0 0 10px rgba(0, 240, 255, 0.5);
-  }
-  #btnRight:active {
-    transform: translateY(4px);
-    box-shadow: 0 1px 0 #0099a3;
-    background: #00f0ff;
-    color: #000;
-  }
-
-  /* PULSANTE ROSSO ARCADE TONDO PER LO SPARO */
+  /* PULSANTE ROSSO ARCADE PER LO SPARO */
   .fire-btn {
     width: 115px;
     height: 115px;
@@ -167,6 +124,7 @@
     align-items: center;
     letter-spacing: 1px;
     text-shadow: 0 2px 4px #000;
+    cursor: pointer;
   }
   .fire-btn:active {
     transform: translateY(5px);
@@ -200,21 +158,13 @@
   </div>
 
   <div class="control-deck">
-    <!-- D-PAD A CROCE CON TASTI GRANDI -->
-    <div class="dpad-container">
-      <div class="dpad-empty"></div>
-      <div class="ctrl-btn" id="btnUp">▲</div>
-      <div class="dpad-empty"></div>
-      <div class="ctrl-btn" id="btnLeft">◄</div>
-      <div class="dpad-empty"></div>
-      <div class="ctrl-btn" id="btnRight">►</div>
-      <div class="dpad-empty"></div>
-      <div class="ctrl-btn" id="btnDown">▼</div>
-      <div class="dpad-empty"></div>
+    <!-- JOYSTICK VIRTUAL TOUCH -->
+    <div class="joystick-zone" id="joyZone">
+      <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
     <!-- TASTO SPARO TONDO ARCADE -->
-    <div class="ctrl-btn fire-btn" id="btnFire">
+    <div class="fire-btn" id="btnFire">
       <span>🔥</span>
       <span>SPARO</span>
     </div>
@@ -412,7 +362,7 @@ function sfxPlayerHit() {
   osc.start(t); osc.stop(t + 0.4);
 }
 
-// ─── Input Controls ───────────────────────────────────────────────────────────
+// ─── Input Controls (Keyboard + Joystick Touch) ────────────────────────────────
 const keys = {};
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
@@ -427,22 +377,68 @@ document.addEventListener('keydown', e => {
 document.addEventListener('keyup', e => { keys[e.code] = false; });
 function keyPressed(code) { return !!keys[code]; }
 
-function bindBtn(id, onPress) {
+// JOYSTICK LOGIC
+const joyZone = document.getElementById('joyZone');
+const joyKnob = document.getElementById('joyKnob');
+let joyActive = false;
+
+function handleJoyMove(clientX, clientY) {
+  const rect = joyZone.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  let dx = clientX - centerX;
+  let dy = clientY - centerY;
+
+  const dist = Math.hypot(dx, dy);
+  const maxRadius = rect.width / 2 - 12;
+
+  if (dist > maxRadius) {
+    dx = (dx / dist) * maxRadius;
+    dy = (dy / dist) * maxRadius;
+  }
+
+  joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+
+  const deadzone = 12;
+  touchMoveLeft = dx < -deadzone;
+  touchMoveRight = dx > deadzone;
+  touchMoveUp = dy < -deadzone;
+  touchMoveDown = dy > deadzone;
+}
+
+function resetJoy() {
+  joyActive = false;
+  joyKnob.style.transform = `translate(-50%, -50%)`;
+  touchMoveLeft = touchMoveRight = touchMoveUp = touchMoveDown = false;
+}
+
+joyZone.addEventListener('pointerdown', e => {
+  joyActive = true;
+  joyZone.setPointerCapture(e.pointerId);
+  getAC();
+  handleJoyMove(e.clientX, e.clientY);
+});
+
+joyZone.addEventListener('pointermove', e => {
+  if (joyActive) handleJoyMove(e.clientX, e.clientY);
+});
+
+joyZone.addEventListener('pointerup', resetJoy);
+joyZone.addEventListener('pointercancel', resetJoy);
+
+// TASTO SPARO
+function bindFireBtn(id) {
   const el = document.getElementById(id);
   if (!el) return;
-  const press = (e) => { if (e) e.preventDefault(); getAC(); onPress(true); };
-  const release = (e) => { if (e) e.preventDefault(); onPress(false); };
+  const press = (e) => { if (e) e.preventDefault(); getAC(); touchFire = true; };
+  const release = (e) => { if (e) e.preventDefault(); touchFire = false; };
   el.addEventListener('pointerdown', press);
   el.addEventListener('touchstart', press, { passive: false });
   el.addEventListener('pointerup', release);
   el.addEventListener('touchend', release);
 }
-
-bindBtn('btnUp', isDown => { touchMoveUp = isDown; });
-bindBtn('btnDown', isDown => { touchMoveDown = isDown; });
-bindBtn('btnLeft', isDown => { touchMoveLeft = isDown; });
-bindBtn('btnRight', isDown => { touchMoveRight = isDown; });
-bindBtn('btnFire', isDown => { touchFire = isDown; });
+bindFireBtn('btnFire');
 
 function selectBoss(bossKey) {
   currentBoss = CHARACTERS[bossKey];
@@ -861,7 +857,7 @@ function drawScreens() {
     ctx.fillStyle = '#ffd700'; ctx.font = 'bold 16px Courier New';
     ctx.fillText('CONTROLLI PC & TOUCH 🎮', 35, 358);
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-    ctx.fillText('• D-Pad touch o Frecce PC per muoverti', 35, 386);
+    ctx.fillText('• Joystick Touch o Frecce PC per muoverti', 35, 386);
     ctx.fillText('• Tasto SPARO o SPAZIO per attaccare', 35, 408);
 
     ctx.fillStyle = '#ffff00'; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'center';
