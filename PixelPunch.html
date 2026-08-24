@@ -94,37 +94,10 @@
     cursor: pointer;
   }
 
-  /* PULSANTE SPECIALE FERIE */
-  .ferie-btn {
-    width: 100%;
-    margin-top: 4px;
-    padding: 8px;
-    background: linear-gradient(180deg, #00ffcc 0%, #008899 100%);
-    border: 2px solid #ffffff;
-    color: #000;
-    font-family: 'Courier New', monospace;
-    font-weight: 900;
-    font-size: 11px;
-    letter-spacing: 1px;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-  }
-  .ferie-btn:disabled {
-    background: #1a1a2e;
-    border-color: #444;
-    color: #666;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
-  .ferie-btn:active:not(:disabled) { transform: scale(0.96); }
-
   .exit-btn {
     width: 100%;
     margin-top: 4px;
-    padding: 6px;
+    padding: 8px;
     background: #100826;
     border: 1.5px solid #ff0055;
     color: #ff0055;
@@ -176,7 +149,7 @@
     align-items: center;
     gap: 6px;
     background: #160a2c;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid rgba(0, 255, 204, 0.4);
     border-radius: 8px;
   }
@@ -230,7 +203,6 @@
     <canvas id="game"></canvas>
   </div>
 
-  <button class="ferie-btn" id="btnFerie" disabled>🌴 FERIE: VAI IN PAUSA RELAX (15s)</button>
   <button class="exit-btn" onclick="exitGame()">◄ TORNA ALL'HUB ARCADE</button>
 
   <!-- MODALE OPZIONI -->
@@ -271,7 +243,7 @@ function drawRoundRect(c, x, y, w, h, r) {
   c.closePath();
 }
 
-// --- CONFIGURAZIONE E AUDIO AUTOPLAY ---
+// --- CONFIGURAZIONE AUDIO AUTOPLAY ---
 let musicEnabled = localStorage.getItem('pixelPunch_music') !== 'false';
 let sfxEnabled = localStorage.getItem('pixelPunch_sfx') !== 'false';
 
@@ -353,37 +325,34 @@ const CHARACTERS = {
         id: 'IRIS',
         name: "IRIS",
         subtitle: "Iris, la maestra dell'AI",
-        perkDesc: "BONUS: Auto-Fix AI (20% risolte gratis)",
+        perkDesc: "BONUS: Auto-Fix AI & Ferie 7s",
         primary: "#00ffcc",
         bg: "#06061a",
         padBg: "#120f2e",
         img: imgIris,
-        baseTime: 60,
-        ferieTime: 15
+        ferieSec: 7
     },
     CRISTINA: {
         id: 'CRISTINA',
         name: "CRISTINA",
         subtitle: "Cristina, la producer sagace",
-        perkDesc: "BONUS: Caffè x2 & No Penalità Errore",
+        perkDesc: "BONUS: Caffè x2 & Ferie 10s",
         primary: "#ffd700",
         bg: "#120e00",
         padBg: "#261a00",
         img: imgCristina,
-        baseTime: 60,
-        ferieTime: 15
+        ferieSec: 10
     },
     RACHELE: {
         id: 'RACHELE',
         name: "RACHELE",
         subtitle: "Rachele, l'inarrestabile",
-        perkDesc: "BONUS: +5s Tempo & Ferie Extra (+20s)",
+        perkDesc: "BONUS: Super Ferie (15s) & Combo Rush",
         primary: "#ff33aa",
         bg: "#140018",
         padBg: "#28002b",
         img: imgRachele,
-        baseTime: 65,
-        ferieTime: 20
+        ferieSec: 15
     }
 };
 
@@ -453,19 +422,15 @@ function playSound(type) {
 // MECCANICHE E STATI GIOCO
 let state = 'TUTORIAL'; // 'TUTORIAL', 'CHAR_SELECT', 'PLAYING', 'PAUSE', 'GAMEOVER'
 let score = 0;
-let timeLeft = 60;
 let combo = 0;
 let stress = 0; // 0 to 100%
 let elapsedMatchTime = 0;
 
 let ferieActive = false;
 let ferieTimer = 0;
-let ferieUsed = false;
 
 let particles = [];
 let floatingTexts = [];
-
-const btnFerie = document.getElementById('btnFerie');
 
 const BAD_NOTIFS = [
     { line1: "LOGO PIÙ", line2: "GRANDE!" },
@@ -477,17 +442,17 @@ const BAD_NOTIFS = [
 ];
 
 const gridPads = [
-    { id: 0, x: 15,  y: 75,  w: 110, h: 140, keyLabel: "1 / Q" },
-    { id: 1, x: 135, y: 75,  w: 110, h: 140, keyLabel: "2 / W" },
-    { id: 2, x: 255, y: 75,  w: 110, h: 140, keyLabel: "3 / E" },
+    { id: 0, x: 15,  y: 85,  w: 110, h: 135, keyLabel: "1 / Q" },
+    { id: 1, x: 135, y: 85,  w: 110, h: 135, keyLabel: "2 / W" },
+    { id: 2, x: 255, y: 85,  w: 110, h: 135, keyLabel: "3 / E" },
 
-    { id: 3, x: 15,  y: 225, w: 110, h: 140, keyLabel: "4 / A" },
-    { id: 4, x: 135, y: 225, w: 110, h: 140, keyLabel: "5 / S" },
-    { id: 5, x: 255, y: 225, w: 110, h: 140, keyLabel: "6 / D" },
+    { id: 3, x: 15,  y: 230, w: 110, h: 135, keyLabel: "4 / A" },
+    { id: 4, x: 135, y: 230, w: 110, h: 135, keyLabel: "5 / S" },
+    { id: 5, x: 255, y: 230, w: 110, h: 135, keyLabel: "6 / D" },
 
-    { id: 6, x: 15,  y: 375, w: 110, h: 140, keyLabel: "7 / Z" },
-    { id: 7, x: 135, y: 375, w: 110, h: 140, keyLabel: "8 / X" },
-    { id: 8, x: 255, y: 375, w: 110, h: 140, keyLabel: "9 / C" }
+    { id: 6, x: 15,  y: 375, w: 110, h: 135, keyLabel: "7 / Z" },
+    { id: 7, x: 135, y: 375, w: 110, h: 135, keyLabel: "8 / X" },
+    { id: 8, x: 255, y: 375, w: 110, h: 135, keyLabel: "9 / C" }
 ].map(p => ({
     ...p,
     active: false,
@@ -503,21 +468,6 @@ const gridPads = [
 let lastSpawnTime = 0;
 let gameTimerInterval = null;
 
-btnFerie.onclick = () => {
-  if (state === 'PLAYING' && !ferieUsed && !ferieActive) {
-    ferieActive = true;
-    ferieUsed = true;
-    ferieTimer = currentTheme.ferieTime;
-    stress = Math.max(0, stress - 25);
-    playSound('golden');
-    
-    gridPads.forEach(p => p.active = false);
-    btnFerie.disabled = true;
-    btnFerie.innerText = "🌴 IN FERIE... RELAX! 😎";
-    addFloatText(cvs.width / 2, 280, "FERIE ATTIVATE! -25% STRESS", "#00ffcc");
-  }
-};
-
 function selectCharacter(charKey) {
     currentTheme = CHARACTERS[charKey];
     cvs.style.borderColor = currentTheme.primary;
@@ -528,16 +478,12 @@ function selectCharacter(charKey) {
 function startMatch() {
     state = 'PLAYING';
     score = 0;
-    timeLeft = currentTheme.baseTime;
     stress = 0;
     combo = 0;
     elapsedMatchTime = 0;
     
     ferieActive = false;
     ferieTimer = 0;
-    ferieUsed = false;
-    btnFerie.disabled = false;
-    btnFerie.innerText = `🌴 FERIE: VAI IN PAUSA RELAX (${currentTheme.ferieTime}s)`;
 
     isNewRecord = false;
     gridPads.forEach(p => p.active = false);
@@ -552,21 +498,15 @@ function startMatch() {
                 stress = Math.max(0, stress - 1.5);
                 if (ferieTimer <= 0) {
                     ferieActive = false;
-                    btnFerie.innerText = "🌴 FERIE GIÀ UTILIZZATE";
                 }
             } else {
-                timeLeft--;
-                stress = Math.min(100, stress + 0.4 + (elapsedMatchTime * 0.015));
+                // Lo stress cresce progressivamente ma lentamente
+                stress = Math.min(100, stress + 0.3 + (elapsedMatchTime * 0.012));
             }
 
             if (stress >= 100) {
                 state = 'GAMEOVER';
                 playSound('fail');
-                saveScore();
-                clearInterval(gameTimerInterval);
-            } else if (timeLeft <= 0) {
-                state = 'GAMEOVER';
-                playSound('coffee');
                 saveScore();
                 clearInterval(gameTimerInterval);
             }
@@ -582,9 +522,9 @@ function spawnTicket() {
 
     let activeCount = gridPads.filter(p => p.active).length;
     let maxAllowed = 1;
-    if (elapsedMatchTime > 10) maxAllowed = 2;
-    if (elapsedMatchTime > 25) maxAllowed = 3;
-    if (elapsedMatchTime > 45) maxAllowed = 4;
+    if (elapsedMatchTime > 12) maxAllowed = 2;
+    if (elapsedMatchTime > 30) maxAllowed = 3;
+    if (elapsedMatchTime > 55) maxAllowed = 4;
 
     if (activeCount >= maxAllowed) return;
 
@@ -592,7 +532,7 @@ function spawnTicket() {
     target.active = true;
 
     let rand = Math.random();
-    let duration = Math.max(55, 140 - Math.floor(elapsedMatchTime * 1.5));
+    let duration = Math.max(60, 150 - Math.floor(elapsedMatchTime * 1.5));
 
     if (currentTheme.id === 'IRIS' && rand < 0.20 && rand >= 0.05) {
         score += 100;
@@ -603,32 +543,37 @@ function spawnTicket() {
         return;
     }
 
-    if (rand < 0.12) {
+    if (rand < 0.10) { // TICKET FERIE (SPECIAL 🌴)
+        target.type = 'FERIE';
+        target.hp = 1;
+        target.line1 = "FERIE 🌴";
+        target.line2 = "RELAX!";
+    } else if (rand < 0.22) { // CAFFÈ ESPRESSO
         target.type = 'COFFEE';
         target.hp = 1;
         target.line1 = "CAFFÈ";
         target.line2 = "BONUS";
-    } else if (rand < 0.20) {
+    } else if (rand < 0.32) { // GOLDEN VIP FILE
         target.type = 'GOLDEN';
         target.hp = 1;
         target.line1 = "CLIENTE VIP";
-        target.line2 = "+3 SECONDI";
-    } else if (rand < 0.35) {
+        target.line2 = "SPECIALE";
+    } else if (rand < 0.46) { // FEEDBACK APPROVATO (TRAPPOLA)
         target.type = 'TRAP';
         target.hp = 1;
         target.line1 = "FEEDBACK";
         target.line2 = "APPROVATO";
-    } else if (rand < 0.45) {
+    } else if (rand < 0.55) { // FILE CORROTTO GLITCH (TRAPPOLA SEVERA)
         target.type = 'GLITCH';
         target.hp = 1;
         target.line1 = "FILE";
         target.line2 = "CORROTTO";
-    } else if (rand < 0.65) {
+    } else if (rand < 0.72) { // DOPPIA REVISIONE (2 TAP)
         target.type = 'DOUBLE';
         target.hp = 2;
         target.line1 = "REVISIONE";
         target.line2 = "DOPPIA (2x)";
-    } else {
+    } else { // REVISIONE STANDARD
         target.type = 'BAD';
         target.hp = 1;
         let b = BAD_NOTIFS[Math.floor(Math.random() * BAD_NOTIFS.length)];
@@ -642,14 +587,26 @@ function spawnTicket() {
 
 function hitPad(pad) {
     pad.pressAnim = 6;
-    if (!pad.active || ferieActive) return;
+    if (!pad.active) return;
 
-    if (pad.type === 'TRAP') {
+    if (pad.type === 'FERIE') {
+        pad.active = false;
+        ferieActive = true;
+        ferieTimer = currentTheme.ferieSec;
+        stress = Math.max(0, stress - 20);
+        playSound('golden');
+        
+        // Pulisce tutti i pad attivi per lasciare respiro
+        gridPads.forEach(p => p.active = false);
+        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#00ffcc', 18);
+        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `🌴 FERIE RELAX (${currentTheme.ferieSec}s)!`, "#00ffcc");
+    }
+    else if (pad.type === 'TRAP') {
         pad.active = false;
         combo = 0;
         let pen = (currentTheme.id === 'CRISTINA') ? 0 : 50;
         score = Math.max(0, score - pen);
-        if (currentTheme.id !== 'CRISTINA') stress = Math.min(100, stress + 10);
+        if (currentTheme.id !== 'CRISTINA') stress = Math.min(100, stress + 8);
         playSound('fail');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#00ffcc');
         addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, (pen === 0 ? "NO PENALTY!" : "-50 PTS"), "#00ffcc");
@@ -658,18 +615,17 @@ function hitPad(pad) {
         pad.active = false;
         combo = 0;
         score = Math.max(0, score - 100);
-        timeLeft = Math.max(1, timeLeft - 2);
-        stress = Math.min(100, stress + 15);
+        stress = Math.min(100, stress + 12);
         playSound('fail');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ff0055');
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "GLITCH! +15% STRESS", "#ff0055");
+        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "GLITCH! +12% STRESS", "#ff0055");
     }
     else if (pad.type === 'COFFEE') {
         pad.active = false;
         combo++;
         let pts = (currentTheme.id === 'CRISTINA') ? 600 : 300;
         score += pts;
-        stress = Math.max(0, stress - (currentTheme.id === 'CRISTINA' ? 15 : 10));
+        stress = Math.max(0, stress - (currentTheme.id === 'CRISTINA' ? 12 : 8));
         playSound('coffee');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffcc00');
         addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts} CAFFÈ!`, "#ffcc00");
@@ -678,11 +634,10 @@ function hitPad(pad) {
         pad.active = false;
         combo++;
         score += 500;
-        timeLeft += 3;
-        stress = Math.max(0, stress - 12);
+        stress = Math.max(0, stress - 15);
         playSound('golden');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffd700', 16);
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "+500 PTS (+3s!)", "#ffd700");
+        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "+500 PTS VIP!", "#ffd700");
     }
     else if (pad.type === 'DOUBLE') {
         pad.hp--;
@@ -740,7 +695,7 @@ function update() {
 
     if (state !== 'PLAYING') return;
 
-    let spawnDelay = Math.max(380, 1100 - Math.floor(elapsedMatchTime * 12));
+    let spawnDelay = Math.max(400, 1150 - Math.floor(elapsedMatchTime * 12));
     if (Date.now() - lastSpawnTime > spawnDelay) {
         spawnTicket();
         lastSpawnTime = Date.now();
@@ -753,7 +708,7 @@ function update() {
                 p.active = false;
                 if (p.type === 'BAD' || p.type === 'DOUBLE') {
                     combo = 0;
-                    stress = Math.min(100, stress + 8); // Penalità stress per ticket scaduto
+                    stress = Math.min(100, stress + 7);
                 }
             }
         }
@@ -770,50 +725,43 @@ function draw() {
     if (state === 'TUTORIAL') {
         ctx.fillStyle = '#00ffcc';
         ctx.font = 'bold 18px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('PIXEL PUNCH: TUTORIAL 🥊', cvs.width / 2, 38);
+        ctx.fillText('PIXEL PUNCH: REGOLE 🥊', cvs.width / 2, 38);
 
-        // Card 1: Stress & Obiettivo
-        drawRoundRect(ctx, 15, 55, 350, 75, 10);
-        ctx.fillStyle = '#101228'; ctx.fill();
-        ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('1. EVITA IL BURNOUT (STRESS)', 28, 74);
-        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-        ctx.fillText('Gestisci le revisioni ed evita che lo Stress', 28, 92);
-        ctx.fillText('raggiunga il 100%! La velocità aumenta nel tempo.', 28, 108);
-
-        // Card 2: Ticket
-        drawRoundRect(ctx, 15, 140, 350, 85, 10);
+        // Card 1: Stress & Burnout
+        drawRoundRect(ctx, 15, 55, 350, 85, 10);
         ctx.fillStyle = '#101228'; ctx.fill();
         ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
         ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('2. TIPOLOGIE DI TICKET', 28, 158);
+        ctx.fillText('1. REGOLA DELLO STRESS (NO TIMER)', 28, 74);
         ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-        ctx.fillText('🔴 Rosso (+100) | 🟣 Viola (2 Tap: +250)', 28, 175);
-        ctx.fillText('☕ Giallo (Caffè: -Stress) | ⭐ Oro (+3 Sec)', 28, 191);
+        ctx.fillText('Non c\'è tempo limite! Il gioco dura finché resisti.', 28, 92);
+        ctx.fillText('Ticket scaduti ed errori fanno salire lo STRESS.', 28, 108);
         ctx.fillStyle = '#ffcc00';
-        ctx.fillText('🟢 Verde & 🖤 Nero: TRAPPOLE! NON TOCCARE!', 28, 207);
+        ctx.fillText('Se lo Stress raggiunge il 100% è BURNOUT! 💀', 28, 124);
 
-        // Card 3: Ferie
-        drawRoundRect(ctx, 15, 235, 350, 75, 10);
+        // Card 2: Ticket & Ferie
+        drawRoundRect(ctx, 15, 150, 350, 95, 10);
         ctx.fillStyle = '#101228'; ctx.fill();
-        ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('3. TASTO FERIE 🌴', 28, 254);
+        ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+        ctx.fillText('2. TICKET & FERIE 🌴', 28, 168);
         ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-        ctx.fillText('Usa il pulsante in basso 1 volta per partita', 28, 272);
-        ctx.fillText('per bloccare i ticket e ridurre lo Stress!', 28, 288);
+        ctx.fillText('🔴 Rossi & 🟣 Viola: Toccali per ridurre lo stress.', 28, 186);
+        ctx.fillText('🌴 Ticket FERIE: Toccalo per 7-15s di RELAX!', 28, 202);
+        ctx.fillText('☕ Caffè & ⭐ VIP: Abbassano lo Stress + Punti!', 28, 218);
+        ctx.fillStyle = '#ff0055';
+        ctx.fillText('🟢 Verde & 🖤 Nero: TRAPPOLE! Non toccare!', 28, 234);
 
         // Record
         ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(`RECORD ATTUALE: ${highScore} PTS`, cvs.width / 2, 335);
+        ctx.fillText(`RECORD ATTUALE: ${highScore} PTS`, cvs.width / 2, 268);
 
         // Tasto Avanti
-        drawRoundRect(ctx, 20, 365, 340, 45, 10);
+        drawRoundRect(ctx, 20, 295, 340, 45, 10);
         ctx.fillStyle = '#ff0055'; ctx.fill();
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px monospace';
-        ctx.fillText('AVANTI: SCEGLI CREATIVO ►', cvs.width / 2, 392);
+        ctx.fillText('AVANTI: SCEGLI CREATIVO ►', cvs.width / 2, 322);
         return;
     }
 
@@ -847,17 +795,21 @@ function draw() {
             ctx.fillStyle = b.col; ctx.font = 'bold 11px monospace';
             ctx.fillText('SELEZIONA ►', 30, b.y + 102);
 
-            if (c.img && c.img.complete && c.img.naturalWidth !== 0) {
+            // CARICAMENTO ED ESECUZIONE RESILIENTE RITRATTO PERSONAGGIO
+            if (c.img && c.img.complete && c.img.naturalWidth > 0) {
                 ctx.save();
-                drawRoundRect(ctx, 245, b.y + 12, 100, 100, 10);
+                drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
                 ctx.clip();
-                ctx.drawImage(c.img, 245, b.y + 12, 100, 100);
+                ctx.drawImage(c.img, 240, b.y + 12, 105, 100);
                 ctx.restore();
-                drawRoundRect(ctx, 245, b.y + 12, 100, 100, 10);
+                drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
                 ctx.strokeStyle = b.col; ctx.lineWidth = 1.5; ctx.stroke();
             } else {
-                drawRoundRect(ctx, 245, b.y + 12, 100, 100, 10);
-                ctx.fillStyle = b.col; ctx.fill();
+                drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
+                ctx.fillStyle = '#1a1a3a'; ctx.fill();
+                ctx.strokeStyle = b.col; ctx.lineWidth = 1.5; ctx.stroke();
+                ctx.fillStyle = b.col; ctx.font = 'bold 24px monospace'; ctx.textAlign = 'center';
+                ctx.fillText(c.name[0], 292, b.y + 68);
             }
         });
         return;
@@ -882,7 +834,8 @@ function draw() {
             let bgCol = '#ff0055';
             let txtCol = '#ffffff';
 
-            if (p.type === 'TRAP') { bgCol = '#00ffcc'; txtCol = '#000000'; }
+            if (p.type === 'FERIE') { bgCol = '#00ffcc'; txtCol = '#000000'; }
+            else if (p.type === 'TRAP') { bgCol = '#00ffcc'; txtCol = '#000000'; }
             else if (p.type === 'GLITCH') { bgCol = '#1a0008'; txtCol = '#ff0055'; }
             else if (p.type === 'COFFEE') { bgCol = '#ffcc00'; txtCol = '#000000'; }
             else if (p.type === 'GOLDEN') { bgCol = '#ffd700'; txtCol = '#000000'; }
@@ -890,7 +843,7 @@ function draw() {
 
             drawRoundRect(ctx, padX + 5, padY + 22, p.w - 10, p.h - 28, 8);
             ctx.fillStyle = bgCol; ctx.fill();
-            if (p.type === 'GOLDEN' || p.type === 'GLITCH') {
+            if (p.type === 'GOLDEN' || p.type === 'GLITCH' || p.type === 'FERIE') {
                 ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
             }
 
@@ -912,40 +865,54 @@ function draw() {
         ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
     });
 
-    // --- HUD HEADER CON BARRA DELLO STRESS ---
-    ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, cvs.width, 68);
-    ctx.strokeStyle = currentTheme.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, cvs.width, 68);
+    // BANNER FERIE RELAX
+    if (ferieActive) {
+        drawRoundRect(ctx, 30, 240, 320, 60, 12);
+        ctx.fillStyle = 'rgba(0, 255, 204, 0.92)'; ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#000000'; ctx.font = 'bold 15px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('🌴 IN FERIE RELAX... 🌴', cvs.width / 2, 266);
+        ctx.font = 'bold 12px monospace';
+        ctx.fillText(`PAUSA REVISIONI (${ferieTimer}s)`, cvs.width / 2, 286);
+    }
 
-    ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-    ctx.fillText(`${currentTheme.name}`, 8, 16);
-    ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 8, 32);
+    // --- HUD HEADER SUPER VISIBILE CON BARRA STRESS PROMINENTE ---
+    ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, cvs.width, 74);
+    ctx.strokeStyle = currentTheme.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, cvs.width, 74);
+
+    ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
+    ctx.fillText(`${currentTheme.name}`, 10, 18);
+    ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 10, 34);
     ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px monospace';
-    ctx.fillText(`REC: ${highScore}`, 8, 46);
-
-    ctx.fillStyle = ferieActive ? '#00ffcc' : '#ffffff'; ctx.font = 'bold 15px monospace'; ctx.textAlign = 'center';
-    ctx.fillText(ferieActive ? `🌴 FERIE (${ferieTimer}s)` : `⏱️ ${timeLeft}s`, cvs.width / 2 + 10, 24);
+    ctx.fillText(`REC: ${highScore}`, 10, 48);
 
     if (combo > 1) {
         ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'right';
-        ctx.fillText(`COMBO x${combo}!`, cvs.width - 8, 16);
+        ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 18);
     }
 
-    // STRESS BAR
-    let stressWidth = 140;
-    let stressX = cvs.width - stressWidth - 8;
-    let stressY = 32;
+    // BARRA STRESS GRANDE E VISIBILE
+    let stressWidth = 360;
+    let stressX = 10;
+    let stressY = 52;
     ctx.fillStyle = '#101028';
-    ctx.fillRect(stressX, stressY, stressWidth, 14);
+    ctx.fillRect(stressX, stressY, stressWidth, 16);
     
     let currentStressPct = Math.min(100, Math.max(0, stress)) / 100;
-    let stressCol = currentStressPct < 0.5 ? '#00ffcc' : (currentStressPct < 0.8 ? '#ffcc00' : '#ff0055');
-    ctx.fillStyle = stressCol;
-    ctx.fillRect(stressX + 1, stressY + 1, (stressWidth - 2) * currentStressPct, 12);
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
-    ctx.strokeRect(stressX, stressY, stressWidth, 14);
+    let stressCol = currentStressPct < 0.4 ? '#00ffcc' : (currentStressPct < 0.75 ? '#ffcc00' : '#ff0055');
+    
+    // Effetto Pulsante quando lo stress è alto (>75%)
+    if (currentStressPct >= 0.75 && Math.floor(Date.now() / 200) % 2 === 0) {
+        stressCol = '#ffffff';
+    }
 
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
-    ctx.fillText(`STRESS: ${Math.floor(stress)}%`, stressX + stressWidth / 2, stressY + 10);
+    ctx.fillStyle = stressCol;
+    ctx.fillRect(stressX + 1, stressY + 1, (stressWidth - 2) * currentStressPct, 14);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+    ctx.strokeRect(stressX, stressY, stressWidth, 16);
+
+    ctx.fillStyle = '#000000'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(`⚡ LIVELLO STRESS: ${Math.floor(stress)}%`, cvs.width / 2, stressY + 12);
 
     // --- SCHERMATA PAUSA ---
     if (state === 'PAUSE') {
@@ -960,8 +927,8 @@ function draw() {
     if (state === 'GAMEOVER') {
         ctx.fillStyle = 'rgba(5, 5, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
         
-        ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 22px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(stress >= 100 ? 'BURNOUT! 💀' : 'TURNO FINITO! ⏰', cvs.width / 2, 170);
+        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 22px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('BURNOUT! 💀', cvs.width / 2, 170);
 
         ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px monospace';
         ctx.fillText(`PUNTEGGIO: ${score}`, cvs.width / 2, 220);
@@ -992,7 +959,7 @@ cvs.addEventListener('pointerdown', (e) => {
     let y = (e.clientY - rect.top) * (cvs.height / rect.height);
 
     if (state === 'TUTORIAL') {
-        if (y >= 365 && y <= 410) {
+        if (y >= 295 && y <= 340) {
             state = 'CHAR_SELECT';
             playSound('coffee');
         }
@@ -1014,7 +981,7 @@ cvs.addEventListener('pointerdown', (e) => {
                 hitAny = true;
             }
         });
-        if (!hitAny && y < 68) {
+        if (!hitAny && y < 74) {
             state = 'PAUSE';
             updateMusicState();
         }
