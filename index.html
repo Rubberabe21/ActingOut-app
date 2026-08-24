@@ -544,9 +544,11 @@ class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 
                 void main() {
                     vec4 texColor = texture2D(uMainSampler, outTexCoord);
-                    vec3 keyColor = vec3(0.235, 1.0, 0.0);
-                    float diff = distance(texColor.rgb, keyColor);
-                    if (diff < 0.45) {
+                    vec3 keyColor1 = vec3(0.235, 1.0, 0.0);
+                    vec3 keyColor2 = vec3(0.431, 0.604, 0.396); // #6E9A65
+                    float diff1 = distance(texColor.rgb, keyColor1);
+                    float diff2 = distance(texColor.rgb, keyColor2);
+                    if (diff1 < 0.45 || diff2 < 0.35) {
                         discard;
                     } else {
                         gl_FragColor = texColor * outTint;
@@ -650,6 +652,7 @@ class MainHub extends Phaser.Scene {
         this.load.video('npc_video', 'assets/hub/personaggio.mp4', 'loadeddata', false, true);
         this.load.video('gabri_video', 'assets/hub/gabri.mp4', 'loadeddata', false, true);
         this.load.video('raffa_video', 'assets/hub/raffa.mp4', 'loadeddata', false, true);
+        this.load.video('pierri_video', 'assets/hub/pierri.mp4', 'loadeddata', false, true);
 
         const playerSkins = [
             'dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png',
@@ -693,6 +696,11 @@ class MainHub extends Phaser.Scene {
         if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
         this.gabri.play(true);
         this.gabri.setMute(true);
+
+        this.pierri = this.add.video(160, 580, 'pierri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        if (this.pierri.setPipeline) this.pierri.setPipeline('GreenKey');
+        this.pierri.play(true);
+        this.pierri.setMute(true);
 
         this.npc = this.add.video(760, npcY, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.npc.setPipeline) this.npc.setPipeline('GreenKey');
@@ -833,6 +841,8 @@ class MainHub extends Phaser.Scene {
 
         if (speakerKey === 'gabri') {
             this.npcLines = [line1, Phaser.Math.RND.pick(["Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.", "Sto sistemando un po' di animazioni su After Effects.", "Sto lavorando su una grafica animata. Ho quasi finito!"])];
+        } else if (speakerKey === 'pierri') {
+            this.npcLines = [line1, Phaser.Math.RND.pick(["Sto controllando gli ultimi dettagli!", "Tutto a posto sul set!", "Pronto per il prossimo girato!"])];
         } else if (speakerKey === 'raffa') {
             this.npcLines = [line1, Phaser.Math.RND.pick(["Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi!", "Sto preparando l'attrezzatura per il prossimo lavoro."])];
         } else {
@@ -859,6 +869,9 @@ class MainHub extends Phaser.Scene {
         if (this.activeSpeaker === 'gabri') {
             targetX = this.gabri.x;
             targetY = this.gabri.y;
+        } else if (this.activeSpeaker === 'pierri') {
+            targetX = this.pierri.x;
+            targetY = this.pierri.y;
         } else if (this.activeSpeaker === 'raffa') {
             targetX = this.raffa.x;
             targetY = this.raffa.y;
@@ -887,7 +900,6 @@ class MainHub extends Phaser.Scene {
 
         let controlDeck = this.add.container(0, 0).setScrollFactor(0).setDepth(100);
 
-        // ALZATO IL DECK DI CONTROLLO DI 25 PX
         let raiseY = 25;
 
         let deckBg = this.add.graphics();
@@ -975,6 +987,12 @@ class MainHub extends Phaser.Scene {
             return;
         }
 
+        let distPierri = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.pierri.x, this.pierri.y);
+        if (distPierri < 70) {
+            this.startDialogue('pierri');
+            return;
+        }
+
         let distNpc = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
         if (distNpc < 70) {
             this.startDialogue('npc');
@@ -1041,6 +1059,14 @@ class MainHub extends Phaser.Scene {
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y) < 70) {
             this.infoBox.setPosition(this.gabri.x, this.cabBadgeY);
             this.boxTitleText.setText("Gabri");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
+        }
+
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.pierri.x, this.pierri.y) < 70) {
+            this.infoBox.setPosition(this.pierri.x, this.cabBadgeY);
+            this.boxTitleText.setText("Pierri");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
             return;
