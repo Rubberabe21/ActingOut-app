@@ -2,13 +2,13 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agency Arcade</title>
 
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     <link rel="manifest" href="manifest.json">
@@ -30,29 +30,11 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
-        html, body {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: #000000;
-            overflow: hidden;
-            overscroll-behavior: none;
-            touch-action: none;
-        }
+        html { width: 100%; height: 100%; margin: 0; padding: 0; background: #000000; overflow: hidden; }
+        body { position: fixed; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; background: #000000; overflow: hidden; overscroll-behavior: none; touch-action: none; }
 
-        #game-wrapper, #game-container {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-        }
+        #game-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100svh; background: #000000; overflow: hidden; margin: 0; padding: 0; }
+        #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000000; overflow: hidden; margin: 0; padding: 0; }
 
         #game-container canvas {
             display: block !important;
@@ -69,14 +51,9 @@
         #top-header-bar {
             position: absolute;
             top: max(env(safe-area-inset-top), 8px);
-            left: 8px;
-            right: 8px;
-            height: 36px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 150;
-            pointer-events: auto;
+            left: 8px; right: 8px; height: 36px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 150; pointer-events: auto;
         }
 
         .header-btn {
@@ -84,56 +61,27 @@
             border: 1.5px solid #ff0055 !important;
             color: #ffff00;
             font-family: 'Courier New', Courier, monospace;
-            font-weight: bold;
-            font-size: 11px;
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
+            font-weight: bold; font-size: 11px;
+            padding: 6px 10px; border-radius: 8px; cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
         .header-btn:active { transform: scale(0.95); }
         #header-score-btn { color: #ff0055; border-color: #ff0055 !important; box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); }
 
         .auth-overlay {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 16px;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); z-index: 200;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 16px;
         }
-
         .auth-box {
-            width: 100%;
-            max-width: 320px;
-            background: #090918;
-            border: 2px solid #ff0055 !important;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
-            border-radius: 14px;
-            padding: 18px;
-            text-align: center;
-            color: #fff;
+            width: 100%; max-width: 320px; background: #090918;
+            border: 2px solid #ff0055 !important; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+            border-radius: 14px; padding: 18px; text-align: center; color: #fff;
         }
 
-        .profile-card-header {
-            background: linear-gradient(90deg, #150520, #051525);
-            border: 1px solid #ff0055 !important;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 12px;
-        }
+        .profile-card-header { background: linear-gradient(90deg, #150520, #051525); border: 1px solid #ff0055 !important; border-radius: 10px; padding: 10px; margin-bottom: 12px; }
         .profile-avatar-row { display: flex; align-items: center; gap: 10px; text-align: left; }
-        .profile-avatar {
-            width: 44px; height: 44px; background: #250515;
-            border: 2px solid #ff0055 !important; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 22px; box-shadow: 0 0 10px #ff0055; overflow: hidden;
-        }
+        .profile-avatar { width: 44px; height: 44px; background: #250515; border: 2px solid #ff0055 !important; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 0 10px #ff0055; overflow: hidden; }
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .profile-rank-title { color: #ffff00; font-size: 11px; font-weight: bold; letter-spacing: 1px; }
         .profile-username { color: #ffffff; font-size: 15px; font-weight: bold; }
@@ -164,19 +112,12 @@
         .auth-btn:active { transform: scale(0.96); }
 
         .crt-overlay {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 99;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 4px, 6px 100%;
-            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
+            background-size: 100% 4px, 6px 100%; box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
-
 <body>
 
 <script>
@@ -193,6 +134,7 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
     </div>
 
+    <!-- PROFILE -->
     <div id="profile-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <div class="profile-card-header">
@@ -222,6 +164,7 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         </div>
     </div>
 
+    <!-- LEADERBOARD -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <h2 style="color:#ff0055;">🌍 CLASSIFICA MONDIALE</h2>
@@ -328,9 +271,11 @@ class MainHub extends Phaser.Scene {
         this.load.video('npc_video', 'assets/hub/personaggio.mp4', 'loadeddata', false, true);
         this.load.video('gabri_video', 'assets/hub/gabri.mp4', 'loadeddata', false, true);
         this.load.video('raffa_video', 'assets/hub/raffa.mp4', 'loadeddata', false, true);
+
         const playerSkins = ['dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png', 'guido.png', 'bretto.png', 'giulia.png', 'rabe.png', 'giampa.png', 'tommi.png', 'tobi.png'];
         const selectedSkin = Phaser.Math.RND.pick(playerSkins);
         this.playerName = selectedSkin.replace('.png', '').charAt(0).toUpperCase() + selectedSkin.replace('.png', '').slice(1);
+
         this.load.spritesheet('player', 'assets/hub/player/' + selectedSkin, { frameWidth: 755, frameHeight: 1120 });
         let g = this.make.graphics({ x: 0, y: 0, add: false });
         g.fillStyle(0xffffff, 0); g.fillRect(0, 0, 50, 80);
