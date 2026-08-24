@@ -78,8 +78,8 @@ canvas {
 /* D-PAD A CROCE ERGONOMICO CON TASTI GRANDI */
 .dpad-grid {
   display: grid;
-  grid-template-columns: repeat(3, 50px);
-  grid-template-rows: repeat(3, 46px);
+  grid-template-columns: repeat(3, 52px);
+  grid-template-rows: repeat(3, 48px);
   gap: 4px;
   justify-content: center;
   align-content: center;
@@ -88,7 +88,7 @@ canvas {
   background: linear-gradient(180deg, #252a54 0%, #0e1028 100%);
   border: 2px solid #00ffcc;
   color: #00ffcc;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
   border-radius: 10px;
   display: flex;
@@ -128,8 +128,8 @@ canvas {
   align-items: center;
 }
 .arcade-push-btn {
-  width: 100px;
-  height: 100px;
+  width: 104px;
+  height: 104px;
   border-radius: 50%;
   background: #2b0012;
   border: 3px solid #ff0055;
@@ -408,7 +408,6 @@ function loadLevel() {
   map = [];
   blockData = [];
 
-  // Mappa
   for (let r = 0; r < ROWS; r++) {
     map[r] = [];
     blockData[r] = [];
@@ -441,7 +440,6 @@ function loadLevel() {
     }
   }
 
-  // SPAWN NEMICI IN SICUREZZA
   let emptyCells = [];
   for (let r = 1; r < ROWS - 1; r++) {
     for (let c = 1; c < COLS - 1; c++) {
@@ -486,6 +484,8 @@ function placeBomb() {
   let gx = Math.floor(player.x / CELL_SIZE);
   let gy = Math.floor(player.y / CELL_SIZE);
 
+  if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) return;
+
   let currentBombs = bombs.filter(b => !b.exploded).length;
   if (currentBombs >= player.maxBombs) return;
 
@@ -503,6 +503,7 @@ function placeBomb() {
   playSound('bomb');
 }
 
+// GESTIONE PROTETTA ED INCATENATA DELLE ESPLOSIONI SULLE BOMBE
 function triggerExplosion(b) {
   if (b.exploded) return;
   b.exploded = true;
@@ -521,6 +522,7 @@ function triggerExplosion(b) {
 
       fireCells.push({ gx: cgx, gy: cgy });
 
+      // Catena esplosiva: esplode altre bombe vicine
       let otherBomb = bombs.find(ob => !ob.exploded && ob.gx === cgx && ob.gy === cgy);
       if (otherBomb) {
         triggerExplosion(otherBomb);
@@ -602,7 +604,7 @@ function isBlocked(nx, ny) {
   return false;
 }
 
-// MOVIMENTO RIGIDO CARDINALE (ESCLUSIONE MOVIMENTO OBLIQUO/DIAGONALE)
+// MOVIMENTO CARDINALE RIGIDO (NESSUN MOVIMENTO DIAGONALE/OBLIQUO)
 function updatePlayer() {
   let dx = 0, dy = 0;
 
@@ -611,7 +613,7 @@ function updatePlayer() {
   let wantUp = keyPressed('ArrowUp') || keyPressed('KeyW') || moveUp;
   let wantDown = keyPressed('ArrowDown') || keyPressed('KeyS') || moveDown;
 
-  // Priorità esclusiva asse (niente diagonali)
+  // Priorità rigida ad un solo asse per escludere diagonali
   if (wantLeft) { dx = -player.speed; player.facingLeft = true; }
   else if (wantRight) { dx = player.speed; player.facingLeft = false; }
   else if (wantUp) { dy = -player.speed; }
@@ -626,22 +628,20 @@ function updatePlayer() {
     } else {
       let targetCenterY = (Math.floor(player.y / CELL_SIZE) + 0.5) * CELL_SIZE;
       let diffY = targetCenterY - player.y;
-      if (Math.abs(diffY) <= CELL_SIZE * 0.45) {
+      if (Math.abs(diffY) <= CELL_SIZE * 0.4) {
         let slideY = Math.sign(diffY) * Math.min(Math.abs(diffY), player.speed);
         if (!isBlocked(player.x, player.y + slideY)) {
           player.y += slideY;
         }
       }
     }
-  }
-
-  if (dy !== 0) {
+  } else if (dy !== 0) {
     if (!isBlocked(player.x, player.y + dy)) {
       player.y += dy;
     } else {
       let targetCenterX = (Math.floor(player.x / CELL_SIZE) + 0.5) * CELL_SIZE;
       let diffX = targetCenterX - player.x;
-      if (Math.abs(diffX) <= CELL_SIZE * 0.45) {
+      if (Math.abs(diffX) <= CELL_SIZE * 0.4) {
         let slideX = Math.sign(diffX) * Math.min(Math.abs(diffX), player.speed);
         if (!isBlocked(player.x + slideX, player.y)) {
           player.x += slideX;
@@ -723,11 +723,10 @@ function updateEnemies() {
   });
 }
 
-// CORREZIONE DEFINITIVA DEL CRASH DELLE BOMBE (PULIZIA BOMBE ESPLOSE)
 function updateBombsAndExplosions() {
   for (let i = bombs.length - 1; i >= 0; i--) {
     let b = bombs[i];
-    if (!b.exploded) {
+    if (b && !b.exploded) {
       b.timer--;
       if (b.timer <= 0) {
         triggerExplosion(b);
@@ -735,8 +734,8 @@ function updateBombsAndExplosions() {
     }
   }
 
-  // Rimuove immediatamente le bombe esplose dall'array
-  bombs = bombs.filter(b => !b.exploded);
+  // Pulizia bombe esplose
+  bombs = bombs.filter(b => b && !b.exploded);
 
   for (let i = explosions.length - 1; i >= 0; i--) {
     let ex = explosions[i];
@@ -826,7 +825,7 @@ function drawGameWorld() {
   });
 
   bombs.forEach(b => {
-    if (!b.exploded) {
+    if (b && !b.exploded) {
       renderList.push({
         type: 'bomb',
         b: b,
@@ -1046,13 +1045,14 @@ function drawHUD() {
   ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 8, 32);
 
   ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
-  let tTitle = LEVEL_THEMES[Math.min(level - 1, LEVEL_THEMES.length - 1)].title;
+  let tIdx = Math.max(0, Math.min(level - 1, LEVEL_THEMES.length - 1));
+  let tTitle = LEVEL_THEMES[tIdx] ? LEVEL_THEMES[tIdx].title : "STAGE " + level;
   ctx.fillText(tTitle, canvas.width / 2, 26);
 
   ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'right';
   ctx.fillText(`REC: ${highScore}`, canvas.width - 8, 16);
   ctx.fillStyle = '#ff0055';
-  ctx.fillText(`VITE: ${'❤️'.repeat(lives)}`, canvas.width - 8, 34);
+  ctx.fillText(`VITE: ${'❤️'.repeat(Math.max(0, lives))}`, canvas.width - 8, 34);
 }
 
 function drawTutorial() {
@@ -1147,7 +1147,8 @@ function drawCharSelect() {
 function drawLevelClear() {
   ctx.fillStyle = 'rgba(4, 4, 18, 0.88)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  let tData = LEVEL_THEMES[Math.min(level - 2, LEVEL_THEMES.length - 1)];
+  let tIdx = Math.max(0, Math.min(level - 2, LEVEL_THEMES.length - 1));
+  let tData = LEVEL_THEMES[tIdx] || { title: "STAGE " + (level - 1), msg: "Livello Completato!" };
 
   ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'center';
   ctx.fillText(`${tData.title} COMPLETE! 🎉`, canvas.width / 2, canvas.height / 2 - 30);
@@ -1176,26 +1177,31 @@ function drawGameOver() {
   ctx.fillText('► TOCCA PER GIOCARE ANCORA ◄', canvas.width / 2, canvas.height / 2 + 80);
 }
 
+// GAME LOOP PROTETTO CON TRY...CATCH CONTRO I BLOCCHI
 function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  try {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (gameState === 'TUTORIAL') {
-    drawTutorial();
-  } else if (gameState === 'CHAR_SELECT') {
-    drawCharSelect();
-  } else if (gameState === 'PLAYING') {
-    updatePlayer();
-    updateEnemies();
-    updateBombsAndExplosions();
-    drawGameWorld();
-    drawHUD();
-  } else if (gameState === 'LEVEL_CLEAR') {
-    drawGameWorld();
-    drawLevelClear();
-    drawHUD();
-  } else if (gameState === 'GAME_OVER') {
-    drawGameWorld();
-    drawGameOver();
+    if (gameState === 'TUTORIAL') {
+      drawTutorial();
+    } else if (gameState === 'CHAR_SELECT') {
+      drawCharSelect();
+    } else if (gameState === 'PLAYING') {
+      updatePlayer();
+      updateEnemies();
+      updateBombsAndExplosions();
+      drawGameWorld();
+      drawHUD();
+    } else if (gameState === 'LEVEL_CLEAR') {
+      drawGameWorld();
+      drawLevelClear();
+      drawHUD();
+    } else if (gameState === 'GAME_OVER') {
+      drawGameWorld();
+      drawGameOver();
+    }
+  } catch (err) {
+    console.error("Game Loop Error:", err);
   }
 
   requestAnimationFrame(gameLoop);
@@ -1298,25 +1304,32 @@ window.addEventListener('keyup', e => { keys[e.code] = false; });
 function keyPressed(code) { return !!keys[code]; }
 
 function saveScore() {
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem('cyberRun_highScore', highScore);
-  }
+  try {
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('cyberRun_highScore', highScore.toString());
+    }
 
-  if (score <= 0) return;
-  let curUser = JSON.parse(localStorage.getItem('arcade_current_user'));
-  if (curUser) {
-    curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
-    curUser.stats.cyberRun = (curUser.stats.cyberRun || 0) + score;
-    localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
+    if (score <= 0) return;
+    let rawUser = localStorage.getItem('arcade_current_user');
+    if (!rawUser) return;
+    let curUser = JSON.parse(rawUser);
+    if (curUser && curUser.stats) {
+      curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
+      curUser.stats.cyberRun = (curUser.stats.cyberRun || 0) + score;
+      localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
 
-    if (!curUser.username.startsWith("GUEST_")) {
-      let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
-      if (users[curUser.username]) {
-        users[curUser.username].stats = curUser.stats;
-        localStorage.setItem('arcade_users', JSON.stringify(users));
+      if (curUser.username && !curUser.username.startsWith("GUEST_")) {
+        let rawUsers = localStorage.getItem('arcade_users');
+        let users = rawUsers ? JSON.parse(rawUsers) : {};
+        if (users[curUser.username]) {
+          users[curUser.username].stats = curUser.stats;
+          localStorage.setItem('arcade_users', JSON.stringify(users));
+        }
       }
     }
+  } catch (e) {
+    console.warn("Save score error:", e);
   }
 }
 

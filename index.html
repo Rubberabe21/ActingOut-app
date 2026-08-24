@@ -35,7 +35,7 @@
             background-color: #060612;
             display: flex;
             justify-content: center;
-            align-items: flex-end; /* ANCORAGGIO IN BASSO */
+            align-items: center;
             touch-action: none;
         }
 
@@ -51,7 +51,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end; /* SPINGE IL CONTENUTO IN BASSO */
+            justify-content: center;
             align-items: center;
         }
 
@@ -75,16 +75,17 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; /* SPINGE IL CANVAS PHASER IN BASSO */
-            align-items: center;
+            position: relative;
         }
 
-        /* SPINGE LA TELA DI GIOCO AD ADERIRE AL BORDO INFERIORE */
+        /* ANCORAGGIO FISSO SUL BORDO INFERIORE: SPOSTA LO SPAZIO VUOTO SUL SOFFITTO */
         #game-container canvas {
-            margin-top: auto !important;
-            margin-bottom: 0 !important;
+            position: absolute !important;
+            bottom: 0 !important;
+            top: auto !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            margin: 0 !important;
         }
 
         /* BARRA SUPERIORE HTML */
@@ -479,7 +480,7 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // ALTEZZA LOGICA FISSA ORIGINALE 360x740
+        // SCENA RIGIDAMENTE A 360x740
         const vWidth = 360;
         const vHeight = 740;
 
@@ -495,7 +496,7 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONAMENTO ORIGINALE PERFETTO SUL PARQUET (ZERO VOLTEGGI!)
+        // POSIZIONI ORIGINALI PERFETTAMENTE ADERENTI AL PARQUET
         const floorY = 568;
         const gabriY = 558;
         const npcY = 563;
@@ -724,14 +725,14 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// SCALE.CENTER_HORIZONTALLY + CSS ANCHOR IN BASSO: ZERO MARGINI IN BASSO E NESSUN VOLTEGGIO
+// NO_CENTER DISATTIVA IL CENTRAGGIO VERTICALE AUTOMATICO DI PHASER
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
     backgroundColor: '#060612',
     scale: { 
         mode: Phaser.Scale.FIT, 
-        autoCenter: Phaser.Scale.CENTER_HORIZONTALLY, 
+        autoCenter: Phaser.Scale.NO_CENTER, 
         width: 360, 
         height: 740 
     },
