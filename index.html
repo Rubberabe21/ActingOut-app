@@ -31,7 +31,6 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            height: 100dvh;
             overflow: hidden;
             background-color: #060612;
             display: flex;
@@ -65,7 +64,6 @@
                 right: 0;
                 width: 100vw;
                 height: 100%;
-                height: 100dvh;
                 max-width: none;
                 max-height: none;
                 border: none;
@@ -471,7 +469,7 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // SCALA DINAMICA SULLA DIMENSIONE DELLA TELA
+        // LETTURA DINAMICA DELL'ALTEZZA TELA
         const vWidth = this.scale.width;
         const vHeight = this.scale.height;
         const scaleRatioY = vHeight / 740;
@@ -487,7 +485,7 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONI PROPORZIONALI ALLA SCALA VERTICALE
+        // POSIZIONAMENTO PROPORZIONALE SULLA SCALA VERTICALE REALE
         this.cabBadgeY = 330 * scaleRatioY;
         const floorY = 568 * scaleRatioY;
         const gabriY = 558 * scaleRatioY;
@@ -719,7 +717,7 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// CALCOLO ALTEZZA DINAMICA PER PROPORZIONE EFFETTIVA DELLO SCHERMO
+// CALCOLO DINAMICO DELL'ASPECT RATIO REALE DELLO SCHERMO
 const screenW = window.innerWidth || 360;
 const screenH = window.innerHeight || 740;
 const GAME_WIDTH = 360;
