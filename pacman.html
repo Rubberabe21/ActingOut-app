@@ -96,14 +96,14 @@
     border-radius: 8px;
   }
 
-  /* DECK DI CONTROLLO CENTRATO CON ELEMENTI GRANDI E DISSOCIATI */
+  /* DECK DI CONTROLLO CENTRATO CON ELEMENTI GRANDI E SEPARATI */
   .control-deck {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 24px;
-    padding: 8px 12px;
+    gap: 32px;
+    padding: 10px 12px;
     background: #160a2c;
     border: 2.5px solid #ffea00;
     border-radius: 14px;
@@ -115,8 +115,8 @@
   /* BASE DEL JOYSTICK VIRTUAL TOUCH INGRANDITO */
   .joystick-zone {
     position: relative;
-    width: 110px;
-    height: 110px;
+    width: 125px;
+    height: 125px;
     background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
     border: 3px solid #00f0ff;
     border-radius: 50%;
@@ -131,10 +131,10 @@
 
   .joystick-knob {
     position: absolute;
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
-    border: 2.5px solid #ffffff;
+    border: 3px solid #ffffff;
     border-radius: 50%;
     box-shadow: 0 0 12px #ff007f;
     pointer-events: none;
@@ -144,29 +144,44 @@
   }
 
   /* PULSANTE ROSSO ARCADE PER LA BOMBA INGRANDITO */
-  .fire-btn {
-    width: 100px;
-    height: 100px;
-    background: radial-gradient(circle at 35% 35%, #ff3366, #990026);
-    border: 3px solid #ffffff;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 900;
+  .arcade-action-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .arcade-push-btn {
+    width: 115px;
+    height: 115px;
     border-radius: 50%;
-    box-shadow: 0 5px 0 #66001a, 0 0 16px rgba(255, 0, 85, 0.8);
+    background: #2b0012;
+    border: 3.5px solid #ff0055;
+    padding: 5px;
+    box-shadow: 0 0 22px rgba(255, 0, 85, 0.6), inset 0 0 12px rgba(0, 0, 0, 0.9);
+    cursor: pointer;
+    outline: none;
+  }
+  .arcade-push-btn .btn-top {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ff3377, #cc0044 60%, #88002d 100%);
+    border: 2px solid #ff77bb;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 12px;
     letter-spacing: 0.5px;
-    text-shadow: 0 2px 4px #000;
-    cursor: pointer;
-    flex-shrink: 0;
+    box-shadow: inset 0 4px 8px rgba(255,255,255,0.4), 0 5px 0 #55001b;
+    text-shadow: 0 1px 2px #000;
   }
-  .fire-btn:active {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 #66001a;
-    background: #ff0033;
+  .arcade-push-btn:active .btn-top {
+    transform: translateY(4px);
+    box-shadow: inset 0 1px 4px rgba(0,0,0,0.6), 0 1px 0 #55001b;
   }
 
   .exit-btn {
@@ -287,10 +302,14 @@
       <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
-    <!-- TASTO BOMBA TONDO ARCADE -->
-    <div class="fire-btn" id="btnBomb">
-      <span>💣</span>
-      <span>BOMBA</span>
+    <!-- TASTO BOMBA TONDO ARCADE XL -->
+    <div class="arcade-action-container">
+      <button class="arcade-push-btn" id="btnBomb">
+        <span class="btn-top">
+          <span style="font-size:16px;">💣</span>
+          <span>BOMBA</span>
+        </span>
+      </button>
     </div>
   </div>
 
@@ -364,8 +383,10 @@ function playBgMusic() {
   }
 }
 
-// AVVIO IMMEDIATO MUSICA ALL'INGRESSO E SBLOCCO AUTOMATICO PRIMA INTERAZIONE
+// AVVIO IMMEDIATO MUSICA ALL'INGRESSO E SBLOCCO AUTOMATICO SU POLICY MOBILE
 playBgMusic();
+window.addEventListener('DOMContentLoaded', playBgMusic);
+window.addEventListener('load', playBgMusic);
 ['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
   window.addEventListener(evt, () => playBgMusic(), { once: true });
 });
