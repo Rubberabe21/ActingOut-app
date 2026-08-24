@@ -61,64 +61,47 @@ canvas {
   cursor: pointer;
 }
 
-/* PLANCIA CONTROLLI CABINATO ARCADE CON D-PAD GRANDI */
+/* PLANCIA CONTROLLI CABINATO ARCADE ANNI '80 */
 .control-deck {
   width: 100%;
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: 10px 8px;
-  background: linear-gradient(180deg, #121428 0%, #050610 100%);
-  border: 2px solid #00ffcc;
-  box-shadow: inset 0 0 15px rgba(0,255,204,0.15), 0 0 20px rgba(0,255,204,0.25);
+  background: linear-gradient(180deg, #160a2c 0%, #080314 100%);
+  border: 3px solid #ffea00;
+  box-shadow: inset 0 0 15px rgba(255, 234, 0, 0.2), 0 0 20px rgba(255, 234, 0, 0.3);
   border-radius: 14px;
   margin-top: 6px;
 }
 
-/* D-PAD A CROCE ERGONOMICO CON TASTI GRANDI */
-.dpad-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 52px);
-  grid-template-rows: repeat(3, 48px);
-  gap: 4px;
-  justify-content: center;
-  align-content: center;
-}
-.ctrl-btn {
-  background: linear-gradient(180deg, #252a54 0%, #0e1028 100%);
-  border: 2px solid #00ffcc;
-  color: #00ffcc;
-  font-size: 22px;
-  font-weight: bold;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* JOYSTICK RETRO ANNI '80 */
+.joystick-zone {
+  position: relative;
+  width: 115px;
+  height: 115px;
+  background: radial-gradient(circle, #2a1048 30%, #0c0418 90%);
+  border: 3px solid #00ffcc;
+  border-radius: 50%;
+  box-shadow: inset 0 0 18px rgba(0, 255, 204, 0.5), 0 0 12px rgba(0, 255, 204, 0.4);
+  touch-action: none;
   cursor: pointer;
-  box-shadow: 0 4px 0 #007788, inset 0 1px 0 rgba(255,255,255,0.3);
-  text-shadow: 0 0 6px #00ffcc;
-}
-.ctrl-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #007788;
-  background: #00ffcc;
-  color: #000;
-  text-shadow: none;
-}
-.ctrl-btn-center {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #050610;
-  border-radius: 50%;
-  border: 1.5px solid rgba(0,255,204,0.4);
 }
-.dpad-core {
-  width: 18px;
-  height: 18px;
+.joystick-knob {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle at 35% 35%, #ff0055, #88002d);
+  border: 3px solid #ffffff;
   border-radius: 50%;
-  background: radial-gradient(circle, #00ffcc 0%, #006677 100%);
-  box-shadow: 0 0 10px #00ffcc;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.8), 0 0 15px #ff0055;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* TASTO BOMBA ARCADE XL */
@@ -128,8 +111,8 @@ canvas {
   align-items: center;
 }
 .arcade-push-btn {
-  width: 104px;
-  height: 104px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background: #2b0012;
   border: 3px solid #ff0055;
@@ -184,11 +167,9 @@ canvas {
   </div>
 
   <div class="control-deck">
-    <!-- D-PAD A CROCE CON TASTI GRANDI -->
-    <div class="dpad-grid">
-      <div style="visibility:hidden"></div><div class="ctrl-btn" id="btnUp">▲</div><div style="visibility:hidden"></div>
-      <div class="ctrl-btn" id="btnLeft">◄</div><div class="ctrl-btn-center"><div class="dpad-core"></div></div><div class="ctrl-btn" id="btnRight">►</div>
-      <div style="visibility:hidden"></div><div class="ctrl-btn" id="btnDown">▼</div><div style="visibility:hidden"></div>
+    <!-- JOYSTICK VIRTUAL TOUCH ANNI '80 -->
+    <div class="joystick-zone" id="joyZone">
+      <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
     <!-- TASTO BOMBA -->
@@ -358,11 +339,12 @@ let level = 1;
 let score = 0;
 let lives = 3;
 let animTimer = 0;
+let gameOverLockTimer = 0; // Protezione da tap accidentali su gameover
 
 let player = {
   x: 1 * CELL_SIZE + CELL_SIZE / 2,
   y: 1 * CELL_SIZE + CELL_SIZE / 2,
-  w: 14, h: 14,
+  w: 12, h: 12,
   maxBombs: 1,
   bombRange: 1,
   speed: 2.1,
@@ -373,6 +355,64 @@ let player = {
 
 let enemies = [];
 let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
+
+// CONTROLLO JOYSTICK TOUCH (SOLO 4 DIREZIONI CARDINALI - NO OBLIQUO)
+const joyZone = document.getElementById('joyZone');
+const joyKnob = document.getElementById('joyKnob');
+let joyActive = false;
+
+function handleJoyMove(clientX, clientY) {
+  const rect = joyZone.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  let dx = clientX - centerX;
+  let dy = clientY - centerY;
+
+  const dist = Math.hypot(dx, dy);
+  const maxRadius = rect.width / 2 - 8;
+
+  if (dist > maxRadius) {
+    dx = (dx / dist) * maxRadius;
+    dy = (dy / dist) * maxRadius;
+  }
+
+  joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+
+  moveUp = false; moveDown = false; moveLeft = false; moveRight = false;
+
+  const deadZone = 10;
+  if (dist > deadZone) {
+    // ESCLUSIONE RIGIDA DEI MOVIMENTI OBLIQUI (SOLO ASSE DOMINANTE)
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) moveLeft = true;
+      else moveRight = true;
+    } else {
+      if (dy < 0) moveUp = true;
+      else moveDown = true;
+    }
+  }
+}
+
+function resetJoy() {
+  joyActive = false;
+  moveUp = false; moveDown = false; moveLeft = false; moveRight = false;
+  joyKnob.style.transform = `translate(-50%, -50%)`;
+}
+
+joyZone.addEventListener('pointerdown', e => {
+  joyActive = true;
+  joyZone.setPointerCapture(e.pointerId);
+  getAC();
+  handleJoyMove(e.clientX, e.clientY);
+});
+
+joyZone.addEventListener('pointermove', e => {
+  if (joyActive) handleJoyMove(e.clientX, e.clientY);
+});
+
+joyZone.addEventListener('pointerup', resetJoy);
+joyZone.addEventListener('pointercancel', resetJoy);
 
 function selectCharacter(charKey) {
   currentTheme = CHARACTERS[charKey];
@@ -486,15 +526,16 @@ function placeBomb() {
 
   if (gx < 0 || gx >= COLS || gy < 0 || gy >= ROWS) return;
 
-  let currentBombs = bombs.filter(b => !b.exploded).length;
-  if (currentBombs >= player.maxBombs) return;
+  let currentActiveBombs = bombs.filter(b => b && !b.exploded).length;
+  if (currentActiveBombs >= player.maxBombs) return;
 
-  let alreadyHasBomb = bombs.some(b => b.gx === gx && b.gy === gy && !b.exploded);
+  let alreadyHasBomb = bombs.some(b => b && b.gx === gx && b.gy === gy && !b.exploded);
   if (alreadyHasBomb) return;
 
   bombs.push({
+    id: Date.now() + Math.random(),
     gx, gy,
-    timer: 140,
+    timer: 130,
     range: player.bombRange,
     exploded: false,
     ownerInside: true
@@ -503,9 +544,9 @@ function placeBomb() {
   playSound('bomb');
 }
 
-// GESTIONE PROTETTA ED INCATENATA DELLE ESPLOSIONI SULLE BOMBE
+// PROTETTO: NESSUN CRASH O BLOCCO SULLE ESPLOSIONI A CATENA
 function triggerExplosion(b) {
-  if (b.exploded) return;
+  if (!b || b.exploded) return;
   b.exploded = true;
   playSound('explode');
 
@@ -518,12 +559,12 @@ function triggerExplosion(b) {
       let cgy = b.gy + d.y * step;
 
       if (cgx < 0 || cgx >= COLS || cgy < 0 || cgy >= ROWS) break;
-      if (map[cgy][cgx] === 1) break;
+      if (map[cgy][cgx] === 1) break; // Muro fisso arresta esplosione
 
       fireCells.push({ gx: cgx, gy: cgy });
 
-      // Catena esplosiva: esplode altre bombe vicine
-      let otherBomb = bombs.find(ob => !ob.exploded && ob.gx === cgx && ob.gy === cgy);
+      // Innesco a catena sicuro
+      let otherBomb = bombs.find(ob => ob && !ob.exploded && ob.gx === cgx && ob.gy === cgy);
       if (otherBomb) {
         triggerExplosion(otherBomb);
       }
@@ -553,7 +594,7 @@ function triggerExplosion(b) {
     }
   });
 
-  explosions.push({ cells: fireCells, timer: 22 });
+  explosions.push({ cells: fireCells, timer: 20 });
 }
 
 function overlapsTile(px, py, pw, ph, gx, gy) {
@@ -572,7 +613,7 @@ function overlapsTile(px, py, pw, ph, gx, gy) {
 
 function updateBombPassability() {
   bombs.forEach(b => {
-    if (b.ownerInside && !b.exploded) {
+    if (b && b.ownerInside && !b.exploded) {
       if (!overlapsTile(player.x, player.y, player.w, player.h, b.gx, b.gy)) {
         b.ownerInside = false;
       }
@@ -597,14 +638,14 @@ function isBlocked(nx, ny) {
       if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return true;
       if (map[r][c] !== 0) return true;
 
-      let hasSolidBomb = bombs.some(b => !b.exploded && b.gx === c && b.gy === r && !b.ownerInside);
+      let hasSolidBomb = bombs.some(b => b && !b.exploded && b.gx === c && b.gy === r && !b.ownerInside);
       if (hasSolidBomb) return true;
     }
   }
   return false;
 }
 
-// MOVIMENTO CARDINALE RIGIDO (NESSUN MOVIMENTO DIAGONALE/OBLIQUO)
+// MOVIMENTO BOMBERMAN COMPLETO: GUIDA RIGIDA SUL CENTRO DELLA CORSIA
 function updatePlayer() {
   let dx = 0, dy = 0;
 
@@ -613,7 +654,7 @@ function updatePlayer() {
   let wantUp = keyPressed('ArrowUp') || keyPressed('KeyW') || moveUp;
   let wantDown = keyPressed('ArrowDown') || keyPressed('KeyS') || moveDown;
 
-  // Priorità rigida ad un solo asse per escludere diagonali
+  // Selezione prioritaria dell'asse per escludere qualsiasi diagonale
   if (wantLeft) { dx = -player.speed; player.facingLeft = true; }
   else if (wantRight) { dx = player.speed; player.facingLeft = false; }
   else if (wantUp) { dy = -player.speed; }
@@ -622,31 +663,32 @@ function updatePlayer() {
   player.isMoving = (dx !== 0 || dy !== 0);
   if (player.isMoving) animTimer++;
 
+  // Movimento orizzontale: aggancia perfettamente Y al centro della riga
   if (dx !== 0) {
+    let targetCenterY = (Math.floor(player.y / CELL_SIZE) + 0.5) * CELL_SIZE;
+    let diffY = targetCenterY - player.y;
+    if (Math.abs(diffY) > 0.1) {
+      player.y += Math.sign(diffY) * Math.min(Math.abs(diffY), player.speed);
+    } else {
+      player.y = targetCenterY;
+    }
+
     if (!isBlocked(player.x + dx, player.y)) {
       player.x += dx;
-    } else {
-      let targetCenterY = (Math.floor(player.y / CELL_SIZE) + 0.5) * CELL_SIZE;
-      let diffY = targetCenterY - player.y;
-      if (Math.abs(diffY) <= CELL_SIZE * 0.4) {
-        let slideY = Math.sign(diffY) * Math.min(Math.abs(diffY), player.speed);
-        if (!isBlocked(player.x, player.y + slideY)) {
-          player.y += slideY;
-        }
-      }
     }
-  } else if (dy !== 0) {
+  } 
+  // Movimento verticale: aggancia perfettamente X al centro della colonna
+  else if (dy !== 0) {
+    let targetCenterX = (Math.floor(player.x / CELL_SIZE) + 0.5) * CELL_SIZE;
+    let diffX = targetCenterX - player.x;
+    if (Math.abs(diffX) > 0.1) {
+      player.x += Math.sign(diffX) * Math.min(Math.abs(diffX), player.speed);
+    } else {
+      player.x = targetCenterX;
+    }
+
     if (!isBlocked(player.x, player.y + dy)) {
       player.y += dy;
-    } else {
-      let targetCenterX = (Math.floor(player.x / CELL_SIZE) + 0.5) * CELL_SIZE;
-      let diffX = targetCenterX - player.x;
-      if (Math.abs(diffX) <= CELL_SIZE * 0.4) {
-        let slideX = Math.sign(diffX) * Math.min(Math.abs(diffX), player.speed);
-        if (!isBlocked(player.x + slideX, player.y)) {
-          player.x += slideX;
-        }
-      }
     }
   }
 
@@ -688,7 +730,7 @@ function updateEnemies() {
         if (ngx < 0 || ngx >= COLS || ngy < 0 || ngy >= ROWS) return false;
         if (map[ngy][ngx] !== 0) return false;
         
-        let hasActiveBomb = bombs.some(b => !b.exploded && b.gx === ngx && b.gy === ngy);
+        let hasActiveBomb = bombs.some(b => b && !b.exploded && b.gx === ngx && b.gy === ngy);
         if (hasActiveBomb) return false;
         
         return true;
@@ -716,7 +758,7 @@ function updateEnemies() {
 
     if (player.invTimer <= 0) {
       let pDist = Math.hypot(player.x - e.x, player.y - e.y);
-      if (pDist < 14) {
+      if (pDist < 12) {
         hitPlayer();
       }
     }
@@ -724,7 +766,8 @@ function updateEnemies() {
 }
 
 function updateBombsAndExplosions() {
-  for (let i = bombs.length - 1; i >= 0; i--) {
+  // Timer e innesco bombe
+  for (let i = 0; i < bombs.length; i++) {
     let b = bombs[i];
     if (b && !b.exploded) {
       b.timer--;
@@ -734,16 +777,20 @@ function updateBombsAndExplosions() {
     }
   }
 
-  // Pulizia bombe esplose
+  // Filtro sicuro delle bombe gia esplose
   bombs = bombs.filter(b => b && !b.exploded);
 
+  // Gestione esplosioni
   for (let i = explosions.length - 1; i >= 0; i--) {
     let ex = explosions[i];
+    if (!ex) continue;
     ex.timer--;
 
     ex.cells.forEach(cell => {
+      // Danno ai nemici
       for (let eIdx = enemies.length - 1; eIdx >= 0; eIdx--) {
         let e = enemies[eIdx];
+        if (!e) continue;
         let egx = Math.floor(e.x / CELL_SIZE);
         let egy = Math.floor(e.y / CELL_SIZE);
         
@@ -753,6 +800,7 @@ function updateBombsAndExplosions() {
         }
       }
 
+      // Danno al giocatore
       if (player.invTimer <= 0) {
         let pgx = Math.floor(player.x / CELL_SIZE);
         let pgy = Math.floor(player.y / CELL_SIZE);
@@ -765,6 +813,7 @@ function updateBombsAndExplosions() {
     if (ex.timer <= 0) explosions.splice(i, 1);
   }
 
+  // Avanzamento livello
   if (enemies.length === 0 && gameState === 'PLAYING') {
     score += Math.floor(1000 * level * currentTheme.scoreMult);
     level++;
@@ -784,6 +833,7 @@ function hitPlayer() {
   playSound('fail');
   if (lives <= 0) {
     gameState = 'GAME_OVER';
+    gameOverLockTimer = 45; // 45 frame di protezione prima di accettare tap/click
     saveScore();
   } else {
     player.x = 1 * CELL_SIZE + CELL_SIZE / 2;
@@ -1085,7 +1135,7 @@ function drawTutorial() {
   ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace';
   ctx.fillText('CONTROLLI PC & SMARTPHONE', 22, 258);
   ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-  ctx.fillText('Usa il D-Pad a croce / WASD', 22, 278);
+  ctx.fillText('Usa il Joystick Touch o WASD', 22, 278);
   ctx.fillText('Premi 💣 BOMBA o SPAZIO per sparare!', 22, 294);
 
   ctx.fillStyle = '#ffff00'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
@@ -1177,10 +1227,11 @@ function drawGameOver() {
   ctx.fillText('► TOCCA PER GIOCARE ANCORA ◄', canvas.width / 2, canvas.height / 2 + 80);
 }
 
-// GAME LOOP PROTETTO CON TRY...CATCH CONTRO I BLOCCHI
 function gameLoop() {
   try {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (gameOverLockTimer > 0) gameOverLockTimer--;
 
     if (gameState === 'TUTORIAL') {
       drawTutorial();
@@ -1228,50 +1279,24 @@ canvas.addEventListener('pointerdown', (e) => {
   }
 
   if (gameState === 'GAME_OVER') {
-    gameState = 'CHAR_SELECT';
+    if (gameOverLockTimer <= 0) {
+      gameState = 'CHAR_SELECT';
+    }
     return;
   }
 });
 
-// BINDING D-PAD ED EVENTI TOUCH
-function bindBtn(id, onPress) {
-  let btn = document.getElementById(id);
-  if (!btn) return;
-
-  const start = (e) => {
-    e.preventDefault();
-    getAC();
-    if (gameState === 'TUTORIAL' || gameState === 'GAME_OVER') {
-      gameState = 'CHAR_SELECT';
-    } else {
-      onPress(true);
-    }
-  };
-
-  const end = (e) => {
-    e.preventDefault();
-    onPress(false);
-  };
-
-  btn.addEventListener('pointerdown', start);
-  btn.addEventListener('pointerup', end);
-  btn.addEventListener('pointercancel', end);
-  btn.addEventListener('mouseleave', end);
-}
-
-bindBtn('btnUp', isDown => { moveUp = isDown; });
-bindBtn('btnDown', isDown => { moveDown = isDown; });
-bindBtn('btnLeft', isDown => { moveLeft = isDown; });
-bindBtn('btnRight', isDown => { moveRight = isDown; });
-
+// TASTO BOMBA
 function bindBombBtn(id) {
   let btn = document.getElementById(id);
   if (!btn) return;
   btn.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     getAC();
-    if (gameState === 'TUTORIAL' || gameState === 'GAME_OVER') {
+    if (gameState === 'TUTORIAL') {
       gameState = 'CHAR_SELECT';
+    } else if (gameState === 'GAME_OVER') {
+      if (gameOverLockTimer <= 0) gameState = 'CHAR_SELECT';
     } else if (gameState === 'PLAYING') {
       placeBomb();
     }
@@ -1293,7 +1318,9 @@ window.addEventListener('keydown', e => {
     return;
   }
   if (gameState === 'GAME_OVER') {
-    if (e.code === 'Space' || e.code === 'Enter') gameState = 'CHAR_SELECT';
+    if (gameOverLockTimer <= 0 && (e.code === 'Space' || e.code === 'Enter')) {
+      gameState = 'CHAR_SELECT';
+    }
     return;
   }
 
