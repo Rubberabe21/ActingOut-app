@@ -35,7 +35,7 @@
             background-color: #060612;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-end;
             touch-action: none;
         }
 
@@ -51,23 +51,23 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-end;
             align-items: center;
         }
 
         @media (max-width: 600px) {
             #game-wrapper {
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100vw;
-                height: 100%;
-                max-width: none;
-                max-height: none;
-                border: none;
-                box-shadow: none;
+                position: fixed !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100vw !important;
+                height: 100dvh !important;
+                max-width: none !important;
+                max-height: none !important;
+                border: none !important;
+                box-shadow: none !important;
             }
         }
         
@@ -78,7 +78,7 @@
             position: relative;
         }
 
-        /* ANCORAGGIO FISSO SUL BORDO INFERIORE: SPOSTA LO SPAZIO VUOTO SUL SOFFITTO */
+        /* ANCORAGGIO ABSOLUTE INFERIORE FORZATO SUL CANVAS DI PHASER */
         #game-container canvas {
             position: absolute !important;
             bottom: 0 !important;
@@ -86,6 +86,8 @@
             left: 50% !important;
             transform: translateX(-50%) !important;
             margin: 0 !important;
+            margin-top: auto !important;
+            margin-bottom: 0 !important;
         }
 
         /* BARRA SUPERIORE HTML */
@@ -480,7 +482,6 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // SCENA RIGIDAMENTE A 360x740
         const vWidth = 360;
         const vHeight = 740;
 
@@ -496,7 +497,7 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONI ORIGINALI PERFETTAMENTE ADERENTI AL PARQUET
+        // POSIZIONI ORIGINALI PERFETTAMENTE ALINEATE AL PARQUET
         const floorY = 568;
         const gabriY = 558;
         const npcY = 563;
@@ -725,7 +726,7 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// NO_CENTER DISATTIVA IL CENTRAGGIO VERTICALE AUTOMATICO DI PHASER
+// DESELECT AUTOMATIC CENTERING FOR PHASER SCALE FIT
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
