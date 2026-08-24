@@ -5,264 +5,267 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Cyber Run - Grid Bomber</title>
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  touch-action: none !important;
-  font-family: 'Courier New', Courier, monospace;
-}
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: #030305;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-#game-wrapper {
-  position: relative;
-  width: 100vw;
-  height: 100dvh;
-  max-width: 440px;
-  max-height: 860px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 6px) 8px;
-  background: #0e051b;
-  border: 3px solid #ff007f;
-  box-shadow: 0 0 25px #ff007f, inset 0 0 20px #00f0ff;
-  border-radius: 16px;
-}
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none !important;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #030305;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #game-wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100dvh;
+    max-width: 440px;
+    max-height: 860px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 6px) 8px;
+    background: #0e051b;
+    border: 3px solid #ff007f;
+    box-shadow: 0 0 25px #ff007f, inset 0 0 20px #00f0ff;
+    border-radius: 16px;
+  }
 
-/* TOP BAR CON TASTO OPZIONI */
-.top-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2px 4px;
-  margin-bottom: 2px;
-  flex-shrink: 0;
-}
-.header-title {
-  color: #00f0ff;
-  font-size: 11px;
-  font-weight: bold;
-  text-shadow: 0 0 6px #00f0ff;
-  letter-spacing: 1px;
-}
-.opt-btn {
-  background: #1a0836;
-  border: 1.5px solid #ffea00;
-  color: #ffea00;
-  padding: 3px 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 10px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
-}
-.opt-btn:active { transform: scale(0.92); }
+  /* TOP BAR CON TASTO OPZIONI */
+  .top-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+  }
+  .header-title {
+    color: #00f0ff;
+    font-size: 11px;
+    font-weight: bold;
+    text-shadow: 0 0 6px #00f0ff;
+    letter-spacing: 1px;
+  }
+  .opt-btn {
+    background: #1a0836;
+    border: 1.5px solid #ffea00;
+    color: #ffea00;
+    padding: 3px 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
+  }
+  .opt-btn:active { transform: scale(0.92); }
 
-#canvas-container {
-  position: relative;
-  width: 100%;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  min-height: 0;
-}
-canvas {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  aspect-ratio: 338 / 434;
-  border: 3px solid #00f0ff;
-  box-shadow: 0 0 15px #00f0ff;
-  image-rendering: pixelated;
-  background: #060212;
-  cursor: pointer;
-  border-radius: 8px;
-}
+  #canvas-container {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    min-height: 0;
+  }
+  canvas {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    aspect-ratio: 338 / 434;
+    border: 3px solid #00f0ff;
+    box-shadow: 0 0 15px #00f0ff;
+    image-rendering: pixelated;
+    background: #060212;
+    cursor: pointer;
+    border-radius: 8px;
+  }
 
-/* DECK DI CONTROLLO COMPATTO CON JOYSTICK RETRO */
-.control-deck {
-  width: 100%;
-  display: flex;
-  justify-style: space-around;
-  align-items: center;
-  padding: 6px 8px;
-  background: #160a2c;
-  border: 2.5px solid #ffea00;
-  border-radius: 12px;
-  margin-top: 4px;
-  box-shadow: 0 0 12px rgba(255, 234, 0, 0.3);
-  flex-shrink: 0;
-}
+  /* DECK DI CONTROLLO CENTRATO CON ELEMENTI GRANDI E DISSOCIATI */
+  .control-deck {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    padding: 8px 12px;
+    background: #160a2c;
+    border: 2.5px solid #ffea00;
+    border-radius: 14px;
+    margin-top: 4px;
+    box-shadow: 0 0 12px rgba(255, 234, 0, 0.3);
+    flex-shrink: 0;
+  }
 
-/* BASE DEL JOYSTICK VIRTUAL TOUCH */
-.joystick-zone {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
-  border: 2.5px solid #00f0ff;
-  border-radius: 50%;
-  box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.5), 0 0 10px rgba(0, 240, 255, 0.4);
-  touch-action: none;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  /* BASE DEL JOYSTICK VIRTUAL TOUCH INGRANDITO */
+  .joystick-zone {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
+    border: 3px solid #00f0ff;
+    border-radius: 50%;
+    box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.5), 0 0 12px rgba(0, 240, 255, 0.4);
+    touch-action: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
 
-.joystick-knob {
-  position: absolute;
-  width: 44px;
-  height: 44px;
-  background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
-  border: 2.5px solid #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 0 12px #ff007f;
-  pointer-events: none;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+  .joystick-knob {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
+    border: 2.5px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #ff007f;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 
-/* PULSANTE ROSSO ARCADE PER LA BOMBA */
-.fire-btn {
-  width: 90px;
-  height: 90px;
-  background: radial-gradient(circle at 35% 35%, #ff3366, #990026);
-  border: 3px solid #ffffff;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 900;
-  border-radius: 50%;
-  box-shadow: 0 5px 0 #66001a, 0 0 15px rgba(255, 0, 85, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  letter-spacing: 0.5px;
-  text-shadow: 0 2px 4px #000;
-  cursor: pointer;
-}
-.fire-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #66001a;
-  background: #ff0033;
-}
+  /* PULSANTE ROSSO ARCADE PER LA BOMBA INGRANDITO */
+  .fire-btn {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle at 35% 35%, #ff3366, #990026);
+    border: 3px solid #ffffff;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 900;
+    border-radius: 50%;
+    box-shadow: 0 5px 0 #66001a, 0 0 16px rgba(255, 0, 85, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px #000;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .fire-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #66001a;
+    background: #ff0033;
+  }
 
-.exit-btn {
-  width: 100%;
-  margin-top: 4px;
-  padding: 6px;
-  background: #100826;
-  border: 1.5px solid #ff007f;
-  color: #ff007f;
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-  font-size: 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: center;
-  box-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
-  flex-shrink: 0;
-}
-.exit-btn:active { transform: scale(0.96); }
+  .exit-btn {
+    width: 100%;
+    margin-top: 4px;
+    padding: 6px;
+    background: #100826;
+    border: 1.5px solid #ff007f;
+    color: #ff007f;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
+    flex-shrink: 0;
+  }
+  .exit-btn:active { transform: scale(0.96); }
 
-/* OVERLAY MODALE OPZIONI */
-.modal-overlay {
-  display: none;
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(5, 2, 10, 0.94);
-  z-index: 200;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-}
-.modal-box {
-  width: 100%;
-  max-width: 300px;
-  background: #0e051b;
-  border: 3px solid #00f0ff;
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
-  border-radius: 14px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  color: #ffffff;
-  text-align: center;
-}
-.modal-title {
-  color: #ffea00;
-  font-size: 15px;
-  font-weight: 900;
-  text-shadow: 0 0 8px #ffea00;
-}
-.option-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  background: #160a2c;
-  padding: 8px;
-  border: 1px solid rgba(255,0,127,0.4);
-  border-radius: 8px;
-}
-.option-label {
-  font-size: 11px;
-  font-weight: bold;
-  color: #00f0ff;
-}
-.toggle-btn {
-  width: 100%;
-  padding: 8px;
-  background: #2a144a;
-  border: 2px solid #ff007f;
-  color: #ffffff;
-  font-weight: bold;
-  font-size: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.toggle-btn.active {
-  border-color: #00ff66;
-  color: #00ff66;
-  background: #082814;
-  box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
-}
-.sens-slider {
-  width: 100%;
-  accent-color: #ff007f;
-  cursor: pointer;
-}
-.close-modal-btn {
-  padding: 10px;
-  background: linear-gradient(180deg, #ff007f, #a30052);
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  font-weight: bold;
-  font-size: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
-}
+  /* OVERLAY MODALE OPZIONI */
+  .modal-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(5, 2, 10, 0.94);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+  }
+  .modal-box {
+    width: 100%;
+    max-width: 300px;
+    background: #0e051b;
+    border: 3px solid #00f0ff;
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    color: #ffffff;
+    text-align: center;
+  }
+  .modal-title {
+    color: #ffea00;
+    font-size: 15px;
+    font-weight: 900;
+    text-shadow: 0 0 8px #ffea00;
+  }
+  .option-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #160a2c;
+    padding: 8px;
+    border: 1px solid rgba(255,0,127,0.4);
+    border-radius: 8px;
+  }
+  .option-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #00f0ff;
+  }
+  .toggle-btn {
+    width: 100%;
+    padding: 8px;
+    background: #2a144a;
+    border: 2px solid #ff007f;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .toggle-btn.active {
+    border-color: #00ff66;
+    color: #00ff66;
+    background: #082814;
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+  }
+  .sens-slider {
+    width: 100%;
+    accent-color: #ff007f;
+    cursor: pointer;
+  }
+  .close-modal-btn {
+    padding: 10px;
+    background: linear-gradient(180deg, #ff007f, #a30052);
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+  }
 </style>
 </head>
 <body>
@@ -360,6 +363,12 @@ function playBgMusic() {
     bgMusic.play().catch(() => {});
   }
 }
+
+// AVVIO IMMEDIATO MUSICA ALL'INGRESSO E SBLOCCO AUTOMATICO PRIMA INTERAZIONE
+playBgMusic();
+['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+  window.addEventListener(evt, () => playBgMusic(), { once: true });
+});
 
 function updateMusicState() {
   if (musicEnabled) {
@@ -1080,7 +1089,6 @@ function hitPlayer() {
   }
 }
 
-// RENDERING SENZA ALLOCAZIONI OBJECT AD OGNI FRAME
 function drawGameWorld() {
   ctx.strokeStyle = '#0d0d22';
   ctx.lineWidth = 1;
@@ -1409,7 +1417,6 @@ function drawCharSelect() {
   });
 }
 
-// FORMATTAZIONE RIGOROSAMENTE RIENTRANTE NEL CANVAS PER IL COMPLETAMENTO STAGE
 function drawLevelClear() {
   ctx.fillStyle = 'rgba(4, 4, 18, 0.92)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 

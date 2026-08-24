@@ -64,14 +64,10 @@
                 right: 0 !important;
                 width: 100vw !important;
                 height: 100dvh !important;
-                height: -webkit-fill-available !important;
                 max-width: none !important;
                 max-height: none !important;
                 border: none !important;
                 box-shadow: none !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: flex-end !important;
             }
         }
         
@@ -80,16 +76,6 @@
             height: 100% !important;
             overflow: hidden;
             position: relative;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-end !important;
-            align-items: center !important;
-        }
-
-        /* SPINGE IL CANVAS PHASER A TOCCARE IL BORDO INFERIORE DEL DISPLAY */
-        #game-container canvas {
-            margin-top: auto !important;
-            margin-bottom: 0 !important;
         }
 
         /* BARRA SUPERIORE HTML */
@@ -484,7 +470,7 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // SCENA RIGIDAMENTE A 360x740
+        // SCENA RIGIDAMENTE A 360x740 PER MANTENERE IL PERSONAGGIO INCOLLATO AL PARQUET
         const vWidth = 360;
         const vHeight = 740;
 
@@ -500,7 +486,7 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONI ORIGINALI PERFETTAMENTE ANCORATE AL PAVIMENTO
+        // POSIZIONI FISSE ORIGINALI PERFETTAMENTE ANCORATE AL PAVIMENTO
         const floorY = 568;
         const gabriY = 558;
         const npcY = 563;
@@ -729,7 +715,7 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// CONFIGURAZIONE SCALE FIT NO_CENTER PER EVITARE IL CENTRAMENTO AUTOMATICO DI PHASER
+// NO_CENTER DISATTIVA IL CENTRAMENTO AUTOMATICO DI PHASER PER PERMETTERE L'ANCORAGGIO IN BASSO
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
@@ -746,7 +732,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-// FUNZIONE REALE PER RICALCOLARE LO SPAZIO IN ECCESSIVO E SPINGERE IL CANVAS IN BASSO
+// CALCOLO ESATTO DELLO SPAZIO EXTRA PER SPINGERE IL CANVAS CONTRO IL BORDO INFERIORE DEL DISPLAY
 function forceCanvasToBottom() {
     const container = document.getElementById('game-container');
     if (!container) return;
@@ -764,12 +750,10 @@ function forceCanvasToBottom() {
     canvas.style.setProperty('margin-bottom', '0px', 'important');
 }
 
-// EVENTI DI RESIZE E POSTSCALE PHASER PER GARANTIRE L'ANCORAGGIO IN BASSO
 game.scale.on('postscale', forceCanvasToBottom);
 window.addEventListener('resize', forceCanvasToBottom);
 window.addEventListener('orientationchange', forceCanvasToBottom);
 
-// CONTROLLO CONTINUO IN FASE DI CARICAMENTO SU SAFARI
 let checks = 0;
 const alignInterval = setInterval(() => {
     forceCanvasToBottom();
