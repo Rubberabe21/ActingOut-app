@@ -2,197 +2,131 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <title>Agency Arcade</title>
 
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
-
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-
-        /* =========================================================
-           RESET TOTALE
-        ========================================================= */
-
-        *,
-        *::before,
-        *::after {
+        *, *:focus, *:active, canvas, button, input, div, a {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent !important;
             -webkit-touch-callout: none !important;
+            -webkit-focus-ring-color: transparent !important;
             outline: none !important;
             border: none;
             touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
         }
 
-
         /* =========================================================
-           VIEWPORT IOS
-           
-           IMPORTANTE:
-           - niente 100dvh
-           - usiamo 100lvh
-           - viewport-fit=cover nel meta viewport
-        ========================================================= */
+           IOS VIEWPORT
+           ========================================================= */
 
         html {
-            position: fixed !important;
-            inset: 0 !important;
-
-            width: 100% !important;
-            height: 100% !important;
-
-            margin: 0 !important;
-            padding: 0 !important;
-
-            background: #000 !important;
-
-            overflow: hidden !important;
-
-            overscroll-behavior: none !important;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #000000;
+            overflow: hidden;
         }
 
         body {
-            position: fixed !important;
-            inset: 0 !important;
+            position: fixed;
+            inset: 0;
 
-            width: 100% !important;
+            width: 100%;
+            height: 100%;
 
-            /*
-             * L'altezza deve comprendere anche la safe area.
-             */
-            height: 100lvh !important;
-            min-height: 100lvh !important;
-            max-height: 100lvh !important;
+            margin: 0;
+            padding: 0;
 
-            margin: 0 !important;
-            padding: 0 !important;
+            background: #000000;
+            overflow: hidden;
 
-            background: #000 !important;
-
-            overflow: hidden !important;
-
-            overscroll-behavior: none !important;
-
-            /*
-             * NON mettere padding con safe-area-inset.
-             * Vogliamo che il gioco arrivi fino al bordo fisico.
-             */
-            padding-bottom: 0 !important;
+            overscroll-behavior: none;
+            touch-action: none;
         }
 
-
-        /* =========================================================
-           WRAPPER
-        ========================================================= */
-
+        /*
+         * L'area del gioco viene limitata alla viewport SMALL.
+         * In questo modo iOS non mette la parte finale del canvas
+         * sotto la home indicator.
+         */
         #game-wrapper {
-            position: fixed !important;
+            position: fixed;
 
-            /*
-             * Inset negativo per sicurezza:
-             * estende il contenitore anche sotto eventuali
-             * aree gestite da Safari.
-             */
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
+            top: 0;
+            left: 0;
 
-            width: 100vw !important;
-            height: 100lvh !important;
+            width: 100vw;
+            height: 100svh;
 
-            margin: 0 !important;
-            padding: 0 !important;
+            background: #000000;
+            overflow: hidden;
 
-            background: #000 !important;
-
-            overflow: hidden !important;
-
-            z-index: 1;
+            margin: 0;
+            padding: 0;
         }
-
 
         #game-container {
-            position: absolute !important;
+            position: absolute;
 
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
+            top: 0;
+            left: 0;
 
-            width: 100% !important;
-            height: 100% !important;
+            width: 100%;
+            height: 100%;
 
-            margin: 0 !important;
-            padding: 0 !important;
+            background: #000000;
+            overflow: hidden;
 
-            background: #000 !important;
-
-            overflow: hidden !important;
-
-            z-index: 1;
+            margin: 0;
+            padding: 0;
         }
 
-
-        /* =========================================================
-           PHASER CANVAS
-        ========================================================= */
-
+        /*
+         * NON usare 100dvh qui.
+         * Il canvas deve semplicemente occupare il contenitore.
+         */
         #game-container canvas {
+            display: block !important;
+
             position: absolute !important;
 
-            /*
-             * NON usare 100dvh qui.
-             */
             top: 0 !important;
             left: 0 !important;
 
             width: 100% !important;
             height: 100% !important;
-
-            min-width: 100% !important;
-            min-height: 100% !important;
-
-            max-width: none !important;
-            max-height: none !important;
-
-            display: block !important;
 
             margin: 0 !important;
             padding: 0 !important;
 
             object-fit: fill !important;
-
-            background: #000 !important;
-
-            z-index: 1;
         }
-
 
         /* =========================================================
            HEADER
-        ========================================================= */
+           ========================================================= */
 
         #top-header-bar {
             position: absolute;
 
             top: max(env(safe-area-inset-top), 8px);
-
             left: 8px;
             right: 8px;
 
@@ -209,15 +143,12 @@
 
         .header-btn {
             background: #060614;
-
             border: 1.5px solid #ff0055 !important;
 
             color: #ffff00;
 
             font-family: 'Courier New', Courier, monospace;
-
             font-weight: bold;
-
             font-size: 11px;
 
             padding: 6px 10px;
@@ -235,16 +166,13 @@
 
         #header-score-btn {
             color: #ff0055;
-
             border-color: #ff0055 !important;
-
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
-
         /* =========================================================
-           AUTH
-        ========================================================= */
+           AUTH / PROFILE
+           ========================================================= */
 
         .auth-overlay {
             position: absolute;
@@ -260,11 +188,8 @@
             z-index: 200;
 
             display: flex;
-
             flex-direction: column;
-
             justify-content: center;
-
             align-items: center;
 
             padding: 16px;
@@ -289,11 +214,6 @@
             color: #fff;
         }
 
-
-        /* =========================================================
-           PROFILE
-        ========================================================= */
-
         .profile-card-header {
             background: linear-gradient(90deg, #150520, #051525);
 
@@ -302,17 +222,13 @@
             border-radius: 10px;
 
             padding: 10px;
-
             margin-bottom: 12px;
         }
 
         .profile-avatar-row {
             display: flex;
-
             align-items: center;
-
             gap: 10px;
-
             text-align: left;
         }
 
@@ -327,7 +243,6 @@
             border-radius: 50%;
 
             display: flex;
-
             justify-content: center;
             align-items: center;
 
@@ -341,25 +256,19 @@
         .profile-avatar img {
             width: 100%;
             height: 100%;
-
             object-fit: cover;
         }
 
         .profile-rank-title {
             color: #ffff00;
-
             font-size: 11px;
-
             font-weight: bold;
-
             letter-spacing: 1px;
         }
 
         .profile-username {
             color: #ffffff;
-
             font-size: 15px;
-
             font-weight: bold;
         }
 
@@ -393,7 +302,6 @@
 
         .badges-row {
             display: flex;
-
             justify-content: space-around;
 
             background: #04040a;
@@ -403,7 +311,6 @@
             border-radius: 8px;
 
             padding: 8px;
-
             margin-bottom: 12px;
         }
 
@@ -411,7 +318,6 @@
             font-size: 18px;
 
             filter: grayscale(1);
-
             opacity: 0.3;
 
             transition: all 0.3s;
@@ -419,7 +325,6 @@
 
         .badge-item.unlocked {
             filter: grayscale(0);
-
             opacity: 1;
 
             transform: scale(1.1);
@@ -466,11 +371,6 @@
 
             font-weight: bold;
         }
-
-
-        /* =========================================================
-           LEADERBOARD
-        ========================================================= */
 
         .tab-selector {
             display: flex;
@@ -574,11 +474,6 @@
             font-weight: bold;
         }
 
-
-        /* =========================================================
-           BUTTONS
-        ========================================================= */
-
         .auth-btn {
             width: 100%;
 
@@ -607,10 +502,9 @@
             transform: scale(0.96);
         }
 
-
         /* =========================================================
            CRT
-        ========================================================= */
+           ========================================================= */
 
         .crt-overlay {
             position: absolute;
@@ -637,46 +531,10 @@
                     rgba(0, 0, 255, 0.02)
                 );
 
-            background-size:
-                100% 4px,
-                6px 100%;
+            background-size: 100% 4px, 6px 100%;
 
-            box-shadow:
-                inset 0 0 25px rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
         }
-
-
-        /* =========================================================
-           FIX SPECIFICO IPHONE / SAFARI
-           
-           L'elemento viene esteso anche oltre la safe-area.
-        ========================================================= */
-
-        @supports (-webkit-touch-callout: none) {
-
-            html,
-            body,
-            #game-wrapper {
-                height: 100lvh !important;
-                min-height: 100lvh !important;
-                max-height: 100lvh !important;
-            }
-
-            #game-wrapper {
-                /*
-                 * Questi valori fanno "uscire" il gioco
-                 * dai limiti logici del viewport Safari.
-                 */
-                bottom: -1px !important;
-            }
-
-            #game-container,
-            #game-container canvas {
-                height: calc(100% + 2px) !important;
-                min-height: calc(100% + 2px) !important;
-            }
-        }
-
     </style>
 </head>
 
@@ -690,11 +548,9 @@ if (!sessionStorage.getItem('arcade_session_active')) {
 }
 </script>
 
-
 <div id="game-wrapper">
 
     <div id="top-header-bar">
-
         <button id="header-user-btn" class="header-btn">
             👤 LOGIN
         </button>
@@ -702,9 +558,10 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         <button id="header-score-btn" class="header-btn">
             ⚡ 0 PTS
         </button>
-
     </div>
 
+
+    <!-- PROFILE -->
 
     <div id="profile-modal" class="auth-overlay" style="display: none;">
 
@@ -818,6 +675,8 @@ if (!sessionStorage.getItem('arcade_session_active')) {
     </div>
 
 
+    <!-- LEADERBOARD -->
+
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
 
         <div class="auth-box">
@@ -866,11 +725,9 @@ if (!sessionStorage.getItem('arcade_session_active')) {
             <div class="leaderboard-list" id="lb-records-list">
 
                 <div class="leaderboard-row">
-
                     <span class="player-name">
                         Caricamento classifiche...
                     </span>
-
                 </div>
 
             </div>
@@ -916,7 +773,7 @@ if (window.supabase) {
 
 /* =========================================================
    GREEN KEY
-========================================================= */
+   ========================================================= */
 
 class GreenKeyPipeline
     extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
@@ -934,7 +791,6 @@ class GreenKeyPipeline
                 uniform sampler2D uMainSampler;
 
                 varying vec2 outTexCoord;
-
                 varying vec4 outTint;
 
                 void main() {
@@ -982,7 +838,7 @@ class GreenKeyPipeline
 
 /* =========================================================
    AUTH
-========================================================= */
+   ========================================================= */
 
 class AuthManager {
 
@@ -1053,9 +909,7 @@ class AuthManager {
 
         } else {
 
-            window.location.replace(
-                './start.html'
-            );
+            window.location.replace('./start.html');
 
         }
 
@@ -1065,9 +919,7 @@ class AuthManager {
     getUsers() {
 
         return JSON.parse(
-            localStorage.getItem(
-                'arcade_users'
-            )
+            localStorage.getItem('arcade_users')
         ) || {};
 
     }
@@ -1090,8 +942,7 @@ class AuthManager {
 
         if (this.currentUser) {
 
-            let s =
-                this.currentUser.stats;
+            let s = this.currentUser.stats;
 
             totalPts =
                 (s.feedbackInvaders || 0) +
@@ -1130,7 +981,7 @@ class AuthManager {
             return {
                 title: "CHALLENGER 🕹️",
                 level: 2,
-                xpPct: totalPts - 100
+                xpPct: (totalPts - 100)
             };
 
 
@@ -1163,7 +1014,7 @@ const auth = new AuthManager();
 
 /* =========================================================
    HEADER
-========================================================= */
+   ========================================================= */
 
 function updateHeaderDOM() {
 
@@ -1252,7 +1103,7 @@ document
 
 /* =========================================================
    MAIN HUB
-========================================================= */
+   ========================================================= */
 
 class MainHub extends Phaser.Scene {
 
@@ -1306,7 +1157,6 @@ class MainHub extends Phaser.Scene {
 
 
         const playerSkins = [
-
             'dave.png',
             'iris.png',
             'laura.png',
@@ -1319,7 +1169,6 @@ class MainHub extends Phaser.Scene {
             'giampa.png',
             'tommi.png',
             'tobi.png'
-
         ];
 
 
@@ -1404,23 +1253,20 @@ class MainHub extends Phaser.Scene {
 
 
         let bg =
-            this.add
-                .image(
-                    0,
-                    0,
-                    'background'
-                )
-                .setOrigin(0, 0)
-                .setDepth(0);
+            this.add.image(
+                0,
+                0,
+                'background'
+            )
+            .setOrigin(0, 0)
+            .setDepth(0);
 
 
         let bgScale =
             vHeight / bg.height;
 
 
-        bg.setScale(
-            bgScale
-        );
+        bg.setScale(bgScale);
 
 
         const worldWidth =
@@ -1444,15 +1290,14 @@ class MainHub extends Phaser.Scene {
 
 
         this.gabri =
-            this.add
-                .video(
-                    150,
-                    gabriY,
-                    'gabri_video'
-                )
-                .setOrigin(0.5, 1)
-                .setScale(0.21)
-                .setDepth(10);
+            this.add.video(
+                150,
+                gabriY,
+                'gabri_video'
+            )
+            .setOrigin(0.5, 1)
+            .setScale(0.21)
+            .setDepth(10);
 
 
         if (this.gabri.setPipeline)
@@ -1466,15 +1311,14 @@ class MainHub extends Phaser.Scene {
 
 
         this.npc =
-            this.add
-                .video(
-                    860,
-                    npcY,
-                    'npc_video'
-                )
-                .setOrigin(0.5, 1)
-                .setScale(0.21)
-                .setDepth(10);
+            this.add.video(
+                860,
+                npcY,
+                'npc_video'
+            )
+            .setOrigin(0.5, 1)
+            .setScale(0.21)
+            .setDepth(10);
 
 
         if (this.npc.setPipeline)
@@ -1488,15 +1332,14 @@ class MainHub extends Phaser.Scene {
 
 
         this.raffa =
-            this.add
-                .video(
-                    2210,
-                    floorY,
-                    'raffa_video'
-                )
-                .setOrigin(0.5, 1)
-                .setScale(0.15)
-                .setDepth(10);
+            this.add.video(
+                2210,
+                floorY,
+                'raffa_video'
+            )
+            .setOrigin(0.5, 1)
+            .setScale(0.15)
+            .setDepth(10);
 
 
         if (this.raffa.setPipeline)
@@ -1510,25 +1353,19 @@ class MainHub extends Phaser.Scene {
 
 
         this.anims.create({
-
             key: 'idle',
-
             frames: [
                 {
                     key: 'player',
                     frame: 0
                 }
             ],
-
             frameRate: 10
-
         });
 
 
         this.anims.create({
-
             key: 'walk',
-
             frames:
                 this.anims.generateFrameNumbers(
                     'player',
@@ -1537,11 +1374,8 @@ class MainHub extends Phaser.Scene {
                         end: 4
                     }
                 ),
-
             frameRate: 8,
-
             repeat: -1
-
         });
 
 
@@ -1580,34 +1414,27 @@ class MainHub extends Phaser.Scene {
 
 
         let logo =
-            this.add
-                .image(
-                    vWidth / 2,
-                    85,
-                    'logo'
-                )
-                .setOrigin(0.5)
-                .setScrollFactor(0)
-                .setDepth(110);
+            this.add.image(
+                vWidth / 2,
+                85,
+                'logo'
+            )
+            .setOrigin(0.5)
+            .setScrollFactor(0)
+            .setDepth(110);
 
 
         logo.setDisplaySize(
             280,
-            (logo.height /
-                logo.width) *
-                280
+            (logo.height / logo.width) * 280
         );
 
 
         this.tweens.add({
-
             targets: logo,
 
-            scaleX:
-                logo.scaleX * 1.03,
-
-            scaleY:
-                logo.scaleY * 1.03,
+            scaleX: logo.scaleX * 1.03,
+            scaleY: logo.scaleY * 1.03,
 
             duration: 1800,
 
@@ -1616,7 +1443,6 @@ class MainHub extends Phaser.Scene {
             repeat: -1,
 
             ease: 'Sine.easeInOut'
-
         });
 
 
@@ -1699,8 +1525,7 @@ class MainHub extends Phaser.Scene {
 
                 sprite.setVisible(false);
 
-                sprite.gameData =
-                    cab;
+                sprite.gameData = cab;
 
                 this.cabinetSprites.push(
                     sprite
@@ -1711,12 +1536,11 @@ class MainHub extends Phaser.Scene {
 
 
         this.infoBox =
-            this.add
-                .container(
-                    0,
-                    0
-                )
-                .setDepth(80);
+            this.add.container(
+                0,
+                0
+            )
+            .setDepth(80);
 
 
         let boxBg =
@@ -1824,9 +1648,7 @@ class MainHub extends Phaser.Scene {
         );
 
 
-        this.infoBox.setVisible(
-            false
-        );
+        this.infoBox.setVisible(false);
 
 
         this.createDialogueSystem();
@@ -1874,14 +1696,16 @@ class MainHub extends Phaser.Scene {
 
     /* =====================================================
        DIALOGUE
-    ===================================================== */
+       ===================================================== */
 
     createDialogueSystem() {
 
         this.dialogueContainer =
-            this.add
-                .container(0, 0)
-                .setDepth(160);
+            this.add.container(
+                0,
+                0
+            )
+            .setDepth(160);
 
 
         this.dialogueBg =
@@ -1966,27 +1790,23 @@ class MainHub extends Phaser.Scene {
 
 
         this.isDialogueOpen = false;
-
         this.dialogueIndex = 0;
-
         this.activeSpeaker = null;
-
         this.npcLines = [];
 
     }
 
 
-    drawSpeechBubble(
-        width,
-        height
-    ) {
+    drawSpeechBubble(width, height) {
 
         this.dialogueBg.clear();
+
 
         this.dialogueBg.fillStyle(
             0xffffff,
             0.98
         );
+
 
         this.dialogueBg.lineStyle(
             3,
@@ -2015,38 +1835,37 @@ class MainHub extends Phaser.Scene {
 
         this.dialogueBg.beginPath();
 
+
         this.dialogueBg.moveTo(
             -10,
             height / 2
         );
+
 
         this.dialogueBg.lineTo(
             0,
             height / 2 + 14
         );
 
+
         this.dialogueBg.lineTo(
             10,
             height / 2
         );
 
+
         this.dialogueBg.closePath();
 
-        this.dialogueBg.fillPath();
 
+        this.dialogueBg.fillPath();
         this.dialogueBg.strokePath();
 
     }
 
 
-    startDialogue(
-        speakerKey
-    ) {
+    startDialogue(speakerKey) {
 
-        this.infoBox.setVisible(
-            false
-        );
-
+        this.infoBox.setVisible(false);
 
         this.isDialogueOpen = true;
 
@@ -2071,59 +1890,35 @@ class MainHub extends Phaser.Scene {
         if (speakerKey === 'gabri') {
 
             this.npcLines = [
-
                 line1,
 
                 Phaser.Math.RND.pick([
-
                     "Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.",
-
                     "Sto sistemando un po' di animazioni su After Effects.",
-
                     "Sto lavorando su una grafica animata. Ho quasi finito!"
-
                 ])
-
             ];
 
-        }
-
-
-        else if (
-            speakerKey === 'raffa'
-        ) {
+        } else if (speakerKey === 'raffa') {
 
             this.npcLines = [
-
                 line1,
 
                 Phaser.Math.RND.pick([
-
                     "Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi!",
-
                     "Sto preparando l'attrezzatura per il prossimo lavoro."
-
                 ])
-
             ];
 
-        }
-
-
-        else {
+        } else {
 
             this.npcLines = [
-
                 line1,
 
                 Phaser.Math.RND.pick([
-
                     "Tutto bene? Ho sentito che hanno piazzato dei giochi nuovi.",
-
                     "Stavo giusto guardando quanto tempo ci mette qualcuno a scoprire i cabinati!"
-
                 ])
-
             ];
 
         }
@@ -2148,7 +1943,8 @@ class MainHub extends Phaser.Scene {
 
 
         let boxH =
-            this.dialogueText.height + 40;
+            this.dialogueText.height +
+            40;
 
 
         if (boxH < 65)
@@ -2168,7 +1964,7 @@ class MainHub extends Phaser.Scene {
 
 
         this.dialoguePrompt.setPosition(
-            100 - 25,
+            200 / 2 - 25,
             boxH / 2 - 12
         );
 
@@ -2191,10 +1987,7 @@ class MainHub extends Phaser.Scene {
             targetY =
                 this.gabri.y;
 
-        }
-
-
-        else if (
+        } else if (
             this.activeSpeaker ===
             'raffa'
         ) {
@@ -2211,8 +2004,8 @@ class MainHub extends Phaser.Scene {
         this.dialogueContainer.setPosition(
             targetX - 20,
             targetY -
-                180 -
-                boxH / 2
+            180 -
+            boxH / 2
         );
 
     }
@@ -2230,9 +2023,7 @@ class MainHub extends Phaser.Scene {
 
             this.showDialogueLine();
 
-        }
-
-        else {
+        } else {
 
             this.closeDialogue();
 
@@ -2243,8 +2034,7 @@ class MainHub extends Phaser.Scene {
 
     closeDialogue() {
 
-        this.isDialogueOpen =
-            false;
+        this.isDialogueOpen = false;
 
         this.dialogueContainer.setVisible(
             false
@@ -2254,8 +2044,8 @@ class MainHub extends Phaser.Scene {
 
 
     /* =====================================================
-       TOUCH
-    ===================================================== */
+       TOUCH CONTROLS
+       ===================================================== */
 
     setupTouchControls(
         width,
@@ -2263,18 +2053,16 @@ class MainHub extends Phaser.Scene {
     ) {
 
         this.isMovingLeft = false;
-
         this.isMovingRight = false;
 
 
         let controlDeck =
-            this.add
-                .container(
-                    0,
-                    0
-                )
-                .setScrollFactor(0)
-                .setDepth(100);
+            this.add.container(
+                0,
+                0
+            )
+            .setScrollFactor(0)
+            .setDepth(100);
 
 
         let deckBg =
@@ -2325,13 +2113,12 @@ class MainHub extends Phaser.Scene {
             ) => {
 
                 let container =
-                    this.add
-                        .container(
-                            x,
-                            y
-                        )
-                        .setScrollFactor(0)
-                        .setDepth(102);
+                    this.add.container(
+                        x,
+                        y
+                    )
+                    .setScrollFactor(0)
+                    .setDepth(102);
 
 
                 let g =
@@ -2375,10 +2162,8 @@ class MainHub extends Phaser.Scene {
                         0,
                         label,
                         {
-                            font:
-                                "bold 22px monospace",
-                            fill:
-                                "#ff0055"
+                            font: "bold 22px monospace",
+                            fill: "#ff0055"
                         }
                     )
                     .setOrigin(0.5);
@@ -2420,7 +2205,7 @@ class MainHub extends Phaser.Scene {
                     () => {
 
                         container.setScale(
-                            1
+                            1.0
                         );
 
                         onPress(false);
@@ -2434,7 +2219,7 @@ class MainHub extends Phaser.Scene {
                     () => {
 
                         container.setScale(
-                            1
+                            1.0
                         );
 
                         onPress(false);
@@ -2450,10 +2235,8 @@ class MainHub extends Phaser.Scene {
             btnY,
             '◄',
             isDown => {
-
                 this.isMovingLeft =
                     isDown;
-
             }
         );
 
@@ -2463,22 +2246,19 @@ class MainHub extends Phaser.Scene {
             btnY,
             '►',
             isDown => {
-
                 this.isMovingRight =
                     isDown;
-
             }
         );
 
 
         this.actionBtnContainer =
-            this.add
-                .container(
-                    width - 65,
-                    btnY
-                )
-                .setScrollFactor(0)
-                .setDepth(102);
+            this.add.container(
+                width - 65,
+                btnY
+            )
+            .setScrollFactor(0)
+            .setDepth(102);
 
 
         this.actionAura =
@@ -2557,10 +2337,8 @@ class MainHub extends Phaser.Scene {
                 1,
                 "VAI",
                 {
-                    font:
-                        "bold 15px monospace",
-                    fill:
-                        "#ffffff"
+                    font: "bold 15px monospace",
+                    fill: "#ffffff"
                 }
             )
             .setOrigin(0.5);
@@ -2603,7 +2381,7 @@ class MainHub extends Phaser.Scene {
             () => {
 
                 this.actionBtnContainer.setScale(
-                    1
+                    1.0
                 );
 
             }
@@ -2618,8 +2396,8 @@ class MainHub extends Phaser.Scene {
 
 
     /* =====================================================
-       INTERAZIONE
-    ===================================================== */
+       INTERACTION
+       ===================================================== */
 
     interact() {
 
@@ -2716,10 +2494,7 @@ class MainHub extends Phaser.Scene {
                         'feedbackInvaders'
                     );
 
-                }
-
-
-                else if (
+                } else if (
                     cab.gameData.url
                 ) {
 
@@ -2747,7 +2522,7 @@ class MainHub extends Phaser.Scene {
 
     /* =====================================================
        UPDATE
-    ===================================================== */
+       ===================================================== */
 
     update() {
 
@@ -2774,9 +2549,7 @@ class MainHub extends Phaser.Scene {
             this.isDialogueOpen
         ) {
 
-            this.player.setVelocityX(
-                0
-            );
+            this.player.setVelocityX(0);
 
             this.player.play(
                 'idle',
@@ -2792,9 +2565,7 @@ class MainHub extends Phaser.Scene {
         }
 
 
-        this.player.setVelocityX(
-            0
-        );
+        this.player.setVelocityX(0);
 
 
         if (
@@ -2815,10 +2586,8 @@ class MainHub extends Phaser.Scene {
                 true
             );
 
-        }
 
-
-        else if (
+        } else if (
             this.cursors.right.isDown ||
             this.isMovingRight
         ) {
@@ -2836,10 +2605,8 @@ class MainHub extends Phaser.Scene {
                 true
             );
 
-        }
 
-
-        else {
+        } else {
 
             this.player.play(
                 'idle',
@@ -2883,17 +2650,21 @@ class MainHub extends Phaser.Scene {
                 this.cabBadgeY
             );
 
+
             this.boxTitleText.setText(
                 "Gabri"
             );
+
 
             this.boxActionText.setText(
                 "PARLA 💬"
             );
 
+
             this.infoBox.setVisible(
                 true
             );
+
 
             return;
 
@@ -2914,17 +2685,21 @@ class MainHub extends Phaser.Scene {
                 this.cabBadgeY
             );
 
+
             this.boxTitleText.setText(
                 "Giovannone"
             );
+
 
             this.boxActionText.setText(
                 "PARLA 💬"
             );
 
+
             this.infoBox.setVisible(
                 true
             );
+
 
             return;
 
@@ -2945,17 +2720,21 @@ class MainHub extends Phaser.Scene {
                 this.cabBadgeY
             );
 
+
             this.boxTitleText.setText(
                 "Raffa"
             );
+
 
             this.boxActionText.setText(
                 "PARLA 💬"
             );
 
+
             this.infoBox.setVisible(
                 true
             );
+
 
             return;
 
@@ -3010,10 +2789,8 @@ class MainHub extends Phaser.Scene {
                     "VEDI RECORD 🏆"
                 );
 
-            }
 
-
-            else {
+            } else {
 
                 let myRecord =
                     (
@@ -3039,10 +2816,8 @@ class MainHub extends Phaser.Scene {
                 true
             );
 
-        }
 
-
-        else {
+        } else {
 
             this.infoBox.setVisible(
                 false
@@ -3056,8 +2831,8 @@ class MainHub extends Phaser.Scene {
 
 
 /* =========================================================
-   PHASER
-========================================================= */
+   PHASER CONFIG
+   ========================================================= */
 
 const config = {
 
@@ -3070,8 +2845,8 @@ const config = {
     scale: {
 
         /*
-         * EXACT_FIT rimane corretto.
-         * Il CSS si occupa del viewport fisico.
+         * Manteniamo EXACT_FIT perché hai detto che
+         * la proporzione/dimensione dell'immagine ora è corretta.
          */
         mode: Phaser.Scale.EXACT_FIT,
 
@@ -3108,14 +2883,12 @@ const config = {
 
 
 const game =
-    new Phaser.Game(
-        config
-    );
+    new Phaser.Game(config);
 
 
 /* =========================================================
    LEADERBOARD
-========================================================= */
+   ========================================================= */
 
 let currentLBGameKey =
     'feedbackInvaders';
@@ -3135,28 +2908,22 @@ function openProfileModal() {
         auth.getRankInfo();
 
 
-    document
-        .getElementById(
-            'profile-username'
-        )
-        .innerText =
-            auth.currentUser.username;
+    document.getElementById(
+        'profile-username'
+    ).innerText =
+        auth.currentUser.username;
 
 
-    document
-        .getElementById(
-            'profile-rank'
-        )
-        .innerText =
-            rank.title;
+    document.getElementById(
+        'profile-rank'
+    ).innerText =
+        rank.title;
 
 
-    document
-        .getElementById(
-            'profile-xp-fill'
-        )
-        .style.width =
-            rank.xpPct + '%';
+    document.getElementById(
+        'profile-xp-fill'
+    ).style.width =
+        rank.xpPct + '%';
 
 
     const avatarBox =
@@ -3170,9 +2937,7 @@ function openProfileModal() {
         avatarBox.innerHTML =
             `<img src="${auth.currentUser.avatar}" alt="Avatar">`;
 
-    }
-
-    else {
+    } else {
 
         avatarBox.innerText =
             "👾";
@@ -3255,9 +3020,7 @@ async function fetchLeaderboardFromSupabase(
 
 
     document
-        .querySelectorAll(
-            '.tab-btn'
-        )
+        .querySelectorAll('.tab-btn')
         .forEach(
             btn =>
                 btn.classList.remove(
@@ -3285,11 +3048,13 @@ async function fetchLeaderboardFromSupabase(
 
 
     listEl.innerHTML =
-        `<div class="leaderboard-row">
+        `
+        <div class="leaderboard-row">
             <span class="player-name">
                 Caricamento classifiche...
             </span>
-        </div>`;
+        </div>
+        `;
 
 
     let records = [];
@@ -3324,9 +3089,8 @@ async function fetchLeaderboardFromSupabase(
             if (!error && data)
                 records = data;
 
-        }
 
-        catch (e) {
+        } catch (e) {
 
             console.warn(
                 "Supabase non raggiungibile."
@@ -3337,9 +3101,7 @@ async function fetchLeaderboardFromSupabase(
     }
 
 
-    if (
-        records.length === 0
-    ) {
+    if (records.length === 0) {
 
         let users =
             auth.getUsers();
@@ -3353,9 +3115,8 @@ async function fetchLeaderboardFromSupabase(
                 users[uname].stats
                     ? (
                         users[uname]
-                            .stats[
-                                gameKey
-                            ] || 0
+                            .stats[gameKey] ||
+                        0
                     )
                     : 0;
 
@@ -3363,10 +3124,8 @@ async function fetchLeaderboardFromSupabase(
             if (sc > 0) {
 
                 records.push({
-                    username:
-                        uname,
-                    score:
-                        sc
+                    username: uname,
+                    score: sc
                 });
 
             }
@@ -3381,9 +3140,8 @@ async function fetchLeaderboardFromSupabase(
 
             let mySc =
                 auth.currentUser
-                    .stats[
-                        gameKey
-                    ] || 0;
+                    .stats[gameKey] ||
+                0;
 
 
             if (
@@ -3398,8 +3156,7 @@ async function fetchLeaderboardFromSupabase(
                 records.push({
                     username:
                         auth.currentUser.username,
-                    score:
-                        mySc
+                    score: mySc
                 });
 
             }
@@ -3415,27 +3172,26 @@ async function fetchLeaderboardFromSupabase(
     }
 
 
-    if (
-        records.length === 0
-    ) {
+    if (records.length === 0) {
 
         listEl.innerHTML =
-            `<div class="leaderboard-row">
+            `
+            <div class="leaderboard-row">
                 <span class="player-name">
                     Nessun record registrato per questo gioco!
                 </span>
-            </div>`;
+            </div>
+            `;
 
-    }
-
-
-    else {
+    } else {
 
         listEl.innerHTML =
             records
                 .map(
                     (r, i) =>
-                        `<div class="leaderboard-row">
+                        `
+                        <div class="leaderboard-row">
+
                             <span class="rank-pos">
                                 #${i + 1}
                             </span>
@@ -3447,7 +3203,9 @@ async function fetchLeaderboardFromSupabase(
                             <span class="score-val">
                                 ${r.score.toLocaleString()} PTS
                             </span>
-                        </div>`
+
+                        </div>
+                        `
                 )
                 .join('');
 
@@ -3466,6 +3224,10 @@ function switchLBTab(
 
 }
 
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
 document
     .getElementById(
