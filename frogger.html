@@ -11,70 +11,107 @@
   padding: 0;
   user-select: none;
   -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent !important;
-  -webkit-focus-ring-color: transparent !important;
-  outline: none !important;
-  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  touch-action: none !important;
   font-family: 'Courier New', Courier, monospace;
 }
-body {
-  background-color: #030305 !important;
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #030305;
   color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  overflow: hidden;
 }
 #game-wrapper {
   position: relative;
   width: 100vw;
-  height: 100vh;
-  max-width: 360px;
-  max-height: 740px;
+  height: 100dvh;
+  max-width: 440px;
+  max-height: 860px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 6px;
-  background: #080816 !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 14px;
+  padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 6px) 8px;
+  background: #0e051b;
+  border: 3px solid #ff0055;
+  box-shadow: 0 0 25px #ff0055, inset 0 0 20px #00f0ff;
+  border-radius: 16px;
 }
+
+/* TOP BAR CON TASTO OPZIONI */
+.top-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  flex-shrink: 0;
+}
+.header-title {
+  color: #00f0ff;
+  font-size: 11px;
+  font-weight: bold;
+  text-shadow: 0 0 6px #00f0ff;
+  letter-spacing: 1px;
+}
+.opt-btn {
+  background: #1a0836;
+  border: 1.5px solid #ffea00;
+  color: #ffea00;
+  padding: 3px 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
+}
+.opt-btn:active { transform: scale(0.92); }
+
 #canvas-container {
   position: relative;
   width: 100%;
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   overflow: hidden;
-  margin-bottom: 2px;
+  min-height: 0;
 }
 canvas {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 338 / 486;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-  border: 2px solid #ff0055 !important;
-  box-shadow: inset 0 0 15px rgba(255, 0, 85, 0.2) !important;
-  border-radius: 10px;
+  aspect-ratio: 338 / 486;
+  border: 3px solid #ff0055;
+  box-shadow: 0 0 15px #ff0055;
+  image-rendering: pixelated;
   background: #04040c;
   cursor: pointer;
+  border-radius: 8px;
 }
 
+/* DECK DI CONTROLLO CON D-PAD GRANDE ED ERGONOMICO */
 .control-deck {
   width: 100%;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px;
-  background: linear-gradient(180deg, #121428 0%, #050610 100%);
-  border: 2px solid #ff0055 !important;
-  box-shadow: inset 0 0 15px rgba(255,0,85,0.15) !important;
-  border-radius: 12px;
+  padding: 8px 6px;
+  background: #160a2c;
+  border: 2.5px solid #ffea00;
+  border-radius: 14px;
+  margin-top: 4px;
+  box-shadow: 0 0 12px rgba(255, 234, 0, 0.3);
+  flex-shrink: 0;
 }
+
+/* D-PAD A CROCE CON TASTI GRANDI */
 .joystick-container {
   display: flex;
   justify-content: center;
@@ -82,30 +119,30 @@ canvas {
 }
 .dpad-grid {
   display: grid;
-  grid-template-columns: repeat(3, 44px);
-  grid-template-rows: repeat(3, 38px);
-  gap: 3px;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 50px);
+  gap: 4px;
 }
 .ctrl-btn {
   background: linear-gradient(180deg, #252a54 0%, #0e1028 100%);
-  border: 1.5px solid #ff0055 !important;
-  color: #ff0055 !important;
-  font-size: 18px;
+  border: 2px solid #ff0055;
+  color: #ff0055;
+  font-size: 22px;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 3px 0 #88002d, inset 0 1px 0 rgba(255,255,255,0.3) !important;
-  text-shadow: 0 0 6px #ff0055 !important;
+  box-shadow: 0 4px 0 #88002d, inset 0 1px 0 rgba(255,255,255,0.3);
+  text-shadow: 0 0 6px #ff0055;
 }
 .ctrl-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #88002d !important;
-  background: #ff0055 !important;
-  color: #000 !important;
-  text-shadow: none !important;
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #88002d;
+  background: #ff0055;
+  color: #000;
+  text-shadow: none;
 }
 .ctrl-btn-center {
   display: flex;
@@ -113,29 +150,30 @@ canvas {
   align-items: center;
   background: #050610;
   border-radius: 50%;
-  border: 1.5px solid rgba(255,0,85,0.4) !important;
+  border: 1.5px solid rgba(255,0,85,0.4);
 }
 .dpad-core {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: radial-gradient(circle, #ff0055 0%, #66001a 100%) !important;
-  box-shadow: 0 0 8px #ff0055 !important;
+  background: radial-gradient(circle, #ff0055 0%, #66001a 100%);
+  box-shadow: 0 0 10px #ff0055;
 }
 
+/* TASTO ACTION RENDER GUARD */
 .arcade-action-container {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .arcade-push-btn {
-  width: 88px;
-  height: 88px;
+  width: 104px;
+  height: 104px;
   border-radius: 50%;
   background: #2b0012;
   border: 3px solid #ff0055;
-  padding: 4px;
-  box-shadow: 0 0 20px rgba(255, 0, 85, 0.45), inset 0 0 12px rgba(0, 0, 0, 0.9);
+  padding: 5px;
+  box-shadow: 0 0 22px rgba(255, 0, 85, 0.45), inset 0 0 12px rgba(0, 0, 0, 0.9);
   cursor: pointer;
   outline: none;
 }
@@ -153,38 +191,125 @@ canvas {
   font-weight: bold;
   font-size: 11px;
   letter-spacing: 0.5px;
-  box-shadow: inset 0 4px 8px rgba(255,255,255,0.4), 0 4px 0 #55001b;
+  box-shadow: inset 0 4px 8px rgba(255,255,255,0.4), 0 5px 0 #55001b;
   text-shadow: 0 1px 2px #000;
 }
 .arcade-push-btn:active .btn-top {
-  transform: translateY(3px);
+  transform: translateY(4px);
   box-shadow: inset 0 1px 4px rgba(0,0,0,0.6), 0 1px 0 #55001b;
 }
 
 .exit-btn {
   width: 100%;
   margin-top: 4px;
-  padding: 10px;
-  background: #1a1a2e;
-  border: 1.5px solid #ff0055 !important;
-  color: #ff0055 !important;
+  padding: 6px;
+  background: #100826;
+  border: 1.5px solid #ff0055;
+  color: #ff0055;
+  font-family: 'Courier New', monospace;
   font-weight: bold;
-  font-size: 11px;
-  border-radius: 8px;
+  font-size: 10px;
+  border-radius: 6px;
   cursor: pointer;
   text-align: center;
+  box-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
+  flex-shrink: 0;
 }
 .exit-btn:active { transform: scale(0.96); }
+
+/* OVERLAY MODALE OPZIONI */
+.modal-overlay {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(5, 2, 10, 0.94);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+.modal-box {
+  width: 100%;
+  max-width: 300px;
+  background: #0e051b;
+  border: 3px solid #00f0ff;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #ffffff;
+  text-align: center;
+}
+.modal-title {
+  color: #ffea00;
+  font-size: 15px;
+  font-weight: 900;
+  text-shadow: 0 0 8px #ffea00;
+}
+.option-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #160a2c;
+  padding: 8px;
+  border: 1px solid rgba(255,0,127,0.4);
+  border-radius: 8px;
+}
+.option-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #00f0ff;
+}
+.toggle-btn {
+  width: 100%;
+  padding: 8px;
+  background: #2a144a;
+  border: 2px solid #ff007f;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.toggle-btn.active {
+  border-color: #00ff66;
+  color: #00ff66;
+  background: #082814;
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+}
+.close-modal-btn {
+  padding: 10px;
+  background: linear-gradient(180deg, #ff007f, #a30052);
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+}
 </style>
 </head>
 <body>
 
+<audio id="bgMusic" src="assets/frogger/music.mp3" loop autoplay playsinline style="display:none;"></audio>
+
 <div id="game-wrapper">
+  <!-- TOP BAR CON PULSANTE OPZIONI -->
+  <div class="top-header">
+    <span class="header-title">DEADLINE DRIVE - STUDIO CROSS</span>
+    <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+  </div>
+
   <div id="canvas-container">
     <canvas id="game"></canvas>
   </div>
 
   <div class="control-deck">
+    <!-- D-PAD A CROCE CON TASTI GRANDI -->
     <div class="joystick-container">
       <div class="dpad-grid">
         <div style="visibility:hidden"></div><div class="ctrl-btn" id="btnUp">▲</div><div style="visibility:hidden"></div>
@@ -193,14 +318,37 @@ canvas {
       </div>
     </div>
 
+    <!-- TASTO ACTION RENDER GUARD -->
     <div class="arcade-action-container">
       <button class="arcade-push-btn" id="btnGuard">
-        <span class="btn-top">🛡️ RENDER</span>
+        <span class="btn-top">
+          <span style="font-size:16px;">🛡️</span>
+          <span>RENDER</span>
+        </span>
       </button>
     </div>
   </div>
 
   <button class="exit-btn" onclick="exitGame()">◄ TORNA ALL'HUB ARCADE</button>
+
+  <!-- MODALE OPZIONI -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-title">⚙️ OPZIONI GIOCO</div>
+
+      <div class="option-item">
+        <span class="option-label">MUSICA DI SOTTOFONDO</span>
+        <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
+      </div>
+
+      <div class="option-item">
+        <span class="option-label">EFFETTI SONORI (SFX)</span>
+        <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
+      </div>
+
+      <button class="close-modal-btn" id="btnCloseSettings">SALVA E CHIUDI ►</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -212,8 +360,8 @@ const ROWS = 17;
 const CELL_SIZE = 26;
 const HUD_HEIGHT = 44;
 
-const CANVAS_W = COLS * CELL_SIZE; 
-const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; 
+const CANVAS_W = COLS * CELL_SIZE; // 338px
+const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; // 486px
 
 canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
@@ -230,6 +378,145 @@ function drawRoundRect(c, x, y, w, h, r) {
   c.closePath();
 }
 
+// --- CONFIGURAZIONE E SALVATAGGIO OPZIONI ---
+let musicEnabled = localStorage.getItem('deadlineDrive_music') !== 'false';
+let sfxEnabled = localStorage.getItem('deadlineDrive_sfx') !== 'false';
+
+// Caricamento Audio Musica di Sottofondo
+const bgMusic = document.getElementById('bgMusic');
+bgMusic.volume = 0.4;
+
+function playBgMusic() {
+  if (musicEnabled && bgMusic.paused) {
+    bgMusic.play().catch(() => {});
+  }
+}
+
+playBgMusic();
+window.addEventListener('DOMContentLoaded', playBgMusic);
+window.addEventListener('load', playBgMusic);
+['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+  window.addEventListener(evt, () => playBgMusic(), { once: true });
+});
+
+function updateMusicState() {
+  if (musicEnabled) {
+    playBgMusic();
+  } else {
+    bgMusic.pause();
+  }
+}
+
+const settingsModal = document.getElementById('settingsModal');
+const btnOpenSettings = document.getElementById('btnOpenSettings');
+const btnCloseSettings = document.getElementById('btnCloseSettings');
+const btnToggleMusic = document.getElementById('btnToggleMusic');
+const btnToggleSfx = document.getElementById('btnToggleSfx');
+
+function renderOptionButtons() {
+  btnToggleMusic.className = `toggle-btn ${musicEnabled ? 'active' : ''}`;
+  btnToggleMusic.innerText = musicEnabled ? 'ON 🎵' : 'OFF 🔇';
+
+  btnToggleSfx.className = `toggle-btn ${sfxEnabled ? 'active' : ''}`;
+  btnToggleSfx.innerText = sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
+}
+renderOptionButtons();
+
+btnToggleMusic.onclick = () => {
+  musicEnabled = !musicEnabled;
+  localStorage.setItem('deadlineDrive_music', musicEnabled);
+  renderOptionButtons();
+  updateMusicState();
+};
+
+btnToggleSfx.onclick = () => {
+  sfxEnabled = !sfxEnabled;
+  localStorage.setItem('deadlineDrive_sfx', sfxEnabled);
+  renderOptionButtons();
+};
+
+btnOpenSettings.onclick = () => {
+  if (gameState === 'PLAYING') {
+    gameState = 'PAUSE';
+  }
+  settingsModal.style.display = 'flex';
+};
+
+btnCloseSettings.onclick = () => {
+  settingsModal.style.display = 'none';
+  getAC();
+  if (gameState === 'PAUSE') {
+    gameState = 'PLAYING';
+  }
+  updateMusicState();
+};
+
+// AUDIO SINTETIZZATO RETRO CON BUFFER SICURO SU MOBILE
+let audioCtx = null;
+function getAC() {
+  try {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) audioCtx = new AudioContextClass();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  } catch(e) {}
+  playBgMusic();
+  return audioCtx;
+}
+
+function playSound(type) {
+  if (!sfxEnabled) return;
+  try {
+    const ac = getAC();
+    if (!ac) return;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+
+    if (type === 'cross') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523, ac.currentTime);
+      osc.frequency.setValueAtTime(659, ac.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.18, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + 0.16);
+    } else if (type === 'crash') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(250, ac.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, ac.currentTime + 0.25);
+      gain.gain.setValueAtTime(0.25, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + 0.25);
+    } else if (type === 'guard_active') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, ac.currentTime);
+      osc.frequency.linearRampToValueAtTime(1200, ac.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.15, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + 0.1);
+    } else if (type === 'pickup') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(440, ac.currentTime);
+      osc.frequency.setValueAtTime(880, ac.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.2, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + 0.2);
+    } else if (type === 'malus') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, ac.currentTime);
+      osc.frequency.linearRampToValueAtTime(80, ac.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.2, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + 0.2);
+    } else if (type === 'fail') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, ac.currentTime);
+      osc.frequency.linearRampToValueAtTime(50, ac.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.25, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + 0.3);
+    }
+  } catch(e) {}
+}
+
+// Assets Grafici
 const imgGiulia = new Image(); imgGiulia.src = 'assets/frogger/giulia.png';
 const imgTobi   = new Image(); imgTobi.src   = 'assets/frogger/tobi.png';
 const imgDave   = new Image(); imgDave.src   = 'assets/frogger/dave.png';
@@ -302,52 +589,6 @@ const PICKUP_TYPES = {
 let currentTheme = CHARACTERS.GIULIA;
 let highScore = parseInt(localStorage.getItem('deadlineDrive_highScore')) || 0;
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playSound(type) {
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain); gain.connect(audioCtx.destination);
-
-  if (type === 'cross') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(523, audioCtx.currentTime);
-    osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.08);
-    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.16);
-  } else if (type === 'crash') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(250, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.25);
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-  } else if (type === 'guard_active') {
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-  } else if (type === 'pickup') {
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-  } else if (type === 'malus') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.2);
-    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-  } else if (type === 'fail') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-  }
-}
-
 let activeLanes = [];
 let gameState = 'TUTORIAL';
 let level = 1;
@@ -371,6 +612,7 @@ let player = {
 
 let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
 let selectedCharIndex = 0;
+let particles = [];
 
 function createNewLane(isInitialSetup = false, r = 0) {
   let isSafe = false;
@@ -382,7 +624,7 @@ function createNewLane(isInitialSetup = false, r = 0) {
     if (topLane && topLane.type === 'SAFE') {
       isSafe = false;
     } else {
-      isSafe = Math.random() < 0.22;
+      isSafe = Math.random() < 0.25;
     }
   }
 
@@ -401,7 +643,7 @@ function createNewLane(isInitialSetup = false, r = 0) {
   let laneObj = {
     type: laneType,
     bg: isSafe ? '#080820' : '#0e1224',
-    wallCol: currentTheme.wallCol || '#ff0055',
+    wallCol: currentTheme.primary || '#ff0055',
     dir: dir,
     speed: baseSpeed,
     objects: [],
@@ -460,6 +702,7 @@ function activateGuard() {
   player.guardTimer = 180;
   player.guardCooldownTimer = currentTheme.guardCooldown;
   playSound('guard_active');
+  addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, '#00ffcc', 12);
 }
 
 function updatePlayer() {
@@ -542,6 +785,24 @@ function updateVehicles() {
       });
     }
   });
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    let p = particles[i];
+    p.x += p.vx; p.y += p.vy; p.life--;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+}
+
+function addParticles(x, y, color, count = 8) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      life: 16,
+      color
+    });
+  }
 }
 
 function checkPickups() {
@@ -561,6 +822,7 @@ function checkPickups() {
         if (p.type.speedBoost) player.speedMult = p.type.speedBoost;
         if (p.type.scoreBoost) player.tempScoreMult = p.type.scoreBoost;
       }
+      addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, p.type.isMalus ? '#ff0055' : '#ffff00', 10);
       currentLane.pickups.splice(i, 1);
     }
   }
@@ -598,6 +860,7 @@ function checkCollisions() {
 function hitPlayer() {
   lives--;
   playSound('crash');
+  addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, '#ff0055', 20);
   if (lives <= 0) {
     gameState = 'GAME_OVER';
     playSound('fail');
@@ -651,6 +914,12 @@ function drawGameWorld() {
       drawObstacles(lane, y);
     }
   });
+
+  for (let i = 0; i < particles.length; i++) {
+    let p = particles[i];
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, 4, 4);
+  }
 
   drawSinglePlayer();
 }
@@ -725,9 +994,9 @@ function drawSinglePlayer() {
   }
 
   if (player.guardTimer > 0) {
-    ctx.shadowColor = '#ff0055';
+    ctx.shadowColor = '#00ffcc';
     ctx.shadowBlur = 12;
-    ctx.strokeStyle = '#ff0055';
+    ctx.strokeStyle = '#00ffcc';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(0, 0, 16, 0, Math.PI * 2);
@@ -756,7 +1025,7 @@ function drawHUD() {
   let tData = LEVEL_THEMES[Math.min(level - 1, LEVEL_THEMES.length - 1)];
   ctx.fillText(tData.title, canvas.width / 2, 26);
 
-  ctx.fillStyle = '#ffff00';
+  ctx.fillStyle = '#00ffcc';
   ctx.font = 'bold 10px monospace';
   ctx.textAlign = 'right';
   ctx.fillText(`REC: ${highScore}`, canvas.width - 8, 16);
@@ -786,7 +1055,7 @@ function drawTutorial() {
   ctx.fillStyle = '#ff0055';
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('DEADLINE DODGE 🚗', canvas.width / 2, 40);
+  ctx.fillText('DEADLINE DRIVE 🚗', canvas.width / 2, 40);
 
   drawRoundRect(ctx, 12, 60, 314, 78, 10);
   ctx.fillStyle = '#101228'; ctx.fill();
@@ -812,7 +1081,7 @@ function drawTutorial() {
   ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 11px monospace';
   ctx.fillText('CONTROLLI PC & TOUCH', 22, 258);
   ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-  ctx.fillText('Usa il D-Pad o WASD/Frecce.', 22, 278);
+  ctx.fillText('Usa i tasti direzionali grandi o WASD.', 22, 278);
   ctx.fillText('Seleziona il tuo videomaker preferito!', 22, 294);
 
   ctx.fillStyle = '#ffff00';
@@ -834,7 +1103,7 @@ function drawCharSelect() {
   ctx.fillStyle = '#ffff00';
   ctx.font = 'bold 12px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('Scegli il tuo Creativo in Deadline Dodge', canvas.width / 2, 30);
+  ctx.fillText('Scegli il tuo Creativo in Deadline Drive', canvas.width / 2, 30);
 
   let cKey = CHARACTER_LIST[selectedCharIndex];
   let c = CHARACTERS[cKey];
@@ -942,7 +1211,7 @@ function drawGameOver() {
   ctx.font = 'bold 15px monospace';
   ctx.fillText(`PUNTEGGIO: ${score}`, canvas.width / 2, canvas.height / 2 + 5);
 
-  ctx.fillStyle = '#ff0055';
+  ctx.fillStyle = '#00ffcc';
   ctx.font = 'bold 11px monospace';
   ctx.fillText(`RECORD ATTUALE: ${highScore}`, canvas.width / 2, canvas.height / 2 + 35);
 
@@ -951,25 +1220,41 @@ function drawGameOver() {
   ctx.fillText('► TOCCA PER GIOCARE ANCORA ◄', canvas.width / 2, canvas.height / 2 + 80);
 }
 
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function drawPause() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#ffea00'; ctx.font = 'bold 26px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('IN PAUSA', canvas.width / 2, canvas.height / 2 - 10);
+  ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 11px monospace';
+  ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', canvas.width / 2, canvas.height / 2 + 20);
+}
 
-  if (gameState === 'TUTORIAL') {
-    drawTutorial();
-  } else if (gameState === 'CHAR_SELECT') {
-    drawCharSelect();
-  } else if (gameState === 'PLAYING') {
-    updateVehicles();
-    updatePlayer();
-    drawGameWorld();
-    drawHUD();
-  } else if (gameState === 'LEVEL_CLEAR') {
-    drawGameWorld();
-    drawLevelClear();
-    drawHUD();
-  } else if (gameState === 'GAME_OVER') {
-    drawGameWorld();
-    drawGameOver();
+function gameLoop() {
+  try {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (gameState === 'TUTORIAL') {
+      drawTutorial();
+    } else if (gameState === 'CHAR_SELECT') {
+      drawCharSelect();
+    } else if (gameState === 'PLAYING') {
+      updateVehicles();
+      updatePlayer();
+      drawGameWorld();
+      drawHUD();
+    } else if (gameState === 'PAUSE') {
+      drawGameWorld();
+      drawHUD();
+      drawPause();
+    } else if (gameState === 'LEVEL_CLEAR') {
+      drawGameWorld();
+      drawLevelClear();
+      drawHUD();
+    } else if (gameState === 'GAME_OVER') {
+      drawGameWorld();
+      drawGameOver();
+    }
+  } catch (err) {
+    console.error("Game Loop Error:", err);
   }
 
   requestAnimationFrame(gameLoop);
@@ -985,6 +1270,8 @@ function selectCharacter(charKey) {
 }
 
 canvas.addEventListener('pointerdown', (e) => {
+  if (e.cancelable) e.preventDefault();
+  getAC();
   let rect = canvas.getBoundingClientRect();
   let x = (e.clientX - rect.left) * (canvas.width / rect.width);
   let y = (e.clientY - rect.top) * (canvas.height / rect.height);
@@ -1004,17 +1291,32 @@ canvas.addEventListener('pointerdown', (e) => {
     return;
   }
 
+  if (gameState === 'PLAYING') {
+    if (y < HUD_HEIGHT) {
+      gameState = 'PAUSE';
+      updateMusicState();
+    }
+    return;
+  }
+
+  if (gameState === 'PAUSE') {
+    gameState = 'PLAYING';
+    updateMusicState();
+    return;
+  }
+
   if (gameState === 'GAME_OVER') {
     gameState = 'CHAR_SELECT';
     return;
   }
-});
+}, { passive: false });
 
 function bindBtn(id, onPress) {
   let btn = document.getElementById(id);
   if (!btn) return;
   btn.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
+    getAC();
     if (gameState === 'TUTORIAL' || gameState === 'GAME_OVER') {
       gameState = 'CHAR_SELECT';
     } else if (gameState === 'CHAR_SELECT') {
@@ -1022,11 +1324,11 @@ function bindBtn(id, onPress) {
     } else {
       onPress(true);
     }
-  });
+  }, { passive: false });
   btn.addEventListener('pointerup', (e) => {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     onPress(false);
-  });
+  }, { passive: false });
 }
 
 bindBtn('btnUp', isDown => { moveUp = isDown; });
@@ -1038,6 +1340,7 @@ bindBtn('btnGuard', isDown => { if (isDown) activateGuard(); });
 const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.code] = true;
+  getAC();
   if (gameState === 'TUTORIAL' && (e.code === 'Space' || e.code === 'Enter')) {
     gameState = 'CHAR_SELECT';
   } else if (gameState === 'CHAR_SELECT') {
@@ -1055,28 +1358,37 @@ window.addEventListener('keyup', e => { keys[e.code] = false; });
 function keyPressed(code) { return !!keys[code]; }
 
 function saveScore() {
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem('deadlineDrive_highScore', highScore);
-  }
-  if (score <= 0) return;
-  let curUser = JSON.parse(localStorage.getItem('arcade_current_user'));
-  if (curUser) {
-    curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
-    curUser.stats.deadlineDrive = (curUser.stats.deadlineDrive || 0) + score;
-    localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
-    if (!curUser.username.startsWith("GUEST_")) {
-      let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
-      if (users[curUser.username]) {
-        users[curUser.username].stats = curUser.stats;
-        localStorage.setItem('arcade_users', JSON.stringify(users));
+  try {
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('deadlineDrive_highScore', highScore.toString());
+    }
+    if (score <= 0) return;
+    let rawUser = localStorage.getItem('arcade_current_user');
+    if (!rawUser) return;
+    let curUser = JSON.parse(rawUser);
+    if (curUser && curUser.stats) {
+      curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
+      curUser.stats.deadlineDrive = (curUser.stats.deadlineDrive || 0) + score;
+      localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
+
+      if (curUser.username && !curUser.username.startsWith("GUEST_")) {
+        let rawUsers = localStorage.getItem('arcade_users');
+        let users = rawUsers ? JSON.parse(rawUsers) : {};
+        if (users[curUser.username]) {
+          users[curUser.username].stats = curUser.stats;
+          localStorage.setItem('arcade_users', JSON.stringify(users));
+        }
       }
     }
+  } catch (e) {
+    console.warn("Save score error:", e);
   }
 }
 
 function exitGame() {
   saveScore();
+  bgMusic.pause();
   window.location.href = 'index.html';
 }
 
