@@ -78,12 +78,12 @@ canvas {
 /* JOYSTICK RETRO ANNI '80 */
 .joystick-zone {
   position: relative;
-  width: 115px;
-  height: 115px;
+  width: 120px;
+  height: 120px;
   background: radial-gradient(circle, #2a1048 30%, #0c0418 90%);
   border: 3px solid #00ffcc;
   border-radius: 50%;
-  box-shadow: inset 0 0 18px rgba(0, 255, 204, 0.5), 0 0 12px rgba(0, 255, 204, 0.4);
+  box-shadow: inset 0 0 18px rgba(0, 255, 204, 0.5), 0 0 15px rgba(0, 255, 204, 0.4);
   touch-action: none;
   cursor: pointer;
   display: flex;
@@ -92,8 +92,8 @@ canvas {
 }
 .joystick-knob {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 52px;
+  height: 52px;
   background: radial-gradient(circle at 35% 35%, #ff0055, #88002d);
   border: 3px solid #ffffff;
   border-radius: 50%;
@@ -356,7 +356,7 @@ let player = {
 let enemies = [];
 let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
 
-// CONTROLLO JOYSTICK TOUCH (SOLO 4 DIREZIONI CARDINALI - NO OBLIQUO)
+// CONTROLLO JOYSTICK TOUCH (RIGIDEMENTE LIMITATO A 4 DIREZIONI CARDINALI)
 const joyZone = document.getElementById('joyZone');
 const joyKnob = document.getElementById('joyKnob');
 let joyActive = false;
@@ -370,7 +370,7 @@ function handleJoyMove(clientX, clientY) {
   let dy = clientY - centerY;
 
   const dist = Math.hypot(dx, dy);
-  const maxRadius = rect.width / 2 - 8;
+  const maxRadius = rect.width / 2 - 10;
 
   if (dist > maxRadius) {
     dx = (dx / dist) * maxRadius;
@@ -381,9 +381,9 @@ function handleJoyMove(clientX, clientY) {
 
   moveUp = false; moveDown = false; moveLeft = false; moveRight = false;
 
-  const deadZone = 10;
+  const deadZone = 12;
   if (dist > deadZone) {
-    // ESCLUSIONE RIGIDA DEI MOVIMENTI OBLIQUI (SOLO ASSE DOMINANTE)
+    // RIGIDA ESCLUSIONE DELLE DIAGONALI: Prende solo l'asse con lo spostamento maggiore
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) moveLeft = true;
       else moveRight = true;
@@ -544,7 +544,7 @@ function placeBomb() {
   playSound('bomb');
 }
 
-// PROTETTO: NESSUN CRASH O BLOCCO SULLE ESPLOSIONI A CATENA
+// INNESCO SICURO ESPLOSIONI A CATENA (NESSUNA RICORSIONE INFINITA O CRASH)
 function triggerExplosion(b) {
   if (!b || b.exploded) return;
   b.exploded = true;
@@ -559,11 +559,10 @@ function triggerExplosion(b) {
       let cgy = b.gy + d.y * step;
 
       if (cgx < 0 || cgx >= COLS || cgy < 0 || cgy >= ROWS) break;
-      if (map[cgy][cgx] === 1) break; // Muro fisso arresta esplosione
+      if (map[cgy][cgx] === 1) break;
 
       fireCells.push({ gx: cgx, gy: cgy });
 
-      // Innesco a catena sicuro
       let otherBomb = bombs.find(ob => ob && !ob.exploded && ob.gx === cgx && ob.gy === cgy);
       if (otherBomb) {
         triggerExplosion(otherBomb);
@@ -645,7 +644,7 @@ function isBlocked(nx, ny) {
   return false;
 }
 
-// MOVIMENTO BOMBERMAN COMPLETO: GUIDA RIGIDA SUL CENTRO DELLA CORSIA
+// MOVIMENTO BOMBERMAN COMPLETO: GUIDA RIGIDA AL CENTRO DELLA CORSIA
 function updatePlayer() {
   let dx = 0, dy = 0;
 
@@ -654,7 +653,6 @@ function updatePlayer() {
   let wantUp = keyPressed('ArrowUp') || keyPressed('KeyW') || moveUp;
   let wantDown = keyPressed('ArrowDown') || keyPressed('KeyS') || moveDown;
 
-  // Selezione prioritaria dell'asse per escludere qualsiasi diagonale
   if (wantLeft) { dx = -player.speed; player.facingLeft = true; }
   else if (wantRight) { dx = player.speed; player.facingLeft = false; }
   else if (wantUp) { dy = -player.speed; }
@@ -663,28 +661,28 @@ function updatePlayer() {
   player.isMoving = (dx !== 0 || dy !== 0);
   if (player.isMoving) animTimer++;
 
-  // Movimento orizzontale: aggancia perfettamente Y al centro della riga
+  // Movimento orizzontale: blocco perfetto dell'asse Y al centro riga
   if (dx !== 0) {
-    let targetCenterY = (Math.floor(player.y / CELL_SIZE) + 0.5) * CELL_SIZE;
-    let diffY = targetCenterY - player.y;
+    let centerY = (Math.floor(player.y / CELL_SIZE) + 0.5) * CELL_SIZE;
+    let diffY = centerY - player.y;
     if (Math.abs(diffY) > 0.1) {
       player.y += Math.sign(diffY) * Math.min(Math.abs(diffY), player.speed);
     } else {
-      player.y = targetCenterY;
+      player.y = centerY;
     }
 
     if (!isBlocked(player.x + dx, player.y)) {
       player.x += dx;
     }
   } 
-  // Movimento verticale: aggancia perfettamente X al centro della colonna
+  // Movimento verticale: blocco perfetto dell'asse X al centro colonna
   else if (dy !== 0) {
-    let targetCenterX = (Math.floor(player.x / CELL_SIZE) + 0.5) * CELL_SIZE;
-    let diffX = targetCenterX - player.x;
+    let centerX = (Math.floor(player.x / CELL_SIZE) + 0.5) * CELL_SIZE;
+    let diffX = centerX - player.x;
     if (Math.abs(diffX) > 0.1) {
       player.x += Math.sign(diffX) * Math.min(Math.abs(diffX), player.speed);
     } else {
-      player.x = targetCenterX;
+      player.x = centerX;
     }
 
     if (!isBlocked(player.x, player.y + dy)) {
@@ -701,7 +699,7 @@ function updatePlayer() {
 
   for (let i = powerups.length - 1; i >= 0; i--) {
     let pw = powerups[i];
-    if (pw.gx === pGx && pw.gy === pGy) {
+    if (pw && pw.gx === pGx && pw.gy === pGy) {
       playSound('powerup');
       if (pw.type === 'BOMB_UP') player.maxBombs++;
       else if (pw.type === 'FIRE_UP') player.bombRange++;
@@ -766,7 +764,6 @@ function updateEnemies() {
 }
 
 function updateBombsAndExplosions() {
-  // Timer e innesco bombe
   for (let i = 0; i < bombs.length; i++) {
     let b = bombs[i];
     if (b && !b.exploded) {
@@ -777,17 +774,14 @@ function updateBombsAndExplosions() {
     }
   }
 
-  // Filtro sicuro delle bombe gia esplose
   bombs = bombs.filter(b => b && !b.exploded);
 
-  // Gestione esplosioni
   for (let i = explosions.length - 1; i >= 0; i--) {
     let ex = explosions[i];
     if (!ex) continue;
     ex.timer--;
 
     ex.cells.forEach(cell => {
-      // Danno ai nemici
       for (let eIdx = enemies.length - 1; eIdx >= 0; eIdx--) {
         let e = enemies[eIdx];
         if (!e) continue;
@@ -800,7 +794,6 @@ function updateBombsAndExplosions() {
         }
       }
 
-      // Danno al giocatore
       if (player.invTimer <= 0) {
         let pgx = Math.floor(player.x / CELL_SIZE);
         let pgy = Math.floor(player.y / CELL_SIZE);
@@ -813,7 +806,6 @@ function updateBombsAndExplosions() {
     if (ex.timer <= 0) explosions.splice(i, 1);
   }
 
-  // Avanzamento livello
   if (enemies.length === 0 && gameState === 'PLAYING') {
     score += Math.floor(1000 * level * currentTheme.scoreMult);
     level++;
@@ -828,17 +820,20 @@ function updateBombsAndExplosions() {
   }
 }
 
+// PROTEZIONE RIGIDA CONTRO DANNO RIGENERATO O MULTIPLI SULLO STESSO FRAME
 function hitPlayer() {
+  if (player.invTimer > 0) return; // Se già immune, ignora altri danni sullo stesso frame
+
   lives--;
   playSound('fail');
   if (lives <= 0) {
     gameState = 'GAME_OVER';
-    gameOverLockTimer = 45; // 45 frame di protezione prima di accettare tap/click
+    gameOverLockTimer = 60; // 60 frame di blocco totale per evitare salto menu accidentale
     saveScore();
   } else {
     player.x = 1 * CELL_SIZE + CELL_SIZE / 2;
     player.y = 1 * CELL_SIZE + CELL_SIZE / 2;
-    player.invTimer = 90;
+    player.invTimer = 90; // 1.5 secondi di invulnerabilità
   }
 }
 
