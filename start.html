@@ -52,18 +52,30 @@
             align-items: center;
         }
 
-        /* COMANDO MENU MOLTO PIÙ PICCOLO IN ALTO A DESTRA */
+        /* COMANDO MENU A FORMA DI PICCOLO QUADRATINO CON X */
         .top-home-btn {
             position: absolute;
-            top: max(env(safe-area-inset-top), 8px);
-            right: 8px;
-            width: auto;
-            padding: 3px 8px;
+            top: max(env(safe-area-inset-top), 10px);
+            right: 10px;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            background: #090918;
+            border: 1.5px solid #00ffcc;
+            color: #00ffcc;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
             z-index: 250;
-            font-size: 9px;
-            border-radius: 6px;
-            letter-spacing: 0.5px;
             display: none;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+        }
+        .top-home-btn:active {
+            transform: scale(0.9);
         }
 
         #landing-screen {
@@ -230,7 +242,6 @@
             flex-shrink: 0;
         }
         
-        /* VIDEO INGRANDITO */
         .npc-video {
             width: 260px;
             max-width: 75vw;
@@ -390,7 +401,7 @@
 <body>
 
 <div id="app-wrapper">
-    <button id="home-menu-btn" class="arcade-secondary-btn top-home-btn">MENU</button>
+    <button id="home-menu-btn" class="top-home-btn">X</button>
 
     <div id="landing-screen">
         <img src="assets/hub/logo.png" alt="Agency Arcade Logo" class="main-logo">
@@ -468,7 +479,13 @@ const DIALOGUE_STEPS = [
             "Mangio continuamente snack",
             "Fingo di digitare sulla tastiera",
             "Bevo il quinto caffè del giorno",
-            "Accumulo 80 schede aperte nel browser"
+            "Accumulo 80 schede aperte nel browser",
+            "Pianifico la conquista del mondo tra due meeting",
+            "Sguardo fisso al monitor per sembrare immerso nei pensieri",
+            "Combatto contro uno strano bug da quattro ore",
+            "Aspetto che qualcuno porti dei pasticcini",
+            "Riorganizzo le icone del desktop per far passare il tempo",
+            "Cerco di capire che lavoro sto facendo esattamente"
         ], 
         btn: "CONFERMA SCELTA ►" 
     },
@@ -668,7 +685,7 @@ let isTyping = false;
 function startOnboarding() {
     landingScreen.style.display = "none";
     onboardingScreen.style.display = "flex";
-    homeMenuBtn.style.display = "block";
+    homeMenuBtn.style.display = "flex";
     currentStepIdx = 0;
     renderStep();
 }
@@ -684,28 +701,31 @@ function renderStep() {
     npcStageBox.style.display = "flex";
 
     typeWriter(stepData.text, () => {
-        if (stepData.type === "username") {
-            inputField.style.display = "block";
-            inputField.type = "text";
-            inputField.placeholder = stepData.placeholder;
-            inputField.maxLength = 12;
-            inputField.focus();
-        } else if (stepData.type === "password") {
-            inputField.style.display = "block";
-            inputField.type = "password";
-            inputField.placeholder = stepData.placeholder;
-            inputField.maxLength = 20;
-            inputField.focus();
-        } else if (stepData.type === "choice_activity") {
-            renderChoiceGrid(stepData.options, (val) => { tempActivity = val; });
-            choiceGrid.style.display = "flex";
-        } else if (stepData.type === "choice_role") {
-            renderChoiceGrid(stepData.options, (val) => { tempRole = val; });
-            choiceGrid.style.display = "flex";
-        } else if (stepData.type === "avatar") {
-            renderAvatarGrid();
-            avatarGrid.style.display = "grid";
-        }
+        // DELAY PRIMA DI FAR COMPARIRE LE OPZIONI O L'INPUT
+        setTimeout(() => {
+            if (stepData.type === "username") {
+                inputField.style.display = "block";
+                inputField.type = "text";
+                inputField.placeholder = stepData.placeholder;
+                inputField.maxLength = 12;
+                inputField.focus();
+            } else if (stepData.type === "password") {
+                inputField.style.display = "block";
+                inputField.type = "password";
+                inputField.placeholder = stepData.placeholder;
+                inputField.maxLength = 20;
+                inputField.focus();
+            } else if (stepData.type === "choice_activity") {
+                renderChoiceGrid(stepData.options, (val) => { tempActivity = val; });
+                choiceGrid.style.display = "flex";
+            } else if (stepData.type === "choice_role") {
+                renderChoiceGrid(stepData.options, (val) => { tempRole = val; });
+                choiceGrid.style.display = "flex";
+            } else if (stepData.type === "avatar") {
+                renderAvatarGrid();
+                avatarGrid.style.display = "grid";
+            }
+        }, 400);
     });
 }
 
@@ -858,9 +878,11 @@ function typeWriter(text, onComplete) {
             i++;
             setTimeout(type, speed);
         } else {
-            isTyping = false;
-            stepBtn.disabled = false;
             if (onComplete) onComplete();
+            setTimeout(() => {
+                isTyping = false;
+                stepBtn.disabled = false;
+            }, 400);
         }
     }
     type();
