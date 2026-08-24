@@ -135,7 +135,7 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            padding: max(env(safe-area-inset-top), 20px) 16px max(env(safe-area-inset-bottom), 16px) 16px;
+            padding: max(env(safe-area-inset-top), 16px) 16px max(env(safe-area-inset-bottom), 16px) 16px;
             background-color: #060612;
         }
 
@@ -147,6 +147,7 @@
             align-items: center;
             width: 100%;
             gap: 12px;
+            min-height: 0;
         }
 
         .speech-bubble {
@@ -229,6 +230,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            max-height: 60%;
         }
         .arcade-input {
             width: 100%;
@@ -243,12 +245,12 @@
             font-weight: bold;
         }
 
-        /* STILI PER LE GRIGLIE DI SCELTA INTERATTIVA */
+        /* GRIGLIE SCELTA E AVATAR CORRETTE PER EVITARE BLOCCHI INTERFACCIA */
         .choice-grid {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
             width: 100%;
             padding: 8px;
@@ -293,7 +295,7 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            max-height: 220px;
+            max-height: 180px;
             overflow-y: auto;
             padding: 6px;
             background: #04040a;
@@ -325,12 +327,12 @@
             background: #0c0c20;
             cursor: pointer;
             object-fit: cover;
-            transition: all 0.15s ease-in-out;
+            transition: transform 0.15s ease-in-out, border-color 0.15s ease-in-out;
         }
         .avatar-option.selected {
             border-color: #00ffcc;
             box-shadow: 0 0 12px #00ffcc;
-            transform: scale(1.08);
+            transform: scale(1.05);
             z-index: 5;
         }
 
@@ -346,6 +348,7 @@
             cursor: pointer;
             box-shadow: 0 0 12px rgba(0, 255, 204, 0.5);
             transition: opacity 0.2s ease, transform 0.1s ease;
+            flex-shrink: 0;
         }
         .arcade-next-btn:disabled {
             opacity: 0.4;
@@ -474,18 +477,7 @@ const DIALOGUE_STEPS = [
         btn: "CONFERMA SCELTA ►" 
     },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Oppure…", type: "none", btn: "AVANTI ►" },
-    { text: "semplicemente…", type: "none", btn: "AVANTI ►" },
-    { text: "una persona normale?", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "No, aspetta.", type: "none", btn: "AVANTI ►" },
-    { text: "Questa la togliamo.", type: "none", btn: "AVANTI ►" },
-    { text: "Non ci credo.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Comunque…", type: "none", btn: "AVANTI ►" },
-    { text: "che personaggio sei?", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sei uno che arrives puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
+    { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "E soprattutto…", type: "none", btn: "AVANTI ►" },
     { text: "che faccia mettiamo su questo personaggio?", type: "avatar", btn: "SCEGLI QUESTA TESTA ►" },
@@ -703,7 +695,6 @@ function renderChoiceGrid(options, onSelectCallback) {
         btn.className = 'choice-btn';
         btn.innerText = optText;
 
-        // Seleziona la prima opzione di default
         if (index === 0) {
             btn.classList.add('selected');
             selectedVal = optText;
@@ -721,22 +712,28 @@ function renderChoiceGrid(options, onSelectCallback) {
     });
 }
 
+// RENDER AVATAR OTTIMIZZATO PER EVITARE BLOCCHI DOM
 function renderAvatarGrid() {
     avatarGrid.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+
     AVATAR_LIST.forEach((src) => {
         const img = document.createElement('img');
         img.src = src;
         img.loading = "lazy";
         img.className = `avatar-option ${src === tempAvatar ? 'selected' : ''}`;
-        img.onerror = () => { img.style.display = 'none'; };
+        img.onerror = function() { this.style.display = 'none'; };
 
-        img.onclick = () => {
+        img.onclick = function() {
             tempAvatar = src;
-            document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
-            img.classList.add('selected');
+            const allAvatars = avatarGrid.querySelectorAll('.avatar-option');
+            allAvatars.forEach(el => el.classList.remove('selected'));
+            this.classList.add('selected');
         };
-        avatarGrid.appendChild(img);
+        fragment.appendChild(img);
     });
+
+    avatarGrid.appendChild(fragment);
 }
 
 stepBtn.onclick = async () => {
