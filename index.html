@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade</title>
 
+    <!-- ICONA WEB APP E PWA FULLSCREEN -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,23 +18,31 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* RIMOOZIONE TOTALE FOCUS RING E HIGHLIGHT BLU DI IOS */
-        *, *:focus, *:active, canvas, button, input, div {
+        /* DISATTIVAZIONE TOTALE E SEVERA DEL TAP HIGHLIGHT E FOCUS RING BLU DI IOS SAFARI */
+        *, *:focus, *:active, canvas, button, input, div, a {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent !important;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+            -webkit-touch-callout: none !important;
             -webkit-focus-ring-color: transparent !important;
             outline: none !important;
+            border: none;
             touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
         }
 
+        /* BLOCCA IL BROWSER AI 4 ANGOLI SENZA MOLEGGIO O SFONDO NATIVO SAFARI */
         html, body {
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100dvh;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
             overflow: hidden !important;
             overscroll-behavior: none !important;
             background-color: #060612 !important;
@@ -44,31 +53,20 @@
         }
 
         #game-wrapper {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             width: 100%;
             height: 100%;
-            max-width: 360px;
-            max-height: 740px;
-            background: #060612;
+            background: #060612 !important;
             box-shadow: none !important;
             border: none !important;
             overflow: hidden;
-        }
-
-        @media (max-width: 600px) {
-            #game-wrapper {
-                position: fixed !important;
-                top: 0 !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                width: 100vw !important;
-                height: 100dvh !important;
-                max-width: none !important;
-                max-height: none !important;
-                border: none !important;
-                box-shadow: none !important;
-            }
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         #game-container {
@@ -76,16 +74,21 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #060612;
+            background: #060612 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #game-container canvas {
             display: block;
             border: none !important;
             outline: none !important;
-            -webkit-tap-highlight-color: transparent !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
         }
 
+        /* BARRA SUPERIORE HTML */
         #top-header-bar {
             position: absolute;
             top: max(env(safe-area-inset-top), 8px);
@@ -100,7 +103,7 @@
         }
         .header-btn {
             background: #060614;
-            border: 1.5px solid #ff0055;
+            border: 1.5px solid #ff0055 !important;
             color: #ffff00;
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
@@ -113,10 +116,11 @@
         .header-btn:active { transform: scale(0.95); }
         #header-score-btn {
             color: #ff0055;
-            border-color: #ff0055;
+            border-color: #ff0055 !important;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
+        /* OVERLAY PROFILO E CLASSIFICHE */
         .auth-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -132,7 +136,7 @@
             width: 100%;
             max-width: 320px;
             background: #090918;
-            border: 2px solid #ff0055;
+            border: 2px solid #ff0055 !important;
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
             border-radius: 14px;
             padding: 18px;
@@ -142,7 +146,7 @@
 
         .profile-card-header {
             background: linear-gradient(90deg, #150520, #051525);
-            border: 1px solid #ff0055;
+            border: 1px solid #ff0055 !important;
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 12px;
@@ -157,7 +161,7 @@
             width: 44px;
             height: 44px;
             background: #250515;
-            border: 2px solid #ff0055;
+            border: 2px solid #ff0055 !important;
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -173,7 +177,7 @@
         .xp-bar-container {
             width: 100%;
             background: #04040a;
-            border: 1px solid #ff0055;
+            border: 1px solid #ff0055 !important;
             height: 10px;
             border-radius: 5px;
             margin-top: 8px;
@@ -191,7 +195,7 @@
             display: flex;
             justify-content: space-around;
             background: #04040a;
-            border: 1px dashed rgba(255, 0, 85, 0.4);
+            border: 1px dashed rgba(255, 0, 85, 0.4) !important;
             border-radius: 8px;
             padding: 8px;
             margin-bottom: 12px;
@@ -202,7 +206,7 @@
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
         .stat-card {
             background: #04040a;
-            border: 1px solid rgba(255, 0, 85, 0.4);
+            border: 1px solid rgba(255, 0, 85, 0.4) !important;
             border-radius: 8px;
             padding: 8px 4px;
             text-align: center;
@@ -213,7 +217,7 @@
         .tab-selector { display: flex; justify-content: space-around; gap: 4px; margin-bottom: 10px; }
         .tab-btn {
             background: #101528;
-            border: 1px solid #ff0055;
+            border: 1px solid #ff0055 !important;
             color: #ffffff;
             font-size: 9px;
             padding: 5px 6px;
@@ -221,7 +225,7 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .tab-btn.active { background: #ff0055; color: #fff; border-color: #ff0055; box-shadow: 0 0 8px rgba(255, 0, 85, 0.6); }
+        .tab-btn.active { background: #ff0055; color: #fff; border-color: #ff0055 !important; box-shadow: 0 0 8px rgba(255, 0, 85, 0.6); }
         
         .leaderboard-list {
             display: flex;
@@ -234,7 +238,7 @@
         }
         .leaderboard-row {
             background: #04040a;
-            border: 1px solid rgba(255, 0, 85, 0.3);
+            border: 1px solid rgba(255, 0, 85, 0.3) !important;
             border-radius: 6px;
             padding: 6px 10px;
             display: flex;
@@ -251,7 +255,7 @@
             margin-top: 4px;
             background: #ff0055;
             color: #fff;
-            border: none;
+            border: none !important;
             border-radius: 6px;
             font-weight: bold;
             font-size: 12px;
@@ -289,6 +293,7 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
     </div>
 
+    <!-- MODAL PROFILO LOCALE -->
     <div id="profile-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <div class="profile-card-header">
@@ -323,6 +328,7 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         </div>
     </div>
 
+    <!-- MODAL CLASSIFICA -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <h2 style="color:#ff0055;">🌍 CLASSIFICA MONDIALE</h2>
@@ -720,7 +726,7 @@ const config = {
     backgroundColor: '#060612',
     scale: { 
         mode: Phaser.Scale.FIT, 
-        autoCenter: Phaser.Scale.NO_CENTER, 
+        autoCenter: Phaser.Scale.CENTER_BOTH, 
         width: 360, 
         height: 740 
     },

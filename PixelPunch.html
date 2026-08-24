@@ -315,10 +315,15 @@ btnCloseSettings.onclick = () => {
   updateMusicState();
 };
 
-// Caricamento Immagini Personaggi
-const imgIris = new Image(); imgIris.src = 'assets/PixelPunch/iris.png';
-const imgCristina = new Image(); imgCristina.src = 'assets/PixelPunch/tosatto.png';
-const imgRachele = new Image(); imgRachele.src = 'assets/PixelPunch/rache.png';
+// Caricamento Immagini Personaggi con Gestore Caricamento
+const imgIris = new Image(); 
+imgIris.src = 'assets/PixelPunch/iris.png';
+
+const imgCristina = new Image(); 
+imgCristina.src = 'assets/PixelPunch/tosatto.png';
+
+const imgRachele = new Image(); 
+imgRachele.src = 'assets/PixelPunch/rache.png';
 
 const CHARACTERS = {
     IRIS: {
@@ -500,7 +505,6 @@ function startMatch() {
                     ferieActive = false;
                 }
             } else {
-                // Lo stress cresce progressivamente ma lentamente
                 stress = Math.min(100, stress + 0.3 + (elapsedMatchTime * 0.012));
             }
 
@@ -596,7 +600,6 @@ function hitPad(pad) {
         stress = Math.max(0, stress - 20);
         playSound('golden');
         
-        // Pulisce tutti i pad attivi per lasciare respiro
         gridPads.forEach(p => p.active = false);
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#00ffcc', 18);
         addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `🌴 FERIE RELAX (${currentTheme.ferieSec}s)!`, "#00ffcc");
@@ -721,47 +724,47 @@ function draw() {
     ctx.fillStyle = currentTheme.bg;
     ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-    // --- SCHERMATA 1: REGOLE E TUTORIAL OBIETTIVI ---
+    // --- SCHERMATA 1: REGOLE E TUTORIAL INGRANDITO E CHIARO ---
     if (state === 'TUTORIAL') {
-        ctx.fillStyle = '#00ffcc';
-        ctx.font = 'bold 18px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('PIXEL PUNCH: REGOLE 🥊', cvs.width / 2, 38);
+        ctx.fillStyle = '#ff0055';
+        ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('PIXEL PUNCH: REGOLE 🥊', cvs.width / 2, 42);
 
         // Card 1: Stress & Burnout
-        drawRoundRect(ctx, 15, 55, 350, 85, 10);
+        drawRoundRect(ctx, 15, 60, 350, 105, 10);
         ctx.fillStyle = '#101228'; ctx.fill();
-        ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('1. REGOLA DELLO STRESS (NO TIMER)', 28, 74);
-        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-        ctx.fillText('Non c\'è tempo limite! Il gioco dura finché resisti.', 28, 92);
-        ctx.fillText('Ticket scaduti ed errori fanno salire lo STRESS.', 28, 108);
-        ctx.fillStyle = '#ffcc00';
-        ctx.fillText('Se lo Stress raggiunge il 100% è BURNOUT! 💀', 28, 124);
+        ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'left';
+        ctx.fillText('1. EVITA IL BURNOUT! 💀', 28, 82);
+        ctx.fillStyle = '#ffffff'; ctx.font = '11px monospace';
+        ctx.fillText('• NON c\'è un timer limite!', 28, 102);
+        ctx.fillText('• I ticket scaduti fanno salire lo STRESS.', 28, 120);
+        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 11px monospace';
+        ctx.fillText('• Se la barra arriva al 100% hai PERSO!', 28, 138);
 
         // Card 2: Ticket & Ferie
-        drawRoundRect(ctx, 15, 150, 350, 95, 10);
+        drawRoundRect(ctx, 15, 180, 350, 125, 10);
         ctx.fillStyle = '#101228'; ctx.fill();
-        ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('2. TICKET & FERIE 🌴', 28, 168);
-        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-        ctx.fillText('🔴 Rossi & 🟣 Viola: Toccali per ridurre lo stress.', 28, 186);
-        ctx.fillText('🌴 Ticket FERIE: Toccalo per 7-15s di RELAX!', 28, 202);
-        ctx.fillText('☕ Caffè & ⭐ VIP: Abbassano lo Stress + Punti!', 28, 218);
-        ctx.fillStyle = '#ff0055';
-        ctx.fillText('🟢 Verde & 🖤 Nero: TRAPPOLE! Non toccare!', 28, 234);
+        ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'left';
+        ctx.fillText('2. TICKET & FERIE 🌴', 28, 202);
+        ctx.fillStyle = '#ffffff'; ctx.font = '11px monospace';
+        ctx.fillText('• 🔴 Rossi (+100) & 🟣 Viola (2 Tap: +250)', 28, 222);
+        ctx.fillText('• 🌴 Ticket FERIE: Cliccalo per 7-15s di RELAX!', 28, 240);
+        ctx.fillText('• ☕ Caffè & ⭐ VIP: Riducono lo Stress!', 28, 258);
+        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace';
+        ctx.fillText('• 🟢 Verde & 🖤 Nero: TRAPPOLE! Non toccare!', 28, 276);
 
         // Record
-        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(`RECORD ATTUALE: ${highScore} PTS`, cvs.width / 2, 268);
+        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(`RECORD ATTUALE: ${highScore} PTS`, cvs.width / 2, 335);
 
         // Tasto Avanti
-        drawRoundRect(ctx, 20, 295, 340, 45, 10);
+        drawRoundRect(ctx, 20, 365, 340, 50, 10);
         ctx.fillStyle = '#ff0055'; ctx.fill();
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px monospace';
-        ctx.fillText('AVANTI: SCEGLI CREATIVO ►', cvs.width / 2, 322);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px monospace';
+        ctx.fillText('AVANTI: SCEGLI CREATIVO ►', cvs.width / 2, 396);
         return;
     }
 
@@ -795,22 +798,20 @@ function draw() {
             ctx.fillStyle = b.col; ctx.font = 'bold 11px monospace';
             ctx.fillText('SELEZIONA ►', 30, b.y + 102);
 
-            // CARICAMENTO ED ESECUZIONE RESILIENTE RITRATTO PERSONAGGIO
+            // RENDER RITRATTO ROBUSTO
+            ctx.save();
+            drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
+            ctx.clip();
             if (c.img && c.img.complete && c.img.naturalWidth > 0) {
-                ctx.save();
-                drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
-                ctx.clip();
                 ctx.drawImage(c.img, 240, b.y + 12, 105, 100);
-                ctx.restore();
-                drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
-                ctx.strokeStyle = b.col; ctx.lineWidth = 1.5; ctx.stroke();
             } else {
-                drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
                 ctx.fillStyle = '#1a1a3a'; ctx.fill();
-                ctx.strokeStyle = b.col; ctx.lineWidth = 1.5; ctx.stroke();
-                ctx.fillStyle = b.col; ctx.font = 'bold 24px monospace'; ctx.textAlign = 'center';
+                ctx.fillStyle = b.col; ctx.font = 'bold 26px monospace'; ctx.textAlign = 'center';
                 ctx.fillText(c.name[0], 292, b.y + 68);
             }
+            ctx.restore();
+            drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
+            ctx.strokeStyle = b.col; ctx.lineWidth = 1.5; ctx.stroke();
         });
         return;
     }
@@ -901,7 +902,6 @@ function draw() {
     let currentStressPct = Math.min(100, Math.max(0, stress)) / 100;
     let stressCol = currentStressPct < 0.4 ? '#00ffcc' : (currentStressPct < 0.75 ? '#ffcc00' : '#ff0055');
     
-    // Effetto Pulsante quando lo stress è alto (>75%)
     if (currentStressPct >= 0.75 && Math.floor(Date.now() / 200) % 2 === 0) {
         stressCol = '#ffffff';
     }
@@ -959,7 +959,7 @@ cvs.addEventListener('pointerdown', (e) => {
     let y = (e.clientY - rect.top) * (cvs.height / rect.height);
 
     if (state === 'TUTORIAL') {
-        if (y >= 295 && y <= 340) {
+        if (y >= 365 && y <= 415) {
             state = 'CHAR_SELECT';
             playSound('coffee');
         }
