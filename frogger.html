@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Deadline Drive - Studio Cross</title>
+<title>Deadline Drive - Premiere Timeline Rush</title>
 <style>
 * {
   box-sizing: border-box;
@@ -300,7 +300,7 @@ canvas {
 <div id="game-wrapper">
   <!-- TOP BAR CON PULSANTE OPZIONI -->
   <div class="top-header">
-    <span class="header-title">DEADLINE DRIVE - STUDIO CROSS</span>
+    <span class="header-title">DEADLINE DRIVE - PREMIERE RUSH</span>
     <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
   </div>
 
@@ -522,23 +522,22 @@ const imgTobi   = new Image(); imgTobi.src   = 'assets/frogger/tobi.png';
 const imgDave   = new Image(); imgDave.src   = 'assets/frogger/dave.png';
 const imgLuca   = new Image(); imgLuca.src   = 'assets/frogger/luca.png';
 
-const OBSTACLE_TYPES = {
-  FRAME_DROP:   { type: 'FRAME_DROP',   label: 'DROP FRAME',    bg: '#002b4a', border: '#ff0055', textCol: '#ccf5ff', wMult: 1.8, hMult: 1 },
-  EXPORT_LENTO: { type: 'EXPORT_LENTO', label: 'EXPORT LENTO',  bg: '#3b3300', border: '#ffff00', textCol: '#ffffaa', wMult: 2.2, hMult: 1 },
-  BUG_CRITICO:  { type: 'BUG_CRITICO',  label: 'BUG CRITICO',   bg: '#4a0000', border: '#ff0000', textCol: '#ffaaaa', wMult: 2.0, hMult: 1 },
-  AUDIO_OUT:    { type: 'AUDIO_OUT',    label: 'AUDIO NO SYNC', bg: '#4a3d00', border: '#ffcc00', textCol: '#ffffcc', wMult: 2.4, hMult: 1 },
-  CLIENT_EDIT:  { type: 'CLIENT_EDIT',  label: 'CAMBIO CLIENTE', bg: '#4a001a', border: '#ff0055', textCol: '#ffaacc', wMult: 2.8, hMult: 1 },
-  DISCO_PIENO:  { type: 'DISCO_PIENO',  label: 'DISCO PIENO!',   bg: '#3f3000', border: '#ffbb00', textCol: '#fff5aa', wMult: 2.2, hMult: 1 },
-  OVERHEAT:     { type: 'OVERHEAT',     label: 'GPU OVERHEAT',   bg: '#550000', border: '#ff2200', textCol: '#ffcccc', wMult: 2.0, hMult: 1 },
-  SET_DELAY:    { type: 'SET_DELAY',    label: 'SET RITARDO',   bg: '#1c2838', border: '#2a6090', textCol: '#88c0ff', wMult: 3.2, hMult: 2 },
-  RENDER_CRASH: { type: 'RENDER_CRASH', label: 'RENDER CRASH!', bg: '#500005', border: '#ff0000', textCol: '#ffffff', wMult: 3.4, hMult: 1 }
+// CLIP & OSTACOLI STANDARD DI ADOBE PREMIERE PRO TIMELINE
+const PREMIERE_CLIPS = {
+  MEDIA_OFFLINE:   { type: 'OFFLINE',   label: 'MEDIA OFFLINE 🔴', bg: '#4a0b0b', border: '#ff3333', textCol: '#ffcccc', topBar: '#ff0000', wMult: 2.2, hMult: 1 },
+  UNRENDERED_BAR:  { type: 'UNRENDER',  label: 'UNRENDERED V2',   bg: '#2d142c', border: '#ff0055', textCol: '#ffb3d9', topBar: '#ff0055', wMult: 2.5, hMult: 1 },
+  ADJUSTMENT_FX:   { type: 'LUMETRI',   label: 'LUMETRI COLOR FX',bg: '#2e1245', border: '#aa33ff', textCol: '#e6b3ff', topBar: '#aa33ff', wMult: 2.0, hMult: 1 },
+  AUDIO_PEAK:      { type: 'AUDIO_PEAK',label: 'CLIP PEAK +12dB', bg: '#3d2200', border: '#ffaa00', textCol: '#ffecb3', topBar: '#ffaa00', wMult: 2.0, hMult: 1 },
+  NESTED_SEQ:      { type: 'NESTED',    label: 'NESTED SEQ_01',   bg: '#0f3823', border: '#00ff66', textCol: '#b3ffcc', topBar: '#00ff66', wMult: 2.8, hMult: 1 },
+  PENDING_SEARCH:  { type: 'PENDING',   label: 'MEDIA PENDING...',bg: '#362a0a', border: '#ffcc00', textCol: '#fff5b3', topBar: '#ffcc00', wMult: 2.2, hMult: 1 },
+  RENDER_CRASH:    { type: 'CRASH',     label: 'GPU CRASH 💥',    bg: '#540000', border: '#ff0000', textCol: '#ffffff', topBar: '#ff0000', wMult: 3.2, hMult: 1 }
 };
 
 const LEVEL_THEMES = [
-  { levelMin: 1, title: "STAGE 1: TIMELINE INIZIALE", msg: "Primi export veloci e pochi ostacoli!" },
-  { levelMin: 2, title: "STAGE 2: MONTAGGIO COMPLESSO", msg: "Audio fuori sync e bug di sistema!" },
-  { levelMin: 3, title: "STAGE 3: RUSH EXPORT FINALE", msg: "Attento ai blocchi alti e alla GPU!" },
-  { levelMin: 4, title: "STAGE 4: CAOS PRIMA DELLE 18:00", msg: "Massima velocità e ostacoli continui!" }
+  { levelMin: 1, title: "STAGE 1: ASSEMBLE TIMELINE", msg: "Primi stacchi video: pochi ostacoli e velocità ridotta!" },
+  { levelMin: 2, title: "STAGE 2: MONTAGGIO RUSH", msg: "Aumentano le clip unrendered e l'audio peaking!" },
+  { levelMin: 3, title: "STAGE 3: VFX & COLOR GRADE", msg: "Effetti complessi e cambi formato frequenti!" },
+  { levelMin: 4, title: "STAGE 4: EXPORT PRIMA DELLE 18:00", msg: "Massima densità di clip sulla Timeline!" }
 ];
 
 const CHARACTERS = {
@@ -579,11 +578,11 @@ const CHARACTERS = {
 const CHARACTER_LIST = ['GIULIA', 'TOBI', 'DAVE', 'LUCA'];
 
 const PICKUP_TYPES = {
-  COFFEE:    { type: 'COFFEE',    label: '☕ CAFFÈ',   pts: 300,  isMalus: false },
-  TURBO:     { type: 'TURBO',     label: '⚡ TURBO',   pts: 150,  isMalus: false, speedBoost: 1.3 },
-  DOUBLE_PTS:{ type: 'DOUBLE_PTS',label: '⭐ 2X PUNTI',pts: 500,  isMalus: false, scoreBoost: 2.0 },
-  SLOW:      { type: 'SLOW',      label: '🐌 SLOW',    pts: -100, isMalus: true,  slowFactor: 0.6 },
-  GLITCH:    { type: 'GLITCH',    label: '⚠️ GLITCH',  pts: -200, isMalus: true,  invertControls: true }
+  AUTO_SAVE:  { type: 'AUTOSAVE',  label: '💾 SAVE',     pts: 300, isMalus: false },
+  PROXY_ON:   { type: 'PROXY',     label: '🎬 PROXY 2X', pts: 400, isMalus: false, scoreBoost: 2.0 },
+  CACHE_BOOST:{ type: 'CACHE',     label: '⚡ CACHE',    pts: 150, isMalus: false, speedBoost: 1.3 },
+  DROP_FRAME: { type: 'DROP_FRAME',label: '🐌 DROP',     pts: -100, isMalus: true,  slowFactor: 0.6 },
+  DISK_FULL:  { type: 'DISK_FULL', label: '⚠️ FULL DISK',pts: -200, isMalus: true,  invertControls: true }
 };
 
 let currentTheme = CHARACTERS.GIULIA;
@@ -614,36 +613,37 @@ let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
 let selectedCharIndex = 0;
 let particles = [];
 
+// CREAZIONE PROGRESSIVA DELLE CORSIE (Meno ostacoli all'inizio, più densi con l'avanzamento)
 function createNewLane(isInitialSetup = false, r = 0) {
   let isSafe = false;
 
+  let safeChance = Math.max(0.18, 0.45 - (level * 0.08));
+
   if (isInitialSetup) {
-    isSafe = (r === 0 || r === ROWS - 1 || r === ROWS - 2 || r === ROWS - 3 || (r % 4 === 0 && level === 1));
+    isSafe = (r === 0 || r === ROWS - 1 || r === ROWS - 2 || r === ROWS - 3 || (r % 2 === 0 && level === 1));
   } else {
     let topLane = activeLanes[0];
     if (topLane && topLane.type === 'SAFE') {
       isSafe = false;
     } else {
-      isSafe = Math.random() < 0.25;
+      isSafe = Math.random() < safeChance;
     }
   }
 
   let laneType = isSafe ? 'SAFE' : 'ROAD';
   let dir = (Math.random() < 0.5) ? 1 : -1;
 
-  let speedFactor = 0.5 + Math.min(level * 0.2, 1.5);
-  let baseSpeed = (0.6 + Math.random() * 0.4) * speedFactor;
+  // Velocità e frequenza crescono con il livello
+  let speedFactor = 0.4 + Math.min(level * 0.18, 1.4);
+  let baseSpeed = (0.5 + Math.random() * 0.4) * speedFactor;
 
-  let vTypes = [];
-  if (level === 1) vTypes = [OBSTACLE_TYPES.FRAME_DROP, OBSTACLE_TYPES.EXPORT_LENTO];
-  else if (level === 2) vTypes = [OBSTACLE_TYPES.EXPORT_LENTO, OBSTACLE_TYPES.BUG_CRITICO, OBSTACLE_TYPES.AUDIO_OUT, OBSTACLE_TYPES.DISCO_PIENO];
-  else if (level === 3) vTypes = [OBSTACLE_TYPES.AUDIO_OUT, OBSTACLE_TYPES.CLIENT_EDIT, OBSTACLE_TYPES.OVERHEAT, OBSTACLE_TYPES.SET_DELAY];
-  else vTypes = Object.values(OBSTACLE_TYPES);
+  let vTypes = Object.values(PREMIERE_CLIPS);
 
   let laneObj = {
     type: laneType,
-    bg: isSafe ? '#080820' : '#0e1224',
-    wallCol: currentTheme.primary || '#ff0055',
+    trackName: isSafe ? "TIMELINE SAFE" : `TRACK V${(r % 3) + 1}`,
+    bg: isSafe ? '#0b1320' : '#141824',
+    wallCol: currentTheme.primary || '#00ffcc',
     dir: dir,
     speed: baseSpeed,
     objects: [],
@@ -651,16 +651,17 @@ function createNewLane(isInitialSetup = false, r = 0) {
   };
 
   if (laneType === 'ROAD') {
-    let x = -CELL_SIZE * 2;
-    let gapMultiplier = Math.max(2.5, 6.5 - (level * 0.8));
+    let x = -CELL_SIZE * 3;
+    // Distanziamento elevato al livello 1 per partenza morbida
+    let minGap = Math.max(3.5, 9.0 - (level * 1.2));
     
     do {
-      x += CELL_SIZE * (Math.random() * 2 + gapMultiplier);
-      if (x < CANVAS_W + CELL_SIZE * 2) {
+      x += CELL_SIZE * (Math.random() * 2.5 + minGap);
+      if (x < CANVAS_W + CELL_SIZE * 3) {
         let vType = vTypes[Math.floor(Math.random() * vTypes.length)];
         laneObj.objects.push({ x, type: vType, w: vType.wMult * CELL_SIZE, hMult: vType.hMult });
       }
-    } while (x < CANVAS_W + CELL_SIZE * 2);
+    } while (x < CANVAS_W + CELL_SIZE * 3);
   } else if (isSafe && Math.random() < 0.35) {
     let pTypeKeys = Object.keys(PICKUP_TYPES);
     let chosenKey = pTypeKeys[Math.floor(Math.random() * pTypeKeys.length)];
@@ -935,15 +936,17 @@ function drawObstacles(lane, laneY) {
     ctx.save();
     ctx.fillStyle = vData.bg;
     ctx.fillRect(x + 1, y + 1, blockW - 2, blockH);
+    
+    // BARRA STATO PREMIERE IN ALTO A OGNI CLIP
+    ctx.fillStyle = vData.topBar || '#ff0055';
+    ctx.fillRect(x + 1, y + 1, blockW - 2, 3);
+
     ctx.strokeStyle = vData.border;
     ctx.lineWidth = 1.5;
     ctx.strokeRect(x + 1.5, y + 1.5, blockW - 3, blockH - 1);
     
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.fillRect(x + 2, y + 2, blockW - 4, 3);
-    
     ctx.fillStyle = vData.textCol;
-    ctx.font = 'bold 10px monospace';
+    ctx.font = 'bold 9px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(vData.label, x + blockW / 2, y + blockH / 2 + 1, blockW - 6);
@@ -1061,10 +1064,10 @@ function drawTutorial() {
   ctx.fillStyle = '#101228'; ctx.fill();
   ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
   ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-  ctx.fillText('SCHIVA GLI OSTACOLI DI SET', 22, 82);
+  ctx.fillText('SCHIVA LE CLIP DI PREMIERE', 22, 82);
   ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-  ctx.fillText('Attraversa le tracce ed evita', 22, 100);
-  ctx.fillText('Render Crash, File Lenti e Bug!', 22, 116);
+  ctx.fillText('Risali la Timeline ed evita', 22, 100);
+  ctx.fillText('Media Offline, GPU Crash e Unrendered!', 22, 116);
 
   drawRoundRect(ctx, 12, 148, 314, 78, 10);
   ctx.fillStyle = '#101228'; ctx.fill();
@@ -1096,77 +1099,73 @@ function drawTutorial() {
   ctx.fillText('AVANTI: SCEGLI VIDEOMAKER ►', canvas.width / 2, 396);
 }
 
+// SCHERMATA SELEZIONE PERSONAGGIO INGRANDITA ED ECCELLENTE
 function drawCharSelect() {
   ctx.fillStyle = 'rgba(4, 4, 18, 0.96)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = '#ffff00';
-  ctx.font = 'bold 12px monospace';
+  ctx.font = 'bold 13px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('Scegli il tuo Creativo in Deadline Drive', canvas.width / 2, 30);
+  ctx.fillText('Scegli il tuo Creativo in Deadline Drive', canvas.width / 2, 28);
 
   let cKey = CHARACTER_LIST[selectedCharIndex];
   let c = CHARACTERS[cKey];
 
-  let cardW = 314;
-  let cardH = 340;
+  let cardW = 318;
+  let cardH = 395;
   let cardX = (CANVAS_W - cardW) / 2;
-  let cardY = 44;
+  let cardY = 38;
 
   drawRoundRect(ctx, cardX, cardY, cardW, cardH, 12);
   ctx.fillStyle = '#101228'; ctx.fill();
   ctx.strokeStyle = c.primary; ctx.lineWidth = 2.5; ctx.stroke();
 
-  let boxSize = 100;
-  let boxX = (CANVAS_W - boxSize) / 2;
-  let boxY = cardY + 12;
+  // BOX FOTO GRANDISSIMO 160x160px
+  let boxW = 160;
+  let boxH = 160;
+  let boxX = (CANVAS_W - boxW) / 2;
+  let boxY = cardY + 14;
 
-  if (c.img && c.img.complete && c.img.naturalWidth !== 0) {
-    ctx.save();
-    drawRoundRect(ctx, boxX, boxY, boxSize, boxSize, 12);
-    ctx.clip();
+  ctx.save();
+  drawRoundRect(ctx, boxX, boxY, boxW, boxH, 12);
+  ctx.clip();
 
-    let imgW = c.img.naturalWidth;
-    let imgH = c.img.naturalHeight;
-    let scale = Math.min(boxSize / imgW, boxSize / imgH);
-    let renderW = imgW * scale;
-    let renderH = imgH * scale;
-    let renderX = boxX + (boxSize - renderW) / 2;
-    let renderY = boxY + (boxSize - renderH) / 2;
-
-    ctx.drawImage(c.img, renderX, renderY, renderW, renderH);
-    ctx.restore();
-    drawRoundRect(ctx, boxX, boxY, boxSize, boxSize, 12);
-    ctx.strokeStyle = c.primary; ctx.lineWidth = 2; ctx.stroke();
+  if (c.img && c.img.complete && c.img.naturalWidth > 0) {
+    ctx.drawImage(c.img, boxX, boxY, boxW, boxH);
   } else {
-    drawRoundRect(ctx, boxX, boxY, boxSize, boxSize, 12);
-    ctx.fillStyle = c.primary; ctx.fill();
+    ctx.fillStyle = '#1a1a3a'; ctx.fill();
+    ctx.fillStyle = c.primary; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(c.name[0], CANVAS_W / 2, boxY + 95);
   }
+  ctx.restore();
+  drawRoundRect(ctx, boxX, boxY, boxW, boxH, 12);
+  ctx.strokeStyle = c.primary; ctx.lineWidth = 2; ctx.stroke();
 
   ctx.fillStyle = c.primary;
-  ctx.font = 'bold 18px monospace';
+  ctx.font = 'bold 20px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(c.name, CANVAS_W / 2, cardY + 148);
+  ctx.fillText(c.name, CANVAS_W / 2, cardY + 200);
 
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 10px monospace';
-  ctx.fillText(c.subtitle, CANVAS_W / 2, cardY + 166);
+  ctx.font = 'bold 11px monospace';
+  ctx.fillText(c.subtitle, CANVAS_W / 2, cardY + 222);
 
   ctx.fillStyle = '#ffff00';
-  ctx.font = '9px monospace';
-  ctx.fillText(c.perkBonus, CANVAS_W / 2, cardY + 188);
+  ctx.font = '10px monospace';
+  ctx.fillText(c.perkBonus, CANVAS_W / 2, cardY + 248);
 
   ctx.fillStyle = '#ff0055';
-  ctx.font = '9px monospace';
-  ctx.fillText(c.perkMalus, CANVAS_W / 2, cardY + 204);
+  ctx.font = '10px monospace';
+  ctx.fillText(c.perkMalus, CANVAS_W / 2, cardY + 268);
 
   ctx.fillStyle = c.primary;
-  ctx.font = 'bold 11px monospace';
-  ctx.fillText('► TOCCA PER CONFERMARE ◄', CANVAS_W / 2, cardY + 238);
+  ctx.font = 'bold 12px monospace';
+  ctx.fillText('► TOCCA PER CONFERMARE ◄', CANVAS_W / 2, cardY + 310);
 
-  let arrowY = cardY + cardH + 24;
+  let arrowY = cardY + cardH + 20;
   ctx.fillStyle = '#ff0055';
-  ctx.font = 'bold 18px monospace';
+  ctx.font = 'bold 16px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('◄  CAMBIA PERSONAGGIO  ►', CANVAS_W / 2, arrowY);
 }
@@ -1282,7 +1281,7 @@ canvas.addEventListener('pointerdown', (e) => {
   }
 
   if (gameState === 'CHAR_SELECT') {
-    if (y >= 370) {
+    if (y >= 400) {
       if (x < CANVAS_W / 2) handleSelectionInput(-1);
       else handleSelectionInput(1);
     } else {
