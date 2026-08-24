@@ -838,13 +838,32 @@ class MainHub extends Phaser.Scene {
         const line1 = `${greeting} ${this.playerName}!`;
 
         if (speakerKey === 'gabri') {
-            this.npcLines = [line1, Phaser.Math.RND.pick(["Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.", "Sto sistemando un po' di animazioni su After Effects.", "Sto lavorando su una grafica animata. Ho quasi finito!"])];
+            this.npcLines = [line1, Phaser.Math.RND.pick([
+                "Sto cercando di capire perché questa maschera continua a muoversi da sola…",
+                "Un secondo… devo solo sistemare due keyframe e poi faccio partire il render.",
+                "Sto provando una cosa con le espressioni… se esplode After Effects, facciamo finta di niente.",
+                "Sto rifacendo questa animazione per la terza volta. Adesso dovrebbe essere quella giusta."
+            ])];
         } else if (speakerKey === 'pierri') {
-            this.npcLines = [line1, Phaser.Math.RND.pick(["Sto controllando gli ultimi dettagli!", "Tutto a posto sul set!", "Pronto per il prossimo girato!"])];
+            this.npcLines = [line1, Phaser.Math.RND.pick([
+                "Sto sistemando il video per Bretto… mi hanno appena chiesto di farlo partire esattamente quando cambia la slide.",
+                "Sto passando questa cosa da Premiere a PowerPoint. Non chiedermi perché, ormai è diventata una procedura.",
+                "Sto preparando le grafiche per l’evento di Bretto. Mi manca solo capire quale versione è quella definitiva.",
+                "Sto facendo una prova della presentazione… video, audio, slide, tutto insieme. Incrociamo le dita."
+            ])];
         } else if (speakerKey === 'raffa') {
-            this.npcLines = [line1, Phaser.Math.RND.pick(["Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi!", "Sto preparando l'attrezzatura per il prossimo lavoro."])];
+            this.npcLines = [line1, Phaser.Math.RND.pick([
+                "Sto cercando il microfono che avevo messo qui… o forse era nell’altra scatola.",
+                "Non far caso al casino, sto cercando una batteria. Era sicuramente da queste parti.",
+                "Sto controllando se abbiamo ancora questo adattatore. Aspetta… forse ce l’ho già in tasca.",
+                "Sto preparando la roba per un giro di riprese. Mi manca solo capire dove ho messo metà dell’attrezzatura."
+            ])];
         } else {
-            this.npcLines = [line1, Phaser.Math.RND.pick(["Tutto bene? Ho sentito che hanno piazzato dei giochi nuovi.", "Stavo giusto guardando quanto tempo ci mette qualcuno a scoprire i cabinati!"])];
+            this.npcLines = [line1, Phaser.Math.RND.pick([
+                "Sto sistemando un po’ di materiale d’archivio. Tu intanto puoi dare un’occhiata ai quattro cabinati più avanti.",
+                "Sto cercando di dare un senso a sei ore di girato. Tu invece puoi provare a fare un record nei quattro giochi.",
+                "Qui io ho ancora parecchio da montare. Tu invece puoi andare ai quattro cabinati e vedere fin dove riesci ad arrivare in classifica."
+            ])];
         }
 
         this.showDialogueLine();
