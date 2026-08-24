@@ -297,21 +297,21 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        const floorY = 568;
-        const gabriY = 558;
-        const npcY = 563;
-        const cabY = 548;
-        this.cabBadgeY = 330;
+        const floorY = 591;
+        const gabriY = 581;
+        const npcY = 587;
+        const cabY = 566;
+        this.cabBadgeY = 370;
 
-        this.gabri = this.add.video(150, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.gabri = this.add.video(115, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
         this.gabri.play(true); this.gabri.setMute(true);
 
-        this.npc = this.add.video(860, npcY, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc = this.add.video(760, npcY, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.npc.setPipeline) this.npc.setPipeline('GreenKey');
         this.npc.play(true); this.npc.setMute(true);
 
-        this.raffa = this.add.video(2210, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa = this.add.video(1900, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
         if (this.raffa.setPipeline) this.raffa.setPipeline('GreenKey');
         this.raffa.play(true); this.raffa.setMute(true);
 
@@ -333,10 +333,10 @@ class MainHub extends Phaser.Scene {
         updateHeaderDOM();
 
         this.cabinets = [
-            { x: 1471, y: cabY, badgeX: 1471, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
-            { x: 1610, y: cabY, badgeX: 1610, badgeY: this.cabBadgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
-            { x: 1742, y: cabY, badgeX: 1742, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
-            { x: 1882, y: cabY, badgeX: 1882, badgeY: this.cabBadgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
+            { x: 1290, y: cabY, badgeX: 1290, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
+            { x: 1414, y: cabY, badgeX: 1414, badgeY: this.cabBadgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
+            { x: 1538, y: cabY, badgeX: 1538, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
+            { x: 1655, y: cabY, badgeX: 1655, badgeY: this.cabBadgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
             { x: 2800, y: cabY, badgeX: 2800, badgeY: this.cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
