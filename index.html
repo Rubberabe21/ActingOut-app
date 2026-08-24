@@ -29,15 +29,13 @@
         html, body {
             margin: 0;
             padding: 0;
-            width: 100vw;
-            height: 100vh;
-            height: 100dvh;
-            min-height: -webkit-fill-available;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
             background-color: #060612;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-end; /* ANCORAGGIO IN BASSO */
             touch-action: none;
         }
 
@@ -53,24 +51,23 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-end; /* SPINGE IL CONTENUTO IN BASSO */
             align-items: center;
         }
 
         @media (max-width: 600px) {
             #game-wrapper {
-                position: fixed !important;
-                top: 0 !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                width: 100vw !important;
-                height: 100dvh !important;
-                height: -webkit-fill-available !important;
-                max-width: none !important;
-                max-height: none !important;
-                border: none !important;
-                box-shadow: none !important;
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100vw;
+                height: 100%;
+                max-width: none;
+                max-height: none;
+                border: none;
+                box-shadow: none;
             }
         }
         
@@ -78,13 +75,16 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* SPINGE IL CANVAS PHASER IN BASSO */
+            align-items: center;
         }
 
+        /* SPINGE LA TELA DI GIOCO AD ADERIRE AL BORDO INFERIORE */
         #game-container canvas {
-            display: block;
-            width: 100% !important;
-            height: 100% !important;
+            margin-top: auto !important;
+            margin-bottom: 0 !important;
         }
 
         /* BARRA SUPERIORE HTML */
@@ -479,10 +479,9 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // ALTEZZA DINAMICA DI PHASER
-        const vWidth = this.scale.width;
-        const vHeight = this.scale.height;
-        const scaleRatioY = vHeight / 740;
+        // ALTEZZA LOGICA FISSA ORIGINALE 360x740
+        const vWidth = 360;
+        const vHeight = 740;
 
         // INIZIALIZZAZIONE PIPELINE GREENKEY
         if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('GreenKey')) {
@@ -492,38 +491,38 @@ class MainHub extends Phaser.Scene {
         let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
         let bgScale = vHeight / bg.height;
         bg.setScale(bgScale);
+
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONAMENTO PROPORZIONALE AL NUOVO FONDOSCHIERMO
-        this.cabBadgeY = 330 * scaleRatioY;
-        const floorY = 568 * scaleRatioY;
-        const gabriY = 558 * scaleRatioY;
-        const npcY = 563 * scaleRatioY;
-        const cabY = 548 * scaleRatioY;
+        // POSIZIONAMENTO ORIGINALE PERFETTO SUL PARQUET (ZERO VOLTEGGI!)
+        const floorY = 568;
+        const gabriY = 558;
+        const npcY = 563;
+        const cabY = 548;
+        this.cabBadgeY = 330;
 
         // VIDEO MP4 RENDERIZZATI IN WEBGL CON PIPELINE GREENKEY
-        this.gabri = this.add.video(150, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21 * scaleRatioY).setDepth(10);
+        this.gabri = this.add.video(150, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
         this.gabri.play(true); this.gabri.setMute(true);
 
-        this.npc = this.add.video(860, npcY, 'npc_video').setOrigin(0.5, 1).setScale(0.21 * scaleRatioY).setDepth(10);
+        this.npc = this.add.video(860, npcY, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.npc.setPipeline) this.npc.setPipeline('GreenKey');
         this.npc.play(true); this.npc.setMute(true);
 
-        this.raffa = this.add.video(2210, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15 * scaleRatioY).setDepth(10);
+        this.raffa = this.add.video(2210, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
         if (this.raffa.setPipeline) this.raffa.setPipeline('GreenKey');
         this.raffa.play(true); this.raffa.setMute(true);
 
         this.anims.create({ key: 'idle', frames: [ { key: 'player', frame: 0 } ], frameRate: 10 });
         this.anims.create({ key: 'walk', frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }), frameRate: 8, repeat: -1 });
 
-        // RIPRISTINO POSIZIONE X DALLA MEMORIA; LA POSIZIONE Y È SEMPRE FLOOR_Y (PAVIMENTO)
         let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
         let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
 
         this.player = this.physics.add.sprite(startX, floorY, 'player');
-        this.player.setOrigin(0.5, 1).setScale(0.18 * scaleRatioY).setDepth(20).setCollideWorldBounds(true);
+        this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
         this.player.play('idle');
 
         let logo = this.add.image(vWidth / 2, 85, 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
@@ -697,7 +696,6 @@ class MainHub extends Phaser.Scene {
         else if (this.cursors.right.isDown || this.isMovingRight) { this.player.setVelocityX(180); this.player.setFlipX(false); this.player.play('walk', true); } 
         else this.player.play('idle', true);
 
-        // SALVATAGGIO SOLO DELLA POSIZIONE X
         localStorage.setItem('arcade_player_x', this.player.x);
         if (Phaser.Input.Keyboard.JustDown(this.keyEnter)) this.interact();
 
@@ -726,14 +724,14 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// SCALA ENVELOP: COPRIRE 100% DELLO SCHERMO REALE DELL'IPHONE SENZA LASCIARE BANDE NERE
+// SCALE.CENTER_HORIZONTALLY + CSS ANCHOR IN BASSO: ZERO MARGINI IN BASSO E NESSUN VOLTEGGIO
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
     backgroundColor: '#060612',
     scale: { 
-        mode: Phaser.Scale.ENVELOP, 
-        autoCenter: Phaser.Scale.CENTER_BOTH, 
+        mode: Phaser.Scale.FIT, 
+        autoCenter: Phaser.Scale.CENTER_HORIZONTALLY, 
         width: 360, 
         height: 740 
     },
