@@ -2,20 +2,31 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+>
 
 <title>Deadline Drive - Premiere Pro Timeline Rush</title>
 
 <style>
 
+/* =========================================================
+   RESET
+   ========================================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+
   touch-action: none !important;
+
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -26,74 +37,85 @@
     sans-serif;
 }
 
+
+/* =========================================================
+   PAGINA
+   ========================================================= */
+
 html,
 body {
   width: 100%;
   height: 100%;
+
+  min-width: 100%;
   min-height: 100%;
 
   overflow: hidden;
 
   background: #1e1e1e;
-
   color: #e0e0e0;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  margin: 0;
+  padding: 0;
 
-body {
-  border: 0 !important;
-  outline: 0 !important;
+  display: block;
 }
 
 
 /* =========================================================
-   GAME WRAPPER
+   WRAPPER PRINCIPALE
+
+   IMPORTANTE:
+   il wrapper usa tutta l'altezza disponibile.
+   Non viene più centrato verticalmente.
    ========================================================= */
 
 #game-wrapper {
 
-  position: relative;
+  position: fixed;
+
+  left: 0;
+  top: 0;
 
   width: 100vw;
   height: 100dvh;
 
-  max-width: 440px;
+  min-width: 100vw;
+  min-height: 100dvh;
 
-  display: grid;
+  max-width: none;
+  max-height: none;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
 
   /*
-    HEADER
-    GIOCO
-    CONTROLLI
-    EXIT
-  */
-
-  grid-template-rows:
-    auto
-    minmax(0, 1fr)
-    auto
-    auto;
-
-  align-items: stretch;
+   * Fondamentale:
+   * il contenuto viene distribuito su tutta
+   * l'altezza disponibile.
+   */
+  justify-content: flex-start;
 
   padding-top:
     max(env(safe-area-inset-top), 4px);
 
-  padding-right: 6px;
+  padding-right:
+    max(env(safe-area-inset-right), 6px);
 
   padding-bottom:
     max(env(safe-area-inset-bottom), 4px);
 
-  padding-left: 6px;
+  padding-left:
+    max(env(safe-area-inset-left), 6px);
 
   background: #1e1e1e;
 
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+
   border-radius: 0 !important;
 
   overflow: hidden;
@@ -108,26 +130,30 @@ body {
 
   width: 100%;
 
+  height: 32px;
+  min-height: 32px;
+
   display: flex;
 
   justify-content: space-between;
   align-items: center;
 
-  padding: 4px 6px;
+  padding: 3px 6px;
 
   background: #282828;
 
   border: none !important;
   outline: none !important;
 
-  border-radius: 7px;
+  border-radius: 7px 7px 0 0;
 
-  margin-bottom: 3px;
+  margin: 0;
 
-  flex-shrink: 0;
+  flex: 0 0 32px;
 
-  min-height: 28px;
+  z-index: 5;
 }
+
 
 .header-title {
 
@@ -149,12 +175,11 @@ body {
 
   text-overflow: ellipsis;
 
-  padding-right: 6px;
+  max-width: 72%;
 }
 
-.opt-btn {
 
-  flex-shrink: 0;
+.opt-btn {
 
   background: #333333;
 
@@ -175,17 +200,23 @@ body {
   border-radius: 4px;
 
   cursor: pointer;
+
+  flex-shrink: 0;
 }
 
+
 .opt-btn:active {
-
   transform: scale(0.92);
-
 }
 
 
 /* =========================================================
-   CANVAS AREA
+   AREA GIOCO
+
+   QUESTO È IL CAMBIAMENTO PRINCIPALE.
+
+   Il canvas-container prende tutto lo spazio
+   disponibile tra header e controlli.
    ========================================================= */
 
 #canvas-container {
@@ -193,7 +224,11 @@ body {
   position: relative;
 
   width: 100%;
-  height: 100%;
+
+  /*
+   * flex: 1 = prende tutto lo spazio disponibile
+   */
+  flex: 1 1 auto;
 
   min-height: 0;
 
@@ -204,26 +239,17 @@ body {
 
   overflow: hidden;
 
-  /*
-    IMPORTANTISSIMO:
+  padding: 3px 0;
 
-    Il canvas deve poter usare
-    tutta l'altezza disponibile.
-
-    Non usiamo più flex:1
-    e soprattutto non usiamo
-    max-height:100% insieme ad
-    aspect-ratio sul canvas.
-  */
-
-  padding: 0;
-
-  margin: 0;
+  background: #1e1e1e;
 }
 
 
 /* =========================================================
    CANVAS
+
+   Il canvas viene fatto crescere quanto possibile
+   senza deformare il rapporto originale.
    ========================================================= */
 
 canvas {
@@ -231,25 +257,15 @@ canvas {
   display: block;
 
   /*
-    Dimensione reale del gioco.
-  */
-
+   * Il canvas mantiene il rapporto originale.
+   */
   width: auto;
-  height: 100%;
-
-  /*
-    Limite orizzontale.
-  */
+  height: auto;
 
   max-width: 100%;
+  max-height: 100%;
 
-  /*
-    NON comprimere il canvas.
-  */
-
-  aspect-ratio: auto;
-
-  object-fit: contain;
+  aspect-ratio: 338 / 486;
 
   border: 1.5px solid #3a3a3a;
 
@@ -260,7 +276,7 @@ canvas {
 
   cursor: pointer;
 
-  border-radius: 6px;
+  border-radius: 5px;
 
   flex-shrink: 0;
 }
@@ -268,11 +284,22 @@ canvas {
 
 /* =========================================================
    CONTROL DECK
+
+   Ora occupa una porzione reale dello spazio in basso.
    ========================================================= */
 
 .control-deck {
 
   width: 100%;
+
+  /*
+   * Altezza molto più importante rispetto a prima.
+   */
+  min-height: 172px;
+
+  height: 172px;
+
+  flex: 0 0 172px;
 
   display: flex;
 
@@ -281,22 +308,24 @@ canvas {
 
   padding:
 
-    7px
-    12px
-    5px
-    12px;
+    8px
+    10px
+    8px;
 
   background: #232323;
 
   border: none !important;
   outline: none !important;
-  box-shadow: none !important;
 
   border-radius: 10px;
 
-  margin-top: 3px;
+  margin: 0;
 
-  flex-shrink: 0;
+  box-shadow: none !important;
+
+  position: relative;
+
+  z-index: 10;
 }
 
 
@@ -306,34 +335,53 @@ canvas {
 
 .joystick-container {
 
+  width: 100%;
+  height: 100%;
+
   display: flex;
 
   justify-content: center;
   align-items: center;
-
-  width: 100%;
 }
 
+
+/* =========================================================
+   D-PAD
+
+   Più grande e distribuito.
+   ========================================================= */
 
 .dpad-grid {
 
   display: grid;
 
+  /*
+   * Prima:
+   * 62px x 54px
+   *
+   * Ora molto più grande.
+   */
   grid-template-columns:
-    repeat(3, 60px);
+    repeat(3, minmax(72px, 92px));
 
   grid-template-rows:
-    repeat(3, 50px);
+    repeat(3, 48px);
 
-  gap: 4px;
+  gap: 5px;
+
+  justify-content: center;
+  align-items: center;
 }
 
 
 /* =========================================================
-   CONTROL BUTTON
+   PULSANTI
    ========================================================= */
 
 .ctrl-btn {
+
+  width: 100%;
+  height: 48px;
 
   background:
     linear-gradient(
@@ -347,7 +395,7 @@ canvas {
 
   color: #00d2ff;
 
-  font-size: 23px;
+  font-size: 25px;
 
   font-weight: bold;
 
@@ -370,7 +418,9 @@ canvas {
 
   text-shadow:
     0 0 6px
-    rgba(0, 210, 255, 0.6);
+    rgba(0,210,255,0.6);
+
+  -webkit-tap-highlight-color: transparent;
 }
 
 
@@ -396,6 +446,11 @@ canvas {
 
 .ctrl-btn-center {
 
+  width: 48px;
+  height: 48px;
+
+  justify-self: center;
+
   display: flex;
 
   justify-content: center;
@@ -413,8 +468,8 @@ canvas {
 
 .dpad-core {
 
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
 
   border-radius: 50%;
 
@@ -431,16 +486,23 @@ canvas {
 
 
 /* =========================================================
-   EXIT
+   EXIT BUTTON
+
+   Rimane attaccato al fondo.
    ========================================================= */
 
 .exit-btn {
 
   width: 100%;
 
-  margin-top: 2px;
+  height: 32px;
+  min-height: 32px;
 
-  padding: 6px;
+  flex: 0 0 32px;
+
+  margin: 0;
+
+  padding: 5px;
 
   background: #222222;
 
@@ -455,23 +517,20 @@ canvas {
 
   font-weight: bold;
 
-  font-size: 9px;
+  font-size: 10px;
 
-  border-radius: 5px;
+  border-radius: 6px 6px 0 0;
 
   cursor: pointer;
 
   text-align: center;
 
-  flex-shrink: 0;
+  z-index: 10;
 }
 
 
 .exit-btn:active {
-
-  transform:
-    scale(0.96);
-
+  transform: scale(0.96);
 }
 
 
@@ -645,72 +704,103 @@ canvas {
 
 
 /* =========================================================
-   SCHERMI MOLTO BASSI
+   SCHERMI BASSI
    ========================================================= */
 
-@media (max-height: 650px) {
-
-  #game-wrapper {
-
-    padding-top: 2px;
-    padding-bottom: 2px;
-
-  }
+@media (max-height: 700px) {
 
   .top-header {
-
-    min-height: 24px;
-
-    padding: 2px 5px;
-
-  }
-
-  .header-title {
-
-    font-size: 8px;
-
-  }
-
-  .opt-btn {
-
-    font-size: 8px;
-
-    padding:
-      2px 5px;
-
+    height: 29px;
+    min-height: 29px;
+    flex-basis: 29px;
   }
 
   .control-deck {
 
-    padding:
-      4px 8px
-      3px 8px;
+    height: 145px;
+    min-height: 145px;
+    flex-basis: 145px;
 
   }
 
   .dpad-grid {
 
     grid-template-columns:
-      repeat(3, 52px);
+      repeat(3, minmax(62px, 78px));
 
     grid-template-rows:
-      repeat(3, 42px);
-
-    gap: 3px;
+      repeat(3, 40px);
 
   }
 
   .ctrl-btn {
 
-    font-size: 19px;
+    height: 40px;
+    font-size: 21px;
 
   }
 
-  .exit-btn {
+  .ctrl-btn-center {
 
-    padding: 4px;
+    width: 40px;
+    height: 40px;
 
-    font-size: 8px;
+  }
+
+  .dpad-core {
+
+    width: 21px;
+    height: 21px;
+
+  }
+
+}
+
+
+/* =========================================================
+   SCHERMI MOLTO BASSI
+   ========================================================= */
+
+@media (max-height: 580px) {
+
+  .control-deck {
+
+    height: 120px;
+    min-height: 120px;
+    flex-basis: 120px;
+
+  }
+
+  .dpad-grid {
+
+    grid-template-columns:
+      repeat(3, minmax(54px, 70px));
+
+    grid-template-rows:
+      repeat(3, 34px);
+
+    gap: 4px;
+
+  }
+
+  .ctrl-btn {
+
+    height: 34px;
+    font-size: 18px;
+
+  }
+
+  .ctrl-btn-center {
+
+    width: 34px;
+    height: 34px;
+
+  }
+
+  .dpad-core {
+
+    width: 17px;
+    height: 17px;
 
   }
 
@@ -726,14 +816,32 @@ canvas {
   #game-wrapper {
 
     width: 100vw;
-
     height: 100dvh;
 
     max-width: none;
-
     max-height: none;
 
     border-radius: 0 !important;
+
+    border: none !important;
+
+  }
+
+  .control-deck {
+
+    width: 100%;
+
+    border: none !important;
+
+    border-top: none !important;
+
+    border-bottom: none !important;
+
+    box-shadow: none !important;
+
+  }
+
+  .exit-btn {
 
     border: none !important;
 
@@ -743,7 +851,7 @@ canvas {
 
 
 /* =========================================================
-   SCHERMI MOLTO STRETTI
+   TELEFONI MOLTO STRETTI
    ========================================================= */
 
 @media (max-width: 360px) {
@@ -751,10 +859,16 @@ canvas {
   .dpad-grid {
 
     grid-template-columns:
-      repeat(3, 54px);
+      repeat(3, 64px);
 
     grid-template-rows:
-      repeat(3, 46px);
+      repeat(3, 44px);
+
+  }
+
+  .ctrl-btn {
+
+    height: 44px;
 
   }
 
@@ -762,32 +876,42 @@ canvas {
 
 
 /* =========================================================
-   LANDSCAPE
+   DESKTOP
    ========================================================= */
 
-@media (
-  orientation: landscape
-) {
+@media (min-width: 441px) {
 
   #game-wrapper {
 
-    max-width: 900px;
+    width: 100vw;
+    max-width: 520px;
 
-    grid-template-rows:
-      auto
-      minmax(0, 1fr)
-      auto
-      auto;
+    left: 50%;
+    transform: translateX(-50%);
+
+  }
+
+  .control-deck {
+
+    min-height: 185px;
+    height: 185px;
+    flex-basis: 185px;
 
   }
 
   .dpad-grid {
 
     grid-template-columns:
-      repeat(3, 52px);
+      repeat(3, 88px);
 
     grid-template-rows:
-      repeat(3, 42px);
+      repeat(3, 54px);
+
+  }
+
+  .ctrl-btn {
+
+    height: 54px;
 
   }
 
@@ -796,9 +920,7 @@ canvas {
 </style>
 </head>
 
-
 <body>
-
 
 <audio
   id="bgMusic"
@@ -806,14 +928,15 @@ canvas {
   loop
   autoplay
   playsinline
-  style="display:none;">
-</audio>
+  style="display:none;"
+></audio>
 
 
 <div id="game-wrapper">
 
-
-  <!-- HEADER -->
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
 
   <div class="top-header">
 
@@ -823,16 +946,17 @@ canvas {
 
     <button
       class="opt-btn"
-      id="btnOpenSettings">
-
+      id="btnOpenSettings"
+    >
       ⚙️ OPZIONI
-
     </button>
 
   </div>
 
 
-  <!-- CANVAS -->
+  <!-- =====================================================
+       GAME CANVAS
+       ===================================================== -->
 
   <div id="canvas-container">
 
@@ -841,7 +965,9 @@ canvas {
   </div>
 
 
-  <!-- JOYSTICK -->
+  <!-- =====================================================
+       CONTROLLI
+       ===================================================== -->
 
   <div class="control-deck">
 
@@ -849,72 +975,49 @@ canvas {
 
       <div class="dpad-grid">
 
-
-        <div
-          style="visibility:hidden">
-        </div>
-
+        <div style="visibility:hidden"></div>
 
         <div
           class="ctrl-btn"
-          id="btnUp">
-
+          id="btnUp"
+        >
           ▲
-
         </div>
 
-
-        <div
-          style="visibility:hidden">
-        </div>
+        <div style="visibility:hidden"></div>
 
 
         <div
           class="ctrl-btn"
-          id="btnLeft">
-
+          id="btnLeft"
+        >
           ◄
-
         </div>
 
+        <div class="ctrl-btn-center">
 
-        <div
-          class="ctrl-btn-center">
-
-          <div
-            class="dpad-core">
-          </div>
+          <div class="dpad-core"></div>
 
         </div>
-
 
         <div
           class="ctrl-btn"
-          id="btnRight">
-
+          id="btnRight"
+        >
           ►
-
         </div>
 
 
-        <div
-          style="visibility:hidden">
-        </div>
-
+        <div style="visibility:hidden"></div>
 
         <div
           class="ctrl-btn"
-          id="btnDown">
-
+          id="btnDown"
+        >
           ▼
-
         </div>
 
-
-        <div
-          style="visibility:hidden">
-        </div>
-
+        <div style="visibility:hidden"></div>
 
       </div>
 
@@ -923,49 +1026,45 @@ canvas {
   </div>
 
 
-  <!-- EXIT -->
+  <!-- =====================================================
+       EXIT
+       ===================================================== -->
 
   <button
     class="exit-btn"
-    onclick="exitGame()">
-
+    onclick="exitGame()"
+  >
     ◄ TORNA ALL'HUB ARCADE
-
   </button>
 
 
-  <!-- SETTINGS -->
+  <!-- =====================================================
+       MODALE
+       ===================================================== -->
 
   <div
     class="modal-overlay"
-    id="settingsModal">
-
+    id="settingsModal"
+  >
 
     <div class="modal-box">
 
-
       <div class="modal-title">
-
         ⚙️ TIMELINE SETTINGS
-
       </div>
 
 
       <div class="option-item">
 
         <span class="option-label">
-
           MUSICA DI SOTTOFONDO
-
         </span>
-
 
         <button
           class="toggle-btn active"
-          id="btnToggleMusic">
-
+          id="btnToggleMusic"
+        >
           ON 🎵
-
         </button>
 
       </div>
@@ -974,18 +1073,14 @@ canvas {
       <div class="option-item">
 
         <span class="option-label">
-
           EFFETTI SONORI (SFX)
-
         </span>
-
 
         <button
           class="toggle-btn active"
-          id="btnToggleSfx">
-
+          id="btnToggleSfx"
+        >
           ON 🔊
-
         </button>
 
       </div>
@@ -993,17 +1088,14 @@ canvas {
 
       <button
         class="close-modal-btn"
-        id="btnCloseSettings">
-
+        id="btnCloseSettings"
+      >
         SALVA E CHIUDI ►
-
       </button>
-
 
     </div>
 
   </div>
-
 
 </div>
 
@@ -1023,14 +1115,16 @@ const ctx =
 
 const COLS = 13;
 const ROWS = 17;
+
 const CELL_SIZE = 26;
+
 const HUD_HEIGHT = 44;
+
 const TRACK_HEADER_W = 38;
 
 
 const CANVAS_W =
   COLS * CELL_SIZE;
-
 
 const CANVAS_H =
   ROWS * CELL_SIZE +
@@ -1057,37 +1151,21 @@ function drawRoundRect(
   r
 ) {
 
-  if (
-    w <
-    2 * r
-  ) {
-
-    r =
-      w / 2;
-
+  if (w < 2 * r) {
+    r = w / 2;
   }
 
-
-  if (
-    h <
-    2 * r
-  ) {
-
-    r =
-      h / 2;
-
+  if (h < 2 * r) {
+    r = h / 2;
   }
-
 
   c.beginPath();
-
 
   c.moveTo(
     x + r,
     y
   );
 
-
   c.arcTo(
     x + w,
     y,
@@ -1095,7 +1173,6 @@ function drawRoundRect(
     y + h,
     r
   );
-
 
   c.arcTo(
     x + w,
@@ -1105,7 +1182,6 @@ function drawRoundRect(
     r
   );
 
-
   c.arcTo(
     x,
     y + h,
@@ -1114,7 +1190,6 @@ function drawRoundRect(
     r
   );
 
-
   c.arcTo(
     x,
     y,
@@ -1122,7 +1197,6 @@ function drawRoundRect(
     y,
     r
   );
-
 
   c.closePath();
 
@@ -1151,8 +1225,7 @@ const bgMusic =
   );
 
 
-bgMusic.volume =
-  0.4;
+bgMusic.volume = 0.4;
 
 
 function playBgMusic() {
@@ -1329,15 +1402,12 @@ btnToggleSfx.onclick = () => {
 btnOpenSettings.onclick = () => {
 
   if (
-    gameState ===
-    'PLAYING'
+    gameState === 'PLAYING'
   ) {
 
-    gameState =
-      'PAUSE';
+    gameState = 'PAUSE';
 
   }
-
 
   settingsModal.style.display =
     'flex';
@@ -1355,8 +1425,7 @@ btnCloseSettings.onclick = () => {
 
 
   if (
-    gameState ===
-    'PAUSE'
+    gameState === 'PAUSE'
   ) {
 
     gameState =
@@ -1388,9 +1457,7 @@ function getAC() {
         window.webkitAudioContext;
 
 
-      if (
-        AudioContextClass
-      ) {
+      if (AudioContextClass) {
 
         audioCtx =
           new AudioContextClass();
@@ -1403,7 +1470,7 @@ function getAC() {
     if (
       audioCtx &&
       audioCtx.state ===
-      'suspended'
+        'suspended'
     ) {
 
       audioCtx
@@ -1419,7 +1486,6 @@ function getAC() {
 
   playBgMusic();
 
-
   return audioCtx;
 
 }
@@ -1427,16 +1493,19 @@ function getAC() {
 
 function playSound(type) {
 
-  if (!sfxEnabled) return;
+  if (!sfxEnabled) {
+    return;
+  }
 
 
   try {
 
-    const ac =
-      getAC();
+    const ac = getAC();
 
 
-    if (!ac) return;
+    if (!ac) {
+      return;
+    }
 
 
     const osc =
@@ -1455,8 +1524,7 @@ function playSound(type) {
 
 
     if (
-      type ===
-      'cross'
+      type === 'cross'
     ) {
 
       osc.type =
@@ -1484,16 +1552,14 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.16
+        ac.currentTime + 0.16
       );
 
     }
 
 
     else if (
-      type ===
-      'crash'
+      type === 'crash'
     ) {
 
       osc.type =
@@ -1508,8 +1574,7 @@ function playSound(type) {
 
       osc.frequency.exponentialRampToValueAtTime(
         40,
-        ac.currentTime +
-        0.25
+        ac.currentTime + 0.25
       );
 
 
@@ -1522,16 +1587,14 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.25
+        ac.currentTime + 0.25
       );
 
     }
 
 
     else if (
-      type ===
-      'guard_active'
+      type === 'guard_active'
     ) {
 
       osc.type =
@@ -1546,8 +1609,7 @@ function playSound(type) {
 
       osc.frequency.linearRampToValueAtTime(
         1200,
-        ac.currentTime +
-        0.1
+        ac.currentTime + 0.1
       );
 
 
@@ -1560,16 +1622,14 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.1
+        ac.currentTime + 0.1
       );
 
     }
 
 
     else if (
-      type ===
-      'pickup'
+      type === 'pickup'
     ) {
 
       osc.type =
@@ -1584,8 +1644,7 @@ function playSound(type) {
 
       osc.frequency.setValueAtTime(
         880,
-        ac.currentTime +
-        0.1
+        ac.currentTime + 0.1
       );
 
 
@@ -1598,16 +1657,14 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.2
+        ac.currentTime + 0.2
       );
 
     }
 
 
     else if (
-      type ===
-      'malus'
+      type === 'malus'
     ) {
 
       osc.type =
@@ -1622,8 +1679,7 @@ function playSound(type) {
 
       osc.frequency.linearRampToValueAtTime(
         80,
-        ac.currentTime +
-        0.2
+        ac.currentTime + 0.2
       );
 
 
@@ -1636,16 +1692,14 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.2
+        ac.currentTime + 0.2
       );
 
     }
 
 
     else if (
-      type ===
-      'fail'
+      type === 'fail'
     ) {
 
       osc.type =
@@ -1660,8 +1714,7 @@ function playSound(type) {
 
       osc.frequency.linearRampToValueAtTime(
         50,
-        ac.currentTime +
-        0.3
+        ac.currentTime + 0.3
       );
 
 
@@ -1674,8 +1727,7 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.3
+        ac.currentTime + 0.3
       );
 
     }
@@ -1720,331 +1772,167 @@ imgLuca.src =
 
 
 /* =========================================================
-   CLIP
+   CLIP PREMIERE
    ========================================================= */
 
 const PREMIERE_CLIPS = {
 
   BLUE_A_ROLL: {
-
-    type:
-      'A_ROLL',
-
-    label:
-      'A001_C004.MOV',
-
-    bg:
-      '#2b52a1',
-
-    border:
-      '#5682e8',
-
-    textCol:
-      '#d0e0ff',
-
-    topBar:
-      '#00ff66',
-
-    wMult:
-      2.2,
-
-    hMult:
-      1
-
+    type: 'A_ROLL',
+    label: 'A001_C004.MOV',
+    bg: '#2b52a1',
+    border: '#5682e8',
+    textCol: '#d0e0ff',
+    topBar: '#00ff66',
+    wMult: 2.2,
+    hMult: 1
   },
 
 
   PURPLE_B_ROLL: {
-
-    type:
-      'B_ROLL',
-
-    label:
-      'B002_DRONE.MP4',
-
-    bg:
-      '#7f22a7',
-
-    border:
-      '#b842df',
-
-    textCol:
-      '#f2c8ff',
-
-    topBar:
-      '#ff0055',
-
-    wMult:
-      2.5,
-
-    hMult:
-      1
-
+    type: 'B_ROLL',
+    label: 'B002_DRONE.MP4',
+    bg: '#7f22a7',
+    border: '#b842df',
+    textCol: '#f2c8ff',
+    topBar: '#ff0055',
+    wMult: 2.5,
+    hMult: 1
   },
 
 
   ROSE_LUMETRI: {
-
-    type:
-      'LUMETRI',
-
-    label:
-      'LUMETRI COLOR',
-
-    bg:
-      '#a11b43',
-
-    border:
-      '#e64273',
-
-    textCol:
-      '#ffd4e2',
-
-    topBar:
-      '#ffee00',
-
-    wMult:
-      2.0,
-
-    hMult:
-      1
-
+    type: 'LUMETRI',
+    label: 'LUMETRI COLOR',
+    bg: '#a11b43',
+    border: '#e64273',
+    textCol: '#ffd4e2',
+    topBar: '#ffee00',
+    wMult: 2.0,
+    hMult: 1
   },
 
 
   GOLD_VOICEOVER: {
-
-    type:
-      'VOICEOVER',
-
-    label:
-      'VO_MASTER_V2',
-
-    bg:
-      '#8f7d18',
-
-    border:
-      '#dbc330',
-
-    textCol:
-      '#fdf8c2',
-
-    topBar:
-      '#00ff66',
-
-    isAudio:
-      true,
-
-    wMult:
-      2.0,
-
-    hMult:
-      1
-
+    type: 'VOICEOVER',
+    label: 'VO_MASTER_V2',
+    bg: '#8f7d18',
+    border: '#dbc330',
+    textCol: '#fdf8c2',
+    topBar: '#00ff66',
+    isAudio: true,
+    wMult: 2.0,
+    hMult: 1
   },
 
 
   GREEN_SFX: {
-
-    type:
-      'SFX_WAVE',
-
-    label:
-      'SFX_WHOOSH.WAV',
-
-    bg:
-      '#2d7a3a',
-
-    border:
-      '#4ec462',
-
-    textCol:
-      '#d2f8da',
-
-    topBar:
-      '#00ff66',
-
-    isAudio:
-      true,
-
-    wMult:
-      1.8,
-
-    hMult:
-      1
-
+    type: 'SFX_WAVE',
+    label: 'SFX_WHOOSH.WAV',
+    bg: '#2d7a3a',
+    border: '#4ec462',
+    textCol: '#d2f8da',
+    topBar: '#00ff66',
+    isAudio: true,
+    wMult: 1.8,
+    hMult: 1
   },
 
 
   TEAL_MUSIC: {
-
-    type:
-      'MUSIC',
-
-    label:
-      'BEAT_TRACK_FLAC',
-
-    bg:
-      '#147b85',
-
-    border:
-      '#23b3be',
-
-    textCol:
-      '#c2f8fc',
-
-    topBar:
-      '#00ff66',
-
-    isAudio:
-      true,
-
-    wMult:
-      2.8,
-
-    hMult:
-      1
-
+    type: 'MUSIC',
+    label: 'BEAT_TRACK_FLAC',
+    bg: '#147b85',
+    border: '#23b3be',
+    textCol: '#c2f8fc',
+    topBar: '#00ff66',
+    isAudio: true,
+    wMult: 2.8,
+    hMult: 1
   },
 
 
   NESTED_SEQ: {
-
-    type:
-      'NESTED',
-
-    label:
-      'NEST_INTRO_SEQ',
-
-    bg:
-      '#5b1e8a',
-
-    border:
-      '#8b3adb',
-
-    textCol:
-      '#e8cbff',
-
-    topBar:
-      '#ffee00',
-
-    wMult:
-      3.0,
-
-    hMult:
-      1
-
+    type: 'NESTED',
+    label: 'NEST_INTRO_SEQ',
+    bg: '#5b1e8a',
+    border: '#8b3adb',
+    textCol: '#e8cbff',
+    topBar: '#ffee00',
+    wMult: 3.0,
+    hMult: 1
   },
 
 
   OFFLINE_RED: {
-
-    type:
-      'OFFLINE',
-
-    label:
-      'MEDIA OFFLINE! 🔴',
-
-    bg:
-      '#8b0000',
-
-    border:
-      '#ff3333',
-
-    textCol:
-      '#ffffff',
-
-    topBar:
-      '#ff0000',
-
-    wMult:
-      3.2,
-
-    hMult:
-      1
-
+    type: 'OFFLINE',
+    label: 'MEDIA OFFLINE! 🔴',
+    bg: '#8b0000',
+    border: '#ff3333',
+    textCol: '#ffffff',
+    topBar: '#ff0000',
+    wMult: 3.2,
+    hMult: 1
   }
 
 };
 
 
 /* =========================================================
-   LEVEL THEMES
+   LEVEL
    ========================================================= */
 
 const LEVEL_THEMES = [
 
   {
-
-    levelMin:
-      1,
-
+    levelMin: 1,
     title:
       "STAGE 1: ASSEMBLY TIMELINE",
-
     msg:
       "Primi stacchi video: pochi ostacoli e flusso regolare!"
-
   },
 
 
   {
-
-    levelMin:
-      2,
-
+    levelMin: 2,
     title:
       "STAGE 2: MONTAGGIO RUSH",
-
     msg:
       "Aumentano le clip b-roll e le tracce audio!"
-
   },
 
 
   {
-
-    levelMin:
-      3,
-
+    levelMin: 3,
     title:
       "STAGE 3: COLOR & FX MULTI-LAYER",
-
     msg:
       "Lumetri Color, Nested Sequences e tracce complesse!"
-
   },
 
 
   {
-
-    levelMin:
-      4,
-
+    levelMin: 4,
     title:
       "STAGE 4: EXPORT FINALE PRE-DEADLINE",
-
     msg:
       "Massima densità e velocità sulla Timeline!"
-
   }
 
 ];
 
 
 /* =========================================================
-   CHARACTERS
+   PERSONAGGI
    ========================================================= */
 
 const CHARACTERS = {
 
   GIULIA: {
 
-    id:
-      'GIULIA',
+    id: 'GIULIA',
 
-    name:
-      "GIULIA",
+    name: "GIULIA",
 
     subtitle:
       "Lead Video Editor",
@@ -2081,11 +1969,9 @@ const CHARACTERS = {
 
   TOBI: {
 
-    id:
-      'TOBI',
+    id: 'TOBI',
 
-    name:
-      "TOBI",
+    name: "TOBI",
 
     subtitle:
       "Assistant Video Editor",
@@ -2122,11 +2008,9 @@ const CHARACTERS = {
 
   DAVE: {
 
-    id:
-      'DAVE',
+    id: 'DAVE',
 
-    name:
-      "DAVE",
+    name: "DAVE",
 
     subtitle:
       "Focused Director",
@@ -2163,11 +2047,9 @@ const CHARACTERS = {
 
   LUCA: {
 
-    id:
-      'LUCA',
+    id: 'LUCA',
 
-    name:
-      "LUCA",
+    name: "LUCA",
 
     subtitle:
       "VFX Artist Whiz",
@@ -2205,17 +2087,15 @@ const CHARACTERS = {
 
 
 const CHARACTER_LIST = [
-
   'GIULIA',
   'TOBI',
   'DAVE',
   'LUCA'
-
 ];
 
 
 /* =========================================================
-   PICKUPS
+   PICKUP
    ========================================================= */
 
 const PICKUP_TYPES = {
@@ -2362,21 +2242,19 @@ let gameState =
   'TUTORIAL';
 
 
-let level =
-  1;
+let level = 1;
+
+let score = 0;
+
+let lives = 3;
 
 
-let score =
-  0;
+let visualScrollOffset = 0;
 
 
-let lives =
-  3;
-
-
-let visualScrollOffset =
-  0;
-
+/* =========================================================
+   PLAYER
+   ========================================================= */
 
 let player = {
 
@@ -2416,32 +2294,24 @@ let player = {
 };
 
 
-let moveUp =
-  false;
+let moveUp = false;
 
+let moveDown = false;
 
-let moveDown =
-  false;
+let moveLeft = false;
 
-
-let moveLeft =
-  false;
-
-
-let moveRight =
-  false;
+let moveRight = false;
 
 
 let selectedCharIndex =
   0;
 
 
-let particles =
-  [];
+let particles = [];
 
 
 /* =========================================================
-   LANE GENERATOR
+   LANE
    ========================================================= */
 
 function createNewLane(
@@ -2449,21 +2319,17 @@ function createNewLane(
   r = 0
 ) {
 
-  let isSafe =
-    false;
+  let isSafe = false;
 
 
   let safeChance =
     Math.max(
       0.20,
-      0.45 -
-      (level * 0.08)
+      0.45 - (level * 0.08)
     );
 
 
-  if (
-    isInitialSetup
-  ) {
+  if (isInitialSetup) {
 
     isSafe =
       (
@@ -2479,6 +2345,7 @@ function createNewLane(
 
   }
 
+
   else {
 
     let topLane =
@@ -2487,14 +2354,13 @@ function createNewLane(
 
     if (
       topLane &&
-      topLane.type ===
-      'SAFE'
+      topLane.type === 'SAFE'
     ) {
 
-      isSafe =
-        false;
+      isSafe = false;
 
     }
+
 
     else {
 
@@ -2621,8 +2487,7 @@ function createNewLane(
 
 
   if (
-    laneType ===
-    'ROAD'
+    laneType === 'ROAD'
   ) {
 
     let x =
@@ -2695,8 +2560,7 @@ function createNewLane(
 
   else if (
     isSafe &&
-    Math.random() <
-    0.35
+    Math.random() < 0.35
   ) {
 
     let pTypeKeys =
@@ -2743,11 +2607,9 @@ function createNewLane(
 
 function startInfiniteScroll() {
 
-  activeLanes =
-    [];
+  activeLanes = [];
 
-  visualScrollOffset =
-    0;
+  visualScrollOffset = 0;
 
 
   for (
@@ -2771,10 +2633,6 @@ function startInfiniteScroll() {
 }
 
 
-/* =========================================================
-   RESET PLAYER
-   ========================================================= */
-
 function resetPlayer() {
 
   player.gx =
@@ -2787,36 +2645,21 @@ function resetPlayer() {
     ROWS - 2;
 
 
-  player.w =
-    16;
+  player.w = 16;
 
+  player.h = 16;
 
-  player.h =
-    16;
+  player.invTimer = 0;
 
+  player.guardTimer = 0;
 
-  player.invTimer =
-    0;
+  player.nextMoveAllowedTimer = 0;
 
+  player.speedMult = 1.0;
 
-  player.guardTimer =
-    0;
+  player.tempScoreMult = 1.0;
 
-
-  player.nextMoveAllowedTimer =
-    0;
-
-
-  player.speedMult =
-    1.0;
-
-
-  player.tempScoreMult =
-    1.0;
-
-
-  player.glitchTimer =
-    0;
+  player.glitchTimer = 0;
 
 }
 
@@ -2828,8 +2671,7 @@ function resetPlayer() {
 function updatePlayer() {
 
   if (
-    player.nextMoveAllowedTimer >
-    0
+    player.nextMoveAllowedTimer > 0
   ) {
 
     player.nextMoveAllowedTimer--;
@@ -2838,8 +2680,7 @@ function updatePlayer() {
 
 
   if (
-    player.glitchTimer >
-    0
+    player.glitchTimer > 0
   ) {
 
     player.glitchTimer--;
@@ -2848,15 +2689,12 @@ function updatePlayer() {
 
 
   if (
-    player.nextMoveAllowedTimer <=
-    0
+    player.nextMoveAllowedTimer <= 0
   ) {
 
-    let dx =
-      0;
+    let dx = 0;
 
-    let dy =
-      0;
+    let dy = 0;
 
 
     let inLeft =
@@ -2884,34 +2722,25 @@ function updatePlayer() {
 
 
     if (
-      player.glitchTimer >
-      0
+      player.glitchTimer > 0
     ) {
 
-      let tempL =
-        inLeft;
+      let tempL = inLeft;
 
-      let tempR =
-        inRight;
+      let tempR = inRight;
 
-      let tempU =
-        inUp;
+      let tempU = inUp;
 
-      let tempD =
-        inDown;
+      let tempD = inDown;
 
 
-      inLeft =
-        tempR;
+      inLeft = tempR;
 
-      inRight =
-        tempL;
+      inRight = tempL;
 
-      inUp =
-        tempD;
+      inUp = tempD;
 
-      inDown =
-        tempU;
+      inDown = tempU;
 
     }
 
@@ -2954,17 +2783,14 @@ function updatePlayer() {
     ) {
 
       let ngx =
-        player.gx +
-        dx;
+        player.gx + dx;
 
 
       let ngy =
-        player.gy +
-        dy;
+        player.gy + dy;
 
 
-      let minGx =
-        2;
+      let minGx = 2;
 
 
       if (
@@ -3005,9 +2831,7 @@ function updatePlayer() {
         }
 
 
-        playSound(
-          'cross'
-        );
+        playSound('cross');
 
 
         let effSpeed =
@@ -3019,8 +2843,7 @@ function updatePlayer() {
           Math.max(
             5,
             Math.floor(
-              14 /
-              effSpeed
+              14 / effSpeed
             )
           );
 
@@ -3032,8 +2855,7 @@ function updatePlayer() {
 
 
   if (
-    player.invTimer >
-    0
+    player.invTimer > 0
   ) {
 
     player.invTimer--;
@@ -3042,8 +2864,7 @@ function updatePlayer() {
 
 
   if (
-    player.guardTimer >
-    0
+    player.guardTimer > 0
   ) {
 
     player.guardTimer--;
@@ -3117,12 +2938,10 @@ function updateVehicles() {
   if (
     Math.abs(
       visualScrollOffset
-    ) <
-    0.1
+    ) < 0.1
   ) {
 
-    visualScrollOffset =
-      0;
+    visualScrollOffset = 0;
 
   }
 
@@ -3131,8 +2950,7 @@ function updateVehicles() {
     lane => {
 
       if (
-        lane.type ===
-        'ROAD'
+        lane.type === 'ROAD'
       ) {
 
         lane.objects.forEach(
@@ -3146,8 +2964,8 @@ function updateVehicles() {
             if (
               lane.dir > 0 &&
               obj.x >
-              CANVAS_W +
-              obj.w
+                CANVAS_W +
+                obj.w
             ) {
 
               obj.x =
@@ -3156,11 +2974,12 @@ function updateVehicles() {
 
             }
 
+
             else if (
               lane.dir < 0 &&
               obj.x <
-              TRACK_HEADER_W -
-              obj.w
+                TRACK_HEADER_W -
+                obj.w
             ) {
 
               obj.x =
@@ -3181,9 +3000,7 @@ function updateVehicles() {
   for (
     let i =
       particles.length - 1;
-
     i >= 0;
-
     i--
   ) {
 
@@ -3191,11 +3008,9 @@ function updateVehicles() {
       particles[i];
 
 
-    p.x +=
-      p.vx;
+    p.x += p.vx;
 
-    p.y +=
-      p.vy;
+    p.y += p.vy;
 
     p.life--;
 
@@ -3243,14 +3058,12 @@ function addParticles(
 
       vx:
         (
-          Math.random() -
-          0.5
+          Math.random() - 0.5
         ) * 6,
 
       vy:
         (
-          Math.random() -
-          0.5
+          Math.random() - 0.5
         ) * 6,
 
       life:
@@ -3280,8 +3093,7 @@ function checkPickups() {
 
   if (
     !currentLane ||
-    currentLane.pickups.length ===
-    0
+    currentLane.pickups.length === 0
   ) {
 
     return;
@@ -3292,9 +3104,7 @@ function checkPickups() {
   for (
     let i =
       currentLane.pickups.length - 1;
-
     i >= 0;
-
     i--
   ) {
 
@@ -3303,8 +3113,7 @@ function checkPickups() {
 
 
     if (
-      p.gx ===
-      player.gx
+      p.gx === player.gx
     ) {
 
       score +=
@@ -3343,6 +3152,7 @@ function checkPickups() {
         }
 
       }
+
 
       else {
 
@@ -3425,27 +3235,21 @@ function checkPickups() {
 function isInvincible() {
 
   return (
-
-    player.invTimer >
-    0 ||
-
-    player.guardTimer >
-    0
-
+    player.invTimer > 0 ||
+    player.guardTimer > 0
   );
 
 }
 
 
 /* =========================================================
-   COLLISIONS
+   COLLISION
    ========================================================= */
 
 function checkCollisions() {
 
   if (
-    gameState !==
-    'PLAYING' ||
+    gameState !== 'PLAYING' ||
     isInvincible()
   ) {
 
@@ -3456,7 +3260,7 @@ function checkCollisions() {
 
   let playerX =
     player.gx *
-    CELL_SIZE +
+      CELL_SIZE +
     CELL_SIZE / 2;
 
 
@@ -3489,8 +3293,7 @@ function checkCollisions() {
 
     if (
       !lane ||
-      lane.type !==
-      'ROAD'
+      lane.type !== 'ROAD'
     ) {
 
       continue;
@@ -3592,6 +3395,7 @@ function hitPlayer() {
 
   }
 
+
   else {
 
     let respawnGy =
@@ -3599,18 +3403,15 @@ function hitPlayer() {
 
 
     for (
-      let r =
-        player.gy;
-
+      let r = player.gy;
       r < ROWS;
-
       r++
     ) {
 
       if (
         activeLanes[r] &&
         activeLanes[r].type ===
-        'SAFE'
+          'SAFE'
       ) {
 
         respawnGy =
@@ -3654,7 +3455,7 @@ function hitPlayer() {
 
 
 /* =========================================================
-   WORLD DRAW
+   WORLD
    ========================================================= */
 
 function drawGameWorld() {
@@ -3664,16 +3465,11 @@ function drawGameWorld() {
 
 
   ctx.fillRect(
-
     0,
-
     HUD_HEIGHT,
-
     CANVAS_W,
-
     CANVAS_H -
-    HUD_HEIGHT
-
+      HUD_HEIGHT
   );
 
 
@@ -3682,7 +3478,7 @@ function drawGameWorld() {
 
       let y =
         r *
-        CELL_SIZE +
+          CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
@@ -3692,15 +3488,10 @@ function drawGameWorld() {
 
 
       ctx.fillRect(
-
         0,
-
         y,
-
         CANVAS_W,
-
         CELL_SIZE
-
       );
 
 
@@ -3713,15 +3504,10 @@ function drawGameWorld() {
 
 
       ctx.strokeRect(
-
         0,
-
         y,
-
         CANVAS_W,
-
         CELL_SIZE
-
       );
 
     }
@@ -3732,13 +3518,12 @@ function drawGameWorld() {
     (lane, r) => {
 
       if (
-        lane.type ===
-        'SAFE'
+        lane.type === 'SAFE'
       ) {
 
         let y =
           r *
-          CELL_SIZE +
+            CELL_SIZE +
           HUD_HEIGHT +
           visualScrollOffset;
 
@@ -3748,7 +3533,7 @@ function drawGameWorld() {
 
             let px =
               p.gx *
-              CELL_SIZE +
+                CELL_SIZE +
               CELL_SIZE / 2;
 
 
@@ -3776,14 +3561,10 @@ function drawGameWorld() {
 
 
             ctx.fillText(
-
               p.type.label
                 .split(' ')[0],
-
               px,
-
               py
-
             );
 
           }
@@ -3799,13 +3580,12 @@ function drawGameWorld() {
     (lane, r) => {
 
       if (
-        lane.type ===
-        'ROAD'
+        lane.type === 'ROAD'
       ) {
 
         let y =
           r *
-          CELL_SIZE +
+            CELL_SIZE +
           HUD_HEIGHT +
           visualScrollOffset;
 
@@ -3826,7 +3606,7 @@ function drawGameWorld() {
 
       let y =
         r *
-        CELL_SIZE +
+          CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
@@ -3836,15 +3616,10 @@ function drawGameWorld() {
 
 
       ctx.fillRect(
-
         0,
-
         y,
-
         TRACK_HEADER_W,
-
         CELL_SIZE
-
       );
 
 
@@ -3857,15 +3632,10 @@ function drawGameWorld() {
 
 
       ctx.strokeRect(
-
         0,
-
         y,
-
         TRACK_HEADER_W,
-
         CELL_SIZE
-
       );
 
 
@@ -3886,14 +3656,10 @@ function drawGameWorld() {
 
 
       ctx.fillText(
-
         lane.trackLabel,
-
         TRACK_HEADER_W / 2,
-
         y +
-        CELL_SIZE / 2
-
+          CELL_SIZE / 2
       );
 
     }
@@ -3915,15 +3681,10 @@ function drawGameWorld() {
 
 
     ctx.fillRect(
-
       p.x,
-
       p.y,
-
       4,
-
       4
-
     );
 
   }
@@ -3931,7 +3692,7 @@ function drawGameWorld() {
 
   let playheadX =
     player.gx *
-    CELL_SIZE +
+      CELL_SIZE +
     CELL_SIZE / 2;
 
 
@@ -3947,20 +3708,14 @@ function drawGameWorld() {
 
 
   ctx.moveTo(
-
     playheadX,
-
     HUD_HEIGHT
-
   );
 
 
   ctx.lineTo(
-
     playheadX,
-
     CANVAS_H
-
   );
 
 
@@ -4026,15 +3781,10 @@ function drawObstacles(
 
 
       ctx.fillRect(
-
         x + 1,
-
         y + 1,
-
         blockW - 2,
-
         blockH
-
       );
 
 
@@ -4044,15 +3794,10 @@ function drawObstacles(
 
 
       ctx.fillRect(
-
         x + 1,
-
         y + 1,
-
         blockW - 2,
-
         2
-
       );
 
 
@@ -4065,15 +3810,10 @@ function drawObstacles(
 
 
       ctx.strokeRect(
-
         x + 1,
-
         y + 1,
-
         blockW - 2,
-
         blockH
-
       );
 
 
@@ -4082,15 +3822,10 @@ function drawObstacles(
 
 
       ctx.fillRect(
-
         x + 4,
-
         y + 4,
-
         13,
-
         10
-
       );
 
 
@@ -4111,13 +3846,9 @@ function drawObstacles(
 
 
       ctx.fillText(
-
         'fx',
-
         x + 10,
-
         y + 9
-
       );
 
 
@@ -4143,24 +3874,17 @@ function drawObstacles(
 
 
         ctx.moveTo(
-
           x + 18,
-
           y +
-          blockH / 2
-
+            blockH / 2
         );
 
 
         ctx.lineTo(
-
           x +
-          blockW -
-          6,
-
+            blockW - 6,
           y +
-          blockH / 2
-
+            blockH / 2
         );
 
 
@@ -4189,20 +3913,14 @@ function drawObstacles(
 
 
       ctx.fillText(
-
         vData.label,
-
         x +
           blockW / 2 +
           6,
-
         y +
           blockH / 2 +
           1,
-
-        blockW -
-          22
-
+        blockW - 22
       );
 
 
@@ -4215,7 +3933,7 @@ function drawObstacles(
 
 
 /* =========================================================
-   PLAYER
+   PLAYER DRAW
    ========================================================= */
 
 function drawSinglePlayer() {
@@ -4235,12 +3953,10 @@ function drawSinglePlayer() {
 
 
   if (
-    player.invTimer >
-    0 &&
+    player.invTimer > 0 &&
     Math.floor(
       player.invTimer / 4
-    ) % 2 ===
-    0
+    ) % 2 === 0
   ) {
 
     return;
@@ -4326,8 +4042,7 @@ function drawSinglePlayer() {
 
 
   if (
-    player.glitchTimer >
-    0
+    player.glitchTimer > 0
   ) {
 
     ctx.fillStyle =
@@ -4348,8 +4063,7 @@ function drawSinglePlayer() {
 
 
   if (
-    player.guardTimer >
-    0
+    player.guardTimer > 0
   ) {
 
     ctx.shadowColor =
@@ -4401,15 +4115,10 @@ function drawHUD() {
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     HUD_HEIGHT
-
   );
 
 
@@ -4422,15 +4131,10 @@ function drawHUD() {
 
 
   ctx.strokeRect(
-
     0,
-
     0,
-
     canvas.width,
-
     HUD_HEIGHT
-
   );
 
 
@@ -4447,13 +4151,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     `${currentTheme.name}`,
-
     8,
-
     16
-
   );
 
 
@@ -4462,13 +4162,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     `PTS: ${score}`,
-
     8,
-
     32
-
   );
 
 
@@ -4494,13 +4190,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     tData.title,
-
     canvas.width / 2,
-
     26
-
   );
 
 
@@ -4517,13 +4209,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     `REC: ${highScore}`,
-
     canvas.width - 8,
-
     16
-
   );
 
 
@@ -4532,15 +4220,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
-    `VITE: ${
-      '❤️'.repeat(lives)
-    }`,
-
+    `VITE: ${'❤️'.repeat(lives)}`,
     canvas.width - 8,
-
     34
-
   );
 
 }
@@ -4557,15 +4239,10 @@ function drawTutorial() {
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -4582,30 +4259,19 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     'PREMIERE TIMELINE RUSH 🎬',
-
     canvas.width / 2,
-
     38
-
   );
 
 
   drawRoundRect(
-
     ctx,
-
     12,
-
     52,
-
     314,
-
     85,
-
     10
-
   );
 
 
@@ -4640,13 +4306,9 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '1. RISALI LA TIMELINE',
-
     22,
-
     72
-
   );
 
 
@@ -4659,52 +4321,33 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '• Evita i blocchi clip: Media Offline, GPU Crash,',
-
     22,
-
     90
-
   );
 
 
   ctx.fillText(
-
     '  Lumetri FX e tracce audio fuori sync!',
-
     22,
-
     106
-
   );
 
 
   ctx.fillText(
-
     '• Avanza verso l\'alto per fare punti!',
-
     22,
-
     122
-
   );
 
 
   drawRoundRect(
-
     ctx,
-
     12,
-
     145,
-
     314,
-
     88,
-
     10
-
   );
 
 
@@ -4739,13 +4382,9 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '2. POTENZIAMENTI BONUS 🎁',
-
     22,
-
     165
-
   );
 
 
@@ -4758,52 +4397,33 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '• 💾 Auto-Save (+300 PTS) | 🎬 Proxy (2X Punti)',
-
     22,
-
     183
-
   );
 
 
   ctx.fillText(
-
     '• ⚡ Cache (+150 PTS & Boost Velocità)',
-
     22,
-
     199
-
   );
 
 
   ctx.fillText(
-
     '• 🛡️ Render Shield: Scudo invincibile temporaneo!',
-
     22,
-
     215
-
   );
 
 
   drawRoundRect(
-
     ctx,
-
     12,
-
     241,
-
     314,
-
     80,
-
     10
-
   );
 
 
@@ -4838,13 +4458,9 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '3. MALUS TRAPPOLA ⚠️',
-
     22,
-
     261
-
   );
 
 
@@ -4857,24 +4473,16 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '• 🐌 Drop Frame: Rallenta temporaneamente (-100)',
-
     22,
-
     279
-
   );
 
 
   ctx.fillText(
-
     '• ⚠️ Full Disk: Inverte i comandi di guida! (-200)',
-
     22,
-
     297
-
   );
 
 
@@ -4891,30 +4499,19 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     `RECORD ATTUALE: ${highScore} PTS`,
-
     canvas.width / 2,
-
     342
-
   );
 
 
   drawRoundRect(
-
     ctx,
-
     16,
-
     368,
-
     306,
-
     42,
-
     10
-
   );
 
 
@@ -4945,13 +4542,9 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     'AVANTI: SCEGLI VIDEOMAKER ►',
-
     canvas.width / 2,
-
     396
-
   );
 
 }
@@ -4968,15 +4561,10 @@ function drawCharSelect() {
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -4993,13 +4581,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     'Scegli il tuo Creativo in Deadline Drive',
-
     canvas.width / 2,
-
     28
-
   );
 
 
@@ -5010,15 +4594,14 @@ function drawCharSelect() {
 
 
   let c =
-    CHARACTERS[cKey];
+    CHARACTERS[
+      cKey
+    ];
 
 
-  let cardW =
-    318;
+  let cardW = 318;
 
-
-  let cardH =
-    395;
+  let cardH = 395;
 
 
   let cardX =
@@ -5033,19 +4616,12 @@ function drawCharSelect() {
 
 
   drawRoundRect(
-
     ctx,
-
     cardX,
-
     cardY,
-
     cardW,
-
     cardH,
-
     12
-
   );
 
 
@@ -5067,12 +4643,9 @@ function drawCharSelect() {
   ctx.stroke();
 
 
-  let boxW =
-    160;
+  let boxW = 160;
 
-
-  let boxH =
-    160;
+  let boxH = 160;
 
 
   let boxX =
@@ -5083,27 +4656,19 @@ function drawCharSelect() {
 
 
   let boxY =
-    cardY +
-    14;
+    cardY + 14;
 
 
   ctx.save();
 
 
   drawRoundRect(
-
     ctx,
-
     boxX,
-
     boxY,
-
     boxW,
-
     boxH,
-
     12
-
   );
 
 
@@ -5113,25 +4678,19 @@ function drawCharSelect() {
   if (
     c.img &&
     c.img.complete &&
-    c.img.naturalWidth >
-    0
+    c.img.naturalWidth > 0
   ) {
 
     ctx.drawImage(
-
       c.img,
-
       boxX,
-
       boxY,
-
       boxW,
-
       boxH
-
     );
 
   }
+
 
   else {
 
@@ -5155,13 +4714,9 @@ function drawCharSelect() {
 
 
     ctx.fillText(
-
       c.name[0],
-
       CANVAS_W / 2,
-
       boxY + 95
-
     );
 
   }
@@ -5171,19 +4726,12 @@ function drawCharSelect() {
 
 
   drawRoundRect(
-
     ctx,
-
     boxX,
-
     boxY,
-
     boxW,
-
     boxH,
-
     12
-
   );
 
 
@@ -5211,13 +4759,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     c.name,
-
     CANVAS_W / 2,
-
     cardY + 200
-
   );
 
 
@@ -5230,13 +4774,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     c.subtitle,
-
     CANVAS_W / 2,
-
     cardY + 222
-
   );
 
 
@@ -5249,13 +4789,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     c.perkBonus,
-
     CANVAS_W / 2,
-
     cardY + 248
-
   );
 
 
@@ -5264,13 +4800,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     c.perkMalus,
-
     CANVAS_W / 2,
-
     cardY + 268
-
   );
 
 
@@ -5283,13 +4815,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     '► TOCCA PER CONFERMARE ◄',
-
     CANVAS_W / 2,
-
     cardY + 310
-
   );
 
 
@@ -5312,20 +4840,16 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
-    '◄ CAMBIA PERSONAGGIO ►',
-
+    '◄  CAMBIA PERSONAGGIO  ►',
     CANVAS_W / 2,
-
     arrowY
-
   );
 
 }
 
 
 /* =========================================================
-   SELECTION
+   CHARACTER INPUT
    ========================================================= */
 
 function handleSelectionInput(
@@ -5342,8 +4866,7 @@ function handleSelectionInput(
 
 
   if (
-    selectedCharIndex <
-    0
+    selectedCharIndex < 0
   ) {
 
     selectedCharIndex =
@@ -5377,15 +4900,10 @@ function drawLevelClear() {
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -5411,13 +4929,9 @@ function drawLevelClear() {
 
 
   ctx.fillText(
-
     `${tData.title} COMPLETE! 🎉`,
-
     canvas.width / 2,
-
     canvas.height / 2 - 30
-
   );
 
 
@@ -5430,13 +4944,9 @@ function drawLevelClear() {
 
 
   ctx.fillText(
-
     tData.msg,
-
     canvas.width / 2,
-
     canvas.height / 2
-
   );
 
 
@@ -5449,17 +4959,13 @@ function drawLevelClear() {
 
 
   ctx.fillText(
-
     `BONUS STAGE: +${Math.floor(
       1000 *
       (level - 1) *
       currentTheme.scoreMult
     )} PTS`,
-
     canvas.width / 2,
-
     canvas.height / 2 + 35
-
   );
 
 }
@@ -5476,15 +4982,10 @@ function drawGameOver() {
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -5501,13 +5002,9 @@ function drawGameOver() {
 
 
   ctx.fillText(
-
     'DEADLINE MISSED! 💀',
-
     canvas.width / 2,
-
     canvas.height / 2 - 40
-
   );
 
 
@@ -5520,13 +5017,9 @@ function drawGameOver() {
 
 
   ctx.fillText(
-
     `PUNTEGGIO: ${score}`,
-
     canvas.width / 2,
-
     canvas.height / 2 + 5
-
   );
 
 
@@ -5539,13 +5032,9 @@ function drawGameOver() {
 
 
   ctx.fillText(
-
     `RECORD ATTUALE: ${highScore}`,
-
     canvas.width / 2,
-
     canvas.height / 2 + 35
-
   );
 
 
@@ -5562,13 +5051,9 @@ function drawGameOver() {
 
 
   ctx.fillText(
-
     '► TOCCA PER GIOCARE ANCORA ◄',
-
     canvas.width / 2,
-
     canvas.height / 2 + 80
-
   );
 
 }
@@ -5585,15 +5070,10 @@ function drawPause() {
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -5610,13 +5090,9 @@ function drawPause() {
 
 
   ctx.fillText(
-
     'IN PAUSA',
-
     canvas.width / 2,
-
     canvas.height / 2 - 10
-
   );
 
 
@@ -5629,13 +5105,9 @@ function drawPause() {
 
 
   ctx.fillText(
-
     'TOCCA IL GIOCO PER RIPRENDERE',
-
     canvas.width / 2,
-
     canvas.height / 2 + 20
-
   );
 
 }
@@ -5650,15 +5122,10 @@ function gameLoop() {
   try {
 
     ctx.clearRect(
-
       0,
-
       0,
-
       canvas.width,
-
       canvas.height
-
     );
 
 
@@ -5671,6 +5138,7 @@ function gameLoop() {
 
     }
 
+
     else if (
       gameState ===
       'CHAR_SELECT'
@@ -5679,6 +5147,7 @@ function gameLoop() {
       drawCharSelect();
 
     }
+
 
     else if (
       gameState ===
@@ -5695,6 +5164,7 @@ function gameLoop() {
 
     }
 
+
     else if (
       gameState ===
       'PAUSE'
@@ -5708,6 +5178,7 @@ function gameLoop() {
 
     }
 
+
     else if (
       gameState ===
       'LEVEL_CLEAR'
@@ -5720,6 +5191,7 @@ function gameLoop() {
       drawHUD();
 
     }
+
 
     else if (
       gameState ===
@@ -5788,14 +5260,12 @@ function selectCharacter(
 
 
 /* =========================================================
-   CANVAS INPUT
+   CANVAS TOUCH
    ========================================================= */
 
 canvas.addEventListener(
-
   'pointerdown',
-
-  (e) => {
+  e => {
 
     if (
       e.cancelable
@@ -5847,13 +5317,11 @@ canvas.addEventListener(
         gameState =
           'CHAR_SELECT';
 
-
         playSound(
           'cross'
         );
 
       }
-
 
       return;
 
@@ -5890,14 +5358,13 @@ canvas.addEventListener(
 
       }
 
+
       else {
 
         selectCharacter(
-
           CHARACTER_LIST[
             selectedCharIndex
           ]
-
         );
 
       }
@@ -5914,18 +5381,15 @@ canvas.addEventListener(
     ) {
 
       if (
-        y <
-        HUD_HEIGHT
+        y < HUD_HEIGHT
       ) {
 
         gameState =
           'PAUSE';
 
-
         updateMusicState();
 
       }
-
 
       return;
 
@@ -5940,9 +5404,7 @@ canvas.addEventListener(
       gameState =
         'PLAYING';
 
-
       updateMusicState();
-
 
       return;
 
@@ -5957,18 +5419,14 @@ canvas.addEventListener(
       gameState =
         'CHAR_SELECT';
 
-
       return;
 
     }
 
   },
-
   {
-    passive:
-      false
+    passive: false
   }
-
 );
 
 
@@ -5987,14 +5445,14 @@ function bindBtn(
     );
 
 
-  if (!btn) return;
+  if (!btn) {
+    return;
+  }
 
 
   btn.addEventListener(
-
     'pointerdown',
-
-    (e) => {
+    e => {
 
       if (
         e.cancelable
@@ -6020,20 +5478,20 @@ function bindBtn(
 
       }
 
+
       else if (
         gameState ===
         'CHAR_SELECT'
       ) {
 
         selectCharacter(
-
           CHARACTER_LIST[
             selectedCharIndex
           ]
-
         );
 
       }
+
 
       else {
 
@@ -6044,20 +5502,15 @@ function bindBtn(
       }
 
     },
-
     {
-      passive:
-        false
+      passive: false
     }
-
   );
 
 
   btn.addEventListener(
-
     'pointerup',
-
-    (e) => {
+    e => {
 
       if (
         e.cancelable
@@ -6073,19 +5526,14 @@ function bindBtn(
       );
 
     },
-
     {
-      passive:
-        false
+      passive: false
     }
-
   );
 
 
   btn.addEventListener(
-
     'pointercancel',
-
     () => {
 
       onPress(
@@ -6093,14 +5541,25 @@ function bindBtn(
       );
 
     }
+  );
 
+
+  btn.addEventListener(
+    'pointerleave',
+    () => {
+
+      onPress(
+        false
+      );
+
+    }
   );
 
 }
 
 
 /* =========================================================
-   CONTROLS
+   CONTROLLI
    ========================================================= */
 
 bindBtn(
@@ -6155,9 +5614,7 @@ const keys = {};
 
 
 window.addEventListener(
-
   'keydown',
-
   e => {
 
     keys[e.code] =
@@ -6172,9 +5629,9 @@ window.addEventListener(
       'TUTORIAL' &&
       (
         e.code ===
-        'Space' ||
+          'Space' ||
         e.code ===
-        'Enter'
+          'Enter'
       )
     ) {
 
@@ -6191,9 +5648,9 @@ window.addEventListener(
 
       if (
         e.key ===
-        'ArrowLeft' ||
+          'ArrowLeft' ||
         e.key ===
-        'a'
+          'a'
       ) {
 
         handleSelectionInput(
@@ -6205,9 +5662,9 @@ window.addEventListener(
 
       if (
         e.key ===
-        'ArrowRight' ||
+          'ArrowRight' ||
         e.key ===
-        'd'
+          'd'
       ) {
 
         handleSelectionInput(
@@ -6219,17 +5676,15 @@ window.addEventListener(
 
       if (
         e.code ===
-        'Space' ||
+          'Space' ||
         e.code ===
-        'Enter'
+          'Enter'
       ) {
 
         selectCharacter(
-
           CHARACTER_LIST[
             selectedCharIndex
           ]
-
         );
 
       }
@@ -6242,9 +5697,9 @@ window.addEventListener(
       'GAME_OVER' &&
       (
         e.code ===
-        'Space' ||
+          'Space' ||
         e.code ===
-        'Enter'
+          'Enter'
       )
     ) {
 
@@ -6254,21 +5709,17 @@ window.addEventListener(
     }
 
   }
-
 );
 
 
 window.addEventListener(
-
   'keyup',
-
   e => {
 
     keys[e.code] =
       false;
 
   }
-
 );
 
 
@@ -6292,8 +5743,7 @@ function saveScore() {
   try {
 
     if (
-      score >
-      highScore
+      score > highScore
     ) {
 
       highScore =
@@ -6301,11 +5751,8 @@ function saveScore() {
 
 
       localStorage.setItem(
-
         'deadlineDrive_highScore',
-
         highScore.toString()
-
       );
 
     }
@@ -6359,13 +5806,10 @@ function saveScore() {
 
 
       localStorage.setItem(
-
         'arcade_current_user',
-
         JSON.stringify(
           curUser
         )
-
       );
 
 
@@ -6403,13 +5847,10 @@ function saveScore() {
 
 
           localStorage.setItem(
-
             'arcade_users',
-
             JSON.stringify(
               users
             )
-
           );
 
         }
@@ -6420,14 +5861,11 @@ function saveScore() {
 
   }
 
-  catch (e) {
+  catch(e) {
 
     console.warn(
-
       "Save score error:",
-
       e
-
     );
 
   }
