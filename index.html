@@ -35,7 +35,7 @@
             background-color: #060612;
             display: flex;
             justify-content: center;
-            align-items: flex-end;
+            align-items: center;
             touch-action: none;
         }
 
@@ -51,7 +51,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: center;
             align-items: center;
         }
 
@@ -63,7 +63,7 @@
                 left: 0;
                 right: 0;
                 width: 100vw;
-                height: 100%;
+                height: 100dvh;
                 max-width: none;
                 max-height: none;
                 border: none;
@@ -72,7 +72,6 @@
         }
         
         #game-container {
-            position: relative;
             width: 100%;
             height: 100%;
             overflow: hidden;
@@ -470,28 +469,26 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // SCENA RIGIDAMENTE A 360x740
         const vWidth = 360;
-        const vHeight = 740;
+        const vHeight = this.scale.height; // Usiamo l'altezza calcolata dinamicamente da Phaser
 
-        // INIZIALIZZAZIONE PIPELINE GREENKEY
         if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('GreenKey')) {
             this.game.renderer.pipelines.add('GreenKey', new GreenKeyPipeline(this.game));
         }
 
-        let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
-        let bgScale = vHeight / bg.height;
-        bg.setScale(bgScale);
+        // ANCORAGGIO SFONDO IN BASSO (setOrigin 0, 1): IL SOFFITTO EXTRA SALE VERSO L'ALTO
+        let bg = this.add.image(0, vHeight, 'background').setOrigin(0, 1).setDepth(0);
+        bg.setScale(1); // Scala 1:1, il soffitto più alto copre tutta l'altezza extra
 
-        const worldWidth = bg.width * bgScale;
+        const worldWidth = bg.width;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONI ORIGINALI INTEGRATE COL PARQUET
-        const floorY = 568;
-        const gabriY = 558;
-        const npcY = 563;
-        const cabY = 548;
-        this.cabBadgeY = 330;
+        // POSIZIONI ANCORATE DAL BORDO INFERIORE (vHeight) PER PARQUET PERFETTO
+        const floorY = vHeight - 172;
+        const gabriY = vHeight - 182;
+        const npcY = vHeight - 177;
+        const cabY = vHeight - 192;
+        this.cabBadgeY = vHeight - 410;
 
         // VIDEO MP4 RENDERIZZATI IN WEBGL CON PIPELINE GREENKEY
         this.gabri = this.add.video(150, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
@@ -715,53 +712,27 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// CONFIGURAZIONE CON NO_CENTER PER NON SUBIRE IL CENTRAMENTO AUTOMATICO
+// CALCOLO DINAMICO DELL'ASPECT RATIO REALE DELLO SCHERMO PER PHASER FIT
+const screenW = window.innerWidth || 360;
+const screenH = window.innerHeight || 740;
+const GAME_WIDTH = 360;
+const GAME_HEIGHT = Math.max(740, Math.round(GAME_WIDTH * (screenH / screenW)));
+
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
     backgroundColor: '#060612',
     scale: { 
         mode: Phaser.Scale.FIT, 
-        autoCenter: Phaser.Scale.NO_CENTER, 
-        width: 360, 
-        height: 740 
+        autoCenter: Phaser.Scale.CENTER_BOTH, 
+        width: GAME_WIDTH, 
+        height: GAME_HEIGHT 
     },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
 };
 
 const game = new Phaser.Game(config);
-
-// FUNZIONE MATEMATICA DI SPINTA IN BASSO DEL CANVAS PHASER
-function pushCanvasToBottom() {
-    const container = document.getElementById('game-container');
-    if (!container) return;
-    const canvas = container.querySelector('canvas');
-    if (!canvas) return;
-
-    const containerH = container.clientHeight;
-    const canvasH = canvas.getBoundingClientRect().height;
-    const diffY = Math.max(0, containerH - canvasH);
-
-    canvas.style.setProperty('position', 'absolute', 'important');
-    canvas.style.setProperty('top', diffY + 'px', 'important');
-    canvas.style.setProperty('bottom', '0px', 'important');
-    canvas.style.setProperty('margin-top', '0px', 'important');
-    canvas.style.setProperty('margin-bottom', '0px', 'important');
-}
-
-// ASCOLTATORI EVENTI DI RESIZE E POSTSCALE PHASER
-game.scale.on('postscale', pushCanvasToBottom);
-window.addEventListener('resize', pushCanvasToBottom);
-window.addEventListener('orientationchange', pushCanvasToBottom);
-
-// CONTROLLO CONTINUO PER I PRIMI 2 SECONDI SU IOS PWA PER GESTIRE IL CARICAMENTO DELLA SAFARI BAR
-let checkCount = 0;
-const interval = setInterval(() => {
-    pushCanvasToBottom();
-    checkCount++;
-    if (checkCount > 10) clearInterval(interval);
-}, 200);
 
 let currentLBGameKey = 'feedbackInvaders';
 
