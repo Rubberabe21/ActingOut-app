@@ -1,86 +1,226 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pixel Punch - Revision Killer</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        body {
-            background-color: #030305;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-        #wrapper {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            max-width: 440px;
-            max-height: 780px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            background: #090918;
-            border: 2px solid #ff0055;
-            box-shadow: 0 0 30px rgba(255, 0, 85, 0.35);
-            border-radius: 14px;
-        }
-        #canvas-container {
-            width: 100%;
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-            max-height: 560px;
-            border: 2px solid #00ffcc;
-            box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2);
-            border-radius: 10px;
-            background: #060612;
-            cursor: pointer;
-        }
-        .exit-btn {
-            width: 100%;
-            margin-top: 8px;
-            padding: 12px;
-            background: #1a1a2e;
-            border: 2px solid #00ffcc;
-            color: #00ffcc;
-            font-weight: bold;
-            font-size: 12px;
-            letter-spacing: 1px;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
-        }
-        .exit-btn:active { transform: scale(0.96); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Pixel Punch - Revision Killer</title>
+<style>
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #030305;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100dvh;
+    max-width: 440px;
+    max-height: 860px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 6px) 8px;
+    background: #090918;
+    border: 3px solid #ff0055;
+    box-shadow: 0 0 30px rgba(255, 0, 85, 0.35), inset 0 0 20px rgba(0, 255, 204, 0.15);
+    border-radius: 16px;
+  }
+
+  /* TOP BAR CON TASTO OPZIONI */
+  .top-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+  }
+  .header-title {
+    color: #ff0055;
+    font-size: 11px;
+    font-weight: bold;
+    text-shadow: 0 0 6px #ff0055;
+    letter-spacing: 1px;
+  }
+  .opt-btn {
+    background: #1a0836;
+    border: 1.5px solid #ffea00;
+    color: #ffea00;
+    padding: 3px 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
+  }
+  .opt-btn:active { transform: scale(0.92); }
+
+  #canvas-container {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 0;
+  }
+  canvas {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    aspect-ratio: 380 / 540;
+    border: 2px solid #00ffcc;
+    box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2);
+    border-radius: 10px;
+    background: #060612;
+    cursor: pointer;
+  }
+
+  .exit-btn {
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px;
+    background: #100826;
+    border: 1.5px solid #00ffcc;
+    color: #00ffcc;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 10px;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+    flex-shrink: 0;
+  }
+  .exit-btn:active { transform: scale(0.96); }
+
+  /* OVERLAY MODALE OPZIONI */
+  .modal-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(5, 2, 10, 0.94);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+  }
+  .modal-box {
+    width: 100%;
+    max-width: 300px;
+    background: #0e051b;
+    border: 3px solid #ff0055;
+    box-shadow: 0 0 25px rgba(255, 0, 85, 0.5);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    color: #ffffff;
+    text-align: center;
+  }
+  .modal-title {
+    color: #ffea00;
+    font-size: 15px;
+    font-weight: 900;
+    text-shadow: 0 0 8px #ffea00;
+  }
+  .option-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #160a2c;
+    padding: 10px;
+    border: 1px solid rgba(0, 255, 204, 0.4);
+    border-radius: 8px;
+  }
+  .option-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #00ffcc;
+  }
+  .toggle-btn {
+    width: 100%;
+    padding: 8px;
+    background: #2a144a;
+    border: 2px solid #ff0055;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .toggle-btn.active {
+    border-color: #00ff66;
+    color: #00ff66;
+    background: #082814;
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+  }
+  .close-modal-btn {
+    padding: 10px;
+    background: linear-gradient(180deg, #ff0055, #a3003b);
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255, 0, 85, 0.5);
+  }
+</style>
 </head>
 <body>
 
 <div id="wrapper">
-    <div id="canvas-container">
-        <canvas id="game"></canvas>
+  <!-- TOP BAR CON PULSANTE OPZIONI -->
+  <div class="top-header">
+    <span class="header-title">PIXEL PUNCH - REVISION KILLER</span>
+    <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="game"></canvas>
+  </div>
+
+  <button class="exit-btn" onclick="exitGame()">◄ TORNA ALL'HUB ARCADE</button>
+
+  <!-- MODALE OPZIONI -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-title">⚙️ OPZIONI GIOCO</div>
+
+      <div class="option-item">
+        <span class="option-label">MUSICA DI SOTTOFONDO</span>
+        <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
+      </div>
+
+      <div class="option-item">
+        <span class="option-label">EFFETTI SONORI (SFX)</span>
+        <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
+      </div>
+
+      <button class="close-modal-btn" id="btnCloseSettings">SALVA E CHIUDI ►</button>
     </div>
-    <button class="exit-btn" onclick="exitGame()">◄ TORNA ALL'HUB ARCADE</button>
+  </div>
 </div>
 
 <script>
@@ -88,6 +228,93 @@ const cvs = document.getElementById('game');
 const ctx = cvs.getContext('2d');
 cvs.width = 380; 
 cvs.height = 540;
+
+function drawRoundRect(c, x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+}
+
+// --- OPZIONI E SALVATAGGIO ---
+let musicEnabled = localStorage.getItem('pixelPunch_music') !== 'false';
+let sfxEnabled = localStorage.getItem('pixelPunch_sfx') !== 'false';
+
+// Musica di Sottofondo
+const bgMusic = new Audio('assets/PixelPunch/music_punch.mp3');
+bgMusic.loop = true;
+bgMusic.volume = 0.4;
+
+function playBgMusic() {
+  if (musicEnabled && bgMusic.paused) {
+    bgMusic.play().catch(() => {});
+  }
+}
+
+// Avvio automatico ed al primo tocco
+playBgMusic();
+window.addEventListener('DOMContentLoaded', playBgMusic);
+window.addEventListener('load', playBgMusic);
+['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+  window.addEventListener(evt, () => playBgMusic(), { once: true });
+});
+
+function updateMusicState() {
+  if (musicEnabled) {
+    playBgMusic();
+  } else {
+    bgMusic.pause();
+  }
+}
+
+const settingsModal = document.getElementById('settingsModal');
+const btnOpenSettings = document.getElementById('btnOpenSettings');
+const btnCloseSettings = document.getElementById('btnCloseSettings');
+const btnToggleMusic = document.getElementById('btnToggleMusic');
+const btnToggleSfx = document.getElementById('btnToggleSfx');
+
+function renderOptionButtons() {
+  btnToggleMusic.className = `toggle-btn ${musicEnabled ? 'active' : ''}`;
+  btnToggleMusic.innerText = musicEnabled ? 'ON 🎵' : 'OFF 🔇';
+
+  btnToggleSfx.className = `toggle-btn ${sfxEnabled ? 'active' : ''}`;
+  btnToggleSfx.innerText = sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
+}
+renderOptionButtons();
+
+btnToggleMusic.onclick = () => {
+  musicEnabled = !musicEnabled;
+  localStorage.setItem('pixelPunch_music', musicEnabled);
+  renderOptionButtons();
+  updateMusicState();
+};
+
+btnToggleSfx.onclick = () => {
+  sfxEnabled = !sfxEnabled;
+  localStorage.setItem('pixelPunch_sfx', sfxEnabled);
+  renderOptionButtons();
+};
+
+btnOpenSettings.onclick = () => {
+  if (state === 'PLAYING') {
+    state = 'PAUSE';
+  }
+  settingsModal.style.display = 'flex';
+};
+
+btnCloseSettings.onclick = () => {
+  settingsModal.style.display = 'none';
+  getAC();
+  if (state === 'PAUSE') {
+    state = 'PLAYING';
+  }
+  updateMusicState();
+};
 
 // Caricamento Immagini Personaggi
 const imgIris = new Image(); imgIris.src = 'assets/PixelPunch/iris.png';
@@ -99,7 +326,7 @@ const CHARACTERS = {
     IRIS: {
         id: 'IRIS',
         name: "IRIS",
-        subtitle: "IRIS, maestra dell'AI",
+        subtitle: "Iris, la maestra dell'AI",
         perkDesc: "BONUS: Auto-Fix AI (20% risolte gratis)",
         primary: "#00ffcc",
         bg: "#06061a",
@@ -110,7 +337,7 @@ const CHARACTERS = {
     CRISTINA: {
         id: 'CRISTINA',
         name: "CRISTINA",
-        subtitle: "Cristina, il producer saggio",
+        subtitle: "Cristina, la producer sagace",
         perkDesc: "BONUS: Caffè x2 & No Penalità Errore",
         primary: "#ffd700",
         bg: "#120e00",
@@ -121,8 +348,8 @@ const CHARACTERS = {
     RACHELE: {
         id: 'RACHELE',
         name: "RACHELE",
-        subtitle: "Rachele, l'inarrestabile lavoratrice",
-        perkDesc: "BONUS: +5s Tempo Extra & Combo x5 Rush",
+        subtitle: "Rachele, l'inarrestabile",
+        perkDesc: "BONUS: +5s Tempo Extra & Super Combo",
         primary: "#ff33aa",
         bg: "#140018",
         padBg: "#28002b",
@@ -137,37 +364,66 @@ let currentTheme = CHARACTERS.IRIS;
 let highScore = parseInt(localStorage.getItem('pixelPunch_highScore')) || 0;
 let isNewRecord = false;
 
-// Audio sintetizzato
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playSound(type) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    
-    if (type === 'hit') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    } else if (type === 'coffee') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.08);
-        osc.frequency.setValueAtTime(783, audioCtx.currentTime + 0.16);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.24);
-    } else if (type === 'fail') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-    }
+// Audio sintetizzato SFX
+let audioCtx = null;
+function getAC() {
+    try {
+        if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    } catch(e) {}
+    playBgMusic();
+    return audioCtx;
 }
 
-// Stati: 'TUTORIAL', 'CHAR_SELECT', 'PLAYING', 'GAMEOVER'
+function playSound(type) {
+    if (!sfxEnabled) return;
+    try {
+        const ac = getAC();
+        if (!ac) return;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain); gain.connect(ac.destination);
+        
+        if (type === 'hit') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(400, ac.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.2, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.1);
+        } else if (type === 'hit_double') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(600, ac.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(250, ac.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.25, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.12);
+        } else if (type === 'coffee') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523, ac.currentTime);
+            osc.frequency.setValueAtTime(659, ac.currentTime + 0.08);
+            osc.frequency.setValueAtTime(783, ac.currentTime + 0.16);
+            gain.gain.setValueAtTime(0.2, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.24);
+        } else if (type === 'golden') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(659, ac.currentTime);
+            osc.frequency.setValueAtTime(880, ac.currentTime + 0.1);
+            osc.frequency.setValueAtTime(1046, ac.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.25, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.3);
+        } else if (type === 'fail') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, ac.currentTime);
+            osc.frequency.linearRampToValueAtTime(60, ac.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.25, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.2);
+        }
+    } catch(e) {}
+}
+
+// Stati: 'TUTORIAL', 'CHAR_SELECT', 'PLAYING', 'PAUSE', 'GAMEOVER'
 let state = 'TUTORIAL';
 let score = 0;
 let timeLeft = 60;
@@ -175,12 +431,14 @@ let combo = 0;
 let particles = [];
 let floatingTexts = [];
 
-// Notifiche (Senza Emoticon, divise su 2 righe per non uscire dai margini)
+// Notifiche Standard
 const BAD_NOTIFS = [
     { line1: "LOGO PIÙ", line2: "GRANDE!" },
     { line1: "LAVORO PER", line2: "IERI!" },
     { line1: "CAMBIA", line2: "COLORE!" },
-    { line1: "ASAP", line2: "URGENTE!" }
+    { line1: "ASAP", line2: "URGENTE!" },
+    { line1: "PROVA CON", line2: "VERDE!" },
+    { line1: "FONTS PIÙ", line2: "LEGGIBILE!" }
 ];
 
 // Griglia 3x3 Tasti XL
@@ -200,6 +458,7 @@ const gridPads = [
     ...p,
     active: false,
     type: 'BAD',
+    hp: 1,
     line1: '',
     line2: '',
     timer: 0,
@@ -247,9 +506,9 @@ function spawnTicket() {
     target.active = true;
 
     let rand = Math.random();
-    let duration = 90;
+    let duration = Math.max(50, 95 - Math.floor(score / 500) * 5);
 
-    // Perk Iris: 20% di probabilità di risolvere gratis all'istante
+    // Perk Iris: 20% di probabilità di auto-risoluzione immediata
     if (currentTheme.id === 'IRIS' && rand < 0.20 && rand >= 0.05) {
         score += 100;
         addParticles(target.x + target.w/2, target.y + target.h/2, currentTheme.primary, 8);
@@ -258,16 +517,34 @@ function spawnTicket() {
         return;
     }
 
-    if (rand < 0.18) { // CAFFÈ
+    if (rand < 0.12) { // CAFFÈ ESPRESSO
         target.type = 'COFFEE';
+        target.hp = 1;
         target.line1 = "CAFFÈ";
         target.line2 = "BONUS";
-    } else if (rand < 0.35) { // TRAPPOLA
+    } else if (rand < 0.20) { // GOLDEN VIP FILE
+        target.type = 'GOLDEN';
+        target.hp = 1;
+        target.line1 = "CLIENTE VIP";
+        target.line2 = "+3 SECONDI";
+    } else if (rand < 0.35) { // FEEDBACK APPROVATO (TRAPPOLA)
         target.type = 'TRAP';
+        target.hp = 1;
         target.line1 = "FEEDBACK";
         target.line2 = "APPROVATO";
+    } else if (rand < 0.45) { // FILE CORROTTO GLITCH (TRAPPOLA SEVERA)
+        target.type = 'GLITCH';
+        target.hp = 1;
+        target.line1 = "FILE";
+        target.line2 = "CORROTTO";
+    } else if (rand < 0.65) { // DOPPIA REVISIONE (2 TAP)
+        target.type = 'DOUBLE';
+        target.hp = 2;
+        target.line1 = "REVISIONE";
+        target.line2 = "DOPPIA (2x)";
     } else { // REVISIONE STANDARD
         target.type = 'BAD';
+        target.hp = 1;
         let b = BAD_NOTIFS[Math.floor(Math.random() * BAD_NOTIFS.length)];
         target.line1 = b.line1;
         target.line2 = b.line2;
@@ -284,27 +561,57 @@ function hitPad(pad) {
     if (pad.type === 'TRAP') {
         pad.active = false;
         combo = 0;
-        // Perk Cristina: Nessuna penalità sui Feedback Approvati
         let pen = (currentTheme.id === 'CRISTINA') ? 0 : 50;
         score = Math.max(0, score - pen);
         playSound('fail');
-        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ff0055');
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, (pen === 0 ? "SHIELD! 0 PTS" : "-50 PTS"), "#ff0055");
+        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#00ffcc');
+        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, (pen === 0 ? "NO PENALTY!" : "-50 PTS"), "#00ffcc");
     } 
+    else if (pad.type === 'GLITCH') {
+        pad.active = false;
+        combo = 0;
+        score = Math.max(0, score - 100);
+        timeLeft = Math.max(1, timeLeft - 2);
+        playSound('fail');
+        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ff0055');
+        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "GLITCH! -2s", "#ff0055");
+    }
     else if (pad.type === 'COFFEE') {
         pad.active = false;
         combo++;
-        // Perk Cristina: Caffè vale il doppio (+600)
         let pts = (currentTheme.id === 'CRISTINA') ? 600 : 300;
         score += pts;
         playSound('coffee');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffcc00');
         addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts} CAFFÈ!`, "#ffcc00");
     } 
-    else {
+    else if (pad.type === 'GOLDEN') {
         pad.active = false;
         combo++;
-        // Perk Rachele: Multiplicatori combo aumentati
+        score += 500;
+        timeLeft += 3;
+        playSound('golden');
+        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffd700', 16);
+        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "+500 PTS (+3s!)", "#ffd700");
+    }
+    else if (pad.type === 'DOUBLE') {
+        pad.hp--;
+        playSound('hit_double');
+        if (pad.hp <= 0) {
+            pad.active = false;
+            combo++;
+            let pts = 250;
+            score += pts;
+            addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#aa00ff', 12);
+            addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts} RISOLTA!`, "#aa00ff");
+        } else {
+            addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffaa00', 6);
+            addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "1 ANCORA!", "#ffaa00");
+        }
+    }
+    else { // BAD
+        pad.active = false;
+        combo++;
         let comboBonus = (currentTheme.id === 'RACHELE') ? (combo * 25) : (combo > 3 ? 50 : 0);
         let pts = 100 + comboBonus;
         score += pts;
@@ -341,7 +648,8 @@ function update() {
 
     if (state !== 'PLAYING') return;
 
-    if (Date.now() - lastSpawnTime > 650) {
+    let spawnDelay = Math.max(350, 600 - Math.floor(score / 400) * 30);
+    if (Date.now() - lastSpawnTime > spawnDelay) {
         spawnTicket();
         lastSpawnTime = Date.now();
     }
@@ -351,7 +659,7 @@ function update() {
             p.timer--;
             if (p.timer <= 0) {
                 p.active = false;
-                if (p.type === 'BAD') {
+                if (p.type === 'BAD' || p.type === 'DOUBLE') {
                     combo = 0;
                 }
             }
@@ -365,112 +673,98 @@ function draw() {
     ctx.fillStyle = currentTheme.bg;
     ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-    // --- SCHERMATA 1: TUTORIAL ---
+    // --- SCHERMATA 1: REGOLE E TUTORIAL RIDISEGNATO ---
     if (state === 'TUTORIAL') {
         ctx.fillStyle = '#00ffcc';
-        ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('COME SI GIOCA 🎮', cvs.width / 2, 45);
+        ctx.font = 'bold 18px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('PIXEL PUNCH: TUTORIAL 🥊', cvs.width / 2, 38);
 
         // Card 1: Revisioni
-        ctx.beginPath();
-        ctx.fillStyle = '#101226';
-        ctx.roundRect(20, 70, 340, 75, 10); ctx.fill();
+        drawRoundRect(ctx, 15, 55, 350, 80, 10);
+        ctx.fillStyle = '#101228'; ctx.fill();
         ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
-        
         ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('REVISIONI ROSSE', 35, 95);
-        ctx.fillStyle = '#ffffff'; ctx.font = '11px monospace';
-        ctx.fillText('Toccale SUBITO per distruggerle!', 35, 115);
-        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 11px monospace';
-        ctx.fillText('+100 PUNTI', 35, 132);
+        ctx.fillText('1. ELIMINA LE REVISIONI ROSSE', 28, 76);
+        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
+        ctx.fillText('Tocca i ticket rossi per guadagnare punti.', 28, 94);
+        ctx.fillText('Revisioni Viola: richiedono 2 tocchi veloci!', 28, 110);
 
-        // Card 2: Caffè
-        ctx.beginPath();
-        ctx.fillStyle = '#101226';
-        ctx.roundRect(20, 160, 340, 75, 10); ctx.fill();
+        // Card 2: Bonus VIP & Caffè
+        drawRoundRect(ctx, 15, 145, 350, 80, 10);
+        ctx.fillStyle = '#101228'; ctx.fill();
         ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 2; ctx.stroke();
-        
         ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('CAFFÈ DOPPIO', 35, 185);
-        ctx.fillStyle = '#ffffff'; ctx.font = '11px monospace';
-        ctx.fillText('Bevi il caffè per Punti Extra!', 35, 205);
-        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 11px monospace';
-        ctx.fillText('+300 PUNTI', 35, 222);
+        ctx.fillText('2. PRENDI CAFFÈ & VIP FILES', 28, 166);
+        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
+        ctx.fillText('Caffè Giallo: +300 PTS Bonus!', 28, 184);
+        ctx.fillText('VIP File Oro: +500 PTS e +3 Sec Tempo Extra!', 28, 200);
 
-        // Card 3: Trappola
-        ctx.beginPath();
-        ctx.fillStyle = '#101226';
-        ctx.roundRect(20, 250, 340, 75, 10); ctx.fill();
+        // Card 3: Trappole
+        drawRoundRect(ctx, 15, 235, 350, 80, 10);
+        ctx.fillStyle = '#101228'; ctx.fill();
         ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2; ctx.stroke();
-        
-        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('FEEDBACK OK (TRAPPOLA)', 35, 275);
-        ctx.fillStyle = '#ffffff'; ctx.font = '11px monospace';
-        ctx.fillText('NON TOCCARLE! Sono già approvati.', 35, 295);
-        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace';
-        ctx.fillText('-50 PUNTI SE LE TOCCHI', 35, 312);
+        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+        ctx.fillText('3. ATTENTO AI FEEDBACK GIÀ OK!', 28, 256);
+        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
+        ctx.fillText('Feedback Verde: NON TOCCARE! È già approvato.', 28, 274);
+        ctx.fillStyle = '#ff0055';
+        ctx.fillText('File Corrotto Nero: Toglie punti e tempo!', 28, 290);
 
         // Record
         ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(`⏱️ TURNO 60 SECONDI | RECORD: ${highScore}`, cvs.width / 2, 360);
+        ctx.fillText(`⏱️ TURNO DI BATTAGLIA | RECORD: ${highScore}`, cvs.width / 2, 335);
 
         // Tasto Avanti
-        ctx.beginPath();
-        ctx.fillStyle = '#ff0055';
-        ctx.roundRect(30, 420, 320, 50, 10); ctx.fill();
+        drawRoundRect(ctx, 20, 365, 340, 45, 10);
+        ctx.fillStyle = '#ff0055'; ctx.fill();
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px monospace';
-        ctx.fillText('AVANTI: SCEGLI PERSONAGGIO ►', cvs.width / 2, 450);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px monospace';
+        ctx.fillText('AVANTI: SCEGLI CREATIVO ►', cvs.width / 2, 392);
         return;
     }
 
-    // --- SCHERMATA 2: SELEZIONE PERSONAGGIO CON IMMAGINE A DESTRA ---
+    // --- SCHERMATA 2: SELEZIONE PERSONAGGIO ---
     if (state === 'CHAR_SELECT') {
         ctx.fillStyle = '#ffff00';
         ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('Scegli il tuo creativo in ACTING OUT', cvs.width / 2, 40);
+        ctx.fillText('Scegli il tuo creativo in ACTING OUT', cvs.width / 2, 35);
 
         const chars = [
-            { key: 'IRIS', y: 70, col: '#00ffcc' },
-            { key: 'CRISTINA', y: 205, col: '#ffd700' },
-            { key: 'RACHELE', y: 340, col: '#ff33aa' }
+            { key: 'IRIS', y: 55, col: '#00ffcc' },
+            { key: 'CRISTINA', y: 195, col: '#ffd700' },
+            { key: 'RACHELE', y: 335, col: '#ff33aa' }
         ];
 
         chars.forEach(b => {
             let c = CHARACTERS[b.key];
-            ctx.beginPath();
-            ctx.fillStyle = '#101226';
-            ctx.roundRect(15, b.y, 350, 120, 12); ctx.fill();
+            drawRoundRect(ctx, 15, b.y, 350, 125, 12);
+            ctx.fillStyle = '#101226'; ctx.fill();
             ctx.strokeStyle = b.col; ctx.lineWidth = 2.5; ctx.stroke();
 
-            // Testi Personaggio (Sulla Sinistra)
             ctx.fillStyle = b.col; ctx.font = 'bold 18px monospace'; ctx.textAlign = 'left';
             ctx.fillText(c.name, 30, b.y + 32);
 
             ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace';
-            ctx.fillText(c.subtitle, 30, b.y + 55);
+            ctx.fillText(c.subtitle, 30, b.y + 54);
 
             ctx.fillStyle = '#ffff00'; ctx.font = '9px monospace';
-            ctx.fillText(c.perkDesc, 30, b.y + 75);
+            ctx.fillText(c.perkDesc, 30, b.y + 76);
 
             ctx.fillStyle = b.col; ctx.font = 'bold 11px monospace';
-            ctx.fillText('SELEZIONA ►', 30, b.y + 100);
+            ctx.fillText('SELEZIONA ►', 30, b.y + 102);
 
-            // Immagine Personaggio (POSIZIONATA A DESTRA DELLA TAB)
+            // Immagine Personaggio
             if (c.img && c.img.complete && c.img.naturalWidth !== 0) {
                 ctx.save();
-                ctx.beginPath();
-                ctx.roundRect(255, b.y + 12, 95, 96, 10);
+                drawRoundRect(ctx, 245, b.y + 12, 100, 100, 10);
                 ctx.clip();
-                ctx.drawImage(c.img, 255, b.y + 12, 95, 96);
+                ctx.drawImage(c.img, 245, b.y + 12, 100, 100);
                 ctx.restore();
-                ctx.beginPath();
-                ctx.roundRect(255, b.y + 12, 95, 96, 10);
+                drawRoundRect(ctx, 245, b.y + 12, 100, 100, 10);
                 ctx.strokeStyle = b.col; ctx.lineWidth = 1.5; ctx.stroke();
             } else {
-                ctx.beginPath();
-                ctx.fillStyle = b.col;
-                ctx.roundRect(255, b.y + 12, 95, 96, 10); ctx.fill();
+                drawRoundRect(ctx, 245, b.y + 12, 100, 100, 10);
+                ctx.fillStyle = b.col; ctx.fill();
             }
         });
         return;
@@ -483,7 +777,7 @@ function draw() {
 
         ctx.beginPath();
         ctx.fillStyle = currentTheme.padBg;
-        ctx.roundRect(padX, padY, p.w, p.h, 10); ctx.fill();
+        drawRoundRect(ctx, padX, padY, p.w, p.h, 10); ctx.fill();
         ctx.strokeStyle = p.active ? '#ffffff' : '#2a2a50';
         ctx.lineWidth = 2; ctx.stroke();
 
@@ -496,32 +790,36 @@ function draw() {
             let txtCol = '#ffffff';
 
             if (p.type === 'TRAP') { bgCol = '#00ffcc'; txtCol = '#000000'; }
+            else if (p.type === 'GLITCH') { bgCol = '#1a0008'; txtCol = '#ff0055'; }
             else if (p.type === 'COFFEE') { bgCol = '#ffcc00'; txtCol = '#000000'; }
+            else if (p.type === 'GOLDEN') { bgCol = '#ffd700'; txtCol = '#000000'; }
+            else if (p.type === 'DOUBLE') { bgCol = '#aa00ff'; txtCol = '#ffffff'; }
 
-            ctx.beginPath();
-            ctx.fillStyle = bgCol;
-            ctx.roundRect(padX + 5, padY + 22, p.w - 10, p.h - 28, 8); ctx.fill();
+            drawRoundRect(ctx, padX + 5, padY + 22, p.w - 10, p.h - 28, 8);
+            ctx.fillStyle = bgCol; ctx.fill();
+            if (p.type === 'GOLDEN' || p.type === 'GLITCH') {
+                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
+            }
 
             let timerPct = p.timer / p.maxTimer;
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
             ctx.fillRect(padX + 5, padY + p.h - 10, (p.w - 10) * (1 - timerPct), 4);
 
-            // Testo Notifica su 2 Righe (Senza Emoticon)
             ctx.fillStyle = txtCol;
-            ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
+            ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
             ctx.fillText(p.line1, padX + p.w / 2, padY + 68);
-            ctx.fillText(p.line2, padX + p.w / 2, padY + 88);
+            ctx.fillText(p.line2, padX + p.w / 2, padY + 86);
         }
     });
 
     particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); });
     floatingTexts.forEach(ft => {
         ctx.save(); ctx.globalAlpha = Math.max(0, ft.alpha); ctx.fillStyle = ft.color;
-        ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
+        ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
         ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
     });
 
-    // --- HUD HEADER CON RECORD ---
+    // --- HUD HEADER ---
     ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, cvs.width, 55);
     ctx.strokeStyle = currentTheme.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, cvs.width, 55);
 
@@ -539,7 +837,16 @@ function draw() {
         ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 33);
     }
 
-    // --- OVERLAY GAMEOVER & RISULTATI ---
+    // --- SCHERMATA PAUSA ---
+    if (state === 'PAUSE') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+        ctx.fillStyle = '#ffea00'; ctx.font = 'bold 26px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('IN PAUSA', cvs.width / 2, cvs.height / 2 - 10);
+        ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 11px monospace';
+        ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', cvs.width / 2, cvs.height / 2 + 20);
+    }
+
+    // --- OVERLAY GAMEOVER ---
     if (state === 'GAMEOVER') {
         ctx.fillStyle = 'rgba(5, 5, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
         
@@ -566,14 +873,16 @@ function draw() {
     }
 }
 
-// Touch / Pointer
+// Touch / Pointer Event Handler
 cvs.addEventListener('pointerdown', (e) => {
+    if (e.cancelable) e.preventDefault();
+    getAC();
     let rect = cvs.getBoundingClientRect();
     let x = (e.clientX - rect.left) * (cvs.width / rect.width);
     let y = (e.clientY - rect.top) * (cvs.height / rect.height);
 
     if (state === 'TUTORIAL') {
-        if (y >= 410 && y <= 480) {
+        if (y >= 365 && y <= 410) {
             state = 'CHAR_SELECT';
             playSound('coffee');
         }
@@ -581,9 +890,30 @@ cvs.addEventListener('pointerdown', (e) => {
     }
 
     if (state === 'CHAR_SELECT') {
-        if (y >= 70 && y <= 190) selectCharacter('IRIS');
-        else if (y >= 205 && y <= 325) selectCharacter('CRISTINA');
-        else if (y >= 340 && y <= 460) selectCharacter('RACHELE');
+        if (y >= 55 && y <= 180) selectCharacter('IRIS');
+        else if (y >= 195 && y <= 320) selectCharacter('CRISTINA');
+        else if (y >= 335 && y <= 460) selectCharacter('RACHELE');
+        return;
+    }
+
+    if (state === 'PLAYING') {
+        let hitAny = false;
+        gridPads.forEach(p => {
+            if (x >= p.x && x <= p.x + p.w && y >= p.y && y <= p.y + p.h) {
+                hitPad(p);
+                hitAny = true;
+            }
+        });
+        if (!hitAny && y < 55) {
+            state = 'PAUSE';
+            updateMusicState();
+        }
+        return;
+    }
+
+    if (state === 'PAUSE') {
+        state = 'PLAYING';
+        updateMusicState();
         return;
     }
 
@@ -591,13 +921,7 @@ cvs.addEventListener('pointerdown', (e) => {
         state = 'CHAR_SELECT';
         return;
     }
-
-    gridPads.forEach(p => {
-        if (x >= p.x && x <= p.x + p.w && y >= p.y && y <= p.y + p.h) {
-            hitPad(p);
-        }
-    });
-});
+}, { passive: false });
 
 // Tastiera PC
 const KEY_MAP = {
@@ -615,6 +939,7 @@ const KEY_MAP = {
 };
 
 window.addEventListener('keydown', (e) => {
+    getAC();
     if (state === 'TUTORIAL') {
         if (e.code === 'Space' || e.code === 'Enter') {
             state = 'CHAR_SELECT';
@@ -636,40 +961,46 @@ window.addEventListener('keydown', (e) => {
     }
 
     let padIndex = KEY_MAP[e.key] !== undefined ? KEY_MAP[e.key] : KEY_MAP[e.code];
-    if (padIndex !== undefined && gridPads[padIndex]) {
+    if (padIndex !== undefined && gridPads[padIndex] && state === 'PLAYING') {
         hitPad(gridPads[padIndex]);
     }
 });
 
 function saveScore() {
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('pixelPunch_highScore', highScore);
-        isNewRecord = true;
-    } else {
-        isNewRecord = false;
-    }
+    try {
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('pixelPunch_highScore', highScore.toString());
+            isNewRecord = true;
+        } else {
+            isNewRecord = false;
+        }
 
-    if (score <= 0) return;
-    let u = JSON.parse(localStorage.getItem('arcade_current_user'));
-    if (u) {
-        u.stats.pixelPunch = (u.stats.pixelPunch || 0) + score;
-        u.stats.gamesPlayed = (u.stats.gamesPlayed || 0) + 1;
-        localStorage.setItem('arcade_current_user', JSON.stringify(u));
+        if (score <= 0) return;
+        let rawUser = localStorage.getItem('arcade_current_user');
+        if (!rawUser) return;
+        let u = JSON.parse(rawUser);
+        if (u && u.stats) {
+            u.stats.pixelPunch = (u.stats.pixelPunch || 0) + score;
+            u.stats.gamesPlayed = (u.stats.gamesPlayed || 0) + 1;
+            localStorage.setItem('arcade_current_user', JSON.stringify(u));
 
-        if (!u.username.startsWith("GUEST_")) {
-            let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
-            if (users[u.username]) {
-                users[u.username].stats = u.stats;
-                localStorage.setItem('arcade_users', JSON.stringify(users));
+            if (u.username && !u.username.startsWith("GUEST_")) {
+                let rawUsers = localStorage.getItem('arcade_users');
+                let users = rawUsers ? JSON.parse(rawUsers) : {};
+                if (users[u.username]) {
+                    users[u.username].stats = u.stats;
+                    localStorage.setItem('arcade_users', JSON.stringify(users));
+                }
             }
         }
-    }
+    } catch(e) {}
 }
 
 function exitGame() {
     if (gameTimerInterval) clearInterval(gameTimerInterval);
     saveScore();
+    bgMusic.pause();
     window.location.href = 'index.html';
 }
 
