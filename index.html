@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade</title>
 
-    <!-- ICONA WEB APP E PWA FULLSCREEN -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,11 +17,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        * {
+        /* RIMOOZIONE TOTALE FOCUS RING E HIGHLIGHT BLU DI IOS */
+        *, *:focus, *:active, canvas, button, input, div {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent !important;
+            -webkit-focus-ring-color: transparent !important;
             outline: none !important;
             touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
@@ -31,10 +32,11 @@
         html, body {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #060612;
+            width: 100vw;
+            height: 100dvh;
+            overflow: hidden !important;
+            overscroll-behavior: none !important;
+            background-color: #060612 !important;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -61,7 +63,7 @@
                 left: 0 !important;
                 right: 0 !important;
                 width: 100vw !important;
-                height: 100% !important;
+                height: 100dvh !important;
                 max-width: none !important;
                 max-height: none !important;
                 border: none !important;
@@ -74,6 +76,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            background: #060612;
         }
 
         #game-container canvas {
@@ -83,7 +86,6 @@
             -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* BARRA SUPERIORE HTML */
         #top-header-bar {
             position: absolute;
             top: max(env(safe-area-inset-top), 8px);
@@ -115,7 +117,6 @@
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
-        /* OVERLAY PROFILO E CLASSIFICHE */
         .auth-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -288,7 +289,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
     </div>
 
-    <!-- MODAL PROFILO LOCALE -->
     <div id="profile-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <div class="profile-card-header">
@@ -323,7 +323,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         </div>
     </div>
 
-    <!-- MODAL CLASSIFICA -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <h2 style="color:#ff0055;">🌍 CLASSIFICA MONDIALE</h2>
@@ -356,7 +355,6 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// WEBGL CHROMA KEY PIPELINE PER IL VERDE #3CFF00 (RGB: 0.235, 1.0, 0.0)
 class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
     constructor(game) {
         super({
@@ -459,7 +457,6 @@ class MainHub extends Phaser.Scene {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
 
-        // VIDEO MP4 IN GREENSCREEN
         this.load.video('npc_video', 'assets/hub/personaggio.mp4', 'loadeddata', false, true);
         this.load.video('gabri_video', 'assets/hub/gabri.mp4', 'loadeddata', false, true);
         this.load.video('raffa_video', 'assets/hub/raffa.mp4', 'loadeddata', false, true);
@@ -475,11 +472,9 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // DIMENSIONI LOGICHE FISSE ORIGINALI
         const vWidth = 360;
         const vHeight = 740;
 
-        // INIZIALIZZAZIONE PIPELINE GREENKEY
         if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('GreenKey')) {
             this.game.renderer.pipelines.add('GreenKey', new GreenKeyPipeline(this.game));
         }
@@ -491,14 +486,12 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONI ORIGINALI PERFETTE (PERSONAGGIO INCOLLATO AL PARQUET)
         const floorY = 568;
         const gabriY = 558;
         const npcY = 563;
         const cabY = 548;
         this.cabBadgeY = 330;
 
-        // VIDEO MP4 RENDERIZZATI IN WEBGL CON PIPELINE GREENKEY
         this.gabri = this.add.video(150, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
         this.gabri.play(true); this.gabri.setMute(true);
@@ -721,7 +714,6 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// SCALE FIT SENZA CENTRAMENTO
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
