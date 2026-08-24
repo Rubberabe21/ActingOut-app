@@ -67,7 +67,7 @@ canvas {
 .control-deck {
   width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   padding: 10px 8px;
   background: linear-gradient(180deg, #160a2c 0%, #080314 100%);
@@ -272,87 +272,6 @@ const CHARACTERS = {
 let currentTheme = CHARACTERS.LAURA;
 let highScore = parseInt(localStorage.getItem('cyberRun_highScore')) || 0;
 
-// AUDIO SINTETIZZATO RETRO CON BUFFER PRE-GENERATO (A PROVA DI CRASH MOBILE)
-let audioCtx = null;
-let noiseBuffer = null;
-
-function getAC() {
-  try {
-    if (!audioCtx) {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
-        audioCtx = new AudioContextClass();
-        const bufferSize = Math.floor(audioCtx.sampleRate * 0.25);
-        noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = Math.random() * 2 - 1;
-        }
-      }
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume().catch(() => {});
-    }
-  } catch(e) {}
-  return audioCtx;
-}
-
-function playSound(type) {
-  try {
-    const ac = getAC();
-    if (!ac) return;
-    const t = ac.currentTime;
-
-    if (type === 'explode') {
-      if (!noiseBuffer) return;
-      const dur = 0.22;
-      const src = ac.createBufferSource();
-      src.buffer = noiseBuffer;
-      const filt = ac.createBiquadFilter();
-      filt.type = 'lowpass';
-      filt.frequency.setValueAtTime(800, t);
-      filt.frequency.exponentialRampToValueAtTime(Math.max(1, 50), t + dur);
-      const g = ac.createGain();
-      g.gain.setValueAtTime(0.2, t);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      src.connect(filt); filt.connect(g); g.connect(ac.destination);
-      src.start(t); src.stop(t + dur);
-      return;
-    }
-
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-    osc.connect(gain); gain.connect(ac.destination);
-
-    if (type === 'bomb') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(320, t);
-      osc.frequency.exponentialRampToValueAtTime(Math.max(1, 110), t + 0.12);
-      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-      osc.start(t); osc.stop(t + 0.12);
-    } else if (type === 'hit_block') {
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(200, t);
-      osc.frequency.exponentialRampToValueAtTime(Math.max(1, 350), t + 0.08);
-      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-      osc.start(t); osc.stop(t + 0.08);
-    } else if (type === 'powerup') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523, t);
-      osc.frequency.setValueAtTime(659, t + 0.08);
-      osc.frequency.setValueAtTime(783, t + 0.16);
-      gain.gain.setValueAtTime(0.18, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
-      osc.start(t); osc.stop(t + 0.24);
-    } else if (type === 'fail') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(240, t);
-      osc.frequency.linearRampToValueAtTime(50, t + 0.35);
-      gain.gain.setValueAtTime(0.25, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
-      osc.start(t); osc.stop(t + 0.35);
-    }
-  } catch(e) {}
-}
-
 let map = [];
 let blockData = [];
 let bombs = [];
@@ -430,7 +349,6 @@ joyZone.addEventListener('pointerdown', e => {
   if (e.cancelable) e.preventDefault();
   joyActive = true;
   try { joyZone.setPointerCapture(e.pointerId); } catch(err) {}
-  getAC();
   handleJoyMove(e.clientX, e.clientY);
 }, { passive: false });
 
@@ -455,7 +373,6 @@ function selectCharacter(charKey) {
   canvas.style.boxShadow = `inset 0 0 15px ${currentTheme.primary}`;
   initGame();
   gameState = 'PLAYING';
-  playSound('powerup');
 }
 
 function initGame() {
@@ -574,14 +491,11 @@ function placeBomb() {
     range: player.bombRange,
     exploded: false
   });
-
-  playSound('bomb');
 }
 
 function triggerExplosion(b) {
   if (!b || b.exploded) return;
   b.exploded = true;
-  playSound('explode');
 
   let fireCells = [{ gx: b.gx, gy: b.gy }];
   let dirs = [{ x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }];
@@ -617,8 +531,6 @@ function triggerExplosion(b) {
                 type: types[Math.floor(Math.random() * types.length)]
               });
             }
-          } else {
-            playSound('hit_block');
           }
         }
         break;
@@ -728,7 +640,6 @@ function updatePlayer() {
   for (let i = powerups.length - 1; i >= 0; i--) {
     let pw = powerups[i];
     if (pw && pw.gx === pGx && pw.gy === pGy) {
-      playSound('powerup');
       if (pw.type === 'BOMB_UP') player.maxBombs++;
       else if (pw.type === 'FIRE_UP') player.bombRange++;
       else if (pw.type === 'SPEED_UP') player.speed += 0.35;
@@ -841,7 +752,6 @@ function updateBombsAndExplosions() {
     score += Math.floor(1000 * level * currentTheme.scoreMult);
     level++;
     gameState = 'LEVEL_CLEAR';
-    playSound('powerup');
     setTimeout(() => {
       if (gameState === 'LEVEL_CLEAR') {
         loadLevel();
@@ -856,7 +766,6 @@ function hitPlayer() {
 
   lives--;
   player.invTimer = 90;
-  playSound('fail');
 
   if (lives <= 0) {
     gameState = 'GAME_OVER';
@@ -868,7 +777,6 @@ function hitPlayer() {
   }
 }
 
-// RENDERING SENZA ALLOCAZIONI OBJECT AD OGNI FRAME (ZERO GC SPIKES)
 function drawGameWorld() {
   ctx.strokeStyle = '#0d0d22';
   ctx.lineWidth = 1;
@@ -1263,7 +1171,6 @@ function gameLoop() {
 
 canvas.addEventListener('pointerdown', (e) => {
   if (e.cancelable) e.preventDefault();
-  getAC();
   let rect = canvas.getBoundingClientRect();
   let x = (e.clientX - rect.left) * (canvas.width / rect.width);
   let y = (e.clientY - rect.top) * (canvas.height / rect.height);
@@ -1271,7 +1178,6 @@ canvas.addEventListener('pointerdown', (e) => {
   if (gameState === 'TUTORIAL') {
     if (y >= 330) {
       gameState = 'CHAR_SELECT';
-      playSound('powerup');
     }
     return;
   }
@@ -1296,7 +1202,6 @@ function bindBombBtn(id) {
   if (!btn) return;
   btn.addEventListener('pointerdown', (e) => {
     if (e.cancelable) e.preventDefault();
-    getAC();
     if (gameState === 'TUTORIAL') {
       gameState = 'CHAR_SELECT';
     } else if (gameState === 'GAME_OVER') {
@@ -1311,7 +1216,6 @@ bindBombBtn('btnBomb');
 const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.code] = true;
-  getAC();
   if (gameState === 'TUTORIAL') {
     if (e.code === 'Space' || e.code === 'Enter') gameState = 'CHAR_SELECT';
     return;
