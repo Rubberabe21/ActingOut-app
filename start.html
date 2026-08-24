@@ -243,11 +243,57 @@
             font-weight: bold;
         }
 
+        /* STILI PER LE GRIGLIE DI SCELTA INTERATTIVA */
+        .choice-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            padding: 8px;
+            background: #04040a;
+            border: 2px solid #00ffcc;
+            box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2);
+            border-radius: 12px;
+            margin-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .choice-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .choice-grid::-webkit-scrollbar-thumb {
+            background: #00ffcc;
+            border-radius: 4px;
+        }
+
+        .choice-btn {
+            padding: 10px 12px;
+            background: #0c0c20;
+            border: 1.5px solid #1a1a3a;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.15s ease-in-out;
+        }
+        .choice-btn:active {
+            transform: scale(0.98);
+        }
+        .choice-btn.selected {
+            border-color: #ff0055;
+            background: #200515;
+            color: #ff0055;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
+
         .avatar-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            max-height: 460px;
+            max-height: 220px;
             overflow-y: auto;
             padding: 6px;
             background: #04040a;
@@ -356,6 +402,7 @@
 
         <div id="input-group" class="input-group">
             <input type="text" id="arcade-input-field" class="arcade-input" autocomplete="off" placeholder="" style="display:none;">
+            <div id="choice-grid" class="choice-grid" style="display: none;"></div>
             <div id="avatar-grid" class="avatar-grid" style="display: none;"></div>
             <button id="step-btn" class="arcade-next-btn">AVANTI ►</button>
         </div>
@@ -392,26 +439,40 @@ const DIALOGUE_STEPS = [
     { text: "Parliamo un attimo di te.", type: "none", btn: "AVANTI ►" },
     { text: "Chi sei?", type: "username", placeholder: "NOME UTENTE", btn: "CONFERMA NOME ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Che fai?", type: "none", btn: "AVANTI ►" },
-    { text: "Lavori? Mangi? Fingi di digitare furiosamente sulla tastiera quando qualcuno ti guarda?", type: "none", btn: "AVANTI ►" },
-    { text: "Bevi il quinto caffè chiedendoti che ore sono?", type: "none", btn: "AVANTI ►" },
-    { text: "O accumuli 80 schede aperte nel browser per sembrare super occupato?", type: "none", btn: "AVANTI ►" },
+    { 
+        text: "Che fai?", 
+        type: "choice_activity", 
+        options: [
+            "Lavoro duramente 💻",
+            "Mangio continuamente snack 🍕",
+            "Fingo di digitare sulla tastiera ⌨️",
+            "Bevo il quinto caffè del giorno ☕",
+            "Accumulo 80 schede aperte nel browser 🌐"
+        ], 
+        btn: "CONFERMA SCELTA ►" 
+    },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Prima di tutto però… una cosa importante.", type: "none", btn: "AVANTI ►" },
-    { text: "Tu cosa sei?", type: "none", btn: "AVANTI ►" },
-    { text: "Un collega?", type: "none", btn: "AVANTI ►" },
-    { text: "Un amico?", type: "none", btn: "AVANTI ►" },
-    { text: "Un cliente?", type: "none", btn: "AVANTI ►" },
-    { text: "Un conoscente?", type: "none", btn: "AVANTI ►" },
-    { text: "Uno che è entrato seguendo qualcuno e adesso non sa più come uscire?", type: "none", btn: "AVANTI ►" },
-    { text: "Un amico di un amico?", type: "none", btn: "AVANTI ►" },
-    { text: "Un collega di un collega?", type: "none", btn: "AVANTI ►" },
-    { text: "Uno che “conosce uno che lavora qui”?", type: "none", btn: "AVANTI ►" },
-    { text: "Un corriere?", type: "none", btn: "AVANTI ►" },
-    { text: "Un infiltrato?", type: "none", btn: "AVANTI ►" },
-    { text: "Un investigatore privato?", type: "none", btn: "AVANTI ►" },
-    { text: "Un alieno sotto copertura?", type: "none", btn: "AVANTI ►" },
-    { text: "Un'intelligenza artificiale che ha preso un corpo umano?", type: "none", btn: "AVANTI ►" },
+    { 
+        text: "Tu cosa sei?", 
+        type: "choice_role", 
+        options: [
+            "Un collega",
+            "Un amico",
+            "Un cliente",
+            "Un conoscente",
+            "Uno che è entrato seguendo qualcuno e adesso non sa più come uscire",
+            "Un amico di un amico",
+            "Un collega di un collega",
+            "Uno che “conosce uno che lavora qui”",
+            "Un corriere",
+            "Un infiltrato",
+            "Un investigatore privato",
+            "Un alieno sotto copertura",
+            "Un'intelligenza artificiale che ha preso un corpo umano"
+        ], 
+        btn: "CONFERMA SCELTA ►" 
+    },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Oppure…", type: "none", btn: "AVANTI ►" },
     { text: "semplicemente…", type: "none", btn: "AVANTI ►" },
@@ -424,7 +485,7 @@ const DIALOGUE_STEPS = [
     { text: "Comunque…", type: "none", btn: "AVANTI ►" },
     { text: "che personaggio sei?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
+    { text: "Sei uno che arrives puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "E soprattutto…", type: "none", btn: "AVANTI ►" },
     { text: "che faccia mettiamo su questo personaggio?", type: "avatar", btn: "SCEGLI QUESTA TESTA ►" },
@@ -454,8 +515,7 @@ const DIALOGUE_STEPS = [
     { text: "Quando hai finito…", type: "none", btn: "AVANTI ►" },
     { text: "ci vediamo dall'altra parte.", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sempre che tu sia davvero chi dici di essere.", type: "finish", btn: "ENTRA NELLO STUDIO 🚀" },
-    { text: "...", type: "finish", btn: "ENTRA NELLO STUDIO 🚀" }
+    { text: "Sempre che tu sia davvero chi dici di essere.", type: "finish", btn: "ENTRA NELLO STUDIO 🚀" }
 ];
 
 function getSavedUser() {
@@ -479,6 +539,7 @@ const npcStageBox = document.getElementById('npc-stage-box');
 
 const dialogueText = document.getElementById('dialogue-text');
 const inputField = document.getElementById('arcade-input-field');
+const choiceGrid = document.getElementById('choice-grid');
 const avatarGrid = document.getElementById('avatar-grid');
 const stepBtn = document.getElementById('step-btn');
 
@@ -581,6 +642,8 @@ let currentStepIdx = 0;
 let tempUsername = "";
 let tempPassword = "";
 let tempAvatar = AVATAR_LIST[0];
+let tempActivity = "";
+let tempRole = "";
 let isTyping = false;
 
 function startOnboarding() {
@@ -593,6 +656,7 @@ function startOnboarding() {
 function renderStep() {
     const stepData = DIALOGUE_STEPS[currentStepIdx];
     inputField.style.display = "none";
+    choiceGrid.style.display = "none";
     avatarGrid.style.display = "none";
     inputField.value = "";
 
@@ -617,10 +681,43 @@ function renderStep() {
             inputField.placeholder = stepData.placeholder;
             inputField.maxLength = 20;
             inputField.focus();
+        } else if (stepData.type === "choice_activity") {
+            renderChoiceGrid(stepData.options, (val) => { tempActivity = val; });
+            choiceGrid.style.display = "flex";
+        } else if (stepData.type === "choice_role") {
+            renderChoiceGrid(stepData.options, (val) => { tempRole = val; });
+            choiceGrid.style.display = "flex";
         } else if (stepData.type === "avatar") {
             renderAvatarGrid();
             avatarGrid.style.display = "grid";
         }
+    });
+}
+
+function renderChoiceGrid(options, onSelectCallback) {
+    choiceGrid.innerHTML = "";
+    let selectedVal = "";
+
+    options.forEach((optText, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerText = optText;
+
+        // Seleziona la prima opzione di default
+        if (index === 0) {
+            btn.classList.add('selected');
+            selectedVal = optText;
+            onSelectCallback(selectedVal);
+        }
+
+        btn.onclick = () => {
+            document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedVal = optText;
+            onSelectCallback(selectedVal);
+        };
+
+        choiceGrid.appendChild(btn);
     });
 }
 
@@ -662,6 +759,10 @@ stepBtn.onclick = async () => {
         if (users[val]) { alert("Nome utente già esistente!"); return; }
         tempUsername = val;
 
+    } else if (stepData.type === "choice_activity") {
+        if (!tempActivity) { alert("Seleziona un'opzione!"); return; }
+    } else if (stepData.type === "choice_role") {
+        if (!tempRole) { alert("Seleziona chi sei!"); return; }
     } else if (stepData.type === "password") {
         const pass = inputField.value.trim();
         if (!pass) { alert("Inserisci una password!"); return; }
@@ -675,6 +776,8 @@ stepBtn.onclick = async () => {
                     username: tempUsername,
                     password: tempPassword,
                     avatar: tempAvatar,
+                    activity: tempActivity,
+                    role: tempRole,
                     stats: defaultStats
                 });
 
@@ -689,10 +792,22 @@ stepBtn.onclick = async () => {
         }
 
         let users = getUsers();
-        users[tempUsername] = { password: tempPassword, avatar: tempAvatar, stats: defaultStats };
+        users[tempUsername] = { 
+            password: tempPassword, 
+            avatar: tempAvatar, 
+            activity: tempActivity,
+            role: tempRole,
+            stats: defaultStats 
+        };
         localStorage.setItem('arcade_users', JSON.stringify(users));
 
-        const newUser = { username: tempUsername, avatar: tempAvatar, stats: defaultStats };
+        const newUser = { 
+            username: tempUsername, 
+            avatar: tempAvatar, 
+            activity: tempActivity,
+            role: tempRole,
+            stats: defaultStats 
+        };
         localStorage.setItem('arcade_current_user', JSON.stringify(newUser));
 
     } else if (stepData.type === "finish") {
