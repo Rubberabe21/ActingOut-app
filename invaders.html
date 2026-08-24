@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Feedback Invaders - Agency Arcade</title>
 <style>
   * { 
@@ -11,13 +11,16 @@
     box-sizing: border-box; 
     user-select: none;
     -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+    outline: none !important;
     touch-action: manipulation;
   }
   html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #05020a;
+    background: #05020a !important;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,13 +37,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 10px;
-    background: #0e051b;
-    border: 4px solid #ff007f;
-    box-shadow: 0 0 25px #ff007f, inset 0 0 20px #00f0ff;
+    background: #0e051b !important;
+    border: none !important;
+    box-shadow: none !important;
     border-radius: 18px;
   }
 
-  /* TOP BAR CON TASTO OPZIONI */
   .top-header {
     width: 100%;
     display: flex;
@@ -50,23 +52,23 @@
     margin-bottom: 4px;
   }
   .header-title {
-    color: #00f0ff;
+    color: #ff0055 !important;
     font-size: 11px;
     font-weight: bold;
-    text-shadow: 0 0 6px #00f0ff;
+    text-shadow: 0 0 6px #ff0055 !important;
     letter-spacing: 1px;
   }
   .opt-btn {
     background: #1a0836;
-    border: 1.5px solid #ffea00;
-    color: #ffea00;
+    border: 1.5px solid #ffea00 !important;
+    color: #ffea00 !important;
     padding: 4px 8px;
     font-family: 'Courier New', monospace;
     font-size: 11px;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
-    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
+    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
   }
   .opt-btn:active { transform: scale(0.92); }
 
@@ -85,15 +87,14 @@
     max-height: 100%;
     object-fit: contain;
     aspect-ratio: 3 / 4;
-    border: 3px solid #00f0ff;
-    box-shadow: 0 0 15px #00f0ff;
+    border: 3px solid #ff0055 !important;
+    box-shadow: 0 0 15px rgba(255,0,85,0.4) !important;
     image-rendering: pixelated;
     background: #060212;
     cursor: pointer;
     border-radius: 8px;
   }
 
-  /* DECK DI CONTROLLO CON JOYSTICK RETRO */
   .control-deck {
     width: 100%;
     display: flex;
@@ -101,21 +102,20 @@
     align-items: center;
     padding: 8px 10px;
     background: #160a2c;
-    border: 3px solid #ffea00;
+    border: 3px solid #ffea00 !important;
     border-radius: 14px;
     margin-top: 4px;
-    box-shadow: 0 0 15px rgba(255, 234, 0, 0.4);
+    box-shadow: 0 0 15px rgba(255, 234, 0, 0.4) !important;
   }
 
-  /* BASE DEL JOYSTICK VIRTUAL TOUCH */
   .joystick-zone {
     position: relative;
     width: 125px;
     height: 125px;
     background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
-    border: 3px solid #00f0ff;
+    border: 3px solid #ff0055 !important;
     border-radius: 50%;
-    box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.5), 0 0 12px rgba(0, 240, 255, 0.4);
+    box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.5), 0 0 12px rgba(255, 0, 85, 0.4) !important;
     touch-action: none;
     cursor: pointer;
     display: flex;
@@ -137,7 +137,6 @@
     transform: translate(-50%, -50%);
   }
 
-  /* PULSANTE ROSSO ARCADE PER LO SPARO */
   .fire-btn {
     width: 110px;
     height: 110px;
@@ -167,19 +166,18 @@
     margin-top: 4px;
     padding: 8px;
     background: #100826;
-    border: 2px solid #ff007f;
-    color: #ff007f;
+    border: 2px solid #ff007f !important;
+    color: #ff007f !important;
     font-family: 'Courier New', monospace;
     font-weight: bold;
     font-size: 11px;
     border-radius: 8px;
     cursor: pointer;
     text-align: center;
-    box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.3) !important;
   }
   .exit-btn:active { transform: scale(0.96); }
 
-  /* OVERLAY MODALE OPZIONI */
   .modal-overlay {
     display: none;
     position: absolute;
@@ -194,8 +192,8 @@
     width: 100%;
     max-width: 320px;
     background: #0e051b;
-    border: 3px solid #00f0ff;
-    box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+    border: 3px solid #ff0055 !important;
+    box-shadow: 0 0 25px rgba(255, 0, 85, 0.5) !important;
     border-radius: 14px;
     padding: 18px;
     display: flex;
@@ -224,7 +222,7 @@
   .option-label {
     font-size: 11px;
     font-weight: bold;
-    color: #00f0ff;
+    color: #ff0055 !important;
   }
   .toggle-btn {
     width: 100%;
@@ -266,7 +264,6 @@
 <audio id="bgMusic" src="assets/invaders/music.mp3" loop autoplay playsinline style="display:none;"></audio>
 
 <div id="game-wrapper">
-  <!-- TOP BAR CON PULSANTE OPZIONI -->
   <div class="top-header">
     <span class="header-title">FEEDBACK INVADERS</span>
     <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
@@ -277,12 +274,10 @@
   </div>
 
   <div class="control-deck">
-    <!-- JOYSTICK VIRTUAL TOUCH -->
     <div class="joystick-zone" id="joyZone">
       <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
-    <!-- TASTO SPARO TONDO ARCADE -->
     <div class="fire-btn" id="btnFire">
       <span>🔥</span>
       <span>SPARO</span>
@@ -291,7 +286,6 @@
 
   <button class="exit-btn" onclick="exitGame(score)">◄ TORNA ALL'HUB ARCADE</button>
 
-  <!-- MODALE OPZIONI -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
       <div class="modal-title">⚙️ OPZIONI GIOCO</div>
@@ -325,12 +319,10 @@ const H = 640;
 canvas.width = W;
 canvas.height = H;
 
-// --- CONFIGURAZIONE E SALVATAGGIO OPZIONI ---
 let joySensitivity = parseFloat(localStorage.getItem('invaders_joySens')) || 1.0;
 let musicEnabled = localStorage.getItem('invaders_music') !== 'false';
 let sfxEnabled = localStorage.getItem('invaders_sfx') !== 'false';
 
-// Caricamento Audio Musica di Sottofondo da DOM
 const bgMusic = document.getElementById('bgMusic');
 bgMusic.volume = 0.5;
 
@@ -343,7 +335,6 @@ function playBgMusic() {
   }
 }
 
-// AVVIO IMMEDIATO MUSICA ALL'INGRESSO
 playBgMusic();
 window.addEventListener('DOMContentLoaded', playBgMusic);
 window.addEventListener('load', playBgMusic);
@@ -359,7 +350,6 @@ function updateMusicState() {
   }
 }
 
-// Inizializzazione Modale Opzioni
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
@@ -416,7 +406,6 @@ btnCloseSettings.onclick = () => {
   updateMusicState();
 };
 
-// Caricamento Assets Ritratti & Astronavi dei Capi
 const imgTommi = new Image(); imgTommi.src = 'assets/invaders/tommi.png';
 const imgGiampa = new Image(); imgGiampa.src = 'assets/invaders/giampa.png';
 const imgBretto = new Image(); imgBretto.src = 'assets/invaders/bretto.png';
@@ -425,7 +414,6 @@ const astTommi = new Image(); astTommi.src = 'assets/invaders/tommi-ast.png';
 const astGiampa = new Image(); astGiampa.src = 'assets/invaders/giampa-ast.png';
 const astBretto = new Image(); astBretto.src = 'assets/invaders/bretto-ast.png';
 
-// Configurazione Personaggi & Perk
 const CHARACTERS = {
   TOMMI: {
     id: 'TOMMI',
@@ -433,7 +421,7 @@ const CHARACTERS = {
     role: "Coordinatore Video & Set 🎬",
     perkBonus: "BONUS: Citronella (Sparo Ultra Rapido)",
     perkMalus: "MALUS: Movimento iperattivo",
-    primary: "#00ffcc",
+    primary: "#ff0055",
     bg: "#060a1a",
     portrait: imgTommi,
     astImg: astTommi,
@@ -476,7 +464,6 @@ const CHARACTERS = {
 
 let currentBoss = CHARACTERS.TOMMI;
 
-// --- SALVATAGGIO PUNTEGGIO ---
 function saveScore(finalScore) {
   if (finalScore > hiScore) {
     hiScore = finalScore;
@@ -506,8 +493,7 @@ function exitGame(finalScore) {
   window.location.href = 'index.html';
 }
 
-// ─── State ────────────────────────────────────────────────────────────────────
-let state = 'TUTORIAL'; // 'TUTORIAL', 'CHAR_SELECT', 'playing', 'PAUSE', 'dead', 'gameover'
+let state = 'TUTORIAL'; 
 let score = 0;
 let hiScore = parseInt(localStorage.getItem('invaders_highScore')) || 0;
 let lives = 3;
@@ -515,11 +501,9 @@ let wave = 1;
 let frame = 0;
 let deathTimer = 0;
 
-// Controls State
 let joyDX = 0, joyDY = 0, joyActive = false;
 let touchMoveLeft = false, touchMoveRight = false, touchMoveUp = false, touchMoveDown = false, touchFire = false;
 
-// ─── Web Audio (SFX) ──────────────────────────────────────────────────────────
 let audioCtx = null;
 function getAC() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -605,7 +589,6 @@ function sfxPlayerHit() {
   osc.start(t); osc.stop(t + 0.4);
 }
 
-// ─── Input Controls (Keyboard + Joystick Touch) ────────────────────────────────
 const keys = {};
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
@@ -625,7 +608,6 @@ document.addEventListener('keydown', e => {
 document.addEventListener('keyup', e => { keys[e.code] = false; });
 function keyPressed(code) { return !!keys[code]; }
 
-// JOYSTICK LOGIC CON SENSIBILITÀ
 const joyZone = document.getElementById('joyZone');
 const joyKnob = document.getElementById('joyKnob');
 
@@ -671,7 +653,6 @@ joyZone.addEventListener('pointermove', e => {
 joyZone.addEventListener('pointerup', resetJoy);
 joyZone.addEventListener('pointercancel', resetJoy);
 
-// TASTO SPARO
 function bindFireBtn(id) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -689,7 +670,6 @@ function selectBoss(bossKey) {
   startGame();
 }
 
-// ─── Stars Background ─────────────────────────────────────────────────────────
 const stars = Array.from({ length: 80 }, () => ({
   x: Math.random() * W, y: Math.random() * H,
   speed: 0.3 + Math.random() * 1.2, size: Math.random() < 0.15 ? 2 : 1, bright: Math.random()
@@ -708,7 +688,6 @@ function drawStars() {
   }
 }
 
-// ─── Player ──────────────────────────────────────────────────────────────────
 const player = {
   x: W / 2, y: H - 70,
   w: 56, h: 56,
@@ -776,7 +755,7 @@ const player = {
       ctx.beginPath();
       ctx.arc(this.x, this.y, 36, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 153, 255, 0.25)'; ctx.fill();
-      ctx.strokeStyle = '#0099ff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
       ctx.restore();
     }
 
@@ -803,7 +782,6 @@ const player = {
   }
 };
 
-// ─── DROPS ──────────────────────────────────────────────────────────────────
 class Drop {
   constructor(x, y, type) {
     this.x = x; this.y = y; this.type = type;
@@ -817,12 +795,12 @@ class Drop {
   draw() {
     ctx.save();
     ctx.beginPath();
-    let col = '#00ffcc';
+    let col = '#ff0055';
     let label = '⚡';
 
     if (this.type === 'COFFEE') { col = '#ffcc00'; label = '❤️'; }
-    else if (this.type === 'BOOST') { col = '#00ffcc'; label = '⚡'; }
-    else if (this.type === 'SHIELD') { col = '#0099ff'; label = '🛡️'; }
+    else if (this.type === 'BOOST') { col = '#ff0055'; label = '⚡'; }
+    else if (this.type === 'SHIELD') { col = '#ffff00'; label = '🛡️'; }
     else if (this.type === 'LAG') { col = '#ff9900'; label = '🐢'; }
     else if (this.type === 'JAM') { col = '#ff0055'; label = '🚫'; }
 
@@ -851,7 +829,6 @@ function spawnDrop(x, y) {
   drops.push(new Drop(x, y, type));
 }
 
-// ─── Bullets & Particles ──────────────────────────────────────────────────────
 class Bullet {
   constructor(x, y, vx, vy, color, w, h) {
     this.x = x; this.y = y; this.vx = vx; this.vy = vy;
@@ -895,7 +872,6 @@ function drawParticles() {
   ctx.globalAlpha = 1;
 }
 
-// ─── Nemici ──────────────────────────────────────────────────────────────────
 class Enemy {
   constructor(x, y, type) {
     this.x = x; this.y = y; this.type = type; this.dead = false;
@@ -965,14 +941,14 @@ class Enemy {
     else if (this.type === 'tank') {
       ctx.fillStyle = '#aa00ff';
       ctx.fillRect(x - 18, y - 16, 36, 32);
-      ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2;
       ctx.strokeRect(x - 18, y - 16, 36, 32);
       ctx.fillStyle = '#ff0055';
       ctx.beginPath(); ctx.arc(x - 8, y - 4, 3, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(x + 8, y - 4, 3, 0, Math.PI * 2); ctx.fill();
       
       ctx.fillStyle='#333'; ctx.fillRect(x-18, y-22, 36, 4);
-      ctx.fillStyle='#00ffcc'; ctx.fillRect(x-18, y-22, 36 * (this.hp/this.maxHp), 4);
+      ctx.fillStyle='#ff0055'; ctx.fillRect(x-18, y-22, 36 * (this.hp/this.maxHp), 4);
     }
     
     ctx.restore();
@@ -1082,7 +1058,7 @@ function drawScreens() {
   if (state === 'TUTORIAL') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.96)'; ctx.fillRect(0, 0, W, H);
     
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 26px Courier New'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 26px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('COME SI GIOCA 🚀', W/2, 50);
 
     ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 75, 440, 110, 12); ctx.fill();
@@ -1094,8 +1070,8 @@ function drawScreens() {
     ctx.fillText('• Schiva i proiettili rossi!', 35, 152);
 
     ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 200, 440, 115, 12); ctx.fill();
-    ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 16px Courier New';
+    ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 16px Courier New';
     ctx.fillText('RACCOGLI I POTENZIAMENTI 🎁', 35, 228);
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
     ctx.fillText('• ❤️ Vita | ⚡ Citronella Boost | 🛡️ Scudo', 35, 256);
@@ -1126,7 +1102,7 @@ function drawScreens() {
     ctx.fillText('Scegli il tuo capo in ACTING OUT', W/2, 42);
 
     const bosses = [
-      { key: 'TOMMI', y: 65, col: '#00ffcc' },
+      { key: 'TOMMI', y: 65, col: '#ff0055' },
       { key: 'GIAMPA', y: 220, col: '#ffd700' },
       { key: 'BRETTO', y: 375, col: '#ff33aa' }
     ];
@@ -1165,12 +1141,11 @@ function drawScreens() {
     return;
   }
 
-  // SCHERMATA PAUSA
   if (state === 'PAUSE') {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#ffea00'; ctx.font = 'bold 34px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('IN PAUSA', W/2, H/2 - 20);
-    ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 15px Courier New';
+    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 15px Courier New';
     ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', W/2, H/2 + 25);
     return;
   }
@@ -1180,13 +1155,12 @@ function drawScreens() {
     ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 36px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('GAME OVER', W/2, H/2 - 50);
     ctx.fillStyle = '#ffff00'; ctx.font = 'bold 20px Courier New'; ctx.fillText(`SCORE: ${score}`, W/2, H/2 + 10);
-    ctx.fillStyle = '#00ffcc'; ctx.font = '14px Courier New'; ctx.fillText(`RECORD: ${hiScore}`, W/2, H/2 + 45);
+    ctx.fillStyle = '#ff0055'; ctx.font = '14px Courier New'; ctx.fillText(`RECORD: ${hiScore}`, W/2, H/2 + 45);
     ctx.fillStyle = Math.floor(frame/30)%2===0 ? '#fff' : currentBoss.primary;
     ctx.font = 'bold 15px Courier New'; ctx.fillText('TOCCA PER CAMBIARE / RIPROVARE', W/2, H/2 + 110);
   }
 }
 
-// TAP SUL CANVAS (PER SELEZIONI E PAUSA)
 canvas.addEventListener('pointerdown', e => {
   getAC();
   let rect = canvas.getBoundingClientRect();
@@ -1205,7 +1179,6 @@ canvas.addEventListener('pointerdown', e => {
     return;
   }
 
-  // TOGGLE PAUSA DIRETTAMENTE CLICCANDO LA FINESTRA DI GIOCO
   if (state === 'playing') {
     state = 'PAUSE';
     updateMusicState();
