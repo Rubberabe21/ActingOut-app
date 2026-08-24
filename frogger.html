@@ -30,24 +30,48 @@ body {
   touch-action: none !important;
 }
 
+/* =========================================================
+   MAIN GAME WRAPPER
+   ========================================================= */
+
 #game-wrapper {
   position: fixed;
-  top: 0;
+
+  /*
+   * Assorbe lo spazio superiore di iOS.
+   * Il contenuto parte sotto notch / Dynamic Island.
+   */
+  top: env(safe-area-inset-top, 0px);
+
+  /*
+   * NESSUN safe-area-inset-bottom.
+   * Il contenuto arriva fino al fondo disponibile.
+   */
+  bottom: 0;
+
   left: 50%;
+
   transform: translateX(-50%);
 
   width: 100%;
   max-width: 440px;
 
-  height: 100%;
+  height: calc(100% - env(safe-area-inset-top, 0px));
+
   min-height: 0;
 
   margin: 0;
-  padding: 0 6px 0 6px;
+  padding: 0 6px;
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+
+  /*
+   * Evita che lo spazio venga distribuito
+   * creando zone nere inutili.
+   */
+  justify-content: flex-start;
+
   align-items: center;
 
   background: #000;
@@ -55,15 +79,26 @@ body {
   overflow: hidden;
 }
 
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .top-header {
   width: 100%;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   padding: 6px 8px;
+
   background: #222222;
   border-radius: 8px;
-  flex-shrink: 0;
+
+  flex: 0 0 auto;
+
+  position: relative;
+  z-index: 10;
 }
 
 .header-title {
@@ -92,8 +127,13 @@ body {
   transform: scale(0.92);
 }
 
+/* =========================================================
+   CANVAS CONTAINER
+   ========================================================= */
+
 #canvas-container {
   flex: 1 1 auto;
+
   min-height: 0;
   min-width: 0;
 
@@ -107,29 +147,53 @@ body {
 
   margin: 4px 0;
   padding: 0;
+
+  position: relative;
 }
 
 canvas {
   display: block;
+
   max-width: 100%;
   max-height: 100%;
+
   width: auto;
   height: auto;
+
   aspect-ratio: 338 / 486;
+
   background: #181818;
+
   border: 1.5px solid #3a3a3a;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.8);
+
   border-radius: 6px;
+
   cursor: pointer;
 }
 
+/* =========================================================
+   CONTROL DECK
+   ========================================================= */
+
 .control-deck {
-  flex-shrink: 0;
+  flex: 0 0 auto;
+
   width: 100%;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /*
+   * Nessun safe-area-inset-bottom.
+   */
   padding: 4px 0;
+
+  position: relative;
+  z-index: 20;
 }
 
 .joystick-container {
@@ -140,8 +204,13 @@ canvas {
 
 .dpad-grid {
   display: grid;
-  grid-template-columns: 68px 68px 68px;
-  grid-template-rows: 48px 48px 48px;
+
+  grid-template-columns:
+    68px 68px 68px;
+
+  grid-template-rows:
+    48px 48px 48px;
+
   gap: 4px;
 }
 
@@ -149,45 +218,90 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(180deg, #ff4d00 0%, #d50000 45%, #8b0000 100%);
+
+  background:
+    linear-gradient(
+      180deg,
+      #ff4d00 0%,
+      #d50000 45%,
+      #8b0000 100%
+    );
+
   border: 2px solid #ffb000;
+
   color: #fff7b0;
+
   font-size: 22px;
   font-weight: 900;
+
   border-radius: 10px;
+
   cursor: pointer;
-  box-shadow: 0 4px 0 #530000, 0 6px 10px rgba(0,0,0,0.5);
-  text-shadow: 0 2px 0 #7a0000;
-  transition: transform 0.04s linear, box-shadow 0.04s linear;
+
+  box-shadow:
+    0 4px 0 #530000,
+    0 6px 10px rgba(0,0,0,0.5);
+
+  text-shadow:
+    0 2px 0 #7a0000;
+
+  transition:
+    transform 0.04s linear,
+    box-shadow 0.04s linear;
 }
 
 .ctrl-btn:active {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 #530000, 0 2px 4px rgba(0,0,0,0.4);
+
+  box-shadow:
+    0 1px 0 #530000,
+    0 2px 4px rgba(0,0,0,0.4);
 }
+
+/* =========================================================
+   CENTER OK BUTTON
+   ========================================================= */
 
 .ctrl-btn-center {
   display: flex;
   justify-content: center;
   align-items: center;
+
   background: #222;
+
   border: 2px solid #555;
+
   color: #ffea00;
+
   font-size: 16px;
   font-weight: 900;
+
   border-radius: 10px;
+
   cursor: pointer;
-  box-shadow: 0 4px 0 #111, 0 6px 10px rgba(0,0,0,0.5);
+
+  box-shadow:
+    0 4px 0 #111,
+    0 6px 10px rgba(0,0,0,0.5);
 }
 
 .ctrl-btn-center:active {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 #111, 0 2px 4px rgba(0,0,0,0.4);
+
+  box-shadow:
+    0 1px 0 #111,
+    0 2px 4px rgba(0,0,0,0.4);
 }
 
+/* =========================================================
+   EXIT BUTTON
+   ========================================================= */
+
 .exit-btn {
-  flex-shrink: 0;
+  flex: 0 0 36px;
+
   width: 100%;
+
   height: 36px;
   min-height: 36px;
   max-height: 36px;
@@ -197,174 +311,336 @@ canvas {
   align-items: center;
 
   background: #111111;
+
   color: #ff3366;
 
   font-family: 'Courier New', monospace;
+
   font-weight: bold;
   font-size: 11px;
+
   letter-spacing: 0.5px;
 
   border: 1px solid #222222;
+
   border-radius: 6px;
 
   cursor: pointer;
 
   margin: 0;
   padding: 0;
+
+  position: relative;
+  z-index: 20;
 }
 
 .exit-btn:active {
   background: #1c1c1c;
 }
 
+/* =========================================================
+   MODAL
+   ========================================================= */
+
 .modal-overlay {
   display: none;
+
   position: fixed;
+
   inset: 0;
+
   width: 100vw;
   height: 100%;
+
   background: rgba(0,0,0,0.95);
+
   z-index: 200;
+
   justify-content: center;
   align-items: center;
+
   padding: 16px;
 }
 
 .modal-box {
   width: 100%;
   max-width: 300px;
+
   background: #1c1c1c;
+
   border: 2px solid #00d2ff;
-  box-shadow: 0 0 25px rgba(0,210,255,0.3);
+
+  box-shadow:
+    0 0 25px rgba(0,210,255,0.3);
+
   border-radius: 12px;
+
   padding: 16px;
+
   display: flex;
   flex-direction: column;
+
   gap: 14px;
+
   color: #ffffff;
+
   text-align: center;
 }
 
 .modal-title {
   color: #ffea00;
+
   font-size: 14px;
   font-weight: 900;
+
   font-family: 'Courier New', monospace;
 }
 
 .option-item {
   display: flex;
   flex-direction: column;
+
   align-items: center;
+
   gap: 6px;
+
   background: #111111;
+
   padding: 8px;
+
   border: 1px solid #3a3a3a;
+
   border-radius: 6px;
 }
 
 .option-label {
   font-size: 11px;
   font-weight: bold;
+
   color: #00d2ff;
+
   font-family: 'Courier New', monospace;
 }
 
 .toggle-btn {
   width: 100%;
+
   padding: 8px;
+
   background: #2a2a2a;
+
   border: 1.5px solid #ff0055;
+
   color: #ffffff;
+
   font-weight: bold;
   font-size: 12px;
+
   font-family: 'Courier New', monospace;
+
   border-radius: 6px;
+
   cursor: pointer;
 }
 
 .toggle-btn.active {
   border-color: #00ff66;
+
   color: #00ff66;
+
   background: #122818;
 }
 
 .close-modal-btn {
   padding: 10px;
+
   background: #00d2ff;
+
   border: none;
+
   color: #000000;
+
   font-weight: bold;
   font-size: 12px;
+
   font-family: 'Courier New', monospace;
+
   border-radius: 6px;
+
   cursor: pointer;
+}
+
+/* =========================================================
+   iOS SAFE AREA
+   SOLO TOP.
+   MAI BOTTOM.
+   ========================================================= */
+
+@supports (padding-top: env(safe-area-inset-top)) {
+
+  #game-wrapper {
+    top: env(safe-area-inset-top, 0px);
+
+    height:
+      calc(
+        100% -
+        env(safe-area-inset-top, 0px)
+      );
+
+    /*
+     * Fondamentale:
+     * nessun padding-bottom.
+     */
+    padding-bottom: 0;
+  }
+
 }
 </style>
 </head>
 
 <body>
 
-<audio id="bgMusic" src="assets/frogger/music.mp3" loop autoplay playsinline style="display:none;"></audio>
+<audio
+  id="bgMusic"
+  src="assets/frogger/music.mp3"
+  loop
+  autoplay
+  playsinline
+  style="display:none;"
+></audio>
 
 <div id="game-wrapper">
 
   <div class="top-header">
-    <span class="header-title">SEQUENCE: TIMELINE_RUSH_2026</span>
-    <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+
+    <span class="header-title">
+      SEQUENCE: TIMELINE_RUSH_2026
+    </span>
+
+    <button
+      class="opt-btn"
+      id="btnOpenSettings"
+    >
+      ⚙️ OPZIONI
+    </button>
+
   </div>
 
   <div id="canvas-container">
+
     <canvas id="game"></canvas>
+
   </div>
 
   <div class="control-deck">
+
     <div class="joystick-container">
+
       <div class="dpad-grid">
 
         <div style="visibility:hidden"></div>
 
-        <div class="ctrl-btn" id="btnUp">▲</div>
+        <div
+          class="ctrl-btn"
+          id="btnUp"
+        >
+          ▲
+        </div>
 
         <div style="visibility:hidden"></div>
 
-        <div class="ctrl-btn" id="btnLeft">◀</div>
+        <div
+          class="ctrl-btn"
+          id="btnLeft"
+        >
+          ◀
+        </div>
 
-        <div class="ctrl-btn-center" id="btnCenter">OK</div>
+        <div
+          class="ctrl-btn-center"
+          id="btnCenter"
+        >
+          OK
+        </div>
 
-        <div class="ctrl-btn" id="btnRight">▶</div>
+        <div
+          class="ctrl-btn"
+          id="btnRight"
+        >
+          ▶
+        </div>
 
         <div style="visibility:hidden"></div>
 
-        <div class="ctrl-btn" id="btnDown">▼</div>
+        <div
+          class="ctrl-btn"
+          id="btnDown"
+        >
+          ▼
+        </div>
 
         <div style="visibility:hidden"></div>
 
       </div>
+
     </div>
+
   </div>
 
-  <button class="exit-btn" onclick="exitGame()">◄ TORNA IN STUDIO</button>
+  <button
+    class="exit-btn"
+    onclick="exitGame()"
+  >
+    ◄ TORNA IN STUDIO
+  </button>
 
 </div>
 
-<div class="modal-overlay" id="settingsModal">
+<div
+  class="modal-overlay"
+  id="settingsModal"
+>
 
   <div class="modal-box">
 
-    <div class="modal-title">⚙️ TIMELINE SETTINGS</div>
-
-    <div class="option-item">
-      <span class="option-label">MUSICA DI SOTTOFONDO</span>
-      <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
+    <div class="modal-title">
+      ⚙️ TIMELINE SETTINGS
     </div>
 
     <div class="option-item">
-      <span class="option-label">EFFETTI SONORI (SFX)</span>
-      <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
+
+      <span class="option-label">
+        MUSICA DI SOTTOFONDO
+      </span>
+
+      <button
+        class="toggle-btn active"
+        id="btnToggleMusic"
+      >
+        ON 🎵
+      </button>
+
     </div>
 
-    <button class="close-modal-btn" id="btnCloseSettings">
+    <div class="option-item">
+
+      <span class="option-label">
+        EFFETTI SONORI (SFX)
+      </span>
+
+      <button
+        class="toggle-btn active"
+        id="btnToggleSfx"
+      >
+        ON 🔊
+      </button>
+
+    </div>
+
+    <button
+      class="close-modal-btn"
+      id="btnCloseSettings"
+    >
       SALVA E CHIUDI ►
     </button>
 
@@ -374,106 +650,223 @@ canvas {
 
 <script>
 
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+const canvas =
+  document.getElementById('game');
+
+const ctx =
+  canvas.getContext('2d');
 
 const COLS = 13;
 const ROWS = 17;
+
 const CELL_SIZE = 26;
 const HUD_HEIGHT = 44;
 const TRACK_HEADER_W = 38;
 
-const CANVAS_W = COLS * CELL_SIZE;
-const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT;
+const CANVAS_W =
+  COLS * CELL_SIZE;
+
+const CANVAS_H =
+  ROWS * CELL_SIZE +
+  HUD_HEIGHT;
 
 canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
 
-function drawRoundRect(c, x, y, w, h, r) {
-  if (w < 2 * r) r = w / 2;
-  if (h < 2 * r) r = h / 2;
+function drawRoundRect(
+  c,
+  x,
+  y,
+  w,
+  h,
+  r
+) {
+
+  if (w < 2 * r) {
+    r = w / 2;
+  }
+
+  if (h < 2 * r) {
+    r = h / 2;
+  }
 
   c.beginPath();
-  c.moveTo(x + r, y);
-  c.arcTo(x + w, y, x + w, y + h, r);
-  c.arcTo(x + w, y + h, x, y + h, r);
-  c.arcTo(x, y + h, x, y, r);
-  c.arcTo(x, y, x + w, y, r);
+
+  c.moveTo(
+    x + r,
+    y
+  );
+
+  c.arcTo(
+    x + w,
+    y,
+    x + w,
+    y + h,
+    r
+  );
+
+  c.arcTo(
+    x + w,
+    y + h,
+    x,
+    y + h,
+    r
+  );
+
+  c.arcTo(
+    x,
+    y + h,
+    x,
+    y,
+    r
+  );
+
+  c.arcTo(
+    x,
+    y,
+    x + w,
+    y,
+    r
+  );
+
   c.closePath();
 }
 
+/* =========================================================
+   AUDIO
+   ========================================================= */
+
 let musicEnabled =
-  localStorage.getItem('deadlineDrive_music') !== 'false';
+  localStorage.getItem(
+    'deadlineDrive_music'
+  ) !== 'false';
 
 let sfxEnabled =
-  localStorage.getItem('deadlineDrive_sfx') !== 'false';
+  localStorage.getItem(
+    'deadlineDrive_sfx'
+  ) !== 'false';
 
-const bgMusic = document.getElementById('bgMusic');
+const bgMusic =
+  document.getElementById(
+    'bgMusic'
+  );
 
 bgMusic.volume = 0.4;
 
 function playBgMusic() {
-  if (musicEnabled && bgMusic.paused) {
-    bgMusic.play().catch(() => {});
+
+  if (
+    musicEnabled &&
+    bgMusic.paused
+  ) {
+
+    bgMusic
+      .play()
+      .catch(() => {});
+
   }
+
 }
 
 playBgMusic();
 
-window.addEventListener('DOMContentLoaded', playBgMusic);
-window.addEventListener('load', playBgMusic);
+window.addEventListener(
+  'DOMContentLoaded',
+  playBgMusic
+);
 
-['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+window.addEventListener(
+  'load',
+  playBgMusic
+);
+
+[
+  'pointerdown',
+  'touchstart',
+  'click',
+  'keydown'
+].forEach(evt => {
+
   window.addEventListener(
     evt,
     () => playBgMusic(),
     { once: true }
   );
+
 });
 
 function updateMusicState() {
+
   if (musicEnabled) {
+
     playBgMusic();
+
   } else {
+
     bgMusic.pause();
+
   }
+
 }
 
 const settingsModal =
-  document.getElementById('settingsModal');
+  document.getElementById(
+    'settingsModal'
+  );
 
 const btnOpenSettings =
-  document.getElementById('btnOpenSettings');
+  document.getElementById(
+    'btnOpenSettings'
+  );
 
 const btnCloseSettings =
-  document.getElementById('btnCloseSettings');
+  document.getElementById(
+    'btnCloseSettings'
+  );
 
 const btnToggleMusic =
-  document.getElementById('btnToggleMusic');
+  document.getElementById(
+    'btnToggleMusic'
+  );
 
 const btnToggleSfx =
-  document.getElementById('btnToggleSfx');
+  document.getElementById(
+    'btnToggleSfx'
+  );
 
 function renderOptionButtons() {
 
   btnToggleMusic.className =
-    `toggle-btn ${musicEnabled ? 'active' : ''}`;
+    `toggle-btn ${
+      musicEnabled
+        ? 'active'
+        : ''
+    }`;
 
   btnToggleMusic.innerText =
-    musicEnabled ? 'ON 🎵' : 'OFF 🔇';
+    musicEnabled
+      ? 'ON 🎵'
+      : 'OFF 🔇';
 
   btnToggleSfx.className =
-    `toggle-btn ${sfxEnabled ? 'active' : ''}`;
+    `toggle-btn ${
+      sfxEnabled
+        ? 'active'
+        : ''
+    }`;
 
   btnToggleSfx.innerText =
-    sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
+    sfxEnabled
+      ? 'ON 🔊'
+      : 'OFF 🔇';
 }
 
 renderOptionButtons();
 
 btnToggleMusic.onclick = () => {
 
-  musicEnabled = !musicEnabled;
+  musicEnabled =
+    !musicEnabled;
 
   localStorage.setItem(
     'deadlineDrive_music',
@@ -481,12 +874,14 @@ btnToggleMusic.onclick = () => {
   );
 
   renderOptionButtons();
+
   updateMusicState();
 };
 
 btnToggleSfx.onclick = () => {
 
-  sfxEnabled = !sfxEnabled;
+  sfxEnabled =
+    !sfxEnabled;
 
   localStorage.setItem(
     'deadlineDrive_sfx',
@@ -498,21 +893,32 @@ btnToggleSfx.onclick = () => {
 
 btnOpenSettings.onclick = () => {
 
-  if (gameState === 'PLAYING') {
+  if (
+    gameState === 'PLAYING'
+  ) {
+
     gameState = 'PAUSE';
+
   }
 
-  settingsModal.style.display = 'flex';
+  settingsModal.style.display =
+    'flex';
 };
 
 btnCloseSettings.onclick = () => {
 
-  settingsModal.style.display = 'none';
+  settingsModal.style.display =
+    'none';
 
   getAC();
 
-  if (gameState === 'PAUSE') {
-    gameState = 'PLAYING';
+  if (
+    gameState === 'PAUSE'
+  ) {
+
+    gameState =
+      'PLAYING';
+
   }
 
   updateMusicState();
@@ -531,15 +937,23 @@ function getAC() {
         window.webkitAudioContext;
 
       if (AudioContextClass) {
-        audioCtx = new AudioContextClass();
+
+        audioCtx =
+          new AudioContextClass();
+
       }
+
     }
 
     if (
       audioCtx &&
       audioCtx.state === 'suspended'
     ) {
-      audioCtx.resume().catch(() => {});
+
+      audioCtx
+        .resume()
+        .catch(() => {});
+
     }
 
   } catch(e) {}
@@ -551,23 +965,34 @@ function getAC() {
 
 function playSound(type) {
 
-  if (!sfxEnabled) return;
+  if (!sfxEnabled) {
+    return;
+  }
 
   try {
 
     const ac = getAC();
 
-    if (!ac) return;
+    if (!ac) {
+      return;
+    }
 
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
+    const osc =
+      ac.createOscillator();
+
+    const gain =
+      ac.createGain();
 
     osc.connect(gain);
-    gain.connect(ac.destination);
+
+    gain.connect(
+      ac.destination
+    );
 
     if (type === 'cross') {
 
-      osc.type = 'triangle';
+      osc.type =
+        'triangle';
 
       osc.frequency.setValueAtTime(
         523,
@@ -585,11 +1010,17 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.16);
 
-    } else if (type === 'crash') {
+      osc.stop(
+        ac.currentTime + 0.16
+      );
 
-      osc.type = 'sawtooth';
+    } else if (
+      type === 'crash'
+    ) {
+
+      osc.type =
+        'sawtooth';
 
       osc.frequency.setValueAtTime(
         250,
@@ -607,11 +1038,17 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.25);
 
-    } else if (type === 'guard_active') {
+      osc.stop(
+        ac.currentTime + 0.25
+      );
 
-      osc.type = 'sine';
+    } else if (
+      type === 'guard_active'
+    ) {
+
+      osc.type =
+        'sine';
 
       osc.frequency.setValueAtTime(
         600,
@@ -629,11 +1066,17 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.1);
 
-    } else if (type === 'pickup') {
+      osc.stop(
+        ac.currentTime + 0.1
+      );
 
-      osc.type = 'triangle';
+    } else if (
+      type === 'pickup'
+    ) {
+
+      osc.type =
+        'triangle';
 
       osc.frequency.setValueAtTime(
         440,
@@ -651,11 +1094,17 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.2);
 
-    } else if (type === 'malus') {
+      osc.stop(
+        ac.currentTime + 0.2
+      );
 
-      osc.type = 'sawtooth';
+    } else if (
+      type === 'malus'
+    ) {
+
+      osc.type =
+        'sawtooth';
 
       osc.frequency.setValueAtTime(
         180,
@@ -673,11 +1122,17 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.2);
 
-    } else if (type === 'fail') {
+      osc.stop(
+        ac.currentTime + 0.2
+      );
 
-      osc.type = 'sawtooth';
+    } else if (
+      type === 'fail'
+    ) {
+
+      osc.type =
+        'sawtooth';
 
       osc.frequency.setValueAtTime(
         220,
@@ -695,23 +1150,48 @@ function playSound(type) {
       );
 
       osc.start();
-      osc.stop(ac.currentTime + 0.3);
+
+      osc.stop(
+        ac.currentTime + 0.3
+      );
+
     }
 
   } catch(e) {}
+
 }
 
-const imgGiulia = new Image();
-imgGiulia.src = 'assets/frogger/giulia.png';
+/* =========================================================
+   CHARACTER IMAGES
+   ========================================================= */
 
-const imgTobi = new Image();
-imgTobi.src = 'assets/frogger/tobi.png';
+const imgGiulia =
+  new Image();
 
-const imgDave = new Image();
-imgDave.src = 'assets/frogger/dave.png';
+imgGiulia.src =
+  'assets/frogger/giulia.png';
 
-const imgLuca = new Image();
-imgLuca.src = 'assets/frogger/luca.png';
+const imgTobi =
+  new Image();
+
+imgTobi.src =
+  'assets/frogger/tobi.png';
+
+const imgDave =
+  new Image();
+
+imgDave.src =
+  'assets/frogger/dave.png';
+
+const imgLuca =
+  new Image();
+
+imgLuca.src =
+  'assets/frogger/luca.png';
+
+/* =========================================================
+   PREMIERE CLIPS
+   ========================================================= */
 
 const PREMIERE_CLIPS = {
 
@@ -805,34 +1285,48 @@ const PREMIERE_CLIPS = {
     wMult: 3.2,
     hMult: 1
   }
+
 };
+
+/* =========================================================
+   LEVEL THEMES
+   ========================================================= */
 
 const LEVEL_THEMES = [
 
   {
     levelMin: 1,
     title: "STAGE 1: ASSEMBLY TIMELINE",
-    msg: "Primi stacchi video: pochi ostacoli e flusso regolare!"
+    msg:
+      "Primi stacchi video: pochi ostacoli e flusso regolare!"
   },
 
   {
     levelMin: 2,
     title: "STAGE 2: MONTAGGIO RUSH",
-    msg: "Aumentano le clip b-roll e le tracce audio!"
+    msg:
+      "Aumentano le clip b-roll e le tracce audio!"
   },
 
   {
     levelMin: 3,
     title: "STAGE 3: COLOR & FX MULTI-LAYER",
-    msg: "Lumetri Color, Nested Sequences e tracce complesse!"
+    msg:
+      "Lumetri Color, Nested Sequences e tracce complesse!"
   },
 
   {
     levelMin: 4,
     title: "STAGE 4: EXPORT FINALE PRE-DEADLINE",
-    msg: "Massima densità e velocità sulla Timeline!"
+    msg:
+      "Massima densità e velocità sulla Timeline!"
   }
+
 ];
+
+/* =========================================================
+   CHARACTERS
+   ========================================================= */
 
 const CHARACTERS = {
 
@@ -840,8 +1334,10 @@ const CHARACTERS = {
     id: 'GIULIA',
     name: "GIULIA",
     subtitle: "Lead Video Editor",
-    perkBonus: "BONUS: Precisione (Punti 1.25x)",
-    perkMalus: "MALUS: Sensibile al Glitch",
+    perkBonus:
+      "BONUS: Precisione (Punti 1.25x)",
+    perkMalus:
+      "MALUS: Sensibile al Glitch",
     primary: "#00d2ff",
     bg: "#181818",
     img: imgGiulia,
@@ -855,8 +1351,10 @@ const CHARACTERS = {
     id: 'TOBI',
     name: "TOBI",
     subtitle: "Assistant Video Editor",
-    perkBonus: "BONUS: Agilità (+20% Velocità)",
-    perkMalus: "MALUS: Punteggio Base (-10%)",
+    perkBonus:
+      "BONUS: Agilità (+20% Velocità)",
+    perkMalus:
+      "MALUS: Punteggio Base (-10%)",
     primary: "#ffd700",
     bg: "#181818",
     img: imgTobi,
@@ -870,8 +1368,10 @@ const CHARACTERS = {
     id: 'DAVE',
     name: "DAVE",
     subtitle: "Focused Director",
-    perkBonus: "BONUS: Autorità (+30% Punteggio)",
-    perkMalus: "MALUS: Passo Pesante (-20% Velocità)",
+    perkBonus:
+      "BONUS: Autorità (+30% Punteggio)",
+    perkMalus:
+      "MALUS: Passo Pesante (-20% Velocità)",
     primary: "#ff0055",
     bg: "#181818",
     img: imgDave,
@@ -885,8 +1385,10 @@ const CHARACTERS = {
     id: 'LUCA',
     name: "LUCA",
     subtitle: "VFX Artist Whiz",
-    perkBonus: "BONUS: VFX Master (+15% Punti)",
-    perkMalus: "MALUS: Meno Vite Iniziali",
+    perkBonus:
+      "BONUS: VFX Master (+15% Punti)",
+    perkMalus:
+      "MALUS: Meno Vite Iniziali",
     primary: "#ffaa00",
     bg: "#181818",
     img: imgLuca,
@@ -895,6 +1397,7 @@ const CHARACTERS = {
     speed: 3.2,
     scoreMult: 1.15
   }
+
 };
 
 const CHARACTER_LIST = [
@@ -903,6 +1406,10 @@ const CHARACTER_LIST = [
   'DAVE',
   'LUCA'
 ];
+
+/* =========================================================
+   PICKUPS
+   ========================================================= */
 
 const PICKUP_TYPES = {
 
@@ -952,34 +1459,57 @@ const PICKUP_TYPES = {
     isMalus: true,
     invertControls: true
   }
+
 };
 
-let currentTheme = CHARACTERS.GIULIA;
+/* =========================================================
+   GAME STATE
+   ========================================================= */
+
+let currentTheme =
+  CHARACTERS.GIULIA;
 
 let highScore =
   parseInt(
-    localStorage.getItem('deadlineDrive_highScore')
+    localStorage.getItem(
+      'deadlineDrive_highScore'
+    )
   ) || 0;
 
 let activeLanes = [];
-let gameState = 'TUTORIAL';
+
+let gameState =
+  'TUTORIAL';
+
 let level = 1;
 let score = 0;
 let lives = 3;
+
 let visualScrollOffset = 0;
 
 let player = {
-  gx: Math.floor(COLS / 2),
-  gy: ROWS - 2,
+
+  gx:
+    Math.floor(COLS / 2),
+
+  gy:
+    ROWS - 2,
+
   w: 16,
   h: 16,
+
   facingLeft: false,
+
   invTimer: 0,
   guardTimer: 0,
+
   nextMoveAllowedTimer: 0,
+
   speedMult: 1.0,
   tempScoreMult: 1.0,
+
   glitchTimer: 0
+
 };
 
 let moveUp = false;
@@ -988,7 +1518,12 @@ let moveLeft = false;
 let moveRight = false;
 
 let selectedCharIndex = 0;
+
 let particles = [];
+
+/* =========================================================
+   LANES
+   ========================================================= */
 
 function createNewLane(
   isInitialSetup = false,
@@ -1011,34 +1546,55 @@ function createNewLane(
         r === ROWS - 1 ||
         r === ROWS - 2 ||
         r === ROWS - 3 ||
-        (r % 3 === 0 && level === 1)
+        (
+          r % 3 === 0 &&
+          level === 1
+        )
       );
 
   } else {
 
-    let topLane = activeLanes[0];
+    let topLane =
+      activeLanes[0];
 
     isSafe =
-      (topLane && topLane.type === 'SAFE')
+      (
+        topLane &&
+        topLane.type === 'SAFE'
+      )
         ? false
         : Math.random() < safeChance;
+
   }
 
   let laneType =
-    isSafe ? 'SAFE' : 'ROAD';
+    isSafe
+      ? 'SAFE'
+      : 'ROAD';
 
   let dir =
-    Math.random() < 0.5 ? 1 : -1;
+    Math.random() < 0.5
+      ? 1
+      : -1;
 
   let speedFactor =
-    0.38 + Math.min(level * 0.16, 1.2);
+    0.38 +
+    Math.min(
+      level * 0.16,
+      1.2
+    );
 
   let baseSpeed =
-    (0.45 + Math.random() * 0.35) *
+    (
+      0.45 +
+      Math.random() * 0.35
+    ) *
     speedFactor;
 
   let vTypes =
-    Object.values(PREMIERE_CLIPS);
+    Object.values(
+      PREMIERE_CLIPS
+    );
 
   let trackLabel =
     (r % 5 === 0)
@@ -1053,22 +1609,32 @@ function createNewLane(
 
   let laneObj = {
 
-    type: laneType,
+    type:
+      laneType,
 
     trackLabel:
-      isSafe ? "SAFE" : trackLabel,
+      isSafe
+        ? "SAFE"
+        : trackLabel,
 
     bg:
-      isSafe ? '#1c2230' : '#141416',
+      isSafe
+        ? '#1c2230'
+        : '#141416',
 
     dir,
-    speed: baseSpeed,
+
+    speed:
+      baseSpeed,
 
     objects: [],
     pickups: []
+
   };
 
-  if (laneType === 'ROAD') {
+  if (
+    laneType === 'ROAD'
+  ) {
 
     let x =
       TRACK_HEADER_W -
@@ -1077,18 +1643,23 @@ function createNewLane(
     let minGap =
       Math.max(
         4.0,
-        10.0 - (level * 1.5)
+        10.0 -
+        (level * 1.5)
       );
 
     do {
 
       x +=
         CELL_SIZE *
-        (Math.random() * 2.5 + minGap);
+        (
+          Math.random() * 2.5 +
+          minGap
+        );
 
       if (
         x <
-        CANVAS_W + CELL_SIZE * 3
+        CANVAS_W +
+        CELL_SIZE * 3
       ) {
 
         let vType =
@@ -1100,16 +1671,27 @@ function createNewLane(
           ];
 
         laneObj.objects.push({
+
           x,
-          type: vType,
-          w: vType.wMult * CELL_SIZE,
-          hMult: vType.hMult
+
+          type:
+            vType,
+
+          w:
+            vType.wMult *
+            CELL_SIZE,
+
+          hMult:
+            vType.hMult
+
         });
+
       }
 
     } while (
       x <
-      CANVAS_W + CELL_SIZE * 3
+      CANVAS_W +
+      CELL_SIZE * 3
     );
 
   } else if (
@@ -1118,7 +1700,9 @@ function createNewLane(
   ) {
 
     let pTypeKeys =
-      Object.keys(PICKUP_TYPES);
+      Object.keys(
+        PICKUP_TYPES
+      );
 
     let chosenKey =
       pTypeKeys[
@@ -1137,8 +1721,12 @@ function createNewLane(
         ) + 2,
 
       type:
-        PICKUP_TYPES[chosenKey]
+        PICKUP_TYPES[
+          chosenKey
+        ]
+
     });
+
   }
 
   return laneObj;
@@ -1147,6 +1735,7 @@ function createNewLane(
 function startInfiniteScroll() {
 
   activeLanes = [];
+
   visualScrollOffset = 0;
 
   for (
@@ -1156,8 +1745,12 @@ function startInfiniteScroll() {
   ) {
 
     activeLanes.push(
-      createNewLane(true, r)
+      createNewLane(
+        true,
+        r
+      )
     );
+
   }
 
   resetPlayer();
@@ -1166,7 +1759,9 @@ function startInfiniteScroll() {
 function resetPlayer() {
 
   player.gx =
-    Math.floor(COLS / 2);
+    Math.floor(
+      COLS / 2
+    );
 
   player.gy =
     ROWS - 2;
@@ -1180,21 +1775,30 @@ function resetPlayer() {
 
   player.speedMult = 1.0;
   player.tempScoreMult = 1.0;
+
   player.glitchTimer = 0;
 }
+
+/* =========================================================
+   PLAYER
+   ========================================================= */
 
 function updatePlayer() {
 
   if (
     player.nextMoveAllowedTimer > 0
   ) {
+
     player.nextMoveAllowedTimer--;
+
   }
 
   if (
     player.glitchTimer > 0
   ) {
+
     player.glitchTimer--;
+
   }
 
   if (
@@ -1224,7 +1828,9 @@ function updatePlayer() {
       keyPressed('KeyS') ||
       moveDown;
 
-    if (player.glitchTimer > 0) {
+    if (
+      player.glitchTimer > 0
+    ) {
 
       let tL = inLeft;
       let tR = inRight;
@@ -1235,24 +1841,35 @@ function updatePlayer() {
       inRight = tL;
       inUp = tD;
       inDown = tU;
+
     }
 
     if (inLeft) {
+
       dx--;
+
       player.facingLeft = true;
 
-    } else if (inRight) {
+    } else if (
+      inRight
+    ) {
 
       dx++;
+
       player.facingLeft = false;
+
     }
 
     if (inUp) {
+
       dy--;
 
-    } else if (inDown) {
+    } else if (
+      inDown
+    ) {
 
       dy++;
+
     }
 
     if (
@@ -1283,14 +1900,18 @@ function updatePlayer() {
 
           scrollWorldDown();
 
-        } else if (dy < 0) {
+        } else if (
+          dy < 0
+        ) {
 
-          score += Math.floor(
-            10 *
-            level *
-            currentTheme.scoreMult *
-            player.tempScoreMult
-          );
+          score +=
+            Math.floor(
+              10 *
+              level *
+              currentTheme.scoreMult *
+              player.tempScoreMult
+            );
+
         }
 
         playSound('cross');
@@ -1302,18 +1923,31 @@ function updatePlayer() {
         player.nextMoveAllowedTimer =
           Math.max(
             5,
-            Math.floor(14 / effSpeed)
+            Math.floor(
+              14 / effSpeed
+            )
           );
+
       }
+
     }
+
   }
 
-  if (player.invTimer > 0) {
+  if (
+    player.invTimer > 0
+  ) {
+
     player.invTimer--;
+
   }
 
-  if (player.guardTimer > 0) {
+  if (
+    player.guardTimer > 0
+  ) {
+
     player.guardTimer--;
+
   }
 
   checkPickups();
@@ -1330,21 +1964,26 @@ function scrollWorldDown() {
 
   player.gy++;
 
-  visualScrollOffset -= CELL_SIZE;
+  visualScrollOffset -=
+    CELL_SIZE;
 
-  score += Math.floor(
-    15 *
-    level *
-    currentTheme.scoreMult *
-    player.tempScoreMult
-  );
+  score +=
+    Math.floor(
+      15 *
+      level *
+      currentTheme.scoreMult *
+      player.tempScoreMult
+    );
 
   if (
     score >
     level * 1200
   ) {
+
     level++;
+
   }
+
 }
 
 function updateVehicles() {
@@ -1354,66 +1993,88 @@ function updateVehicles() {
     0.25;
 
   if (
-    Math.abs(visualScrollOffset) < 0.1
+    Math.abs(
+      visualScrollOffset
+    ) < 0.1
   ) {
+
     visualScrollOffset = 0;
+
   }
 
-  activeLanes.forEach(lane => {
+  activeLanes.forEach(
+    lane => {
 
-    if (
-      lane.type === 'ROAD'
-    ) {
+      if (
+        lane.type === 'ROAD'
+      ) {
 
-      lane.objects.forEach(obj => {
+        lane.objects.forEach(
+          obj => {
 
-        obj.x +=
-          lane.speed *
-          lane.dir;
+            obj.x +=
+              lane.speed *
+              lane.dir;
 
-        if (
-          lane.dir > 0 &&
-          obj.x >
-          CANVAS_W + obj.w
-        ) {
+            if (
+              lane.dir > 0 &&
+              obj.x >
+              CANVAS_W + obj.w
+            ) {
 
-          obj.x =
-            TRACK_HEADER_W -
-            obj.w;
+              obj.x =
+                TRACK_HEADER_W -
+                obj.w;
 
-        } else if (
-          lane.dir < 0 &&
-          obj.x <
-          TRACK_HEADER_W - obj.w
-        ) {
+            } else if (
+              lane.dir < 0 &&
+              obj.x <
+              TRACK_HEADER_W -
+              obj.w
+            ) {
 
-          obj.x =
-            CANVAS_W +
-            obj.w;
-        }
-      });
+              obj.x =
+                CANVAS_W +
+                obj.w;
+
+            }
+
+          }
+        );
+
+      }
+
     }
-  });
+  );
 
   for (
-    let i = particles.length - 1;
+    let i =
+      particles.length - 1;
     i >= 0;
     i--
   ) {
 
-    let p = particles[i];
+    let p =
+      particles[i];
 
     p.x += p.vx;
     p.y += p.vy;
+
     p.life--;
 
     if (
       p.life <= 0
     ) {
 
-      particles.splice(i, 1);
+      particles.splice(
+        i,
+        1
+      );
+
     }
+
   }
+
 }
 
 function addParticles(
@@ -1441,21 +2102,33 @@ function addParticles(
         (Math.random() - 0.5) * 6,
 
       life: 16,
+
       color
+
     });
+
   }
+
 }
+
+/* =========================================================
+   PICKUPS
+   ========================================================= */
 
 function checkPickups() {
 
   let currentLane =
-    activeLanes[player.gy];
+    activeLanes[
+      player.gy
+    ];
 
   if (
     !currentLane ||
     currentLane.pickups.length === 0
   ) {
+
     return;
+
   }
 
   for (
@@ -1472,14 +2145,19 @@ function checkPickups() {
       p.gx === player.gx
     ) {
 
-      score += Math.floor(
-        p.type.pts *
-        currentTheme.scoreMult
-      );
+      score +=
+        Math.floor(
+          p.type.pts *
+          currentTheme.scoreMult
+        );
 
-      if (p.type.isMalus) {
+      if (
+        p.type.isMalus
+      ) {
 
-        playSound('malus');
+        playSound(
+          'malus'
+        );
 
         if (
           p.type.slowFactor
@@ -1487,18 +2165,23 @@ function checkPickups() {
 
           player.speedMult =
             p.type.slowFactor;
+
         }
 
         if (
           p.type.invertControls
         ) {
 
-          player.glitchTimer = 180;
+          player.glitchTimer =
+            180;
+
         }
 
       } else {
 
-        playSound('pickup');
+        playSound(
+          'pickup'
+        );
 
         if (
           p.type.speedBoost
@@ -1506,6 +2189,7 @@ function checkPickups() {
 
           player.speedMult =
             p.type.speedBoost;
+
         }
 
         if (
@@ -1514,6 +2198,7 @@ function checkPickups() {
 
           player.tempScoreMult =
             p.type.scoreBoost;
+
         }
 
         if (
@@ -1526,14 +2211,19 @@ function checkPickups() {
           playSound(
             'guard_active'
           );
+
         }
+
       }
 
       addParticles(
-        player.gx * CELL_SIZE +
+
+        player.gx *
+          CELL_SIZE +
           CELL_SIZE / 2,
 
-        player.gy * CELL_SIZE +
+        player.gy *
+          CELL_SIZE +
           HUD_HEIGHT,
 
         p.type.isMalus
@@ -1541,14 +2231,18 @@ function checkPickups() {
           : '#00d2ff',
 
         10
+
       );
 
       currentLane.pickups.splice(
         i,
         1
       );
+
     }
+
   }
+
 }
 
 function isInvincible() {
@@ -1557,6 +2251,7 @@ function isInvincible() {
     player.invTimer > 0 ||
     player.guardTimer > 0
   );
+
 }
 
 function checkCollisions() {
@@ -1565,11 +2260,14 @@ function checkCollisions() {
     gameState !== 'PLAYING' ||
     isInvincible()
   ) {
+
     return;
+
   }
 
   let playerX =
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
     CELL_SIZE / 2;
 
   for (
@@ -1585,17 +2283,23 @@ function checkCollisions() {
       checkLaneIdx < 0 ||
       checkLaneIdx >= ROWS
     ) {
+
       continue;
+
     }
 
     let lane =
-      activeLanes[checkLaneIdx];
+      activeLanes[
+        checkLaneIdx
+      ];
 
     if (
       !lane ||
       lane.type !== 'ROAD'
     ) {
+
       continue;
+
     }
 
     lane.objects.forEach(
@@ -1605,10 +2309,14 @@ function checkCollisions() {
           offset === 1 &&
           obj.hMult !== 2
         ) {
+
           return;
+
         }
 
-        let oLeft = obj.x;
+        let oLeft =
+          obj.x;
+
         let oRight =
           obj.x + obj.w;
 
@@ -1626,37 +2334,50 @@ function checkCollisions() {
         ) {
 
           hitPlayer();
+
         }
+
       }
     );
+
   }
+
 }
 
 function hitPlayer() {
 
   lives--;
 
-  playSound('crash');
+  playSound(
+    'crash'
+  );
 
   addParticles(
-    player.gx * CELL_SIZE +
+
+    player.gx *
+      CELL_SIZE +
       CELL_SIZE / 2,
 
-    player.gy * CELL_SIZE +
+    player.gy *
+      CELL_SIZE +
       HUD_HEIGHT,
 
     '#ff0055',
 
     20
+
   );
 
   if (
     lives <= 0
   ) {
 
-    gameState = 'GAME_OVER';
+    gameState =
+      'GAME_OVER';
 
-    playSound('fail');
+    playSound(
+      'fail'
+    );
 
     saveScore();
 
@@ -1677,32 +2398,52 @@ function hitPlayer() {
       ) {
 
         respawnGy = r;
+
         break;
+
       }
+
     }
 
     player.gx =
-      Math.floor(COLS / 2);
+      Math.floor(
+        COLS / 2
+      );
 
     player.gy =
       respawnGy;
 
-    player.invTimer = 90;
-    player.glitchTimer = 0;
-    player.speedMult = 1.0;
-    player.tempScoreMult = 1.0;
+    player.invTimer =
+      90;
+
+    player.glitchTimer =
+      0;
+
+    player.speedMult =
+      1.0;
+
+    player.tempScoreMult =
+      1.0;
+
   }
+
 }
+
+/* =========================================================
+   DRAW WORLD
+   ========================================================= */
 
 function drawGameWorld() {
 
-  ctx.fillStyle = '#181818';
+  ctx.fillStyle =
+    '#181818';
 
   ctx.fillRect(
     0,
     HUD_HEIGHT,
     CANVAS_W,
-    CANVAS_H - HUD_HEIGHT
+    CANVAS_H -
+      HUD_HEIGHT
   );
 
   activeLanes.forEach(
@@ -1734,6 +2475,7 @@ function drawGameWorld() {
         CANVAS_W,
         CELL_SIZE
       );
+
     }
   );
 
@@ -1780,9 +2522,12 @@ function drawGameWorld() {
               px,
               py
             );
+
           }
         );
+
       }
+
     }
   );
 
@@ -1799,7 +2544,9 @@ function drawGameWorld() {
             HUD_HEIGHT +
             visualScrollOffset
         );
+
       }
+
     }
   );
 
@@ -1850,6 +2597,7 @@ function drawGameWorld() {
         TRACK_HEADER_W / 2,
         y + CELL_SIZE / 2
       );
+
     }
   );
 
@@ -1871,6 +2619,7 @@ function drawGameWorld() {
       4,
       4
     );
+
   }
 
   let playheadX =
@@ -1898,6 +2647,7 @@ function drawGameWorld() {
   ctx.stroke();
 
   drawSinglePlayer();
+
 }
 
 function drawObstacles(
@@ -1908,10 +2658,17 @@ function drawObstacles(
   lane.objects.forEach(
     obj => {
 
-      let x = obj.x;
-      let y = laneY;
-      let vData = obj.type;
-      let blockW = obj.w;
+      let x =
+        obj.x;
+
+      let y =
+        laneY;
+
+      let vData =
+        obj.type;
+
+      let blockW =
+        obj.w;
 
       let blockH =
         (
@@ -1924,7 +2681,9 @@ function drawObstacles(
         x + blockW <
         TRACK_HEADER_W
       ) {
+
         return;
+
       }
 
       ctx.save();
@@ -2018,6 +2777,7 @@ function drawObstacles(
         ctx.stroke();
 
         ctx.setLineDash([]);
+
       }
 
       ctx.fillStyle =
@@ -2044,8 +2804,10 @@ function drawObstacles(
       );
 
       ctx.restore();
+
     }
   );
+
 }
 
 function drawSinglePlayer() {
@@ -2068,7 +2830,9 @@ function drawSinglePlayer() {
       player.invTimer / 4
     ) % 2 === 0
   ) {
+
     return;
+
   }
 
   ctx.save();
@@ -2081,13 +2845,19 @@ function drawSinglePlayer() {
   if (
     player.facingLeft
   ) {
-    ctx.scale(-1, 1);
+
+    ctx.scale(
+      -1,
+      1
+    );
+
   }
 
   ctx.shadowColor =
     '#00d2ff';
 
-  ctx.shadowBlur = 10;
+  ctx.shadowBlur =
+    10;
 
   ctx.fillStyle =
     '#00d2ff';
@@ -2121,7 +2891,8 @@ function drawSinglePlayer() {
   ctx.strokeStyle =
     '#ffffff';
 
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth =
+    1.5;
 
   ctx.stroke();
 
@@ -2140,6 +2911,7 @@ function drawSinglePlayer() {
       0,
       -16
     );
+
   }
 
   if (
@@ -2149,12 +2921,14 @@ function drawSinglePlayer() {
     ctx.shadowColor =
       '#00ff66';
 
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur =
+      12;
 
     ctx.strokeStyle =
       '#00ff66';
 
-    ctx.lineWidth = 2;
+    ctx.lineWidth =
+      2;
 
     ctx.beginPath();
 
@@ -2167,10 +2941,16 @@ function drawSinglePlayer() {
     );
 
     ctx.stroke();
+
   }
 
   ctx.restore();
+
 }
+
+/* =========================================================
+   HUD
+   ========================================================= */
 
 function drawHUD() {
 
@@ -2187,7 +2967,8 @@ function drawHUD() {
   ctx.strokeStyle =
     '#383840';
 
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth =
+    1.5;
 
   ctx.strokeRect(
     0,
@@ -2266,7 +3047,12 @@ function drawHUD() {
     canvas.width - 8,
     34
   );
+
 }
+
+/* =========================================================
+   TUTORIAL
+   ========================================================= */
 
 function drawTutorial() {
 
@@ -2312,7 +3098,8 @@ function drawTutorial() {
   ctx.strokeStyle =
     '#00d2ff';
 
-  ctx.lineWidth = 2;
+  ctx.lineWidth =
+    2;
 
   ctx.stroke();
 
@@ -2372,7 +3159,8 @@ function drawTutorial() {
   ctx.strokeStyle =
     '#00ff66';
 
-  ctx.lineWidth = 2;
+  ctx.lineWidth =
+    2;
 
   ctx.stroke();
 
@@ -2432,7 +3220,8 @@ function drawTutorial() {
   ctx.strokeStyle =
     '#ff0055';
 
-  ctx.lineWidth = 2;
+  ctx.lineWidth =
+    2;
 
   ctx.stroke();
 
@@ -2501,7 +3290,8 @@ function drawTutorial() {
   ctx.strokeStyle =
     '#ffffff';
 
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth =
+    1.5;
 
   ctx.stroke();
 
@@ -2516,7 +3306,12 @@ function drawTutorial() {
     canvas.width / 2,
     396
   );
+
 }
+
+/* =========================================================
+   CHARACTER SELECT
+   ========================================================= */
 
 function drawCharSelect() {
 
@@ -2554,8 +3349,10 @@ function drawCharSelect() {
 
   let cardW = 318;
   let cardH = 395;
+
   let cardX =
     (CANVAS_W - cardW) / 2;
+
   let cardY = 38;
 
   drawRoundRect(
@@ -2575,7 +3372,8 @@ function drawCharSelect() {
   ctx.strokeStyle =
     c.primary;
 
-  ctx.lineWidth = 2.5;
+  ctx.lineWidth =
+    2.5;
 
   ctx.stroke();
 
@@ -2636,6 +3434,7 @@ function drawCharSelect() {
       CANVAS_W / 2,
       boxY + 95
     );
+
   }
 
   ctx.restore();
@@ -2652,7 +3451,8 @@ function drawCharSelect() {
   ctx.strokeStyle =
     c.primary;
 
-  ctx.lineWidth = 2;
+  ctx.lineWidth =
+    2;
 
   ctx.stroke();
 
@@ -2730,13 +3530,19 @@ function drawCharSelect() {
     CANVAS_W / 2,
     cardY + cardH + 20
   );
+
 }
 
-function handleSelectionInput(dir) {
+function handleSelectionInput(
+  dir
+) {
 
-  playSound('cross');
+  playSound(
+    'cross'
+  );
 
-  selectedCharIndex += dir;
+  selectedCharIndex +=
+    dir;
 
   if (
     selectedCharIndex < 0
@@ -2744,6 +3550,7 @@ function handleSelectionInput(dir) {
 
     selectedCharIndex =
       CHARACTER_LIST.length - 1;
+
   }
 
   if (
@@ -2752,7 +3559,9 @@ function handleSelectionInput(dir) {
   ) {
 
     selectedCharIndex = 0;
+
   }
+
 }
 
 function confirmCharacterSelection() {
@@ -2762,7 +3571,12 @@ function confirmCharacterSelection() {
       selectedCharIndex
     ]
   );
+
 }
+
+/* =========================================================
+   LEVEL CLEAR
+   ========================================================= */
 
 function drawLevelClear() {
 
@@ -2826,7 +3640,12 @@ function drawLevelClear() {
     canvas.width / 2,
     canvas.height / 2 + 35
   );
+
 }
+
+/* =========================================================
+   GAME OVER
+   ========================================================= */
 
 function drawGameOver() {
 
@@ -2880,7 +3699,9 @@ function drawGameOver() {
   );
 
   ctx.fillStyle =
-    Math.floor(Date.now() / 400) % 2 === 0
+    Math.floor(
+      Date.now() / 400
+    ) % 2 === 0
       ? '#ffffff'
       : currentTheme.primary;
 
@@ -2892,7 +3713,12 @@ function drawGameOver() {
     canvas.width / 2,
     canvas.height / 2 + 80
   );
+
 }
+
+/* =========================================================
+   PAUSE
+   ========================================================= */
 
 function drawPause() {
 
@@ -2932,7 +3758,12 @@ function drawPause() {
     canvas.width / 2,
     canvas.height / 2 + 20
   );
+
 }
+
+/* =========================================================
+   GAME LOOP
+   ========================================================= */
 
 function gameLoop() {
 
@@ -2962,9 +3793,11 @@ function gameLoop() {
     ) {
 
       updateVehicles();
+
       updatePlayer();
 
       drawGameWorld();
+
       drawHUD();
 
     } else if (
@@ -2972,7 +3805,9 @@ function gameLoop() {
     ) {
 
       drawGameWorld();
+
       drawHUD();
+
       drawPause();
 
     } else if (
@@ -2980,7 +3815,9 @@ function gameLoop() {
     ) {
 
       drawGameWorld();
+
       drawLevelClear();
+
       drawHUD();
 
     } else if (
@@ -2988,7 +3825,9 @@ function gameLoop() {
     ) {
 
       drawGameWorld();
+
       drawGameOver();
+
     }
 
   } catch (err) {
@@ -2997,19 +3836,27 @@ function gameLoop() {
       "Game Loop Error:",
       err
     );
+
   }
 
   requestAnimationFrame(
     gameLoop
   );
+
 }
+
+/* =========================================================
+   SELECT CHARACTER
+   ========================================================= */
 
 function selectCharacter(
   charKey
 ) {
 
   currentTheme =
-    CHARACTERS[charKey];
+    CHARACTERS[
+      charKey
+    ];
 
   canvas.style.borderColor =
     currentTheme.primary;
@@ -3022,8 +3869,15 @@ function selectCharacter(
   gameState =
     'PLAYING';
 
-  playSound('pickup');
+  playSound(
+    'pickup'
+  );
+
 }
+
+/* =========================================================
+   CANVAS TOUCH
+   ========================================================= */
 
 canvas.addEventListener(
   'pointerdown',
@@ -3050,12 +3904,17 @@ canvas.addEventListener(
       gameState === 'TUTORIAL'
     ) {
 
-      if (y >= 330) {
+      if (
+        y >= 330
+      ) {
 
         gameState =
           'CHAR_SELECT';
 
-        playSound('cross');
+        playSound(
+          'cross'
+        );
+
       }
 
       return;
@@ -3065,7 +3924,9 @@ canvas.addEventListener(
       gameState === 'CHAR_SELECT'
     ) {
 
-      if (y >= 400) {
+      if (
+        y >= 400
+      ) {
 
         handleSelectionInput(
           x < CANVAS_W / 2
@@ -3076,6 +3937,7 @@ canvas.addEventListener(
       } else {
 
         confirmCharacterSelection();
+
       }
 
       return;
@@ -3093,6 +3955,7 @@ canvas.addEventListener(
           'PAUSE';
 
         updateMusicState();
+
       }
 
       return;
@@ -3126,15 +3989,23 @@ canvas.addEventListener(
   }
 );
 
+/* =========================================================
+   BUTTON BINDING
+   ========================================================= */
+
 function bindBtn(
   id,
   onPress
 ) {
 
   let btn =
-    document.getElementById(id);
+    document.getElementById(
+      id
+    );
 
-  if (!btn) return;
+  if (!btn) {
+    return;
+  }
 
   btn.addEventListener(
     'pointerdown',
@@ -3169,6 +4040,7 @@ function bindBtn(
       } else {
 
         onPress(true);
+
       }
 
     },
@@ -3195,13 +4067,16 @@ function bindBtn(
 
   btn.addEventListener(
     'pointercancel',
-    () => onPress(false)
+    () =>
+      onPress(false)
   );
 
   btn.addEventListener(
     'pointerleave',
-    () => onPress(false)
+    () =>
+      onPress(false)
   );
+
 }
 
 bindBtn(
@@ -3219,7 +4094,9 @@ bindBtn(
       return;
     }
 
-    moveUp = isDown;
+    moveUp =
+      isDown;
+
   }
 );
 
@@ -3238,7 +4115,9 @@ bindBtn(
       return;
     }
 
-    moveDown = isDown;
+    moveDown =
+      isDown;
+
   }
 );
 
@@ -3257,7 +4136,9 @@ bindBtn(
       return;
     }
 
-    moveLeft = isDown;
+    moveLeft =
+      isDown;
+
   }
 );
 
@@ -3276,9 +4157,15 @@ bindBtn(
       return;
     }
 
-    moveRight = isDown;
+    moveRight =
+      isDown;
+
   }
 );
+
+/* =========================================================
+   CENTER OK
+   ========================================================= */
 
 const btnCenter =
   document.getElementById(
@@ -3302,7 +4189,9 @@ btnCenter.addEventListener(
       gameState =
         'CHAR_SELECT';
 
-      playSound('cross');
+      playSound(
+        'cross'
+      );
 
     } else if (
       gameState === 'CHAR_SELECT'
@@ -3325,6 +4214,7 @@ btnCenter.addEventListener(
         'PLAYING';
 
       updateMusicState();
+
     }
 
   },
@@ -3333,13 +4223,18 @@ btnCenter.addEventListener(
   }
 );
 
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
 const keys = {};
 
 window.addEventListener(
   'keydown',
   e => {
 
-    keys[e.code] = true;
+    keys[e.code] =
+      true;
 
     getAC();
 
@@ -3364,6 +4259,7 @@ window.addEventListener(
       ) {
 
         handleSelectionInput(-1);
+
       }
 
       if (
@@ -3372,6 +4268,7 @@ window.addEventListener(
       ) {
 
         handleSelectionInput(1);
+
       }
 
       if (
@@ -3380,6 +4277,7 @@ window.addEventListener(
       ) {
 
         handleSelectionInput(1);
+
       }
 
       if (
@@ -3388,6 +4286,7 @@ window.addEventListener(
       ) {
 
         handleSelectionInput(-1);
+
       }
 
       if (
@@ -3396,6 +4295,7 @@ window.addEventListener(
       ) {
 
         confirmCharacterSelection();
+
       }
 
     } else if (
@@ -3408,7 +4308,9 @@ window.addEventListener(
 
       gameState =
         'CHAR_SELECT';
+
     }
+
   }
 );
 
@@ -3416,14 +4318,23 @@ window.addEventListener(
   'keyup',
   e => {
 
-    keys[e.code] = false;
+    keys[e.code] =
+      false;
+
   }
 );
 
-function keyPressed(code) {
+function keyPressed(
+  code
+) {
 
   return !!keys[code];
+
 }
+
+/* =========================================================
+   SCORE
+   ========================================================= */
 
 function saveScore() {
 
@@ -3440,12 +4351,15 @@ function saveScore() {
         'deadlineDrive_highScore',
         highScore.toString()
       );
+
     }
 
     if (
       score <= 0
     ) {
+
       return;
+
     }
 
     let rawUser =
@@ -3458,7 +4372,9 @@ function saveScore() {
     }
 
     let curUser =
-      JSON.parse(rawUser);
+      JSON.parse(
+        rawUser
+      );
 
     if (
       curUser &&
@@ -3466,15 +4382,23 @@ function saveScore() {
     ) {
 
       curUser.stats.gamesPlayed =
-        (curUser.stats.gamesPlayed || 0) + 1;
+        (
+          curUser.stats.gamesPlayed ||
+          0
+        ) + 1;
 
       curUser.stats.deadlineDrive =
-        (curUser.stats.deadlineDrive || 0) +
+        (
+          curUser.stats.deadlineDrive ||
+          0
+        ) +
         score;
 
       localStorage.setItem(
         'arcade_current_user',
-        JSON.stringify(curUser)
+        JSON.stringify(
+          curUser
+        )
       );
 
       if (
@@ -3491,22 +4415,33 @@ function saveScore() {
 
         let users =
           rawUsers
-            ? JSON.parse(rawUsers)
+            ? JSON.parse(
+                rawUsers
+              )
             : {};
 
         if (
-          users[curUser.username]
+          users[
+            curUser.username
+          ]
         ) {
 
-          users[curUser.username].stats =
+          users[
+            curUser.username
+          ].stats =
             curUser.stats;
 
           localStorage.setItem(
             'arcade_users',
-            JSON.stringify(users)
+            JSON.stringify(
+              users
+            )
           );
+
         }
+
       }
+
     }
 
   } catch(e) {
@@ -3515,8 +4450,14 @@ function saveScore() {
       "Save score error:",
       e
     );
+
   }
+
 }
+
+/* =========================================================
+   EXIT
+   ========================================================= */
 
 function exitGame() {
 
@@ -3526,7 +4467,12 @@ function exitGame() {
 
   window.location.href =
     'index.html';
+
 }
+
+/* =========================================================
+   START
+   ========================================================= */
 
 requestAnimationFrame(
   gameLoop
