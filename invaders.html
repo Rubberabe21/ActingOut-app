@@ -334,7 +334,7 @@ bgMusic.loop = true;
 bgMusic.volume = 0.5;
 
 function updateMusicState() {
-  if (musicEnabled) {
+  if (musicEnabled && state === 'playing') {
     bgMusic.play().catch(() => {});
   } else {
     bgMusic.pause();
@@ -382,12 +382,19 @@ btnToggleSfx.onclick = () => {
 };
 
 btnOpenSettings.onclick = () => {
+  if (state === 'playing') {
+    state = 'PAUSE';
+    updateMusicState();
+  }
   settingsModal.style.display = 'flex';
 };
 
 btnCloseSettings.onclick = () => {
   settingsModal.style.display = 'none';
   getAC();
+  if (state === 'PAUSE') {
+    state = 'playing';
+  }
   updateMusicState();
 };
 
@@ -482,7 +489,7 @@ function exitGame(finalScore) {
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let state = 'TUTORIAL'; 
+let state = 'TUTORIAL'; // 'TUTORIAL', 'CHAR_SELECT', 'playing', 'PAUSE', 'dead', 'gameover'
 let score = 0;
 let hiScore = parseInt(localStorage.getItem('invaders_highScore')) || 0;
 let lives = 3;
@@ -592,6 +599,10 @@ document.addEventListener('keydown', e => {
     if (e.key === '3') selectBoss('BRETTO');
   }
   else if (state === 'gameover' && (e.code === 'Space' || e.code === 'Enter')) state = 'CHAR_SELECT';
+  else if ((e.code === 'KeyP' || e.code === 'Escape') && (state === 'playing' || state === 'PAUSE')) {
+    state = state === 'playing' ? 'PAUSE' : 'playing';
+    updateMusicState();
+  }
 });
 document.addEventListener('keyup', e => { keys[e.code] = false; });
 function keyPressed(code) { return !!keys[code]; }
@@ -699,12 +710,10 @@ const player = {
     let spd = currentBoss.speed;
     if (this.lagTimer > 0) { spd *= 0.5; this.lagTimer--; }
 
-    // Movimento tramite Joystick Analogico
     if (joyActive) {
       this.x += joyDX * spd;
       this.y += joyDY * spd;
     } else {
-      // Movimento Keyboard
       if (keyPressed('ArrowLeft')  || keyPressed('KeyA')) this.x -= spd;
       if (keyPressed('ArrowRight') || keyPressed('KeyD')) this.x += spd;
       if (keyPressed('ArrowUp')    || keyPressed('KeyW')) this.y -= spd;
@@ -1034,6 +1043,7 @@ function hitPlayer() {
   sfxPlayerHit();
   if (lives <= 0) {
     player.alive = false; state = 'dead'; deathTimer = 100;
+    updateMusicState();
   } else { player.invTimer = 120; }
 }
 
@@ -1137,6 +1147,16 @@ function drawScreens() {
     return;
   }
 
+  // SCHERMATA PAUSA
+  if (state === 'PAUSE') {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ffea00'; ctx.font = 'bold 34px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('IN PAUSA', W/2, H/2 - 20);
+    ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 15px Courier New';
+    ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', W/2, H/2 + 25);
+    return;
+  }
+
   if (state === 'dead' || state === 'gameover') {
     ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 36px Courier New'; ctx.textAlign = 'center';
@@ -1148,6 +1168,7 @@ function drawScreens() {
   }
 }
 
+// TAP SUL CANVAS (PER SELEZIONI E PAUSA)
 canvas.addEventListener('pointerdown', e => {
   getAC();
   let rect = canvas.getBoundingClientRect();
@@ -1163,6 +1184,19 @@ canvas.addEventListener('pointerdown', e => {
     if (y >= 65 && y <= 205) selectBoss('TOMMI');
     else if (y >= 220 && y <= 360) selectBoss('GIAMPA');
     else if (y >= 375 && y <= 515) selectBoss('BRETTO');
+    return;
+  }
+
+  // TOGGLE PAUSA DIRETTAMENTE CLICCANDO LA FINESTRA DI GIOCO
+  if (state === 'playing') {
+    state = 'PAUSE';
+    updateMusicState();
+    return;
+  }
+
+  if (state === 'PAUSE') {
+    state = 'playing';
+    updateMusicState();
     return;
   }
 
@@ -1184,7 +1218,7 @@ function update() {
   frame++;
   updateStars();
 
-  if (state === 'TUTORIAL' || state === 'CHAR_SELECT') return;
+  if (state === 'TUTORIAL' || state === 'CHAR_SELECT' || state === 'PAUSE') return;
 
   if (state === 'dead') {
     deathTimer--; updateParticles();
@@ -1232,7 +1266,7 @@ function draw() {
   drawParticles();
   drawHUD();
 
-  if (state === 'dead' || state === 'gameover') drawScreens();
+  if (state === 'PAUSE' || state === 'dead' || state === 'gameover') drawScreens();
 }
 
 function loop() { update(); draw(); requestAnimationFrame(loop); }
