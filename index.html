@@ -401,11 +401,9 @@ if (hubMusic) {
             hubMusic.play().catch(() => {});
         }
     }
-    // Prova avvio immediato all'apertura
     playHubMusic();
     window.addEventListener('DOMContentLoaded', playHubMusic);
     window.addEventListener('load', playHubMusic);
-    // Fallback per blocchi di sicurezza dei browser mobile
     ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
         window.addEventListener(evt, playHubMusic, { capture: true });
     });
@@ -544,9 +542,16 @@ class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 
                 void main() {
                     vec4 texColor = texture2D(uMainSampler, outTexCoord);
-                    vec3 keyColor = vec3(0.2392, 1.0, 0.0118); // #3DFF03
-                    float diff = distance(texColor.rgb, keyColor);
-                    if (diff < 0.45) {
+                    
+                    // Key 1: Verde brillante #3DFF03
+                    vec3 keyColor1 = vec3(0.2392, 1.0, 0.0118); 
+                    // Key 2: Verde Pierri #6E9A65
+                    vec3 keyColor2 = vec3(0.4314, 0.6039, 0.3961); 
+                    
+                    float diff1 = distance(texColor.rgb, keyColor1);
+                    float diff2 = distance(texColor.rgb, keyColor2);
+                    
+                    if (diff1 < 0.45 || diff2 < 0.38) {
                         discard;
                     } else {
                         gl_FragColor = texColor * outTint;
