@@ -31,7 +31,6 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            height: 100dvh;
             overflow: hidden;
             background-color: #060612;
             display: flex;
@@ -58,42 +57,25 @@
 
         @media (max-width: 600px) {
             #game-wrapper {
-                position: fixed !important;
-                top: 0 !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                width: 100vw !important;
-                height: 100dvh !important;
-                height: -webkit-fill-available !important;
-                max-width: none !important;
-                max-height: none !important;
-                border: none !important;
-                box-shadow: none !important;
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100vw;
+                height: 100%;
+                max-width: none;
+                max-height: none;
+                border: none;
+                box-shadow: none;
             }
         }
         
         #game-container {
+            position: relative;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            position: relative;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-end !important;
-            align-items: center !important;
-        }
-
-        /* FORZA L'ANCORAGGIO AL BORDO INFERIORE DEL CONTAINER */
-        #game-container canvas {
-            position: absolute !important;
-            bottom: 0 !important;
-            top: auto !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            margin: 0 !important;
-            margin-top: auto !important;
-            margin-bottom: 0 !important;
         }
 
         /* BARRA SUPERIORE HTML */
@@ -488,6 +470,7 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
+        // SCENA RIGIDAMENTE A 360x740
         const vWidth = 360;
         const vHeight = 740;
 
@@ -732,7 +715,7 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// SCALE MODE CON NO_CENTER PER NON SUBIRE IL CENTRAMENTO VERTICALE AUTOMATICO DI PHASER
+// CONFIGURAZIONE CON NO_CENTER PER NON SUBIRE IL CENTRAMENTO AUTOMATICO
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
@@ -749,19 +732,36 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-// HOOK JAVASCRIPT: FORZA LO STILE DEL CANVAS IN BASSO AD OGNI RESIZE / POSTSCALE
-function enforceCanvasBottom() {
-    if (game && game.canvas) {
-        game.canvas.style.setProperty('top', 'auto', 'important');
-        game.canvas.style.setProperty('bottom', '0px', 'important');
-        game.canvas.style.setProperty('margin-top', 'auto', 'important');
-        game.canvas.style.setProperty('margin-bottom', '0px', 'important');
-    }
+// FUNZIONE MATEMATICA DI SPINTA IN BASSO DEL CANVAS PHASER
+function pushCanvasToBottom() {
+    const container = document.getElementById('game-container');
+    if (!container) return;
+    const canvas = container.querySelector('canvas');
+    if (!canvas) return;
+
+    const containerH = container.clientHeight;
+    const canvasH = canvas.getBoundingClientRect().height;
+    const diffY = Math.max(0, containerH - canvasH);
+
+    canvas.style.setProperty('position', 'absolute', 'important');
+    canvas.style.setProperty('top', diffY + 'px', 'important');
+    canvas.style.setProperty('bottom', '0px', 'important');
+    canvas.style.setProperty('margin-top', '0px', 'important');
+    canvas.style.setProperty('margin-bottom', '0px', 'important');
 }
 
-game.scale.on('postscale', enforceCanvasBottom);
-window.addEventListener('resize', enforceCanvasBottom);
-window.addEventListener('orientationchange', enforceCanvasBottom);
+// ASCOLTATORI EVENTI DI RESIZE E POSTSCALE PHASER
+game.scale.on('postscale', pushCanvasToBottom);
+window.addEventListener('resize', pushCanvasToBottom);
+window.addEventListener('orientationchange', pushCanvasToBottom);
+
+// CONTROLLO CONTINUO PER I PRIMI 2 SECONDI SU IOS PWA PER GESTIRE IL CARICAMENTO DELLA SAFARI BAR
+let checkCount = 0;
+const interval = setInterval(() => {
+    pushCanvasToBottom();
+    checkCount++;
+    if (checkCount > 10) clearInterval(interval);
+}, 200);
 
 let currentLBGameKey = 'feedbackInvaders';
 
