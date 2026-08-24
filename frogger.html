@@ -18,11 +18,12 @@
 }
 
 html, body {
-  width: 100vw;
+  width: 100%;
+  height: 100%;
   height: 100dvh;
   margin: 0;
   padding: 0;
-  background: #000000;
+  background: #000000 !important;
   overflow: hidden;
   position: fixed;
   inset: 0;
@@ -30,11 +31,11 @@ html, body {
 }
 
 /* =========================================================
-   LAYOUT FLEXBOX FLUIDO (ZERO SOVRAPPOSIZIONI)
+   LAYOUT FLEXBOX FLUIDO E COMPATTO (ZERO SOVRAPPOSIZIONI)
    ========================================================= */
 
 #game-wrapper {
-  position: absolute;
+  position: fixed;
   inset: 0;
   width: 100vw;
   height: 100dvh;
@@ -44,11 +45,12 @@ html, body {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  background: #000000;
-  padding-top: max(env(safe-area-inset-top), 6px);
-  padding-bottom: max(env(safe-area-inset-bottom), 6px);
+  background: #000000 !important;
+  padding-top: max(env(safe-area-inset-top), 4px);
+  padding-bottom: max(env(safe-area-inset-bottom), 4px);
   padding-left: 6px;
   padding-right: 6px;
+  overflow: hidden;
 }
 
 .top-header {
@@ -89,18 +91,18 @@ html, body {
 }
 
 /* =========================================================
-   CANVAS ADATTIVO
+   CANVAS ADATTIVO (SI RIDIMENSIONA DA SOLO)
    ========================================================= */
 
 #canvas-container {
-  flex: 1;
-  min-height: 0; /* Permette al canvas di scalare senza spingere in basso gli altri elementi */
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  margin: 4px 0;
+  margin: 2px 0;
 }
 
 canvas {
@@ -118,7 +120,7 @@ canvas {
 }
 
 /* =========================================================
-   JOYSTICK D-PAD CORRETTO
+   JOYSTICK D-PAD
    ========================================================= */
 
 .control-deck {
@@ -127,7 +129,7 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 
 .joystick-container {
@@ -138,8 +140,8 @@ canvas {
 
 .dpad-grid {
   display: grid;
-  grid-template-columns: 68px 68px 68px;
-  grid-template-rows: 48px 48px 48px; /* 3 righe corrette per evitare tagli */
+  grid-template-columns: 64px 64px 64px;
+  grid-template-rows: 44px 44px 44px;
   gap: 4px;
 }
 
@@ -150,17 +152,17 @@ canvas {
   background: linear-gradient(180deg, #ff4d00 0%, #d50000 45%, #8b0000 100%);
   border: 2px solid #ffb000;
   color: #fff7b0;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 900;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 0 #530000, 0 6px 10px rgba(0,0,0,0.5);
-  text-shadow: 0 2px 0 #7a0000;
+  box-shadow: 0 3px 0 #530000, 0 4px 8px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 0 #7a0000;
   transition: transform 0.04s linear, box-shadow 0.04s linear;
 }
 
 .ctrl-btn:active {
-  transform: translateY(3px);
+  transform: translateY(2px);
   box-shadow: 0 1px 0 #530000, 0 2px 4px rgba(0,0,0,0.4);
 }
 
@@ -179,7 +181,7 @@ canvas {
 .exit-btn {
   flex-shrink: 0;
   width: 100%;
-  height: 36px;
+  height: 38px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -192,6 +194,7 @@ canvas {
   border: 1px solid #222222;
   border-radius: 6px;
   cursor: pointer;
+  margin-top: 2px;
 }
 
 .exit-btn:active {
@@ -834,7 +837,7 @@ function drawHUD() {
   let tData = LEVEL_THEMES[Math.min(level - 1, LEVEL_THEMES.length - 1)];
   ctx.fillText(tData.title, canvas.width / 2, 26);
 
-  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'right'; ctx.fillText(`REC: ${highScore}`, canvas.width - 8, 16);
+  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'right'; ctx.fillText(`REC: ${highScore}`, canvas.width - 8, 16);
   ctx.fillStyle = '#ff0055'; ctx.fillText(`VITE: ${'❤️'.repeat(lives)}`, canvas.width - 8, 34);
 }
 
