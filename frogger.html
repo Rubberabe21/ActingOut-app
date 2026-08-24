@@ -2,15 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width,
-  initial-scale=1.0,
-  maximum-scale=1.0,
-  user-scalable=no,
-  viewport-fit=cover"
->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
 <title>Deadline Drive - Premiere Pro Timeline Rush</title>
 
@@ -41,106 +33,76 @@
     sans-serif;
 }
 
-
-/* =========================================================
-   BODY
-========================================================= */
-
-html {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #111;
-}
-
+html,
 body {
   width: 100%;
   height: 100%;
-
-  min-height: 100dvh;
+  height: 100dvh;
 
   overflow: hidden;
 
-  background: #111;
+  background: #111111;
   color: #e0e0e0;
 
   margin: 0;
   padding: 0;
 
-  display: block;
-
-  border: none !important;
-  outline: none !important;
+  position: fixed;
+  inset: 0;
 }
 
 
 /* =========================================================
    GAME WRAPPER
+   IMPORTANTE:
+   il wrapper occupa solo la parte superiore.
+   I controlli sono FIXED e NON consumano spazio.
 ========================================================= */
 
 #game-wrapper {
 
   position: fixed;
 
-  top: 0;
+  top: env(safe-area-inset-top);
   left: 0;
 
   width: 100vw;
-  height: 100dvh;
-
-  min-height: 100dvh;
-
-  max-width: none;
-  max-height: none;
-
-  overflow: hidden;
-
-  display: grid;
 
   /*
-    HEADER
-    GAME
-    JOYSTICK
-    EXIT
+    Lasciamo spazio SOLO al gioco.
+    I controlli sono fuori dal flusso.
   */
 
-  grid-template-rows:
-    auto
-    minmax(0, 1fr)
-    auto
-    auto;
+  height: calc(
+    100dvh
+    - env(safe-area-inset-top)
+    - 205px
+  );
 
-  align-items: stretch;
+  min-height: 0;
 
-  background: #1e1e1e;
+  max-width: 440px;
 
-  /*
-    IMPORTANTE:
-    il padding superiore tiene conto
-    del notch dell'iPhone.
-  */
+  display: flex;
+  flex-direction: column;
 
-  padding-top:
-    max(
-      env(safe-area-inset-top),
-      8px
-    );
+  align-items: center;
 
-  padding-left: 8px;
-  padding-right: 8px;
+  background: #111111;
 
-  /*
-    NIENTE padding-bottom qui.
-    Il fondo viene gestito dal pulsante.
-  */
-
-  padding-bottom: 0;
+  padding:
+    5px
+    7px
+    0
+    7px;
 
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
 
   border-radius: 0 !important;
+
+  z-index: 1;
 }
 
 
@@ -152,67 +114,53 @@ body {
 
   width: 100%;
 
-  min-height: 30px;
-
   display: flex;
 
   justify-content: space-between;
   align-items: center;
 
-  padding:
-    4px 6px;
+  padding: 5px 7px;
 
   background: #282828;
 
   border: none !important;
   outline: none !important;
 
-  border-radius:
-    6px 6px 0 0;
+  border-radius: 7px;
 
-  margin: 0;
+  margin-bottom: 4px;
 
   flex-shrink: 0;
-
-  z-index: 10;
 }
-
 
 .header-title {
 
   color: #00d2ff;
 
-  font-size: 11px;
+  font-size: 10px;
 
   font-weight: 700;
 
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
   white-space: nowrap;
 }
 
-
 .opt-btn {
 
-  background: #333;
+  background: #333333;
 
-  border:
-    1px solid #555;
+  border: 1px solid #555555;
 
   color: #ffea00;
 
-  padding:
-    3px 8px;
+  padding: 4px 7px;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
-  font-size: 10px;
+  font-size: 9px;
 
   font-weight: bold;
 
@@ -223,14 +171,13 @@ body {
   flex-shrink: 0;
 }
 
-
 .opt-btn:active {
   transform: scale(0.92);
 }
 
 
 /* =========================================================
-   GAME AREA
+   CANVAS
 ========================================================= */
 
 #canvas-container {
@@ -238,7 +185,13 @@ body {
   position: relative;
 
   width: 100%;
-  height: 100%;
+
+  /*
+    IL CANVAS PRENDE TUTTO LO SPAZIO DISPONIBILE
+    DELLA PARTE SUPERIORE.
+  */
+
+  flex: 1;
 
   min-height: 0;
 
@@ -248,42 +201,23 @@ body {
   align-items: center;
 
   overflow: hidden;
-
-  /*
-    IMPORTANTISSIMO:
-    il gioco può occupare tutto lo spazio
-    disponibile tra header e joystick.
-  */
-
-  padding:
-    4px 0;
-
 }
-
-
-/* =========================================================
-   CANVAS
-========================================================= */
 
 canvas {
 
   display: block;
 
   width: auto;
-  height: auto;
+  height: 100%;
 
   max-width: 100%;
   max-height: 100%;
 
-  object-fit: contain;
-
-  aspect-ratio:
-    338 / 486;
+  aspect-ratio: 338 / 486;
 
   background: #181818;
 
-  border:
-    1.5px solid #3a3a3a;
+  border: 1.5px solid #3a3a3a;
 
   box-shadow:
     0 4px 20px rgba(0,0,0,0.6);
@@ -291,43 +225,56 @@ canvas {
   border-radius: 5px;
 
   cursor: pointer;
-
 }
 
 
 /* =========================================================
-   JOYSTICK AREA
+   CONTROLLI
+   NON sono più dentro game-wrapper.
+   Sono FIXED.
 ========================================================= */
 
 .control-deck {
 
-  width: 100%;
+  position: fixed;
+
+  left: 0;
+  right: 0;
+
+  /*
+    Il fondo viene calcolato dal basso.
+    Il pulsante studio occupa gli ultimi ~36px.
+    Il joystick sta subito sopra.
+  */
+
+  bottom:
+    calc(
+      env(safe-area-inset-bottom)
+      + 43px
+    );
+
+  width: 100vw;
+
+  height: 142px;
 
   display: flex;
 
   justify-content: center;
   align-items: center;
 
-  /*
-    Più grande e più vicino al fondo.
-  */
-
-  padding:
-    8px 0 7px;
-
-  margin: 0;
-
   background: transparent;
 
   border: none !important;
   outline: none !important;
-
   box-shadow: none !important;
 
-  border-radius: 0;
+  padding: 0;
+
+  margin: 0;
+
+  z-index: 50;
 
   flex-shrink: 0;
-
 }
 
 
@@ -339,16 +286,17 @@ canvas {
 
   width: 100%;
 
+  height: 100%;
+
   display: flex;
 
   justify-content: center;
   align-items: center;
-
 }
 
 
 /* =========================================================
-   D-PAD
+   D-PAD CABINET STYLE
 ========================================================= */
 
 .dpad-grid {
@@ -356,238 +304,97 @@ canvas {
   display: grid;
 
   grid-template-columns:
-    repeat(3, 74px);
+    76px
+    76px
+    76px;
 
   grid-template-rows:
-    repeat(3, 62px);
+    60px
+    60px
+    60px;
 
   gap: 5px;
 
-  justify-content: center;
-  align-items: center;
-
+  transform: scale(1.08);
 }
 
 
 /* =========================================================
-   TASTI DIREZIONALI
-   STILE CABINATO ARCADE
+   PULSANTI
 ========================================================= */
 
 .ctrl-btn {
 
-  width: 74px;
-  height: 62px;
+  position: relative;
 
   display: flex;
 
   justify-content: center;
   align-items: center;
 
-  border-radius: 13px;
-
-  /*
-    Aspetto più da pulsante arcade.
-  */
-
   background:
     linear-gradient(
       180deg,
-      #ff4d8d 0%,
-      #e50055 45%,
-      #a8003e 100%
+      #ff4d00 0%,
+      #d50000 45%,
+      #8b0000 100%
     );
 
   border:
-    3px solid #ff8fba;
 
-  color: #fff;
+    3px solid #ffb000;
+
+  color: #fff7b0;
 
   font-size: 30px;
 
   font-weight: 900;
 
-  line-height: 1;
+  border-radius: 14px;
 
   cursor: pointer;
 
-  /*
-    Effetto pulsante fisico.
-  */
-
   box-shadow:
 
-    0 7px 0 #680028,
+    0 7px 0 #530000,
 
-    0 10px 14px
-      rgba(0,0,0,0.55),
+    0 9px 14px rgba(0,0,0,0.55),
 
-    inset 0 4px 5px
-      rgba(255,255,255,0.35),
+    inset 0 3px 0 rgba(255,255,255,0.35),
 
-    inset 0 -5px 8px
-      rgba(0,0,0,0.25);
+    inset 0 -4px 0 rgba(0,0,0,0.3);
 
   text-shadow:
-    0 2px 3px rgba(0,0,0,0.5);
+    0 2px 0 #7a0000,
+    0 0 8px rgba(255,230,0,0.6);
 
   transition:
-    transform 0.05s,
-    box-shadow 0.05s;
-
+    transform 0.04s linear,
+    box-shadow 0.04s linear;
 }
 
-
-/*
-   COLORI DIFFERENTI PER DIREZIONE
-*/
-
-#btnUp {
-
-  background:
-    linear-gradient(
-      180deg,
-      #29e6ff 0%,
-      #00a9d0 50%,
-      #00627c 100%
-    );
-
-  border-color: #8ff4ff;
-
-  box-shadow:
-
-    0 7px 0 #004c61,
-
-    0 10px 14px
-      rgba(0,0,0,0.55),
-
-    inset 0 4px 5px
-      rgba(255,255,255,0.4),
-
-    inset 0 -5px 8px
-      rgba(0,0,0,0.25);
-
-}
-
-
-#btnDown {
-
-  background:
-    linear-gradient(
-      180deg,
-      #9d72ff 0%,
-      #6735d8 50%,
-      #3a1d82 100%
-    );
-
-  border-color: #cbb8ff;
-
-  box-shadow:
-
-    0 7px 0 #2a155e,
-
-    0 10px 14px
-      rgba(0,0,0,0.55),
-
-    inset 0 4px 5px
-      rgba(255,255,255,0.35),
-
-    inset 0 -5px 8px
-      rgba(0,0,0,0.25);
-
-}
-
-
-#btnLeft {
-
-  background:
-    linear-gradient(
-      180deg,
-      #ffdf38 0%,
-      #f3a900 50%,
-      #a96600 100%
-    );
-
-  border-color: #fff09b;
-
-  box-shadow:
-
-    0 7px 0 #704400,
-
-    0 10px 14px
-      rgba(0,0,0,0.55),
-
-    inset 0 4px 5px
-      rgba(255,255,255,0.4),
-
-    inset 0 -5px 8px
-      rgba(0,0,0,0.25);
-
-}
-
-
-#btnRight {
-
-  background:
-    linear-gradient(
-      180deg,
-      #4dff8a 0%,
-      #00c95a 50%,
-      #007332 100%
-    );
-
-  border-color: #a2ffc3;
-
-  box-shadow:
-
-    0 7px 0 #004d23,
-
-    0 10px 14px
-      rgba(0,0,0,0.55),
-
-    inset 0 4px 5px
-      rgba(255,255,255,0.4),
-
-    inset 0 -5px 8px
-      rgba(0,0,0,0.25);
-
-}
-
-
-/* =========================================================
-   PRESSIONE TASTO
-========================================================= */
 
 .ctrl-btn:active {
 
   transform:
-    translateY(6px)
-    scale(0.97);
+    translateY(6px);
 
   box-shadow:
 
-    0 1px 0 #333,
+    0 1px 0 #530000,
 
-    0 4px 7px
-      rgba(0,0,0,0.45),
+    0 3px 6px rgba(0,0,0,0.45),
 
-    inset 0 4px 8px
-      rgba(0,0,0,0.3);
-
+    inset 0 2px 0 rgba(255,255,255,0.25);
 }
 
 
 /* =========================================================
-   CENTRO D-PAD
-   COMPLETAMENTE VUOTO
+   CENTRO:
+   NIENTE ROBA IN MEZZO
 ========================================================= */
 
 .ctrl-btn-center {
-
-  width: 74px;
-  height: 62px;
-
-  display: block;
 
   background: transparent;
 
@@ -595,96 +402,71 @@ canvas {
 
   box-shadow: none;
 
-}
+  pointer-events: none;
 
-
-/*
-   ELIMINA EVENTUALE VECCHIO CORE
-*/
-
-.dpad-core {
-  display: none !important;
+  visibility: hidden;
 }
 
 
 /* =========================================================
-   EXIT BUTTON
+   EXIT
+   FIXED AL VERO FONDO DELLO SCHERMO
 ========================================================= */
 
 .exit-btn {
 
-  width: 100%;
+  position: fixed;
 
-  height: 38px;
+  left: 0;
 
-  min-height: 38px;
+  bottom:
+    env(safe-area-inset-bottom);
+
+  width: 100vw;
+
+  height: 39px;
 
   margin: 0;
 
-  /*
-    Spazio inferiore SOLO qui,
-    per rispettare la home indicator dell'iPhone.
-  */
-
-  padding:
-    0 8px
-    max(
-      env(safe-area-inset-bottom),
-      6px
-    );
-
-  padding-bottom:
-    max(
-      env(safe-area-inset-bottom),
-      6px
-    );
-
-  background: #171717;
-
-  border: none !important;
-  outline: none !important;
-
-  color: #ff3366;
-
-  font-family:
-    'Courier New',
-    monospace;
-
-  font-weight: bold;
-
-  font-size: 11px;
-
-  border-radius: 0;
-
-  cursor: pointer;
-
-  text-align: center;
-
-  flex-shrink: 0;
+  padding: 0;
 
   display: flex;
 
   justify-content: center;
   align-items: center;
 
+  background: #111111;
+
+  border: none !important;
+
+  outline: none !important;
+
+  box-shadow: none !important;
+
+  color: #ff3366;
+
+  font-family: 'Courier New', monospace;
+
+  font-weight: bold;
+
+  font-size: 11px;
+
+  letter-spacing: 0.5px;
+
+  border-radius: 0;
+
+  cursor: pointer;
+
+  z-index: 100;
+
+  flex-shrink: 0;
 }
-
-
-/*
-   NIENTE LINEA SOPRA
-*/
-
-.exit-btn::before,
-.exit-btn::after {
-  display: none !important;
-}
-
 
 .exit-btn:active {
 
-  transform:
-    scale(0.97);
+  background: #1c1c1c;
 
+  transform: none;
 }
 
 
@@ -696,16 +478,15 @@ canvas {
 
   display: none;
 
-  position: absolute;
+  position: fixed;
 
-  top: 0;
-  left: 0;
+  inset: 0;
 
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100dvh;
 
   background:
-    rgba(18,18,18,0.95);
+    rgba(18,18,18,0.96);
 
   z-index: 200;
 
@@ -713,9 +494,7 @@ canvas {
   align-items: center;
 
   padding: 16px;
-
 }
-
 
 .modal-box {
 
@@ -725,12 +504,10 @@ canvas {
 
   background: #232323;
 
-  border:
-    2px solid #00d2ff;
+  border: 2px solid #00d2ff;
 
   box-shadow:
-    0 0 25px
-    rgba(0,210,255,0.3);
+    0 0 25px rgba(0,210,255,0.3);
 
   border-radius: 12px;
 
@@ -742,12 +519,10 @@ canvas {
 
   gap: 14px;
 
-  color: #fff;
+  color: #ffffff;
 
   text-align: center;
-
 }
-
 
 .modal-title {
 
@@ -757,12 +532,8 @@ canvas {
 
   font-weight: 900;
 
-  font-family:
-    'Courier New',
-    monospace;
-
+  font-family: 'Courier New', monospace;
 }
-
 
 .option-item {
 
@@ -778,13 +549,10 @@ canvas {
 
   padding: 8px;
 
-  border:
-    1px solid #3a3a3a;
+  border: 1px solid #3a3a3a;
 
   border-radius: 6px;
-
 }
-
 
 .option-label {
 
@@ -794,12 +562,8 @@ canvas {
 
   color: #00d2ff;
 
-  font-family:
-    'Courier New',
-    monospace;
-
+  font-family: 'Courier New', monospace;
 }
-
 
 .toggle-btn {
 
@@ -809,25 +573,20 @@ canvas {
 
   background: #2a2a2a;
 
-  border:
-    1.5px solid #ff0055;
+  border: 1.5px solid #ff0055;
 
-  color: #fff;
+  color: #ffffff;
 
   font-weight: bold;
 
   font-size: 12px;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
   border-radius: 6px;
 
   cursor: pointer;
-
 }
-
 
 .toggle-btn.active {
 
@@ -836,9 +595,7 @@ canvas {
   color: #00ff66;
 
   background: #122818;
-
 }
-
 
 .close-modal-btn {
 
@@ -848,267 +605,200 @@ canvas {
 
   border: none;
 
-  color: #000;
+  color: #000000;
 
   font-weight: bold;
 
   font-size: 12px;
 
-  font-family:
-    'Courier New',
-    monospace;
+  font-family: 'Courier New', monospace;
 
   border-radius: 6px;
 
   cursor: pointer;
-
 }
 
 
 /* =========================================================
-   IPHONE / SCHERMI STRETTI
+   SCHERMI BASSI / IPHONE
 ========================================================= */
 
 @media (max-width: 440px) {
 
-  html,
-  body {
-
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-
-  }
-
-
   #game-wrapper {
 
-    position: fixed;
-
-    inset: 0;
-
     width: 100vw;
-    height: 100dvh;
-
-    min-height: 100dvh;
 
     max-width: none;
-    max-height: none;
 
     /*
-      Il notch viene gestito QUI.
+      Altezza volutamente più grande.
+      Il joystick è indipendente.
     */
 
-    padding-top:
-      max(
-        env(safe-area-inset-top),
-        8px
+    height:
+      calc(
+        100dvh
+        - env(safe-area-inset-top)
+        - 205px
       );
 
-    padding-left: 5px;
-    padding-right: 5px;
-
-    padding-bottom: 0;
-
-    /*
-      Quattro righe:
-      header
-      gioco
-      joystick
-      torna in studio
-    */
-
-    grid-template-rows:
-      auto
-      minmax(0, 1fr)
-      auto
-      auto;
-
+    top:
+      env(safe-area-inset-top);
   }
-
 
   .top-header {
 
-    border-radius:
-      5px 5px 0 0;
+    border-radius: 0 0 7px 7px;
 
   }
-
-
-  #canvas-container {
-
-    padding:
-      2px 0;
-
-  }
-
-
-  /*
-    Joystick ancora più basso.
-  */
 
   .control-deck {
 
-    padding:
-      7px 0 5px;
+    height: 142px;
 
+    bottom:
+      calc(
+        env(safe-area-inset-bottom)
+        + 43px
+      );
   }
-
 
   .dpad-grid {
 
     grid-template-columns:
-      repeat(3, 70px);
+      72px
+      72px
+      72px;
 
     grid-template-rows:
-      repeat(3, 58px);
+      57px
+      57px
+      57px;
 
-    gap: 4px;
+    gap: 5px;
 
+    transform: scale(1.08);
   }
-
 
   .ctrl-btn {
 
-    width: 70px;
-    height: 58px;
-
     font-size: 28px;
 
-    border-width: 3px;
-
+    border-radius: 13px;
   }
-
-
-  .ctrl-btn-center {
-
-    width: 70px;
-    height: 58px;
-
-  }
-
-
-  /*
-    IL PULSANTE È L'ULTIMA COSA DELLO SCHERMO.
-  */
 
   .exit-btn {
 
-    height: auto;
+    height: 39px;
 
-    min-height: 40px;
-
-    padding-top: 5px;
-
-    padding-bottom:
-      max(
-        env(safe-area-inset-bottom),
-        8px
-      );
-
-    margin: 0;
-
-    border-radius: 0;
-
-    background: #171717;
-
+    bottom:
+      env(safe-area-inset-bottom);
   }
-
 }
 
 
 /* =========================================================
-   IPHONE MOLTO BASSO / SCHERMO PICCOLO
+   IPHONE MOLTO ALTO
 ========================================================= */
 
-@media (max-width: 440px) and (max-height: 700px) {
+@media (
+  min-height: 780px
+) and (
+  max-width: 440px
+) {
 
-  .top-header {
+  #game-wrapper {
 
-    min-height: 28px;
-
-    padding:
-      3px 5px;
-
+    height:
+      calc(
+        100dvh
+        - env(safe-area-inset-top)
+        - 195px
+      );
   }
-
-
-  .header-title {
-
-    font-size: 9px;
-
-  }
-
-
-  .opt-btn {
-
-    font-size: 9px;
-
-    padding:
-      2px 6px;
-
-  }
-
 
   .control-deck {
 
-    padding:
-      4px 0 3px;
+    height: 145px;
 
+    bottom:
+      calc(
+        env(safe-area-inset-bottom)
+        + 43px
+      );
   }
 
+  .dpad-grid {
+
+    transform: scale(1.12);
+  }
+}
+
+
+/* =========================================================
+   SCHERMI BASSI
+========================================================= */
+
+@media (
+  max-height: 700px
+) {
+
+  #game-wrapper {
+
+    height:
+      calc(
+        100dvh
+        - env(safe-area-inset-top)
+        - 180px
+      );
+  }
+
+  .control-deck {
+
+    height: 125px;
+
+    bottom:
+      calc(
+        env(safe-area-inset-bottom)
+        + 39px
+      );
+  }
 
   .dpad-grid {
 
     grid-template-columns:
-      repeat(3, 60px);
+      64px
+      64px
+      64px;
 
     grid-template-rows:
-      repeat(3, 48px);
+      48px
+      48px
+      48px;
 
-    gap: 3px;
+    gap: 4px;
 
+    transform: scale(1.05);
   }
-
 
   .ctrl-btn {
 
-    width: 60px;
-    height: 48px;
-
     font-size: 24px;
 
+    border-width: 2px;
+
+    border-radius: 11px;
   }
-
-
-  .ctrl-btn-center {
-
-    width: 60px;
-    height: 48px;
-
-  }
-
 
   .exit-btn {
 
-    min-height: 34px;
-
-    font-size: 10px;
-
-    padding-bottom:
-      max(
-        env(safe-area-inset-bottom),
-        6px
-      );
-
+    height: 35px;
   }
-
 }
 
 </style>
 </head>
-
 
 <body>
 
@@ -1123,12 +813,11 @@ canvas {
 </audio>
 
 
+<!-- =======================================================
+     GAME
+======================================================= -->
+
 <div id="game-wrapper">
-
-
-  <!-- =====================================================
-       HEADER
-  ====================================================== -->
 
   <div class="top-header">
 
@@ -1146,169 +835,143 @@ canvas {
   </div>
 
 
-  <!-- =====================================================
-       GAME
-  ====================================================== -->
-
   <div id="canvas-container">
 
     <canvas id="game"></canvas>
 
   </div>
 
-
-  <!-- =====================================================
-       JOYSTICK
-  ====================================================== -->
-
-  <div class="control-deck">
-
-    <div class="joystick-container">
-
-      <div class="dpad-grid">
+</div>
 
 
-        <!-- VUOTO -->
+<!-- =======================================================
+     JOYSTICK FUORI DAL WRAPPER
+======================================================= -->
 
-        <div></div>
+<div class="control-deck">
 
+  <div class="joystick-container">
 
-        <!-- UP -->
+    <div class="dpad-grid">
 
-        <div
-          class="ctrl-btn"
-          id="btnUp"
-        >
-          ▲
-        </div>
+      <div style="visibility:hidden"></div>
 
-
-        <!-- VUOTO -->
-
-        <div></div>
-
-
-        <!-- LEFT -->
-
-        <div
-          class="ctrl-btn"
-          id="btnLeft"
-        >
-          ◀
-        </div>
-
-
-        <!-- CENTRO VUOTO -->
-
-        <div
-          class="ctrl-btn-center"
-        ></div>
-
-
-        <!-- RIGHT -->
-
-        <div
-          class="ctrl-btn"
-          id="btnRight"
-        >
-          ▶
-        </div>
-
-
-        <!-- VUOTO -->
-
-        <div></div>
-
-
-        <!-- DOWN -->
-
-        <div
-          class="ctrl-btn"
-          id="btnDown"
-        >
-          ▼
-        </div>
-
-
-        <!-- VUOTO -->
-
-        <div></div>
-
+      <div
+        class="ctrl-btn"
+        id="btnUp"
+      >
+        ▲
       </div>
+
+      <div style="visibility:hidden"></div>
+
+
+      <div
+        class="ctrl-btn"
+        id="btnLeft"
+      >
+        ◀
+      </div>
+
+
+      <div
+        class="ctrl-btn-center"
+      >
+      </div>
+
+
+      <div
+        class="ctrl-btn"
+        id="btnRight"
+      >
+        ▶
+      </div>
+
+
+      <div style="visibility:hidden"></div>
+
+      <div
+        class="ctrl-btn"
+        id="btnDown"
+      >
+        ▼
+      </div>
+
+      <div style="visibility:hidden"></div>
 
     </div>
 
   </div>
 
-
-  <!-- =====================================================
-       EXIT
-  ====================================================== -->
-
-  <button
-    class="exit-btn"
-    onclick="exitGame()"
-  >
-    ◄ TORNA IN STUDIO
-  </button>
+</div>
 
 
-  <!-- =====================================================
-       SETTINGS
-  ====================================================== -->
+<!-- =======================================================
+     TORNA IN STUDIO
+======================================================= -->
 
-  <div
-    class="modal-overlay"
-    id="settingsModal"
-  >
-
-    <div class="modal-box">
-
-      <div class="modal-title">
-        ⚙️ TIMELINE SETTINGS
-      </div>
+<button
+  class="exit-btn"
+  onclick="exitGame()"
+>
+  ◄ TORNA IN STUDIO
+</button>
 
 
-      <div class="option-item">
+<!-- =======================================================
+     MODALE
+======================================================= -->
 
-        <span class="option-label">
-          MUSICA DI SOTTOFONDO
-        </span>
+<div
+  class="modal-overlay"
+  id="settingsModal"
+>
 
-        <button
-          class="toggle-btn active"
-          id="btnToggleMusic"
-        >
-          ON 🎵
-        </button>
+  <div class="modal-box">
 
-      </div>
+    <div class="modal-title">
+      ⚙️ TIMELINE SETTINGS
+    </div>
 
 
-      <div class="option-item">
+    <div class="option-item">
 
-        <span class="option-label">
-          EFFETTI SONORI (SFX)
-        </span>
-
-        <button
-          class="toggle-btn active"
-          id="btnToggleSfx"
-        >
-          ON 🔊
-        </button>
-
-      </div>
-
+      <span class="option-label">
+        MUSICA DI SOTTOFONDO
+      </span>
 
       <button
-        class="close-modal-btn"
-        id="btnCloseSettings"
+        class="toggle-btn active"
+        id="btnToggleMusic"
       >
-        SALVA E CHIUDI ►
+        ON 🎵
       </button>
 
     </div>
+
+
+    <div class="option-item">
+
+      <span class="option-label">
+        EFFETTI SONORI (SFX)
+      </span>
+
+      <button
+        class="toggle-btn active"
+        id="btnToggleSfx"
+      >
+        ON 🔊
+      </button>
+
+    </div>
+
+
+    <button
+      class="close-modal-btn"
+      id="btnCloseSettings"
+    >
+      SALVA E CHIUDI ►
+    </button>
 
   </div>
 
@@ -1331,7 +994,6 @@ const ctx =
 const COLS = 13;
 const ROWS = 17;
 const CELL_SIZE = 26;
-
 const HUD_HEIGHT = 44;
 const TRACK_HEADER_W = 38;
 
@@ -1343,11 +1005,8 @@ const CANVAS_H =
   HUD_HEIGHT;
 
 
-canvas.width =
-  CANVAS_W;
-
-canvas.height =
-  CANVAS_H;
+canvas.width = CANVAS_W;
+canvas.height = CANVAS_H;
 
 
 /* =========================================================
@@ -1369,16 +1028,13 @@ function drawRoundRect(
   if (h < 2 * r)
     r = h / 2;
 
-
   c.beginPath();
-
 
   c.moveTo(
     x + r,
     y
   );
 
-
   c.arcTo(
     x + w,
     y,
@@ -1386,7 +1042,6 @@ function drawRoundRect(
     y + h,
     r
   );
-
 
   c.arcTo(
     x + w,
@@ -1396,7 +1051,6 @@ function drawRoundRect(
     r
   );
 
-
   c.arcTo(
     x,
     y + h,
@@ -1405,7 +1059,6 @@ function drawRoundRect(
     r
   );
 
-
   c.arcTo(
     x,
     y,
@@ -1413,10 +1066,8 @@ function drawRoundRect(
     y,
     r
   );
-
 
   c.closePath();
-
 }
 
 
@@ -1429,7 +1080,6 @@ let musicEnabled =
     'deadlineDrive_music'
   ) !== 'false';
 
-
 let sfxEnabled =
   localStorage.getItem(
     'deadlineDrive_sfx'
@@ -1437,9 +1087,7 @@ let sfxEnabled =
 
 
 const bgMusic =
-  document.getElementById(
-    'bgMusic'
-  );
+  document.getElementById('bgMusic');
 
 
 bgMusic.volume = 0.4;
@@ -1468,7 +1116,6 @@ window.addEventListener(
   'DOMContentLoaded',
   playBgMusic
 );
-
 
 window.addEventListener(
   'load',
@@ -1518,24 +1165,20 @@ const settingsModal =
     'settingsModal'
   );
 
-
 const btnOpenSettings =
   document.getElementById(
     'btnOpenSettings'
   );
-
 
 const btnCloseSettings =
   document.getElementById(
     'btnCloseSettings'
   );
 
-
 const btnToggleMusic =
   document.getElementById(
     'btnToggleMusic'
   );
-
 
 const btnToggleSfx =
   document.getElementById(
@@ -1552,7 +1195,6 @@ function renderOptionButtons() {
         : ''
     }`;
 
-
   btnToggleMusic.innerText =
     musicEnabled
       ? 'ON 🎵'
@@ -1565,7 +1207,6 @@ function renderOptionButtons() {
         ? 'active'
         : ''
     }`;
-
 
   btnToggleSfx.innerText =
     sfxEnabled
@@ -1583,12 +1224,10 @@ btnToggleMusic.onclick = () => {
   musicEnabled =
     !musicEnabled;
 
-
   localStorage.setItem(
     'deadlineDrive_music',
     musicEnabled
   );
-
 
   renderOptionButtons();
 
@@ -1602,12 +1241,10 @@ btnToggleSfx.onclick = () => {
   sfxEnabled =
     !sfxEnabled;
 
-
   localStorage.setItem(
     'deadlineDrive_sfx',
     sfxEnabled
   );
-
 
   renderOptionButtons();
 
@@ -1624,7 +1261,6 @@ btnOpenSettings.onclick = () => {
 
   }
 
-
   settingsModal.style.display =
     'flex';
 
@@ -1636,9 +1272,7 @@ btnCloseSettings.onclick = () => {
   settingsModal.style.display =
     'none';
 
-
   getAC();
-
 
   if (
     gameState === 'PAUSE'
@@ -1648,7 +1282,6 @@ btnCloseSettings.onclick = () => {
       'PLAYING';
 
   }
-
 
   updateMusicState();
 
@@ -1672,7 +1305,6 @@ function getAC() {
         window.AudioContext ||
         window.webkitAudioContext;
 
-
       if (AudioContextClass) {
 
         audioCtx =
@@ -1685,8 +1317,7 @@ function getAC() {
 
     if (
       audioCtx &&
-      audioCtx.state ===
-      'suspended'
+      audioCtx.state === 'suspended'
     ) {
 
       audioCtx
@@ -1702,7 +1333,6 @@ function getAC() {
 
   playBgMusic();
 
-
   return audioCtx;
 
 }
@@ -1713,12 +1343,9 @@ function playSound(type) {
   if (!sfxEnabled)
     return;
 
-
   try {
 
-    const ac =
-      getAC();
-
+    const ac = getAC();
 
     if (!ac)
       return;
@@ -1727,41 +1354,37 @@ function playSound(type) {
     const osc =
       ac.createOscillator();
 
-
     const gain =
       ac.createGain();
 
 
     osc.connect(gain);
-
     gain.connect(
       ac.destination
     );
 
 
-    if (type === 'cross') {
+    if (
+      type === 'cross'
+    ) {
 
       osc.type =
         'triangle';
-
 
       osc.frequency.setValueAtTime(
         523,
         ac.currentTime
       );
 
-
       osc.frequency.setValueAtTime(
         659,
         ac.currentTime + 0.08
       );
 
-
       gain.gain.setValueAtTime(
         0.18,
         ac.currentTime
       );
-
 
       osc.start();
 
@@ -1772,29 +1395,27 @@ function playSound(type) {
     }
 
 
-    else if (type === 'crash') {
+    else if (
+      type === 'crash'
+    ) {
 
       osc.type =
         'sawtooth';
-
 
       osc.frequency.setValueAtTime(
         250,
         ac.currentTime
       );
 
-
       osc.frequency.exponentialRampToValueAtTime(
         40,
         ac.currentTime + 0.25
       );
 
-
       gain.gain.setValueAtTime(
         0.25,
         ac.currentTime
       );
-
 
       osc.start();
 
@@ -1812,24 +1433,20 @@ function playSound(type) {
       osc.type =
         'sine';
 
-
       osc.frequency.setValueAtTime(
         600,
         ac.currentTime
       );
-
 
       osc.frequency.linearRampToValueAtTime(
         1200,
         ac.currentTime + 0.1
       );
 
-
       gain.gain.setValueAtTime(
         0.15,
         ac.currentTime
       );
-
 
       osc.start();
 
@@ -1847,24 +1464,20 @@ function playSound(type) {
       osc.type =
         'triangle';
 
-
       osc.frequency.setValueAtTime(
         440,
         ac.currentTime
       );
-
 
       osc.frequency.setValueAtTime(
         880,
         ac.currentTime + 0.1
       );
 
-
       gain.gain.setValueAtTime(
         0.2,
         ac.currentTime
       );
-
 
       osc.start();
 
@@ -1882,24 +1495,20 @@ function playSound(type) {
       osc.type =
         'sawtooth';
 
-
       osc.frequency.setValueAtTime(
         180,
         ac.currentTime
       );
-
 
       osc.frequency.linearRampToValueAtTime(
         80,
         ac.currentTime + 0.2
       );
 
-
       gain.gain.setValueAtTime(
         0.2,
         ac.currentTime
       );
-
 
       osc.start();
 
@@ -1917,24 +1526,20 @@ function playSound(type) {
       osc.type =
         'sawtooth';
 
-
       osc.frequency.setValueAtTime(
         220,
         ac.currentTime
       );
-
 
       osc.frequency.linearRampToValueAtTime(
         50,
         ac.currentTime + 0.3
       );
 
-
       gain.gain.setValueAtTime(
         0.25,
         ac.currentTime
       );
-
 
       osc.start();
 
@@ -1952,7 +1557,7 @@ function playSound(type) {
 
 
 /* =========================================================
-   IMMAGINI
+   RITRATTI
 ========================================================= */
 
 const imgGiulia =
@@ -1990,225 +1595,328 @@ imgLuca.src =
 const PREMIERE_CLIPS = {
 
   BLUE_A_ROLL: {
+
     type: 'A_ROLL',
     label: 'A001_C004.MOV',
+
     bg: '#2b52a1',
     border: '#5682e8',
     textCol: '#d0e0ff',
     topBar: '#00ff66',
+
     wMult: 2.2,
     hMult: 1
+
   },
 
 
   PURPLE_B_ROLL: {
+
     type: 'B_ROLL',
     label: 'B002_DRONE.MP4',
+
     bg: '#7f22a7',
     border: '#b842df',
     textCol: '#f2c8ff',
     topBar: '#ff0055',
+
     wMult: 2.5,
     hMult: 1
+
   },
 
 
   ROSE_LUMETRI: {
+
     type: 'LUMETRI',
     label: 'LUMETRI COLOR',
+
     bg: '#a11b43',
     border: '#e64273',
     textCol: '#ffd4e2',
     topBar: '#ffee00',
+
     wMult: 2.0,
     hMult: 1
+
   },
 
 
   GOLD_VOICEOVER: {
+
     type: 'VOICEOVER',
     label: 'VO_MASTER_V2',
+
     bg: '#8f7d18',
     border: '#dbc330',
     textCol: '#fdf8c2',
     topBar: '#00ff66',
+
     isAudio: true,
+
     wMult: 2.0,
     hMult: 1
+
   },
 
 
   GREEN_SFX: {
+
     type: 'SFX_WAVE',
     label: 'SFX_WHOOSH.WAV',
+
     bg: '#2d7a3a',
     border: '#4ec462',
     textCol: '#d2f8da',
     topBar: '#00ff66',
+
     isAudio: true,
+
     wMult: 1.8,
     hMult: 1
+
   },
 
 
   TEAL_MUSIC: {
+
     type: 'MUSIC',
     label: 'BEAT_TRACK_FLAC',
+
     bg: '#147b85',
     border: '#23b3be',
     textCol: '#c2f8fc',
     topBar: '#00ff66',
+
     isAudio: true,
+
     wMult: 2.8,
     hMult: 1
+
   },
 
 
   NESTED_SEQ: {
+
     type: 'NESTED',
     label: 'NEST_INTRO_SEQ',
+
     bg: '#5b1e8a',
     border: '#8b3adb',
     textCol: '#e8cbff',
     topBar: '#ffee00',
+
     wMult: 3.0,
     hMult: 1
+
   },
 
 
   OFFLINE_RED: {
+
     type: 'OFFLINE',
     label: 'MEDIA OFFLINE! 🔴',
+
     bg: '#8b0000',
     border: '#ff3333',
     textCol: '#ffffff',
     topBar: '#ff0000',
+
     wMult: 3.2,
     hMult: 1
+
   }
 
 };
 
 
 /* =========================================================
-   LEVEL THEMES
+   LEVELS
 ========================================================= */
 
 const LEVEL_THEMES = [
 
   {
     levelMin: 1,
+
     title:
       "STAGE 1: ASSEMBLY TIMELINE",
+
     msg:
       "Primi stacchi video: pochi ostacoli e flusso regolare!"
+
   },
 
 
   {
     levelMin: 2,
+
     title:
       "STAGE 2: MONTAGGIO RUSH",
+
     msg:
       "Aumentano le clip b-roll e le tracce audio!"
+
   },
 
 
   {
     levelMin: 3,
+
     title:
       "STAGE 3: COLOR & FX MULTI-LAYER",
+
     msg:
       "Lumetri Color, Nested Sequences e tracce complesse!"
+
   },
 
 
   {
     levelMin: 4,
+
     title:
       "STAGE 4: EXPORT FINALE PRE-DEADLINE",
+
     msg:
       "Massima densità e velocità sulla Timeline!"
+
   }
 
 ];
 
 
 /* =========================================================
-   PERSONAGGI
+   CHARACTERS
 ========================================================= */
 
 const CHARACTERS = {
 
   GIULIA: {
+
     id: 'GIULIA',
+
     name: "GIULIA",
-    subtitle: "Lead Video Editor",
+
+    subtitle:
+      "Lead Video Editor",
+
     perkBonus:
       "BONUS: Precisione (Punti 1.25x)",
+
     perkMalus:
       "MALUS: Sensibile al Glitch",
+
     primary: "#00d2ff",
+
     bg: "#181818",
+
     img: imgGiulia,
+
     arrowCol: "#00d2ff",
+
     arrowGlow: "#005f73",
+
     speed: 2.8,
+
     scoreMult: 1.25
+
   },
 
 
   TOBI: {
+
     id: 'TOBI',
+
     name: "TOBI",
-    subtitle: "Assistant Video Editor",
+
+    subtitle:
+      "Assistant Video Editor",
+
     perkBonus:
       "BONUS: Agilità (+20% Velocità)",
+
     perkMalus:
       "MALUS: Punteggio Base (-10%)",
+
     primary: "#ffd700",
+
     bg: "#181818",
+
     img: imgTobi,
+
     arrowCol: "#ffd700",
+
     arrowGlow: "#886600",
+
     speed: 3.4,
+
     scoreMult: 0.9
+
   },
 
 
   DAVE: {
+
     id: 'DAVE',
+
     name: "DAVE",
-    subtitle: "Focused Director",
+
+    subtitle:
+      "Focused Director",
+
     perkBonus:
       "BONUS: Autorità (+30% Punteggio)",
+
     perkMalus:
       "MALUS: Passo Pesante (-20% Velocità)",
+
     primary: "#ff0055",
+
     bg: "#181818",
+
     img: imgDave,
+
     arrowCol: "#ff0055",
+
     arrowGlow: "#880022",
+
     speed: 2.0,
+
     scoreMult: 1.3
+
   },
 
 
   LUCA: {
+
     id: 'LUCA',
+
     name: "LUCA",
-    subtitle: "VFX Artist Whiz",
+
+    subtitle:
+      "VFX Artist Whiz",
+
     perkBonus:
       "BONUS: VFX Master (+15% Punti)",
+
     perkMalus:
       "MALUS: Meno Vite Iniziali",
+
     primary: "#ffaa00",
+
     bg: "#181818",
+
     img: imgLuca,
+
     arrowCol: "#ffaa00",
+
     arrowGlow: "#885500",
+
     speed: 3.2,
+
     scoreMult: 1.15
+
   }
 
 };
@@ -2229,62 +1937,97 @@ const CHARACTER_LIST = [
 const PICKUP_TYPES = {
 
   AUTO_SAVE: {
+
     type: 'AUTOSAVE',
+
     label: '💾 SAVE',
+
     pts: 300,
+
     isMalus: false
+
   },
 
 
   PROXY_ON: {
+
     type: 'PROXY',
+
     label: '🎬 PROXY 2X',
+
     pts: 400,
+
     isMalus: false,
+
     scoreBoost: 2.0
+
   },
 
 
   CACHE_BOOST: {
+
     type: 'CACHE',
+
     label: '⚡ CACHE',
+
     pts: 150,
+
     isMalus: false,
+
     speedBoost: 1.3
+
   },
 
 
   GUARD: {
+
     type: 'GUARD',
+
     label: '🛡️ RENDER',
+
     pts: 250,
+
     isMalus: false,
+
     shieldDuration: 180
+
   },
 
 
   DROP_FRAME: {
+
     type: 'DROP_FRAME',
+
     label: '🐌 DROP',
+
     pts: -100,
+
     isMalus: true,
+
     slowFactor: 0.6
+
   },
 
 
   DISK_FULL: {
+
     type: 'DISK_FULL',
+
     label: '⚠️ FULL DISK',
+
     pts: -200,
+
     isMalus: true,
+
     invertControls: true
+
   }
 
 };
 
 
 /* =========================================================
-   GAME VARIABLES
+   GAME STATE
 ========================================================= */
 
 let currentTheme =
@@ -2316,7 +2059,9 @@ let visualScrollOffset = 0;
 let player = {
 
   gx:
-    Math.floor(COLS / 2),
+    Math.floor(
+      COLS / 2
+    ),
 
   gy:
     ROWS - 2,
@@ -2343,11 +2088,8 @@ let player = {
 
 
 let moveUp = false;
-
 let moveDown = false;
-
 let moveLeft = false;
-
 let moveRight = false;
 
 let selectedCharIndex = 0;
@@ -2356,7 +2098,7 @@ let particles = [];
 
 
 /* =========================================================
-   LANE GENERATION
+   LANE GENERATOR
 ========================================================= */
 
 function createNewLane(
@@ -2391,6 +2133,7 @@ function createNewLane(
 
   }
 
+
   else {
 
     let topLane =
@@ -2405,6 +2148,7 @@ function createNewLane(
       isSafe = false;
 
     }
+
 
     else {
 
@@ -2452,8 +2196,7 @@ function createNewLane(
     );
 
 
-  let trackLabel =
-    "V1";
+  let trackLabel = "V1";
 
 
   if (r % 5 === 0) {
@@ -2512,7 +2255,9 @@ function createNewLane(
   };
 
 
-  if (laneType === 'ROAD') {
+  if (
+    laneType === 'ROAD'
+  ) {
 
     let x =
       TRACK_HEADER_W -
@@ -2532,8 +2277,7 @@ function createNewLane(
       x +=
         CELL_SIZE *
         (
-          Math.random() *
-          2.5 +
+          Math.random() * 2.5 +
           minGap
         );
 
@@ -2656,6 +2400,10 @@ function startInfiniteScroll() {
 }
 
 
+/* =========================================================
+   RESET PLAYER
+========================================================= */
+
 function resetPlayer() {
 
   player.gx =
@@ -2663,17 +2411,13 @@ function resetPlayer() {
       COLS / 2
     );
 
-
   player.gy =
     ROWS - 2;
 
-
   player.w = 16;
-
   player.h = 16;
 
   player.invTimer = 0;
-
   player.guardTimer = 0;
 
   player.nextMoveAllowedTimer = 0;
@@ -2688,7 +2432,7 @@ function resetPlayer() {
 
 
 /* =========================================================
-   PLAYER
+   UPDATE PLAYER
 ========================================================= */
 
 function updatePlayer() {
@@ -2800,7 +2544,6 @@ function updatePlayer() {
       let ngx =
         player.gx + dx;
 
-
       let ngy =
         player.gy + dy;
 
@@ -2829,19 +2572,24 @@ function updatePlayer() {
 
         }
 
-        else if (dy < 0) {
+        else if (
+          dy < 0
+        ) {
 
-          score += Math.floor(
-            10 *
-            level *
-            currentTheme.scoreMult *
-            player.tempScoreMult
-          );
+          score +=
+            Math.floor(
+              10 *
+              level *
+              currentTheme.scoreMult *
+              player.tempScoreMult
+            );
 
         }
 
 
-        playSound('cross');
+        playSound(
+          'cross'
+        );
 
 
         let effSpeed =
@@ -2897,7 +2645,6 @@ function scrollWorldDown() {
 
   activeLanes.pop();
 
-
   activeLanes.unshift(
     createNewLane(false)
   );
@@ -2910,12 +2657,13 @@ function scrollWorldDown() {
     CELL_SIZE;
 
 
-  score += Math.floor(
-    15 *
-    level *
-    currentTheme.scoreMult *
-    player.tempScoreMult
-  );
+  score +=
+    Math.floor(
+      15 *
+      level *
+      currentTheme.scoreMult *
+      player.tempScoreMult
+    );
 
 
   if (
@@ -2940,8 +2688,7 @@ function updateVehicles() {
     (
       0 -
       visualScrollOffset
-    ) *
-    0.25;
+    ) * 0.25;
 
 
   if (
@@ -3015,7 +2762,6 @@ function updateVehicles() {
     let p =
       particles[i];
 
-
     p.x += p.vx;
 
     p.y += p.vy;
@@ -3064,14 +2810,12 @@ function addParticles(
 
       vx:
         (
-          Math.random() -
-          0.5
+          Math.random() - 0.5
         ) * 6,
 
       vy:
         (
-          Math.random() -
-          0.5
+          Math.random() - 0.5
         ) * 6,
 
       life: 16,
@@ -3122,17 +2866,20 @@ function checkPickups() {
       p.gx === player.gx
     ) {
 
-      score += Math.floor(
-        p.type.pts *
-        currentTheme.scoreMult
-      );
+      score +=
+        Math.floor(
+          p.type.pts *
+          currentTheme.scoreMult
+        );
 
 
       if (
         p.type.isMalus
       ) {
 
-        playSound('malus');
+        playSound(
+          'malus'
+        );
 
 
         if (
@@ -3156,9 +2903,12 @@ function checkPickups() {
 
       }
 
+
       else {
 
-        playSound('pickup');
+        playSound(
+          'pickup'
+        );
 
 
         if (
@@ -3229,7 +2979,7 @@ function checkPickups() {
 
 
 /* =========================================================
-   COLLISION
+   INVINCIBILITY
 ========================================================= */
 
 function isInvincible() {
@@ -3241,6 +2991,10 @@ function isInvincible() {
 
 }
 
+
+/* =========================================================
+   COLLISIONS
+========================================================= */
 
 function checkCollisions() {
 
@@ -3313,7 +3067,6 @@ function checkCollisions() {
         let oLeft =
           obj.x;
 
-
         let oRight =
           obj.x +
           obj.w;
@@ -3322,7 +3075,6 @@ function checkCollisions() {
         let pLeft =
           playerX -
           player.w / 2;
-
 
         let pRight =
           playerX +
@@ -3354,7 +3106,9 @@ function hitPlayer() {
 
   lives--;
 
-  playSound('crash');
+  playSound(
+    'crash'
+  );
 
 
   addParticles(
@@ -3381,11 +3135,14 @@ function hitPlayer() {
     gameState =
       'GAME_OVER';
 
-    playSound('fail');
+    playSound(
+      'fail'
+    );
 
     saveScore();
 
   }
+
 
   else {
 
@@ -3401,8 +3158,7 @@ function hitPlayer() {
 
       if (
         activeLanes[r] &&
-        activeLanes[r].type ===
-        'SAFE'
+        activeLanes[r].type === 'SAFE'
       ) {
 
         respawnGy = r;
@@ -3419,22 +3175,17 @@ function hitPlayer() {
         COLS / 2
       );
 
-
     player.gy =
       respawnGy;
-
 
     player.invTimer =
       90;
 
-
     player.glitchTimer =
       0;
 
-
     player.speedMult =
       1.0;
-
 
     player.tempScoreMult =
       1.0;
@@ -3468,7 +3219,7 @@ function drawGameWorld() {
 
       let y =
         r *
-        CELL_SIZE +
+          CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
@@ -3487,7 +3238,6 @@ function drawGameWorld() {
 
       ctx.strokeStyle =
         '#222226';
-
 
       ctx.lineWidth = 1;
 
@@ -3512,7 +3262,7 @@ function drawGameWorld() {
 
         let y =
           r *
-          CELL_SIZE +
+            CELL_SIZE +
           HUD_HEIGHT +
           visualScrollOffset;
 
@@ -3574,7 +3324,7 @@ function drawGameWorld() {
 
         let y =
           r *
-          CELL_SIZE +
+            CELL_SIZE +
           HUD_HEIGHT +
           visualScrollOffset;
 
@@ -3595,7 +3345,7 @@ function drawGameWorld() {
 
       let y =
         r *
-        CELL_SIZE +
+          CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
@@ -3615,7 +3365,6 @@ function drawGameWorld() {
       ctx.strokeStyle =
         '#323238';
 
-
       ctx.lineWidth = 1;
 
 
@@ -3634,10 +3383,8 @@ function drawGameWorld() {
       ctx.font =
         'bold 9px -apple-system, sans-serif';
 
-
       ctx.textAlign =
         'center';
-
 
       ctx.textBaseline =
         'middle';
@@ -3687,9 +3434,7 @@ function drawGameWorld() {
   ctx.strokeStyle =
     'rgba(0,210,255,0.4)';
 
-
-  ctx.lineWidth =
-    1.5;
+  ctx.lineWidth = 1.5;
 
 
   ctx.beginPath();
@@ -3730,14 +3475,11 @@ function drawObstacles(
       let x =
         obj.x;
 
-
       let y =
         laneY;
 
-
       let vData =
         obj.type;
-
 
       let blockW =
         obj.w;
@@ -3792,7 +3534,6 @@ function drawObstacles(
       ctx.strokeStyle =
         vData.border;
 
-
       ctx.lineWidth = 1;
 
 
@@ -3846,7 +3587,6 @@ function drawObstacles(
         ctx.strokeStyle =
           'rgba(255,255,255,0.18)';
 
-
         ctx.lineWidth = 1;
 
 
@@ -3867,14 +3607,14 @@ function drawObstacles(
 
 
         ctx.lineTo(
-          x + blockW - 6,
+          x +
+            blockW - 6,
           y +
             blockH / 2
         );
 
 
         ctx.stroke();
-
 
         ctx.setLineDash([]);
 
@@ -3918,7 +3658,7 @@ function drawObstacles(
 
 
 /* =========================================================
-   PLAYER DRAW
+   PLAYER
 ========================================================= */
 
 function drawSinglePlayer() {
@@ -3973,10 +3713,8 @@ function drawSinglePlayer() {
   ctx.shadowColor =
     '#00d2ff';
 
-
   ctx.shadowBlur =
     10;
-
 
   ctx.fillStyle =
     '#00d2ff';
@@ -4016,8 +3754,7 @@ function drawSinglePlayer() {
 
 
   ctx.strokeStyle =
-    '#fff';
-
+    '#ffffff';
 
   ctx.lineWidth =
     1.5;
@@ -4032,7 +3769,6 @@ function drawSinglePlayer() {
 
     ctx.fillStyle =
       '#ff0055';
-
 
     ctx.font =
       'bold 10px monospace';
@@ -4054,14 +3790,12 @@ function drawSinglePlayer() {
     ctx.shadowColor =
       '#00ff66';
 
-
     ctx.shadowBlur =
       12;
 
 
     ctx.strokeStyle =
       '#00ff66';
-
 
     ctx.lineWidth =
       2;
@@ -4110,7 +3844,6 @@ function drawHUD() {
   ctx.strokeStyle =
     '#383840';
 
-
   ctx.lineWidth =
     1.5;
 
@@ -4154,7 +3887,7 @@ function drawHUD() {
 
 
   ctx.fillStyle =
-    '#fff';
+    '#ffffff';
 
 
   ctx.font =
@@ -4205,7 +3938,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-    `VITE: ${'❤️'.repeat(lives)}`,
+    `VITE: ${
+      '❤️'.repeat(lives)
+    }`,
     canvas.width - 8,
     34
   );
@@ -4263,17 +3998,14 @@ function drawTutorial() {
   ctx.fillStyle =
     '#282830';
 
-
   ctx.fill();
 
 
   ctx.strokeStyle =
     '#00d2ff';
 
-
   ctx.lineWidth =
     2;
-
 
   ctx.stroke();
 
@@ -4281,10 +4013,8 @@ function drawTutorial() {
   ctx.fillStyle =
     '#00d2ff';
 
-
   ctx.font =
     'bold 12px monospace';
-
 
   ctx.textAlign =
     'left';
@@ -4298,8 +4028,7 @@ function drawTutorial() {
 
 
   ctx.fillStyle =
-    '#fff';
-
+    '#ffffff';
 
   ctx.font =
     '11px sans-serif';
@@ -4339,17 +4068,14 @@ function drawTutorial() {
   ctx.fillStyle =
     '#282830';
 
-
   ctx.fill();
 
 
   ctx.strokeStyle =
     '#00ff66';
 
-
   ctx.lineWidth =
     2;
-
 
   ctx.stroke();
 
@@ -4357,10 +4083,8 @@ function drawTutorial() {
   ctx.fillStyle =
     '#00ff66';
 
-
   ctx.font =
     'bold 12px monospace';
-
 
   ctx.textAlign =
     'left';
@@ -4374,8 +4098,7 @@ function drawTutorial() {
 
 
   ctx.fillStyle =
-    '#fff';
-
+    '#ffffff';
 
   ctx.font =
     '11px sans-serif';
@@ -4415,17 +4138,14 @@ function drawTutorial() {
   ctx.fillStyle =
     '#282830';
 
-
   ctx.fill();
 
 
   ctx.strokeStyle =
     '#ff0055';
 
-
   ctx.lineWidth =
     2;
-
 
   ctx.stroke();
 
@@ -4433,10 +4153,8 @@ function drawTutorial() {
   ctx.fillStyle =
     '#ff0055';
 
-
   ctx.font =
     'bold 12px monospace';
-
 
   ctx.textAlign =
     'left';
@@ -4450,8 +4168,7 @@ function drawTutorial() {
 
 
   ctx.fillStyle =
-    '#fff';
-
+    '#ffffff';
 
   ctx.font =
     '11px sans-serif';
@@ -4474,10 +4191,8 @@ function drawTutorial() {
   ctx.fillStyle =
     '#ffff00';
 
-
   ctx.font =
     'bold 12px monospace';
-
 
   ctx.textAlign =
     'center';
@@ -4503,24 +4218,20 @@ function drawTutorial() {
   ctx.fillStyle =
     '#00d2ff';
 
-
   ctx.fill();
 
 
   ctx.strokeStyle =
-    '#fff';
-
+    '#ffffff';
 
   ctx.lineWidth =
     1.5;
-
 
   ctx.stroke();
 
 
   ctx.fillStyle =
-    '#000';
-
+    '#000000';
 
   ctx.font =
     'bold 12px monospace';
@@ -4556,10 +4267,8 @@ function drawCharSelect() {
   ctx.fillStyle =
     '#ffff00';
 
-
   ctx.font =
     'bold 13px monospace';
-
 
   ctx.textAlign =
     'center';
@@ -4583,12 +4292,12 @@ function drawCharSelect() {
 
 
   let cardW = 318;
-
   let cardH = 395;
 
 
   let cardX =
-    (CANVAS_W - cardW) / 2;
+    (CANVAS_W -
+      cardW) / 2;
 
 
   let cardY = 38;
@@ -4607,28 +4316,25 @@ function drawCharSelect() {
   ctx.fillStyle =
     '#25252d';
 
-
   ctx.fill();
 
 
   ctx.strokeStyle =
     c.primary;
 
-
   ctx.lineWidth =
     2.5;
-
 
   ctx.stroke();
 
 
   let boxW = 160;
-
   let boxH = 160;
 
 
   let boxX =
-    (CANVAS_W - boxW) / 2;
+    (CANVAS_W -
+      boxW) / 2;
 
 
   let boxY =
@@ -4667,11 +4373,11 @@ function drawCharSelect() {
 
   }
 
+
   else {
 
     ctx.fillStyle =
       '#181822';
-
 
     ctx.fill();
 
@@ -4679,10 +4385,8 @@ function drawCharSelect() {
     ctx.fillStyle =
       c.primary;
 
-
     ctx.font =
       'bold 36px monospace';
-
 
     ctx.textAlign =
       'center';
@@ -4713,10 +4417,8 @@ function drawCharSelect() {
   ctx.strokeStyle =
     c.primary;
 
-
   ctx.lineWidth =
     2;
-
 
   ctx.stroke();
 
@@ -4724,10 +4426,8 @@ function drawCharSelect() {
   ctx.fillStyle =
     c.primary;
 
-
   ctx.font =
     'bold 20px -apple-system, sans-serif';
-
 
   ctx.textAlign =
     'center';
@@ -4741,8 +4441,7 @@ function drawCharSelect() {
 
 
   ctx.fillStyle =
-    '#fff';
-
+    '#ffffff';
 
   ctx.font =
     'bold 11px -apple-system, sans-serif';
@@ -4757,7 +4456,6 @@ function drawCharSelect() {
 
   ctx.fillStyle =
     '#ffff00';
-
 
   ctx.font =
     '10px monospace';
@@ -4784,7 +4482,6 @@ function drawCharSelect() {
   ctx.fillStyle =
     c.primary;
 
-
   ctx.font =
     'bold 12px monospace';
 
@@ -4805,10 +4502,8 @@ function drawCharSelect() {
   ctx.fillStyle =
     '#00d2ff';
 
-
   ctx.font =
     'bold 16px monospace';
-
 
   ctx.textAlign =
     'center';
@@ -4824,12 +4519,16 @@ function drawCharSelect() {
 
 
 /* =========================================================
-   SELECTION
+   CHARACTER INPUT
 ========================================================= */
 
-function handleSelectionInput(dir) {
+function handleSelectionInput(
+  dir
+) {
 
-  playSound('cross');
+  playSound(
+    'cross'
+  );
 
 
   selectedCharIndex +=
@@ -4888,10 +4587,8 @@ function drawLevelClear() {
   ctx.fillStyle =
     currentTheme.primary;
 
-
   ctx.font =
     'bold 16px monospace';
-
 
   ctx.textAlign =
     'center';
@@ -4907,7 +4604,6 @@ function drawLevelClear() {
   ctx.fillStyle =
     '#00d2ff';
 
-
   ctx.font =
     'bold 10px monospace';
 
@@ -4922,17 +4618,18 @@ function drawLevelClear() {
   ctx.fillStyle =
     '#ffff00';
 
-
   ctx.font =
     'bold 13px monospace';
 
 
   ctx.fillText(
-    `BONUS STAGE: +${Math.floor(
-      1000 *
-      (level - 1) *
-      currentTheme.scoreMult
-    )} PTS`,
+    `BONUS STAGE: +${
+      Math.floor(
+        1000 *
+        (level - 1) *
+        currentTheme.scoreMult
+      )
+    } PTS`,
     canvas.width / 2,
     canvas.height / 2 + 35
   );
@@ -4961,10 +4658,8 @@ function drawGameOver() {
   ctx.fillStyle =
     '#ff0055';
 
-
   ctx.font =
     'bold 22px monospace';
-
 
   ctx.textAlign =
     'center';
@@ -4980,7 +4675,6 @@ function drawGameOver() {
   ctx.fillStyle =
     '#ffff00';
 
-
   ctx.font =
     'bold 15px monospace';
 
@@ -4994,7 +4688,6 @@ function drawGameOver() {
 
   ctx.fillStyle =
     '#00d2ff';
-
 
   ctx.font =
     'bold 11px monospace';
@@ -5049,10 +4742,8 @@ function drawPause() {
   ctx.fillStyle =
     '#ffea00';
 
-
   ctx.font =
     'bold 26px monospace';
-
 
   ctx.textAlign =
     'center';
@@ -5067,7 +4758,6 @@ function drawPause() {
 
   ctx.fillStyle =
     '#00d2ff';
-
 
   ctx.font =
     'bold 11px monospace';
@@ -5175,6 +4865,7 @@ function gameLoop() {
 
   }
 
+
   catch (err) {
 
     console.error(
@@ -5209,7 +4900,9 @@ function selectCharacter(
 
 
   canvas.style.boxShadow =
-    `inset 0 0 15px ${currentTheme.primary}`;
+    `inset 0 0 15px ${
+      currentTheme.primary
+    }`;
 
 
   startInfiniteScroll();
@@ -5219,7 +4912,9 @@ function selectCharacter(
     'PLAYING';
 
 
-  playSound('pickup');
+  playSound(
+    'pickup'
+  );
 
 }
 
@@ -5232,7 +4927,9 @@ canvas.addEventListener(
   'pointerdown',
   e => {
 
-    if (e.cancelable) {
+    if (
+      e.cancelable
+    ) {
 
       e.preventDefault();
 
@@ -5273,12 +4970,16 @@ canvas.addEventListener(
       'TUTORIAL'
     ) {
 
-      if (y >= 330) {
+      if (
+        y >= 330
+      ) {
 
         gameState =
           'CHAR_SELECT';
 
-        playSound('cross');
+        playSound(
+          'cross'
+        );
 
       }
 
@@ -5292,7 +4993,9 @@ canvas.addEventListener(
       'CHAR_SELECT'
     ) {
 
-      if (y >= 400) {
+      if (
+        y >= 400
+      ) {
 
         if (
           x <
@@ -5314,6 +5017,7 @@ canvas.addEventListener(
         }
 
       }
+
 
       else {
 
@@ -5387,7 +5091,7 @@ canvas.addEventListener(
 
 
 /* =========================================================
-   BUTTON BINDING
+   CONTROLS
 ========================================================= */
 
 function bindBtn(
@@ -5407,7 +5111,9 @@ function bindBtn(
     'pointerdown',
     e => {
 
-      if (e.cancelable) {
+      if (
+        e.cancelable
+      ) {
 
         e.preventDefault();
 
@@ -5429,6 +5135,7 @@ function bindBtn(
 
       }
 
+
       else if (
         gameState ===
         'CHAR_SELECT'
@@ -5441,6 +5148,7 @@ function bindBtn(
         );
 
       }
+
 
       else {
 
@@ -5459,12 +5167,13 @@ function bindBtn(
     'pointerup',
     e => {
 
-      if (e.cancelable) {
+      if (
+        e.cancelable
+      ) {
 
         e.preventDefault();
 
       }
-
 
       onPress(false);
 
@@ -5484,6 +5193,16 @@ function bindBtn(
     }
   );
 
+
+  btn.addEventListener(
+    'pointerleave',
+    () => {
+
+      onPress(false);
+
+    }
+  );
+
 }
 
 
@@ -5491,7 +5210,8 @@ bindBtn(
   'btnUp',
   isDown => {
 
-    moveUp = isDown;
+    moveUp =
+      isDown;
 
   }
 );
@@ -5501,7 +5221,8 @@ bindBtn(
   'btnDown',
   isDown => {
 
-    moveDown = isDown;
+    moveDown =
+      isDown;
 
   }
 );
@@ -5511,7 +5232,8 @@ bindBtn(
   'btnLeft',
   isDown => {
 
-    moveLeft = isDown;
+    moveLeft =
+      isDown;
 
   }
 );
@@ -5521,7 +5243,8 @@ bindBtn(
   'btnRight',
   isDown => {
 
-    moveRight = isDown;
+    moveRight =
+      isDown;
 
   }
 );
@@ -5538,7 +5261,8 @@ window.addEventListener(
   'keydown',
   e => {
 
-    keys[e.code] = true;
+    keys[e.code] =
+      true;
 
     getAC();
 
@@ -5547,8 +5271,10 @@ window.addEventListener(
       gameState ===
       'TUTORIAL' &&
       (
-        e.code === 'Space' ||
-        e.code === 'Enter'
+        e.code ===
+          'Space' ||
+        e.code ===
+          'Enter'
       )
     ) {
 
@@ -5566,7 +5292,8 @@ window.addEventListener(
       if (
         e.key ===
           'ArrowLeft' ||
-        e.key === 'a'
+        e.key ===
+          'a'
       ) {
 
         handleSelectionInput(
@@ -5579,7 +5306,8 @@ window.addEventListener(
       if (
         e.key ===
           'ArrowRight' ||
-        e.key === 'd'
+        e.key ===
+          'd'
       ) {
 
         handleSelectionInput(
@@ -5590,8 +5318,10 @@ window.addEventListener(
 
 
       if (
-        e.code === 'Space' ||
-        e.code === 'Enter'
+        e.code ===
+          'Space' ||
+        e.code ===
+          'Enter'
       ) {
 
         selectCharacter(
@@ -5609,8 +5339,10 @@ window.addEventListener(
       gameState ===
       'GAME_OVER' &&
       (
-        e.code === 'Space' ||
-        e.code === 'Enter'
+        e.code ===
+          'Space' ||
+        e.code ===
+          'Enter'
       )
     ) {
 
@@ -5627,7 +5359,8 @@ window.addEventListener(
   'keyup',
   e => {
 
-    keys[e.code] = false;
+    keys[e.code] =
+      false;
 
   }
 );
@@ -5681,11 +5414,8 @@ function saveScore() {
       );
 
 
-    if (!rawUser) {
-
+    if (!rawUser)
       return;
-
-    }
 
 
     let curUser =
@@ -5736,7 +5466,9 @@ function saveScore() {
 
         let users =
           rawUsers
-            ? JSON.parse(rawUsers)
+            ? JSON.parse(
+                rawUsers
+              )
             : {};
 
 
@@ -5754,7 +5486,9 @@ function saveScore() {
 
           localStorage.setItem(
             'arcade_users',
-            JSON.stringify(users)
+            JSON.stringify(
+              users
+            )
           );
 
         }
@@ -5765,7 +5499,7 @@ function saveScore() {
 
   }
 
-  catch (e) {
+  catch(e) {
 
     console.warn(
       "Save score error:",
