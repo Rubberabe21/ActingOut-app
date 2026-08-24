@@ -53,71 +53,39 @@
             touch-action: none;
         }
 
-        /*
-         * VIEWPORT PRINCIPALE
-         * Usiamo dvh per evitare lo spazio residuo creato
-         * da svh sui browser mobile.
-         */
         #game-wrapper {
             position: fixed;
             top: 0;
             left: 0;
-
             width: 100vw;
-            height: 100dvh;
-
-            min-width: 100vw;
-            min-height: 100dvh;
-
+            height: 100svh;
             background: #000000;
             overflow: hidden;
-
             margin: 0;
             padding: 0;
         }
 
-        /*
-         * CONTENITORE PHASER
-         */
         #game-container {
             position: absolute;
-
             top: 0;
             left: 0;
-
             width: 100%;
             height: 100%;
-
-            min-width: 100%;
-            min-height: 100%;
-
             background: #000000;
             overflow: hidden;
-
             margin: 0;
             padding: 0;
         }
 
-        /*
-         * CANVAS PHASER
-         *
-         * Non utilizziamo CENTER_BOTH:
-         * il canvas parte esattamente da 0,0.
-         */
         #game-container canvas {
             display: block !important;
-
             position: absolute !important;
-
             top: 0 !important;
             left: 0 !important;
-
             width: 100% !important;
             height: 100% !important;
-
             margin: 0 !important;
             padding: 0 !important;
-
             object-fit: fill !important;
         }
 
@@ -414,6 +382,7 @@
 
 <body>
 
+<!-- AUDIO HUB -->
 <audio id="hubMusic" src="assets/hub/music_hub.mp3" loop playsinline style="display:none;"></audio>
 
 <script>
@@ -423,23 +392,17 @@ if (!sessionStorage.getItem('arcade_session_active')) {
     sessionStorage.removeItem('arcade_session_active');
 }
 
+// RIPRODUZIONE MUSICA SOLO SU AZIONE DEL GIOCATORE
 const hubMusic = document.getElementById('hubMusic');
-
 if (hubMusic) {
     hubMusic.volume = 0.4;
-
     function playHubMusicOnInteraction() {
         if (hubMusic.paused) {
             hubMusic.play().catch(() => {});
         }
     }
-
     ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
-        window.addEventListener(
-            evt,
-            playHubMusicOnInteraction,
-            { capture: true }
-        );
+        window.addEventListener(evt, playHubMusicOnInteraction, { capture: true });
     });
 }
 </script>
@@ -447,7 +410,6 @@ if (hubMusic) {
 <div id="game-wrapper">
 
     <div id="top-header-bar">
-
         <button id="header-user-btn" class="header-btn">
             👤 LOGIN
         </button>
@@ -455,2455 +417,802 @@ if (hubMusic) {
         <button id="header-score-btn" class="header-btn">
             ⚡ 0 PTS
         </button>
-
     </div>
 
     <!-- PROFILE -->
-
     <div id="profile-modal" class="auth-overlay" style="display: none;">
-
         <div class="auth-box">
-
             <div class="profile-card-header">
-
                 <div class="profile-avatar-row">
-
                     <div class="profile-avatar" id="profile-avatar-box">
                         👾
                     </div>
-
                     <div>
-
                         <div id="profile-rank" class="profile-rank-title">
                             ROOKIE 🐣
                         </div>
-
                         <div id="profile-username" class="profile-username">
                             PLAYER_1
                         </div>
-
                     </div>
-
                 </div>
-
                 <div class="xp-bar-container">
-
                     <div id="profile-xp-fill" class="xp-bar-fill"></div>
-
                 </div>
-
             </div>
 
             <div class="badges-row">
-
-                <span id="badge-1" class="badge-item" title="Prima partita">
-                    🕹️
-                </span>
-
-                <span id="badge-2" class="badge-item" title="100+ Punti">
-                    🔥
-                </span>
-
-                <span id="badge-3" class="badge-item" title="500+ Punti">
-                    ⚡
-                </span>
-
-                <span id="badge-4" class="badge-item" title="Retro King">
-                    👑
-                </span>
-
+                <span id="badge-1" class="badge-item" title="Prima partita">🕹️</span>
+                <span id="badge-2" class="badge-item" title="100+ Punti">🔥</span>
+                <span id="badge-3" class="badge-item" title="500+ Punti">⚡</span>
+                <span id="badge-4" class="badge-item" title="Retro King">👑</span>
             </div>
 
             <div class="stats-grid">
-
                 <div class="stat-card">
                     <div class="val" id="stat-invaders">0 PTS</div>
                     <div class="lbl">👾 Invaders</div>
                 </div>
-
                 <div class="stat-card">
                     <div class="val" id="stat-cyber">0 PTS</div>
                     <div class="lbl">💣 Cyber Run</div>
                 </div>
-
                 <div class="stat-card">
                     <div class="val" id="stat-punch">0 PTS</div>
                     <div class="lbl">🥊 Pixel Punch</div>
                 </div>
-
                 <div class="stat-card">
                     <div class="val" id="stat-dodge">0 PTS</div>
                     <div class="lbl">🚗 Deadline Dodge</div>
                 </div>
-
             </div>
 
             <button id="profile-close-btn" class="auth-btn">
                 TORNA AL GIOCO
             </button>
 
-            <button
-                id="profile-logout-btn"
-                class="auth-btn"
-                style="background:#550022; margin-top:8px;"
-            >
+            <button id="profile-logout-btn" class="auth-btn" style="background:#550022; margin-top:8px;">
                 LOGOUT / CAMBIA UTENTE
             </button>
-
         </div>
-
     </div>
 
     <!-- LEADERBOARD -->
-
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
-
         <div class="auth-box">
-
             <h2 style="color:#ff0055; font-size:18px;">
                 🌍 CLASSIFICA MONDIALE
             </h2>
 
             <div class="tab-selector">
-
-                <button
-                    class="tab-btn active"
-                    id="tab-feedbackInvaders"
-                    onclick="switchLBTab('feedbackInvaders')"
-                >
+                <button class="tab-btn active" id="tab-feedbackInvaders" onclick="switchLBTab('feedbackInvaders')">
                     INVADERS
                 </button>
-
-                <button
-                    class="tab-btn"
-                    id="tab-cyberRun"
-                    onclick="switchLBTab('cyberRun')"
-                >
+                <button class="tab-btn" id="tab-cyberRun" onclick="switchLBTab('cyberRun')">
                     CYBER RUN
                 </button>
-
-                <button
-                    class="tab-btn"
-                    id="tab-pixelPunch"
-                    onclick="switchLBTab('pixelPunch')"
-                >
+                <button class="tab-btn" id="tab-pixelPunch" onclick="switchLBTab('pixelPunch')">
                     PUNCH
                 </button>
-
-                <button
-                    class="tab-btn"
-                    id="tab-deadlineDrive"
-                    onclick="switchLBTab('deadlineDrive')"
-                >
+                <button class="tab-btn" id="tab-deadlineDrive" onclick="switchLBTab('deadlineDrive')">
                     DODGE
                 </button>
-
             </div>
 
             <div class="leaderboard-list" id="lb-records-list">
-
                 <div class="leaderboard-row">
-
                     <span class="player-name">
                         Caricamento classifiche...
                     </span>
-
                 </div>
-
             </div>
 
             <button id="lb-close-btn" class="auth-btn">
                 CHIUDI CLASSIFICA
             </button>
-
         </div>
-
     </div>
 
     <div id="game-container"></div>
-
     <div class="crt-overlay"></div>
 
 </div>
 
 <script>
-
-const SUPABASE_URL =
-    "https://bcitueadxwwwouhxawdw.supabase.co";
-
-const SUPABASE_ANON_KEY =
-    "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
+const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
 
 let supabaseClient = null;
-
 if (window.supabase) {
-
-    supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-class GreenKeyPipeline
-    extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
-
+class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
     constructor(game) {
-
         super({
-
             game: game,
-
             fragShader: `
                 precision mediump float;
-
                 uniform sampler2D uMainSampler;
-
                 varying vec2 outTexCoord;
                 varying vec4 outTint;
 
                 void main() {
-
-                    vec4 texColor =
-                        texture2D(
-                            uMainSampler,
-                            outTexCoord
-                        );
-
-                    vec3 keyColor =
-                        vec3(0.235, 1.0, 0.0);
-
-                    float diff =
-                        distance(
-                            texColor.rgb,
-                            keyColor
-                        );
-
+                    vec4 texColor = texture2D(uMainSampler, outTexCoord);
+                    vec3 keyColor = vec3(0.235, 1.0, 0.0);
+                    float diff = distance(texColor.rgb, keyColor);
                     if (diff < 0.45) {
-
                         discard;
-
                     } else {
-
-                        gl_FragColor =
-                            texColor * outTint;
-
+                        gl_FragColor = texColor * outTint;
                     }
-
                 }
             `
-
         });
-
     }
-
 }
 
 class AuthManager {
-
     constructor() {
-
         this.currentUser = null;
-
         this.init();
-
     }
 
     init() {
-
         if (!localStorage.getItem('arcade_users')) {
-
-            localStorage.setItem(
-                'arcade_users',
-                JSON.stringify({})
-            );
-
+            localStorage.setItem('arcade_users', JSON.stringify({}));
         }
 
-        const savedUser =
-            localStorage.getItem('arcade_current_user');
-
+        const savedUser = localStorage.getItem('arcade_current_user');
         if (savedUser) {
-
-            this.currentUser =
-                JSON.parse(savedUser);
-
-            if (!this.currentUser.stats) {
-
-                this.currentUser.stats = {};
-
-            }
-
-            if (
-                this.currentUser.stats.feedbackInvaders ===
-                undefined
-            ) {
-
-                this.currentUser.stats.feedbackInvaders = 0;
-
-            }
-
-            if (
-                this.currentUser.stats.cyberRun ===
-                undefined
-            ) {
-
-                this.currentUser.stats.cyberRun = 0;
-
-            }
-
-            if (
-                this.currentUser.stats.pixelPunch ===
-                undefined
-            ) {
-
-                this.currentUser.stats.pixelPunch = 0;
-
-            }
-
-            if (
-                this.currentUser.stats.deadlineDrive ===
-                undefined
-            ) {
-
-                this.currentUser.stats.deadlineDrive = 0;
-
-            }
-
+            this.currentUser = JSON.parse(savedUser);
+            if (!this.currentUser.stats) this.currentUser.stats = {};
+            if (this.currentUser.stats.feedbackInvaders === undefined) this.currentUser.stats.feedbackInvaders = 0;
+            if (this.currentUser.stats.cyberRun === undefined) this.currentUser.stats.cyberRun = 0;
+            if (this.currentUser.stats.pixelPunch === undefined) this.currentUser.stats.pixelPunch = 0;
+            if (this.currentUser.stats.deadlineDrive === undefined) this.currentUser.stats.deadlineDrive = 0;
         } else {
-
             window.location.replace('./start.html');
-
         }
-
     }
 
     getUsers() {
-
-        return JSON.parse(
-            localStorage.getItem('arcade_users')
-        ) || {};
-
+        return JSON.parse(localStorage.getItem('arcade_users')) || {};
     }
 
     saveUsers(users) {
-
-        localStorage.setItem(
-            'arcade_users',
-            JSON.stringify(users)
-        );
-
+        localStorage.setItem('arcade_users', JSON.stringify(users));
     }
 
     getRankInfo() {
-
         let totalPts = 0;
-
         if (this.currentUser) {
-
             let s = this.currentUser.stats;
-
-            totalPts =
-                (s.feedbackInvaders || 0) +
-                (s.cyberRun || 0) +
-                (s.pixelPunch || 0) +
-                (s.deadlineDrive || 0);
-
+            totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
         }
 
-        if (totalPts >= 1000) {
+        if (totalPts >= 1000) return { title: "RETRO KING 👑", level: 5, xpPct: 100 };
+        if (totalPts >= 500)  return { title: "ARCADE HERO ⚡", level: 4, xpPct: (totalPts - 500) / 5 };
+        if (totalPts >= 200)  return { title: "PRO GAMER 👾", level: 3, xpPct: (totalPts - 200) / 3 };
+        if (totalPts >= 100)  return { title: "CHALLENGER 🕹️", level: 2, xpPct: (totalPts - 100) };
 
-            return {
-                title: "RETRO KING 👑",
-                level: 5,
-                xpPct: 100
-            };
-
-        }
-
-        if (totalPts >= 500) {
-
-            return {
-                title: "ARCADE HERO ⚡",
-                level: 4,
-                xpPct: (totalPts - 500) / 5
-            };
-
-        }
-
-        if (totalPts >= 200) {
-
-            return {
-                title: "PRO GAMER 👾",
-                level: 3,
-                xpPct: (totalPts - 200) / 3
-            };
-
-        }
-
-        if (totalPts >= 100) {
-
-            return {
-                title: "CHALLENGER 🕹️",
-                level: 2,
-                xpPct: (totalPts - 100)
-            };
-
-        }
-
-        return {
-            title: "ROOKIE 🐣",
-            level: 1,
-            xpPct: totalPts
-        };
-
+        return { title: "ROOKIE 🐣", level: 1, xpPct: totalPts };
     }
 
     logout() {
-
-        localStorage.removeItem(
-            'arcade_current_user'
-        );
-
+        localStorage.removeItem('arcade_current_user');
         window.location.replace('./start.html');
-
     }
-
 }
 
 const auth = new AuthManager();
 
 function updateHeaderDOM() {
+    const userBtn = document.getElementById('header-user-btn');
+    const scoreBtn = document.getElementById('header-score-btn');
 
-    const userBtn =
-        document.getElementById('header-user-btn');
-
-    const scoreBtn =
-        document.getElementById('header-score-btn');
-
-    if (
-        auth.currentUser &&
-        auth.currentUser.username
-    ) {
-
-        userBtn.innerText =
-            "👤 " +
-            auth.currentUser.username;
-
+    if (auth.currentUser && auth.currentUser.username) {
+        userBtn.innerText = "👤 " + auth.currentUser.username;
     } else {
-
-        userBtn.innerText =
-            "👤 LOGIN";
-
+        userBtn.innerText = "👤 LOGIN";
     }
 
-    if (
-        auth.currentUser &&
-        auth.currentUser.stats
-    ) {
-
+    if (auth.currentUser && auth.currentUser.stats) {
         let s = auth.currentUser.stats;
-
-        let totalPts =
-            (s.feedbackInvaders || 0) +
-            (s.cyberRun || 0) +
-            (s.pixelPunch || 0) +
-            (s.deadlineDrive || 0);
-
-        scoreBtn.innerText =
-            "⚡ " +
-            totalPts.toLocaleString() +
-            " PTS";
-
+        let totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
+        scoreBtn.innerText = "⚡ " + totalPts.toLocaleString() + " PTS";
     }
-
 }
 
-document
-    .getElementById('header-user-btn')
-    .addEventListener('click', () => {
+document.getElementById('header-user-btn').addEventListener('click', () => {
+    if (!auth.currentUser) window.location.replace('./start.html');
+    else openProfileModal();
+});
 
-        if (!auth.currentUser) {
-
-            window.location.replace('./start.html');
-
-        } else {
-
-            openProfileModal();
-
-        }
-
-    });
-
-document
-    .getElementById('header-score-btn')
-    .addEventListener('click', () => {
-
-        openProfileModal();
-
-    });
+document.getElementById('header-score-btn').addEventListener('click', () => {
+    openProfileModal();
+});
 
 class MainHub extends Phaser.Scene {
-
     constructor() {
-
-        super({
-            key: 'MainHub'
-        });
-
+        super({ key: 'MainHub' });
     }
 
     preload() {
+        this.load.image('background', 'assets/hub/background.png');
+        this.load.image('logo', 'assets/hub/logo.png');
 
-        this.load.image(
-            'background',
-            'assets/hub/background.png'
-        );
-
-        this.load.image(
-            'logo',
-            'assets/hub/logo.png'
-        );
-
-        this.load.video(
-            'npc_video',
-            'assets/hub/personaggio.mp4',
-            'loadeddata',
-            false,
-            true
-        );
-
-        this.load.video(
-            'gabri_video',
-            'assets/hub/gabri.mp4',
-            'loadeddata',
-            false,
-            true
-        );
-
-        this.load.video(
-            'raffa_video',
-            'assets/hub/raffa.mp4',
-            'loadeddata',
-            false,
-            true
-        );
+        this.load.video('npc_video', 'assets/hub/personaggio.mp4', 'loadeddata', false, true);
+        this.load.video('gabri_video', 'assets/hub/gabri.mp4', 'loadeddata', false, true);
+        this.load.video('raffa_video', 'assets/hub/raffa.mp4', 'loadeddata', false, true);
 
         const playerSkins = [
-            'dave.png',
-            'iris.png',
-            'laura.png',
-            'tosatto.png',
-            'rache.png',
-            'guido.png',
-            'bretto.png',
-            'giulia.png',
-            'rabe.png',
-            'giampa.png',
-            'tommi.png',
-            'tobi.png'
+            'dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png',
+            'guido.png', 'bretto.png', 'giulia.png', 'rabe.png', 'giampa.png',
+            'tommi.png', 'tobi.png'
         ];
 
-        const selectedSkin =
-            Phaser.Math.RND.pick(playerSkins);
+        const selectedSkin = Phaser.Math.RND.pick(playerSkins);
+        this.playerName = selectedSkin.replace('.png', '').charAt(0).toUpperCase() + selectedSkin.replace('.png', '').slice(1);
 
-        this.playerName =
-            selectedSkin
-                .replace('.png', '')
-                .charAt(0)
-                .toUpperCase() +
-            selectedSkin
-                .replace('.png', '')
-                .slice(1);
+        this.load.spritesheet('player', 'assets/hub/player/' + selectedSkin, { frameWidth: 755, frameHeight: 1120 });
 
-        this.load.spritesheet(
-            'player',
-            'assets/hub/player/' + selectedSkin,
-            {
-                frameWidth: 755,
-                frameHeight: 1120
-            }
-        );
-
-        let g = this.make.graphics({
-            x: 0,
-            y: 0,
-            add: false
-        });
-
+        let g = this.make.graphics({ x: 0, y: 0, add: false });
         g.fillStyle(0xffffff, 0);
-
-        g.fillRect(
-            0,
-            0,
-            50,
-            80
-        );
-
-        g.generateTexture(
-            'hitbox_sm',
-            50,
-            80
-        );
-
+        g.fillRect(0, 0, 50, 80);
+        g.generateTexture('hitbox_sm', 50, 80);
     }
 
     create() {
-
         const vWidth = 360;
         const vHeight = 740;
 
-        if (
-            this.game.renderer.pipelines &&
-            !this.game.renderer.pipelines.has('GreenKey')
-        ) {
-
-            this.game.renderer.pipelines.add(
-                'GreenKey',
-                new GreenKeyPipeline(this.game)
-            );
-
+        if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('GreenKey')) {
+            this.game.renderer.pipelines.add('GreenKey', new GreenKeyPipeline(this.game));
         }
 
-        let bg =
-            this.add
-                .image(
-                    0,
-                    0,
-                    'background'
-                )
-                .setOrigin(0, 0)
-                .setDepth(0);
-
-        let bgScale =
-            vHeight / bg.height;
-
+        let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
+        let bgScale = vHeight / bg.height;
         bg.setScale(bgScale);
 
-        const worldWidth =
-            bg.width * bgScale;
-
-        this.physics.world.setBounds(
-            0,
-            0,
-            worldWidth,
-            vHeight
-        );
+        const worldWidth = bg.width * bgScale;
+        this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
         const floorY = 589;
         const gabriY = 581;
         const npcY = 587;
         const cabY = 566;
-
         this.cabBadgeY = 370;
 
-        this.gabri =
-            this.add
-                .video(
-                    115,
-                    gabriY,
-                    'gabri_video'
-                )
-                .setOrigin(0.5, 1)
-                .setScale(0.21)
-                .setDepth(10);
-
-        if (this.gabri.setPipeline) {
-
-            this.gabri.setPipeline(
-                'GreenKey'
-            );
-
-        }
-
+        this.gabri = this.add.video(115, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
         this.gabri.play(true);
         this.gabri.setMute(true);
 
-        this.npc =
-            this.add
-                .video(
-                    760,
-                    npcY,
-                    'npc_video'
-                )
-                .setOrigin(0.5, 1)
-                .setScale(0.21)
-                .setDepth(10);
-
-        if (this.npc.setPipeline) {
-
-            this.npc.setPipeline(
-                'GreenKey'
-            );
-
-        }
-
+        this.npc = this.add.video(760, npcY, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        if (this.npc.setPipeline) this.npc.setPipeline('GreenKey');
         this.npc.play(true);
         this.npc.setMute(true);
 
-        this.raffa =
-            this.add
-                .video(
-                    1900,
-                    floorY,
-                    'raffa_video'
-                )
-                .setOrigin(0.5, 1)
-                .setScale(0.15)
-                .setDepth(10);
-
-        if (this.raffa.setPipeline) {
-
-            this.raffa.setPipeline(
-                'GreenKey'
-            );
-
-        }
-
+        this.raffa = this.add.video(1900, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        if (this.raffa.setPipeline) this.raffa.setPipeline('GreenKey');
         this.raffa.play(true);
         this.raffa.setMute(true);
 
         this.anims.create({
-
             key: 'idle',
-
-            frames: [
-                {
-                    key: 'player',
-                    frame: 0
-                }
-            ],
-
+            frames: [{ key: 'player', frame: 0 }],
             frameRate: 10
-
         });
 
         this.anims.create({
-
             key: 'walk',
-
-            frames:
-                this.anims.generateFrameNumbers(
-                    'player',
-                    {
-                        start: 1,
-                        end: 4
-                    }
-                ),
-
+            frames: this.anims.generateFrameNumbers('player', { start: 1, end: 4 }),
             frameRate: 8,
             repeat: -1
-
         });
 
-        let savedX =
-            parseFloat(
-                localStorage.getItem(
-                    'arcade_player_x'
-                )
-            );
+        let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
+        let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
 
-        let startX =
-            (!isNaN(savedX) && savedX > 0)
-                ? savedX
-                : Math.floor(worldWidth / 3);
-
-        this.player =
-            this.physics.add.sprite(
-                startX,
-                floorY,
-                'player'
-            );
-
-        this.player
-            .setOrigin(0.5, 1)
-            .setScale(0.18)
-            .setDepth(20)
-            .setCollideWorldBounds(true);
-
+        this.player = this.physics.add.sprite(startX, floorY, 'player');
+        this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
         this.player.play('idle');
 
-        let logo =
-            this.add
-                .image(
-                    vWidth / 2,
-                    150,
-                    'logo'
-                )
-                .setOrigin(0.5)
-                .setScrollFactor(0)
-                .setDepth(110);
-
-        logo.setDisplaySize(
-            250,
-            (logo.height / logo.width) * 280
-        );
+        let logo = this.add.image(vWidth / 2, 150, 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
+        logo.setDisplaySize(250, (logo.height / logo.width) * 280);
 
         this.tweens.add({
-
             targets: logo,
-
             scaleX: logo.scaleX * 1.03,
             scaleY: logo.scaleY * 1.03,
-
             duration: 1800,
-
             yoyo: true,
             repeat: -1,
-
             ease: 'Sine.easeInOut'
-
         });
 
         updateHeaderDOM();
 
         this.cabinets = [
-
-            {
-                x: 1290,
-                y: cabY,
-                badgeX: 1290,
-                badgeY: this.cabBadgeY,
-                title: "FEEDBACK INVADERS",
-                key: "feedbackInvaders",
-                type: "game",
-                url: "./invaders.html"
-            },
-
-            {
-                x: 1414,
-                y: cabY,
-                badgeX: 1414,
-                badgeY: this.cabBadgeY,
-                title: "CYBER RUN",
-                key: "cyberRun",
-                type: "game",
-                url: "./pacman.html"
-            },
-
-            {
-                x: 1538,
-                y: cabY,
-                badgeX: 1538,
-                badgeY: this.cabBadgeY,
-                title: "PIXEL PUNCH",
-                key: "pixelPunch",
-                type: "game",
-                url: "./PixelPunch.html"
-            },
-
-            {
-                x: 1655,
-                y: cabY,
-                badgeX: 1655,
-                badgeY: this.cabBadgeY,
-                title: "DEADLINE DODGE",
-                key: "deadlineDrive",
-                type: "game",
-                url: "./frogger.html"
-            },
-
-            {
-                x: 2460,
-                y: cabY,
-                badgeX: 2460,
-                badgeY: this.cabBadgeY,
-                title: "CLASSIFICHE MONDIALI",
-                key: "leaderboard",
-                type: "leaderboard",
-                url: null
-            }
-
+            { x: 1290, y: cabY, badgeX: 1290, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
+            { x: 1414, y: cabY, badgeX: 1414, badgeY: this.cabBadgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
+            { x: 1538, y: cabY, badgeX: 1538, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
+            { x: 1655, y: cabY, badgeX: 1655, badgeY: this.cabBadgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
+            { x: 2460, y: cabY, badgeX: 2460, badgeY: this.cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
         this.cabinetSprites = [];
-
         this.cabinets.forEach(cab => {
-
-            let sprite =
-                this.physics.add.staticSprite(
-                    cab.x,
-                    cab.y,
-                    'hitbox_sm'
-                );
-
+            let sprite = this.physics.add.staticSprite(cab.x, cab.y, 'hitbox_sm');
             sprite.setVisible(false);
-
             sprite.gameData = cab;
-
             this.cabinetSprites.push(sprite);
-
         });
 
-        this.infoBox =
-            this.add
-                .container(0, 0)
-                .setDepth(80);
+        // INGRANDIMENTO BOX INFO POP-UP SUI CABINATI
+        this.infoBox = this.add.container(0, 0).setDepth(80);
+        let boxBg = this.add.graphics();
+        boxBg.fillStyle(0x050515, 0.95);
+        boxBg.lineStyle(2, 0xff0055, 1);
+        boxBg.fillRoundedRect(-95, -24, 190, 48, 10);
+        boxBg.strokeRoundedRect(-95, -24, 190, 48, 10);
 
-        let boxBg =
-            this.add.graphics();
+        this.boxTitleText = this.add.text(0, -10, "", { font: "bold 12px monospace", fill: "#ffff00", align: "center" }).setOrigin(0.5);
+        this.boxActionText = this.add.text(0, 10, "GIOCA 🕹️", { font: "bold 12px monospace", fill: "#ff0055", align: "center" }).setOrigin(0.5);
 
-        boxBg.fillStyle(
-            0x050515,
-            0.95
-        );
-
-        boxBg.lineStyle(
-            2,
-            0xff0055,
-            1
-        );
-
-        boxBg.fillRoundedRect(
-            -95,
-            -24,
-            190,
-            48,
-            10
-        );
-
-        boxBg.strokeRoundedRect(
-            -95,
-            -24,
-            190,
-            48,
-            10
-        );
-
-        this.boxTitleText =
-            this.add
-                .text(
-                    0,
-                    -10,
-                    "",
-                    {
-                        font: "bold 12px monospace",
-                        fill: "#ffff00",
-                        align: "center"
-                    }
-                )
-                .setOrigin(0.5);
-
-        this.boxActionText =
-            this.add
-                .text(
-                    0,
-                    10,
-                    "GIOCA 🕹️",
-                    {
-                        font: "bold 12px monospace",
-                        fill: "#ff0055",
-                        align: "center"
-                    }
-                )
-                .setOrigin(0.5);
-
-        this.infoBox.add([
-            boxBg,
-            this.boxTitleText,
-            this.boxActionText
-        ]);
-
-        this.infoBox.setSize(
-            190,
-            48
-        );
-
-        this.infoBox.setInteractive(
-            new Phaser.Geom.Rectangle(
-                -95,
-                -24,
-                190,
-                48
-            ),
-            Phaser.Geom.Rectangle.Contains
-        );
-
-        this.infoBox.on(
-            'pointerdown',
-            (pointer, localX, localY, event) => {
-
-                if (event) {
-                    event.stopPropagation();
-                }
-
-                this.interact();
-
-            }
-        );
-
+        this.infoBox.add([boxBg, this.boxTitleText, this.boxActionText]);
+        this.infoBox.setSize(190, 48);
+        this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-95, -24, 190, 48), Phaser.Geom.Rectangle.Contains);
+        this.infoBox.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            this.interact();
+        });
         this.infoBox.setVisible(false);
 
         this.createDialogueSystem();
 
-        this.cameras.main.setBounds(
-            0,
-            0,
-            worldWidth,
-            vHeight
-        );
+        this.cameras.main.setBounds(0, 0, worldWidth, vHeight);
+        this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 
-        this.cameras.main.startFollow(
-            this.player,
-            true,
-            0.1,
-            0.1
-        );
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+        this.keyEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
-        this.cursors =
-            this.input.keyboard.createCursorKeys();
-
-        this.keyEnter =
-            this.input.keyboard.addKey(
-                Phaser.Input.Keyboard.KeyCodes.ENTER
-            );
-
-        this.keyEsc =
-            this.input.keyboard.addKey(
-                Phaser.Input.Keyboard.KeyCodes.ESC
-            );
-
-        this.setupTouchControls(
-            vWidth,
-            vHeight
-        );
-
+        this.setupTouchControls(vWidth, vHeight);
     }
 
     createDialogueSystem() {
+        this.dialogueContainer = this.add.container(0, 0).setDepth(160);
+        this.dialogueBg = this.add.graphics();
+        this.dialogueText = this.add.text(0, 0, "", { font: "bold 14px monospace", fill: "#0b0c10", align: "center", wordWrap: { width: 190 } }).setOrigin(0.5);
+        this.dialoguePrompt = this.add.text(0, 0, "► TAP", { font: "bold 12px monospace", fill: "#ff0055" }).setOrigin(0.5);
 
-        this.dialogueContainer =
-            this.add
-                .container(0, 0)
-                .setDepth(160);
-
-        this.dialogueBg =
-            this.add.graphics();
-
-        this.dialogueText =
-            this.add
-                .text(
-                    0,
-                    0,
-                    "",
-                    {
-                        font: "bold 14px monospace",
-                        fill: "#0b0c10",
-                        align: "center",
-                        wordWrap: {
-                            width: 190
-                        }
-                    }
-                )
-                .setOrigin(0.5);
-
-        this.dialoguePrompt =
-            this.add
-                .text(
-                    0,
-                    0,
-                    "► TAP",
-                    {
-                        font: "bold 12px monospace",
-                        fill: "#ff0055"
-                    }
-                )
-                .setOrigin(0.5);
-
-        this.dialogueContainer.add([
-            this.dialogueBg,
-            this.dialogueText,
-            this.dialoguePrompt
-        ]);
-
+        this.dialogueContainer.add([this.dialogueBg, this.dialogueText, this.dialoguePrompt]);
         this.dialogueContainer.setVisible(false);
-
-        this.dialogueContainer.setSize(
-            210,
-            160
-        );
-
-        this.dialogueContainer.setInteractive(
-            new Phaser.Geom.Rectangle(
-                -105,
-                -80,
-                210,
-                160
-            ),
-            Phaser.Geom.Rectangle.Contains
-        );
-
-        this.dialogueContainer.on(
-            'pointerdown',
-            (pointer, localX, localY, event) => {
-
-                if (event) {
-                    event.stopPropagation();
-                }
-
-                this.advanceDialogue();
-
-            }
-        );
+        this.dialogueContainer.setSize(210, 160);
+        this.dialogueContainer.setInteractive(new Phaser.Geom.Rectangle(-105, -80, 210, 160), Phaser.Geom.Rectangle.Contains);
+        this.dialogueContainer.on('pointerdown', (pointer, localX, localY, event) => {
+            if (event) event.stopPropagation();
+            this.advanceDialogue();
+        });
 
         this.isDialogueOpen = false;
         this.dialogueIndex = 0;
         this.activeSpeaker = null;
         this.npcLines = [];
-
     }
 
     drawSpeechBubble(width, height) {
-
         this.dialogueBg.clear();
-
-        this.dialogueBg.fillStyle(
-            0xffffff,
-            0.98
-        );
-
-        this.dialogueBg.lineStyle(
-            3,
-            0xff0055,
-            1
-        );
-
-        this.dialogueBg.fillRoundedRect(
-            -width / 2,
-            -height / 2,
-            width,
-            height,
-            14
-        );
-
-        this.dialogueBg.strokeRoundedRect(
-            -width / 2,
-            -height / 2,
-            width,
-            height,
-            14
-        );
-
+        this.dialogueBg.fillStyle(0xffffff, 0.98);
+        this.dialogueBg.lineStyle(3, 0xff0055, 1);
+        this.dialogueBg.fillRoundedRect(-width / 2, -height / 2, width, height, 14);
+        this.dialogueBg.strokeRoundedRect(-width / 2, -height / 2, width, height, 14);
         this.dialogueBg.beginPath();
-
-        this.dialogueBg.moveTo(
-            -10,
-            height / 2
-        );
-
-        this.dialogueBg.lineTo(
-            0,
-            height / 2 + 14
-        );
-
-        this.dialogueBg.lineTo(
-            10,
-            height / 2
-        );
-
+        this.dialogueBg.moveTo(-10, height / 2);
+        this.dialogueBg.lineTo(0, height / 2 + 14);
+        this.dialogueBg.lineTo(10, height / 2);
         this.dialogueBg.closePath();
-
         this.dialogueBg.fillPath();
         this.dialogueBg.strokePath();
-
     }
 
     startDialogue(speakerKey) {
-
         this.infoBox.setVisible(false);
-
         this.isDialogueOpen = true;
-
         this.dialogueIndex = 0;
+        this.activeSpeaker = speakerKey;
 
-        this.activeSpeaker =
-            speakerKey;
-
-        const greeting =
-            Phaser.Math.RND.pick([
-                "Hey",
-                "Ehi",
-                "Ciao"
-            ]);
-
-        const line1 =
-            `${greeting} ${this.playerName}!`;
+        const greeting = Phaser.Math.RND.pick(["Hey", "Ehi", "Ciao"]);
+        const line1 = `${greeting} ${this.playerName}!`;
 
         if (speakerKey === 'gabri') {
-
-            this.npcLines = [
-
-                line1,
-
-                Phaser.Math.RND.pick([
-                    "Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.",
-                    "Sto sistemando un po' di animazioni su After Effects.",
-                    "Sto lavorando su una grafica animata. Ho quasi finito!"
-                ])
-
-            ];
-
+            this.npcLines = [line1, Phaser.Math.RND.pick(["Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.", "Sto sistemando un po' di animazioni su After Effects.", "Sto lavorando su una grafica animata. Ho quasi finito!"])];
         } else if (speakerKey === 'raffa') {
-
-            this.npcLines = [
-
-                line1,
-
-                Phaser.Math.RND.pick([
-                    "Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi!",
-                    "Sto preparando l'attrezzatura per il prossimo lavoro."
-                ])
-
-            ];
-
+            this.npcLines = [line1, Phaser.Math.RND.pick(["Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi!", "Sto preparando l'attrezzatura per il prossimo lavoro."])];
         } else {
-
-            this.npcLines = [
-
-                line1,
-
-                Phaser.Math.RND.pick([
-                    "Tutto bene? Ho sentito che hanno piazzato dei giochi nuovi.",
-                    "Stavo giusto guardando quanto tempo ci mette qualcuno a scoprire i cabinati!"
-                ])
-
-            ];
-
+            this.npcLines = [line1, Phaser.Math.RND.pick(["Tutto bene? Ho sentito che hanno piazzato dei giochi nuovi.", "Stavo giusto guardando quanto tempo ci mette qualcuno a scoprire i cabinati!"])];
         }
 
         this.showDialogueLine();
-
         this.dialogueContainer.setVisible(true);
-
     }
 
     showDialogueLine() {
+        this.dialogueText.setText(this.npcLines[this.dialogueIndex]);
+        let boxH = this.dialogueText.height + 40;
+        if (boxH < 70) boxH = 70;
 
-        this.dialogueText.setText(
-            this.npcLines[this.dialogueIndex]
-        );
+        this.drawSpeechBubble(210, boxH);
 
-        let boxH =
-            this.dialogueText.height + 40;
-
-        if (boxH < 70) {
-            boxH = 70;
-        }
-
-        this.drawSpeechBubble(
-            210,
-            boxH
-        );
-
-        this.dialogueText.setPosition(
-            0,
-            -8
-        );
-
-        this.dialoguePrompt.setPosition(
-            210 / 2 - 25,
-            boxH / 2 - 12
-        );
+        this.dialogueText.setPosition(0, -8);
+        this.dialoguePrompt.setPosition(210 / 2 - 25, boxH / 2 - 12);
 
         let targetX = this.npc.x;
         let targetY = this.npc.y;
 
-        if (
-            this.activeSpeaker === 'gabri'
-        ) {
-
+        if (this.activeSpeaker === 'gabri') {
             targetX = this.gabri.x;
             targetY = this.gabri.y;
-
-        } else if (
-            this.activeSpeaker === 'raffa'
-        ) {
-
+        } else if (this.activeSpeaker === 'raffa') {
             targetX = this.raffa.x;
             targetY = this.raffa.y;
-
         }
 
-        this.dialogueContainer.setPosition(
-            targetX - 20,
-            targetY - 180 - boxH / 2
-        );
-
+        this.dialogueContainer.setPosition(targetX - 20, targetY - 180 - boxH / 2);
     }
 
     advanceDialogue() {
-
         this.dialogueIndex++;
-
-        if (
-            this.dialogueIndex <
-            this.npcLines.length
-        ) {
-
+        if (this.dialogueIndex < this.npcLines.length) {
             this.showDialogueLine();
-
         } else {
-
             this.closeDialogue();
-
         }
-
     }
 
     closeDialogue() {
-
         this.isDialogueOpen = false;
-
-        this.dialogueContainer.setVisible(
-            false
-        );
-
+        this.dialogueContainer.setVisible(false);
     }
 
-    setupTouchControls(
-        width,
-        height
-    ) {
-
+    setupTouchControls(width, height) {
         this.isMovingLeft = false;
         this.isMovingRight = false;
 
-        let controlDeck =
-            this.add
-                .container(0, 0)
-                .setScrollFactor(0)
-                .setDepth(100);
+        let controlDeck = this.add.container(0, 0).setScrollFactor(0).setDepth(100);
 
-        let deckBg =
-            this.add.graphics();
+        let deckBg = this.add.graphics();
+        deckBg.fillStyle(0x060612, 0.94);
+        deckBg.fillRoundedRect(10, height - 98, width - 20, 86, 20);
+        deckBg.lineStyle(2, 0xff0055, 0.8);
+        deckBg.strokeRoundedRect(10, height - 98, width - 20, 86, 20);
 
-        deckBg.fillStyle(
-            0x060612,
-            0.94
-        );
+        let btnY = height - 55;
 
-        deckBg.fillRoundedRect(
-            10,
-            height - 98,
-            width - 20,
-            86,
-            20
-        );
+        const createDPadBtn = (x, y, label, onPress) => {
+            let container = this.add.container(x, y).setScrollFactor(0).setDepth(102);
+            let g = this.add.graphics();
+            g.fillStyle(0x101528, 0.95);
+            g.lineStyle(2, 0xff0055, 1);
+            g.fillRoundedRect(-28, -26, 56, 52, 12);
+            g.strokeRoundedRect(-28, -26, 56, 52, 12);
 
-        deckBg.lineStyle(
-            2,
-            0xff0055,
-            0.8
-        );
+            let txt = this.add.text(0, 0, label, { font: "bold 22px monospace", fill: "#ff0055" }).setOrigin(0.5);
 
-        deckBg.strokeRoundedRect(
-            10,
-            height - 98,
-            width - 20,
-            86,
-            20
-        );
+            container.add([g, txt]);
+            container.setInteractive(new Phaser.Geom.Rectangle(-28, -26, 56, 52), Phaser.Geom.Rectangle.Contains);
 
-        let btnY =
-            height - 55;
+            container.on('pointerdown', () => {
+                container.setScale(0.88);
+                onPress(true);
+            });
 
-        const createDPadBtn =
-            (x, y, label, onPress) => {
+            container.on('pointerup', () => {
+                container.setScale(1.0);
+                onPress(false);
+            });
 
-                let container =
-                    this.add
-                        .container(x, y)
-                        .setScrollFactor(0)
-                        .setDepth(102);
+            container.on('pointerout', () => {
+                container.setScale(1.0);
+                onPress(false);
+            });
+        };
 
-                let g =
-                    this.add.graphics();
+        createDPadBtn(55, btnY, '◄', isDown => { this.isMovingLeft = isDown; });
+        createDPadBtn(120, btnY, '►', isDown => { this.isMovingRight = isDown; });
 
-                g.fillStyle(
-                    0x101528,
-                    0.95
-                );
-
-                g.lineStyle(
-                    2,
-                    0xff0055,
-                    1
-                );
-
-                g.fillRoundedRect(
-                    -28,
-                    -26,
-                    56,
-                    52,
-                    12
-                );
-
-                g.strokeRoundedRect(
-                    -28,
-                    -26,
-                    56,
-                    52,
-                    12
-                );
-
-                let txt =
-                    this.add
-                        .text(
-                            0,
-                            0,
-                            label,
-                            {
-                                font: "bold 22px monospace",
-                                fill: "#ff0055"
-                            }
-                        )
-                        .setOrigin(0.5);
-
-                container.add([
-                    g,
-                    txt
-                ]);
-
-                container.setInteractive(
-                    new Phaser.Geom.Rectangle(
-                        -28,
-                        -26,
-                        56,
-                        52
-                    ),
-                    Phaser.Geom.Rectangle.Contains
-                );
-
-                container.on(
-                    'pointerdown',
-                    () => {
-
-                        container.setScale(0.88);
-
-                        onPress(true);
-
-                    }
-                );
-
-                container.on(
-                    'pointerup',
-                    () => {
-
-                        container.setScale(1.0);
-
-                        onPress(false);
-
-                    }
-                );
-
-                container.on(
-                    'pointerout',
-                    () => {
-
-                        container.setScale(1.0);
-
-                        onPress(false);
-
-                    }
-                );
-
-            };
-
-        createDPadBtn(
-            55,
-            btnY,
-            '◄',
-            isDown => {
-                this.isMovingLeft =
-                    isDown;
-            }
-        );
-
-        createDPadBtn(
-            120,
-            btnY,
-            '►',
-            isDown => {
-                this.isMovingRight =
-                    isDown;
-            }
-        );
-
-        this.actionBtnContainer =
-            this.add
-                .container(
-                    width - 65,
-                    btnY
-                )
-                .setScrollFactor(0)
-                .setDepth(102);
-
-        this.actionAura =
-            this.add.graphics();
-
-        this.actionAura.fillStyle(
-            0xff0055,
-            0.4
-        );
-
-        this.actionAura.fillCircle(
-            0,
-            0,
-            36
-        );
-
+        this.actionBtnContainer = this.add.container(width - 65, btnY).setScrollFactor(0).setDepth(102);
+        this.actionAura = this.add.graphics();
+        this.actionAura.fillStyle(0xff0055, 0.4);
+        this.actionAura.fillCircle(0, 0, 36);
         this.actionAura.setVisible(false);
 
-        let btnBezel =
-            this.add.graphics();
+        let btnBezel = this.add.graphics();
+        btnBezel.fillStyle(0x222233, 1);
+        btnBezel.lineStyle(2, 0xff0055, 1);
+        btnBezel.fillCircle(0, 0, 32);
+        btnBezel.strokeCircle(0, 0, 32);
 
-        btnBezel.fillStyle(
-            0x222233,
-            1
-        );
+        let btnBody = this.add.graphics();
+        btnBody.fillStyle(0xff0055, 0.95);
+        btnBody.fillCircle(0, 0, 26);
 
-        btnBezel.lineStyle(
-            2,
-            0xff0055,
-            1
-        );
+        let btnTxt = this.add.text(0, 1, "VAI", { font: "bold 15px monospace", fill: "#ffffff" }).setOrigin(0.5);
 
-        btnBezel.fillCircle(
-            0,
-            0,
-            32
-        );
+        this.actionBtnContainer.add([this.actionAura, btnBezel, btnBody, btnTxt]);
+        this.actionBtnContainer.setInteractive(new Phaser.Geom.Circle(0, 0, 32), Phaser.Geom.Circle.Contains);
 
-        btnBezel.strokeCircle(
-            0,
-            0,
-            32
-        );
+        this.actionBtnContainer.on('pointerdown', () => {
+            this.actionBtnContainer.setScale(0.88);
+            this.interact();
+        });
 
-        let btnBody =
-            this.add.graphics();
+        this.actionBtnContainer.on('pointerup', () => {
+            this.actionBtnContainer.setScale(1.0);
+        });
 
-        btnBody.fillStyle(
-            0xff0055,
-            0.95
-        );
-
-        btnBody.fillCircle(
-            0,
-            0,
-            26
-        );
-
-        let btnTxt =
-            this.add
-                .text(
-                    0,
-                    1,
-                    "VAI",
-                    {
-                        font: "bold 15px monospace",
-                        fill: "#ffffff"
-                    }
-                )
-                .setOrigin(0.5);
-
-        this.actionBtnContainer.add([
-            this.actionAura,
-            btnBezel,
-            btnBody,
-            btnTxt
-        ]);
-
-        this.actionBtnContainer.setInteractive(
-            new Phaser.Geom.Circle(
-                0,
-                0,
-                32
-            ),
-            Phaser.Geom.Circle.Contains
-        );
-
-        this.actionBtnContainer.on(
-            'pointerdown',
-            () => {
-
-                this.actionBtnContainer.setScale(
-                    0.88
-                );
-
-                this.interact();
-
-            }
-        );
-
-        this.actionBtnContainer.on(
-            'pointerup',
-            () => {
-
-                this.actionBtnContainer.setScale(
-                    1.0
-                );
-
-            }
-        );
-
-        controlDeck.add([
-            deckBg
-        ]);
-
+        controlDeck.add([deckBg]);
     }
 
     interact() {
-
         if (this.isDialogueOpen) {
-
             this.advanceDialogue();
-
             return;
-
         }
 
-        let distGabri =
-            Phaser.Math.Distance.Between(
-                this.player.x,
-                this.player.y,
-                this.gabri.x,
-                this.gabri.y
-            );
-
+        let distGabri = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y);
         if (distGabri < 70) {
-
-            this.startDialogue(
-                'gabri'
-            );
-
+            this.startDialogue('gabri');
             return;
-
         }
 
-        let distNpc =
-            Phaser.Math.Distance.Between(
-                this.player.x,
-                this.player.y,
-                this.npc.x,
-                this.npc.y
-            );
-
+        let distNpc = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
         if (distNpc < 70) {
-
-            this.startDialogue(
-                'npc'
-            );
-
+            this.startDialogue('npc');
             return;
-
         }
 
-        let distRaffa =
-            Phaser.Math.Distance.Between(
-                this.player.x,
-                this.player.y,
-                this.raffa.x,
-                this.raffa.y
-            );
-
+        let distRaffa = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y);
         if (distRaffa < 70) {
-
-            this.startDialogue(
-                'raffa'
-            );
-
+            this.startDialogue('raffa');
             return;
-
         }
 
-        for (
-            let cab of this.cabinetSprites
-        ) {
-
-            let dist =
-                Phaser.Math.Distance.Between(
-                    this.player.x,
-                    this.player.y,
-                    cab.x,
-                    cab.y
-                );
-
+        for (let cab of this.cabinetSprites) {
+            let dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y);
             if (dist < 60) {
-
-                if (
-                    cab.gameData.type ===
-                    "leaderboard"
-                ) {
-
-                    openLeaderboardModal(
-                        'feedbackInvaders'
-                    );
-
-                } else if (
-                    cab.gameData.url
-                ) {
-
-                    sessionStorage.setItem(
-                        'arcade_session_active',
-                        'true'
-                    );
-
-                    window.location.replace(
-                        cab.gameData.url
-                    );
-
+                if (cab.gameData.type === "leaderboard") {
+                    openLeaderboardModal('feedbackInvaders');
+                } else if (cab.gameData.url) {
+                    sessionStorage.setItem('arcade_session_active', 'true');
+                    window.location.replace(cab.gameData.url);
                 }
-
                 return;
-
             }
-
         }
-
     }
 
     update() {
-
-        if (
-            Phaser.Input.Keyboard.JustDown(
-                this.keyEsc
-            )
-        ) {
-
+        if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
             if (this.isDialogueOpen) {
-
                 this.closeDialogue();
-
             }
-
             return;
-
         }
 
         if (this.isDialogueOpen) {
-
             this.player.setVelocityX(0);
-
-            this.player.play(
-                'idle',
-                true
-            );
-
+            this.player.play('idle', true);
             this.infoBox.setVisible(false);
-
             return;
-
         }
 
         this.player.setVelocityX(0);
 
-        if (
-            this.cursors.left.isDown ||
-            this.isMovingLeft
-        ) {
-
+        if (this.cursors.left.isDown || this.isMovingLeft) {
             this.player.setVelocityX(-180);
-
             this.player.setFlipX(true);
-
-            this.player.play(
-                'walk',
-                true
-            );
-
-        } else if (
-            this.cursors.right.isDown ||
-            this.isMovingRight
-        ) {
-
+            this.player.play('walk', true);
+        } else if (this.cursors.right.isDown || this.isMovingRight) {
             this.player.setVelocityX(180);
-
             this.player.setFlipX(false);
-
-            this.player.play(
-                'walk',
-                true
-            );
-
+            this.player.play('walk', true);
         } else {
-
-            this.player.play(
-                'idle',
-                true
-            );
-
+            this.player.play('idle', true);
         }
 
-        localStorage.setItem(
-            'arcade_player_x',
-            this.player.x
-        );
+        localStorage.setItem('arcade_player_x', this.player.x);
 
-        if (
-            Phaser.Input.Keyboard.JustDown(
-                this.keyEnter
-            )
-        ) {
-
+        if (Phaser.Input.Keyboard.JustDown(this.keyEnter)) {
             this.interact();
-
         }
 
         let activeCabinet = null;
 
-        if (
-            Phaser.Math.Distance.Between(
-                this.player.x,
-                this.player.y,
-                this.gabri.x,
-                this.gabri.y
-            ) < 70
-        ) {
-
-            this.infoBox.setPosition(
-                this.gabri.x,
-                this.cabBadgeY
-            );
-
-            this.boxTitleText.setText(
-                "Gabri"
-            );
-
-            this.boxActionText.setText(
-                "PARLA 💬"
-            );
-
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y) < 70) {
+            this.infoBox.setPosition(this.gabri.x, this.cabBadgeY);
+            this.boxTitleText.setText("Gabri");
+            this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
-
             return;
-
         }
 
-        if (
-            Phaser.Math.Distance.Between(
-                this.player.x,
-                this.player.y,
-                this.npc.x,
-                this.npc.y
-            ) < 70
-        ) {
-
-            this.infoBox.setPosition(
-                this.npc.x,
-                this.cabBadgeY
-            );
-
-            this.boxTitleText.setText(
-                "Giovannone"
-            );
-
-            this.boxActionText.setText(
-                "PARLA 💬"
-            );
-
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y) < 70) {
+            this.infoBox.setPosition(this.npc.x, this.cabBadgeY);
+            this.boxTitleText.setText("Giovannone");
+            this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
-
             return;
-
         }
 
-        if (
-            Phaser.Math.Distance.Between(
-                this.player.x,
-                this.player.y,
-                this.raffa.x,
-                this.raffa.y
-            ) < 70
-        ) {
-
-            this.infoBox.setPosition(
-                this.raffa.x,
-                this.cabBadgeY
-            );
-
-            this.boxTitleText.setText(
-                "Raffa"
-            );
-
-            this.boxActionText.setText(
-                "PARLA 💬"
-            );
-
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y) < 70) {
+            this.infoBox.setPosition(this.raffa.x, this.cabBadgeY);
+            this.boxTitleText.setText("Raffa");
+            this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
-
             return;
-
         }
 
-        for (
-            let cab of this.cabinetSprites
-        ) {
-
-            if (
-                Phaser.Math.Distance.Between(
-                    this.player.x,
-                    this.player.y,
-                    cab.x,
-                    cab.y
-                ) < 60
-            ) {
-
+        for (let cab of this.cabinetSprites) {
+            if (Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y) < 60) {
                 activeCabinet = cab;
-
                 break;
-
             }
-
         }
 
         if (activeCabinet) {
+            let data = activeCabinet.gameData;
+            this.infoBox.setPosition(data.badgeX, data.badgeY);
+            this.boxTitleText.setText(data.title);
 
-            let data =
-                activeCabinet.gameData;
-
-            this.infoBox.setPosition(
-                data.badgeX,
-                data.badgeY
-            );
-
-            this.boxTitleText.setText(
-                data.title
-            );
-
-            if (
-                data.type ===
-                "leaderboard"
-            ) {
-
-                this.boxActionText.setText(
-                    "VEDI RECORD 🏆"
-                );
-
+            if (data.type === "leaderboard") {
+                this.boxActionText.setText("VEDI RECORD 🏆");
             } else {
-
-                let myRecord =
-                    (
-                        auth.currentUser &&
-                        auth.currentUser.stats
-                    )
-                        ? (
-                            auth.currentUser.stats[
-                                data.key
-                            ] || 0
-                        )
-                        : 0;
-
-                this.boxActionText.setText(
-                    `REC: ${myRecord} PTS | GIOCA 🕹️`
-                );
-
+                let myRecord = (auth.currentUser && auth.currentUser.stats)
+                    ? (auth.currentUser.stats[data.key] || 0)
+                    : 0;
+                this.boxActionText.setText(`REC: ${myRecord} PTS | GIOCA 🕹️`);
             }
 
             this.infoBox.setVisible(true);
-
         } else {
-
             this.infoBox.setVisible(false);
-
         }
-
     }
-
 }
 
-/*
- * CONFIGURAZIONE PHASER
- *
- * IMPORTANTE:
- *
- * NO_CENTER evita che Phaser centri verticalmente
- * il canvas lasciando una fascia nera sopra.
- */
 const config = {
-
     type: Phaser.WEBGL,
-
     parent: 'game-container',
-
     backgroundColor: '#000000',
-
     scale: {
-
         mode: Phaser.Scale.EXACT_FIT,
-
-        autoCenter: Phaser.Scale.NO_CENTER,
-
+        autoCenter: Phaser.Scale.CENTER_BOTH,
         width: 360,
-
         height: 740
-
     },
-
     physics: {
-
         default: 'arcade',
-
         arcade: {
-
-            gravity: {
-                y: 0
-            },
-
+            gravity: { y: 0 },
             debug: false
-
         }
-
     },
-
-    scene: [
-        MainHub
-    ]
-
+    scene: [MainHub]
 };
 
-const game =
-    new Phaser.Game(config);
+const game = new Phaser.Game(config);
 
-
-/*
- * FORZA IL RESIZE DEL GIOCO QUANDO
- * CAMBIA IL VIEWPORT DEL TELEFONO.
- */
-function resizeGameViewport() {
-
-    const wrapper =
-        document.getElementById(
-            'game-wrapper'
-        );
-
-    if (!wrapper || !game) {
-        return;
-    }
-
-    const width =
-        window.innerWidth;
-
-    const height =
-        window.innerHeight;
-
-    wrapper.style.width =
-        width + 'px';
-
-    wrapper.style.height =
-        height + 'px';
-
-    if (
-        game.scale &&
-        game.scale.resize
-    ) {
-
-        game.scale.resize(
-            width,
-            height
-        );
-
-    }
-
-}
-
-window.addEventListener(
-    'resize',
-    resizeGameViewport
-);
-
-window.addEventListener(
-    'orientationchange',
-    () => {
-
-        setTimeout(
-            resizeGameViewport,
-            100
-        );
-
-    }
-);
-
-if (window.visualViewport) {
-
-    window.visualViewport.addEventListener(
-        'resize',
-        () => {
-
-            resizeGameViewport();
-
-        }
-    );
-
-}
-
-setTimeout(
-    resizeGameViewport,
-    100
-);
-
-
-let currentLBGameKey =
-    'feedbackInvaders';
-
+let currentLBGameKey = 'feedbackInvaders';
 
 function openProfileModal() {
+    if (!auth.currentUser) return;
 
-    if (!auth.currentUser) {
-        return;
-    }
+    let s = auth.currentUser.stats || {};
+    let rank = auth.getRankInfo();
 
-    let s =
-        auth.currentUser.stats || {};
+    document.getElementById('profile-username').innerText = auth.currentUser.username;
+    document.getElementById('profile-rank').innerText = rank.title;
+    document.getElementById('profile-xp-fill').style.width = rank.xpPct + '%';
 
-    let rank =
-        auth.getRankInfo();
-
-    document.getElementById(
-        'profile-username'
-    ).innerText =
-        auth.currentUser.username;
-
-    document.getElementById(
-        'profile-rank'
-    ).innerText =
-        rank.title;
-
-    document.getElementById(
-        'profile-xp-fill'
-    ).style.width =
-        rank.xpPct + '%';
-
-    const avatarBox =
-        document.getElementById(
-            'profile-avatar-box'
-        );
-
+    const avatarBox = document.getElementById('profile-avatar-box');
     if (auth.currentUser.avatar) {
-
-        avatarBox.innerHTML =
-            `<img src="${auth.currentUser.avatar}" alt="Avatar">`;
-
+        avatarBox.innerHTML = `<img src="${auth.currentUser.avatar}" alt="Avatar">`;
     } else {
-
-        avatarBox.innerText =
-            "👾";
-
+        avatarBox.innerText = "👾";
     }
 
-    document.getElementById(
-        'stat-invaders'
-    ).innerText =
-        (
-            s.feedbackInvaders || 0
-        ).toLocaleString() +
-        " PTS";
+    document.getElementById('stat-invaders').innerText = (s.feedbackInvaders || 0).toLocaleString() + " PTS";
+    document.getElementById('stat-cyber').innerText = (s.cyberRun || 0).toLocaleString() + " PTS";
+    document.getElementById('stat-punch').innerText = (s.pixelPunch || 0).toLocaleString() + " PTS";
+    document.getElementById('stat-dodge').innerText = (s.deadlineDrive || 0).toLocaleString() + " PTS";
 
-    document.getElementById(
-        'stat-cyber'
-    ).innerText =
-        (
-            s.cyberRun || 0
-        ).toLocaleString() +
-        " PTS";
-
-    document.getElementById(
-        'stat-punch'
-    ).innerText =
-        (
-            s.pixelPunch || 0
-        ).toLocaleString() +
-        " PTS";
-
-    document.getElementById(
-        'stat-dodge'
-    ).innerText =
-        (
-            s.deadlineDrive || 0
-        ).toLocaleString() +
-        " PTS";
-
-    document.getElementById(
-        'profile-modal'
-    ).style.display =
-        'flex';
-
+    document.getElementById('profile-modal').style.display = 'flex';
 }
 
-
-async function openLeaderboardModal(
-    gameKey
-) {
-
-    if (gameKey) {
-
-        currentLBGameKey =
-            gameKey;
-
-    }
-
-    document.getElementById(
-        'leaderboard-modal'
-    ).style.display =
-        'flex';
-
-    await fetchLeaderboardFromSupabase(
-        currentLBGameKey
-    );
-
+async function openLeaderboardModal(gameKey) {
+    if (gameKey) currentLBGameKey = gameKey;
+    document.getElementById('leaderboard-modal').style.display = 'flex';
+    await fetchLeaderboardFromSupabase(currentLBGameKey);
 }
 
+async function fetchLeaderboardFromSupabase(gameKey) {
+    currentLBGameKey = gameKey;
 
-async function fetchLeaderboardFromSupabase(
-    gameKey
-) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
-    currentLBGameKey =
-        gameKey;
+    let activeTabBtn = document.getElementById('tab-' + gameKey);
+    if (activeTabBtn) activeTabBtn.classList.add('active');
 
-    document
-        .querySelectorAll('.tab-btn')
-        .forEach(btn => {
-
-            btn.classList.remove(
-                'active'
-            );
-
-        });
-
-    let activeTabBtn =
-        document.getElementById(
-            'tab-' + gameKey
-        );
-
-    if (activeTabBtn) {
-
-        activeTabBtn.classList.add(
-            'active'
-        );
-
-    }
-
-    const listEl =
-        document.getElementById(
-            'lb-records-list'
-        );
-
-    listEl.innerHTML =
-        '<div class="leaderboard-row">' +
-        '<span class="player-name">' +
-        'Caricamento classifiche...' +
-        '</span>' +
-        '</div>';
+    const listEl = document.getElementById('lb-records-list');
+    listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Caricamento classifiche...</span></div>';
 
     let records = [];
 
     if (supabaseClient) {
-
         try {
+            let { data, error } = await supabaseClient
+                .from('leaderboard')
+                .select('username, score')
+                .eq('game_key', gameKey)
+                .order('score', { ascending: false })
+                .limit(10);
 
-            let {
-                data,
-                error
-            } =
-                await supabaseClient
-                    .from('leaderboard')
-                    .select(
-                        'username, score'
-                    )
-                    .eq(
-                        'game_key',
-                        gameKey
-                    )
-                    .order(
-                        'score',
-                        {
-                            ascending: false
-                        }
-                    )
-                    .limit(10);
-
-            if (!error && data) {
-
-                records = data;
-
-            }
-
+            if (!error && data) records = data;
         } catch (e) {
-
-            console.warn(
-                "Supabase non raggiungibile."
-            );
-
+            console.warn("Supabase non raggiungibile.");
         }
-
     }
 
     if (records.length === 0) {
-
-        let users =
-            auth.getUsers();
-
-        for (
-            let uname in users
-        ) {
-
-            let sc =
-                users[uname].stats
-                    ? (
-                        users[uname]
-                            .stats[gameKey] || 0
-                    )
-                    : 0;
-
+        let users = auth.getUsers();
+        for (let uname in users) {
+            let sc = users[uname].stats ? (users[uname].stats[gameKey] || 0) : 0;
             if (sc > 0) {
-
-                records.push({
-                    username: uname,
-                    score: sc
-                });
-
+                records.push({ username: uname, score: sc });
             }
-
         }
 
-        if (
-            auth.currentUser &&
-            auth.currentUser.stats
-        ) {
-
-            let mySc =
-                auth.currentUser.stats[
-                    gameKey
-                ] || 0;
-
-            if (
-                mySc > 0 &&
-                !records.some(
-                    r =>
-                        r.username ===
-                        auth.currentUser.username
-                )
-            ) {
-
-                records.push({
-
-                    username:
-                        auth.currentUser.username,
-
-                    score:
-                        mySc
-
-                });
-
+        if (auth.currentUser && auth.currentUser.stats) {
+            let mySc = auth.currentUser.stats[gameKey] || 0;
+            if (mySc > 0 && !records.some(r => r.username === auth.currentUser.username)) {
+                records.push({ username: auth.currentUser.username, score: mySc });
             }
-
         }
 
-        records.sort(
-            (a, b) =>
-                b.score - a.score
-        );
-
+        records.sort((a, b) => b.score - a.score);
     }
 
     if (records.length === 0) {
-
-        listEl.innerHTML =
-            '<div class="leaderboard-row">' +
-            '<span class="player-name">' +
-            'Nessun record registrato per questo gioco!' +
-            '</span>' +
-            '</div>';
-
+        listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Nessun record registrato per questo gioco!</span></div>';
     } else {
-
-        listEl.innerHTML =
-            records.map(
-                (r, i) => `
-
-                    <div class="leaderboard-row">
-
-                        <span class="rank-pos">
-                            #${i + 1}
-                        </span>
-
-                        <span class="player-name">
-                            ${r.username}
-                        </span>
-
-                        <span class="score-val">
-                            ${r.score.toLocaleString()} PTS
-                        </span>
-
-                    </div>
-
-                `
-            ).join('');
-
+        listEl.innerHTML = records.map((r, i) => `
+            <div class="leaderboard-row">
+                <span class="rank-pos">#${i + 1}</span>
+                <span class="player-name">${r.username}</span>
+                <span class="score-val">${r.score.toLocaleString()} PTS</span>
+            </div>
+        `).join('');
     }
-
 }
 
-
-function switchLBTab(
-    gameKey
-) {
-
-    fetchLeaderboardFromSupabase(
-        gameKey
-    );
-
+function switchLBTab(gameKey) {
+    fetchLeaderboardFromSupabase(gameKey);
 }
 
+document.getElementById('profile-close-btn').addEventListener('click', () => {
+    document.getElementById('profile-modal').style.display = 'none';
+});
 
-document
-    .getElementById(
-        'profile-close-btn'
-    )
-    .addEventListener(
-        'click',
-        () => {
+document.getElementById('lb-close-btn').addEventListener('click', () => {
+    document.getElementById('leaderboard-modal').style.display = 'none';
+});
 
-            document.getElementById(
-                'profile-modal'
-            ).style.display =
-                'none';
-
-        }
-    );
-
-
-document
-    .getElementById(
-        'lb-close-btn'
-    )
-    .addEventListener(
-        'click',
-        () => {
-
-            document.getElementById(
-                'leaderboard-modal'
-            ).style.display =
-                'none';
-
-        }
-    );
-
-
-document
-    .getElementById(
-        'profile-logout-btn'
-    )
-    .addEventListener(
-        'click',
-        () => {
-
-            auth.logout();
-
-        }
-    );
-
+document.getElementById('profile-logout-btn').addEventListener('click', () => {
+    auth.logout();
+});
 </script>
 
 </body>
