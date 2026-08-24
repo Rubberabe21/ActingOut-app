@@ -53,36 +53,71 @@
             touch-action: none;
         }
 
+        /*
+         * VIEWPORT PRINCIPALE
+         * Usiamo dvh per evitare lo spazio residuo creato
+         * da svh sui browser mobile.
+         */
         #game-wrapper {
             position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
+            top: 0;
+            left: 0;
+
+            width: 100vw;
+            height: 100dvh;
+
+            min-width: 100vw;
+            min-height: 100dvh;
+
             background: #000000;
             overflow: hidden;
+
             margin: 0;
             padding: 0;
         }
 
+        /*
+         * CONTENITORE PHASER
+         */
         #game-container {
             position: absolute;
-            inset: 0;
+
+            top: 0;
+            left: 0;
+
             width: 100%;
             height: 100%;
+
+            min-width: 100%;
+            min-height: 100%;
+
             background: #000000;
             overflow: hidden;
+
             margin: 0;
             padding: 0;
         }
 
+        /*
+         * CANVAS PHASER
+         *
+         * Non utilizziamo CENTER_BOTH:
+         * il canvas parte esattamente da 0,0.
+         */
         #game-container canvas {
             display: block !important;
+
             position: absolute !important;
-            inset: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
+
+            top: 0 !important;
+            left: 0 !important;
+
+            width: 100% !important;
+            height: 100% !important;
+
             margin: 0 !important;
             padding: 0 !important;
+
             object-fit: fill !important;
         }
 
@@ -400,7 +435,11 @@ if (hubMusic) {
     }
 
     ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
-        window.addEventListener(evt, playHubMusicOnInteraction, { capture: true });
+        window.addEventListener(
+            evt,
+            playHubMusicOnInteraction,
+            { capture: true }
+        );
     });
 }
 </script>
@@ -408,6 +447,7 @@ if (hubMusic) {
 <div id="game-wrapper">
 
     <div id="top-header-bar">
+
         <button id="header-user-btn" class="header-btn">
             👤 LOGIN
         </button>
@@ -415,12 +455,17 @@ if (hubMusic) {
         <button id="header-score-btn" class="header-btn">
             ⚡ 0 PTS
         </button>
+
     </div>
 
+    <!-- PROFILE -->
+
     <div id="profile-modal" class="auth-overlay" style="display: none;">
+
         <div class="auth-box">
 
             <div class="profile-card-header">
+
                 <div class="profile-avatar-row">
 
                     <div class="profile-avatar" id="profile-avatar-box">
@@ -428,6 +473,7 @@ if (hubMusic) {
                     </div>
 
                     <div>
+
                         <div id="profile-rank" class="profile-rank-title">
                             ROOKIE 🐣
                         </div>
@@ -435,20 +481,37 @@ if (hubMusic) {
                         <div id="profile-username" class="profile-username">
                             PLAYER_1
                         </div>
+
                     </div>
 
                 </div>
 
                 <div class="xp-bar-container">
+
                     <div id="profile-xp-fill" class="xp-bar-fill"></div>
+
                 </div>
+
             </div>
 
             <div class="badges-row">
-                <span id="badge-1" class="badge-item" title="Prima partita">🕹️</span>
-                <span id="badge-2" class="badge-item" title="100+ Punti">🔥</span>
-                <span id="badge-3" class="badge-item" title="500+ Punti">⚡</span>
-                <span id="badge-4" class="badge-item" title="Retro King">👑</span>
+
+                <span id="badge-1" class="badge-item" title="Prima partita">
+                    🕹️
+                </span>
+
+                <span id="badge-2" class="badge-item" title="100+ Punti">
+                    🔥
+                </span>
+
+                <span id="badge-3" class="badge-item" title="500+ Punti">
+                    ⚡
+                </span>
+
+                <span id="badge-4" class="badge-item" title="Retro King">
+                    👑
+                </span>
+
             </div>
 
             <div class="stats-grid">
@@ -479,12 +542,19 @@ if (hubMusic) {
                 TORNA AL GIOCO
             </button>
 
-            <button id="profile-logout-btn" class="auth-btn" style="background:#550022; margin-top:8px;">
+            <button
+                id="profile-logout-btn"
+                class="auth-btn"
+                style="background:#550022; margin-top:8px;"
+            >
                 LOGOUT / CAMBIA UTENTE
             </button>
 
         </div>
+
     </div>
+
+    <!-- LEADERBOARD -->
 
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
 
@@ -496,19 +566,35 @@ if (hubMusic) {
 
             <div class="tab-selector">
 
-                <button class="tab-btn active" id="tab-feedbackInvaders" onclick="switchLBTab('feedbackInvaders')">
+                <button
+                    class="tab-btn active"
+                    id="tab-feedbackInvaders"
+                    onclick="switchLBTab('feedbackInvaders')"
+                >
                     INVADERS
                 </button>
 
-                <button class="tab-btn" id="tab-cyberRun" onclick="switchLBTab('cyberRun')">
+                <button
+                    class="tab-btn"
+                    id="tab-cyberRun"
+                    onclick="switchLBTab('cyberRun')"
+                >
                     CYBER RUN
                 </button>
 
-                <button class="tab-btn" id="tab-pixelPunch" onclick="switchLBTab('pixelPunch')">
+                <button
+                    class="tab-btn"
+                    id="tab-pixelPunch"
+                    onclick="switchLBTab('pixelPunch')"
+                >
                     PUNCH
                 </button>
 
-                <button class="tab-btn" id="tab-deadlineDrive" onclick="switchLBTab('deadlineDrive')">
+                <button
+                    class="tab-btn"
+                    id="tab-deadlineDrive"
+                    onclick="switchLBTab('deadlineDrive')"
+                >
                     DODGE
                 </button>
 
@@ -517,9 +603,11 @@ if (hubMusic) {
             <div class="leaderboard-list" id="lb-records-list">
 
                 <div class="leaderboard-row">
+
                     <span class="player-name">
                         Caricamento classifiche...
                     </span>
+
                 </div>
 
             </div>
@@ -540,23 +628,30 @@ if (hubMusic) {
 
 <script>
 
-const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
+const SUPABASE_URL =
+    "https://bcitueadxwwwouhxawdw.supabase.co";
+
+const SUPABASE_ANON_KEY =
+    "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
 
 let supabaseClient = null;
 
 if (window.supabase) {
+
     supabaseClient = window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_ANON_KEY
     );
+
 }
 
-class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
+class GreenKeyPipeline
+    extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 
     constructor(game) {
 
         super({
+
             game: game,
 
             fragShader: `
@@ -569,21 +664,20 @@ class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 
                 void main() {
 
-                    vec4 texColor = texture2D(
-                        uMainSampler,
-                        outTexCoord
-                    );
+                    vec4 texColor =
+                        texture2D(
+                            uMainSampler,
+                            outTexCoord
+                        );
 
-                    vec3 keyColor = vec3(
-                        0.235,
-                        1.0,
-                        0.0
-                    );
+                    vec3 keyColor =
+                        vec3(0.235, 1.0, 0.0);
 
-                    float diff = distance(
-                        texColor.rgb,
-                        keyColor
-                    );
+                    float diff =
+                        distance(
+                            texColor.rgb,
+                            keyColor
+                        );
 
                     if (diff < 0.45) {
 
@@ -591,13 +685,18 @@ class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 
                     } else {
 
-                        gl_FragColor = texColor * outTint;
+                        gl_FragColor =
+                            texColor * outTint;
 
                     }
+
                 }
             `
+
         });
+
     }
+
 }
 
 class AuthManager {
@@ -607,6 +706,7 @@ class AuthManager {
         this.currentUser = null;
 
         this.init();
+
     }
 
     init() {
@@ -617,6 +717,7 @@ class AuthManager {
                 'arcade_users',
                 JSON.stringify({})
             );
+
         }
 
         const savedUser =
@@ -628,31 +729,45 @@ class AuthManager {
                 JSON.parse(savedUser);
 
             if (!this.currentUser.stats) {
+
                 this.currentUser.stats = {};
+
             }
 
             if (
-                this.currentUser.stats.feedbackInvaders === undefined
+                this.currentUser.stats.feedbackInvaders ===
+                undefined
             ) {
+
                 this.currentUser.stats.feedbackInvaders = 0;
+
             }
 
             if (
-                this.currentUser.stats.cyberRun === undefined
+                this.currentUser.stats.cyberRun ===
+                undefined
             ) {
+
                 this.currentUser.stats.cyberRun = 0;
+
             }
 
             if (
-                this.currentUser.stats.pixelPunch === undefined
+                this.currentUser.stats.pixelPunch ===
+                undefined
             ) {
+
                 this.currentUser.stats.pixelPunch = 0;
+
             }
 
             if (
-                this.currentUser.stats.deadlineDrive === undefined
+                this.currentUser.stats.deadlineDrive ===
+                undefined
             ) {
+
                 this.currentUser.stats.deadlineDrive = 0;
+
             }
 
         } else {
@@ -660,6 +775,7 @@ class AuthManager {
             window.location.replace('./start.html');
 
         }
+
     }
 
     getUsers() {
@@ -696,35 +812,43 @@ class AuthManager {
         }
 
         if (totalPts >= 1000) {
+
             return {
                 title: "RETRO KING 👑",
                 level: 5,
                 xpPct: 100
             };
+
         }
 
         if (totalPts >= 500) {
+
             return {
                 title: "ARCADE HERO ⚡",
                 level: 4,
                 xpPct: (totalPts - 500) / 5
             };
+
         }
 
         if (totalPts >= 200) {
+
             return {
                 title: "PRO GAMER 👾",
                 level: 3,
                 xpPct: (totalPts - 200) / 3
             };
+
         }
 
         if (totalPts >= 100) {
+
             return {
                 title: "CHALLENGER 🕹️",
                 level: 2,
                 xpPct: (totalPts - 100)
             };
+
         }
 
         return {
@@ -732,6 +856,7 @@ class AuthManager {
             level: 1,
             xpPct: totalPts
         };
+
     }
 
     logout() {
@@ -740,11 +865,10 @@ class AuthManager {
             'arcade_current_user'
         );
 
-        window.location.replace(
-            './start.html'
-        );
+        window.location.replace('./start.html');
 
     }
+
 }
 
 const auth = new AuthManager();
@@ -752,14 +876,10 @@ const auth = new AuthManager();
 function updateHeaderDOM() {
 
     const userBtn =
-        document.getElementById(
-            'header-user-btn'
-        );
+        document.getElementById('header-user-btn');
 
     const scoreBtn =
-        document.getElementById(
-            'header-score-btn'
-        );
+        document.getElementById('header-score-btn');
 
     if (
         auth.currentUser &&
@@ -782,8 +902,7 @@ function updateHeaderDOM() {
         auth.currentUser.stats
     ) {
 
-        let s =
-            auth.currentUser.stats;
+        let s = auth.currentUser.stats;
 
         let totalPts =
             (s.feedbackInvaders || 0) +
@@ -795,7 +914,9 @@ function updateHeaderDOM() {
             "⚡ " +
             totalPts.toLocaleString() +
             " PTS";
+
     }
+
 }
 
 document
@@ -804,15 +925,14 @@ document
 
         if (!auth.currentUser) {
 
-            window.location.replace(
-                './start.html'
-            );
+            window.location.replace('./start.html');
 
         } else {
 
             openProfileModal();
 
         }
+
     });
 
 document
@@ -885,9 +1005,7 @@ class MainHub extends Phaser.Scene {
         ];
 
         const selectedSkin =
-            Phaser.Math.RND.pick(
-                playerSkins
-            );
+            Phaser.Math.RND.pick(playerSkins);
 
         this.playerName =
             selectedSkin
@@ -900,25 +1018,20 @@ class MainHub extends Phaser.Scene {
 
         this.load.spritesheet(
             'player',
-            'assets/hub/player/' +
-            selectedSkin,
+            'assets/hub/player/' + selectedSkin,
             {
                 frameWidth: 755,
                 frameHeight: 1120
             }
         );
 
-        let g =
-            this.make.graphics({
-                x: 0,
-                y: 0,
-                add: false
-            });
+        let g = this.make.graphics({
+            x: 0,
+            y: 0,
+            add: false
+        });
 
-        g.fillStyle(
-            0xffffff,
-            0
-        );
+        g.fillStyle(0xffffff, 0);
 
         g.fillRect(
             0,
@@ -932,6 +1045,7 @@ class MainHub extends Phaser.Scene {
             50,
             80
         );
+
     }
 
     create() {
@@ -946,9 +1060,7 @@ class MainHub extends Phaser.Scene {
 
             this.game.renderer.pipelines.add(
                 'GreenKey',
-                new GreenKeyPipeline(
-                    this.game
-                )
+                new GreenKeyPipeline(this.game)
             );
 
         }
@@ -997,9 +1109,11 @@ class MainHub extends Phaser.Scene {
                 .setDepth(10);
 
         if (this.gabri.setPipeline) {
+
             this.gabri.setPipeline(
                 'GreenKey'
             );
+
         }
 
         this.gabri.play(true);
@@ -1017,9 +1131,11 @@ class MainHub extends Phaser.Scene {
                 .setDepth(10);
 
         if (this.npc.setPipeline) {
+
             this.npc.setPipeline(
                 'GreenKey'
             );
+
         }
 
         this.npc.play(true);
@@ -1037,27 +1153,35 @@ class MainHub extends Phaser.Scene {
                 .setDepth(10);
 
         if (this.raffa.setPipeline) {
+
             this.raffa.setPipeline(
                 'GreenKey'
             );
+
         }
 
         this.raffa.play(true);
         this.raffa.setMute(true);
 
         this.anims.create({
+
             key: 'idle',
+
             frames: [
                 {
                     key: 'player',
                     frame: 0
                 }
             ],
+
             frameRate: 10
+
         });
 
         this.anims.create({
+
             key: 'walk',
+
             frames:
                 this.anims.generateFrameNumbers(
                     'player',
@@ -1066,8 +1190,10 @@ class MainHub extends Phaser.Scene {
                         end: 4
                     }
                 ),
+
             frameRate: 8,
             repeat: -1
+
         });
 
         let savedX =
@@ -1078,14 +1204,9 @@ class MainHub extends Phaser.Scene {
             );
 
         let startX =
-            (
-                !isNaN(savedX) &&
-                savedX > 0
-            )
+            (!isNaN(savedX) && savedX > 0)
                 ? savedX
-                : Math.floor(
-                    worldWidth / 3
-                );
+                : Math.floor(worldWidth / 3);
 
         this.player =
             this.physics.add.sprite(
@@ -1119,13 +1240,19 @@ class MainHub extends Phaser.Scene {
         );
 
         this.tweens.add({
+
             targets: logo,
+
             scaleX: logo.scaleX * 1.03,
             scaleY: logo.scaleY * 1.03,
+
             duration: 1800,
+
             yoyo: true,
             repeat: -1,
+
             ease: 'Sine.easeInOut'
+
         });
 
         updateHeaderDOM();
@@ -1204,9 +1331,7 @@ class MainHub extends Phaser.Scene {
 
             sprite.gameData = cab;
 
-            this.cabinetSprites.push(
-                sprite
-            );
+            this.cabinetSprites.push(sprite);
 
         });
 
@@ -1246,30 +1371,32 @@ class MainHub extends Phaser.Scene {
         );
 
         this.boxTitleText =
-            this.add.text(
-                0,
-                -10,
-                "",
-                {
-                    font: "bold 12px monospace",
-                    fill: "#ffff00",
-                    align: "center"
-                }
-            )
-            .setOrigin(0.5);
+            this.add
+                .text(
+                    0,
+                    -10,
+                    "",
+                    {
+                        font: "bold 12px monospace",
+                        fill: "#ffff00",
+                        align: "center"
+                    }
+                )
+                .setOrigin(0.5);
 
         this.boxActionText =
-            this.add.text(
-                0,
-                10,
-                "GIOCA 🕹️",
-                {
-                    font: "bold 12px monospace",
-                    fill: "#ff0055",
-                    align: "center"
-                }
-            )
-            .setOrigin(0.5);
+            this.add
+                .text(
+                    0,
+                    10,
+                    "GIOCA 🕹️",
+                    {
+                        font: "bold 12px monospace",
+                        fill: "#ff0055",
+                        align: "center"
+                    }
+                )
+                .setOrigin(0.5);
 
         this.infoBox.add([
             boxBg,
@@ -1340,6 +1467,7 @@ class MainHub extends Phaser.Scene {
             vWidth,
             vHeight
         );
+
     }
 
     createDialogueSystem() {
@@ -1353,32 +1481,34 @@ class MainHub extends Phaser.Scene {
             this.add.graphics();
 
         this.dialogueText =
-            this.add.text(
-                0,
-                0,
-                "",
-                {
-                    font: "bold 14px monospace",
-                    fill: "#0b0c10",
-                    align: "center",
-                    wordWrap: {
-                        width: 190
+            this.add
+                .text(
+                    0,
+                    0,
+                    "",
+                    {
+                        font: "bold 14px monospace",
+                        fill: "#0b0c10",
+                        align: "center",
+                        wordWrap: {
+                            width: 190
+                        }
                     }
-                }
-            )
-            .setOrigin(0.5);
+                )
+                .setOrigin(0.5);
 
         this.dialoguePrompt =
-            this.add.text(
-                0,
-                0,
-                "► TAP",
-                {
-                    font: "bold 12px monospace",
-                    fill: "#ff0055"
-                }
-            )
-            .setOrigin(0.5);
+            this.add
+                .text(
+                    0,
+                    0,
+                    "► TAP",
+                    {
+                        font: "bold 12px monospace",
+                        fill: "#ff0055"
+                    }
+                )
+                .setOrigin(0.5);
 
         this.dialogueContainer.add([
             this.dialogueBg,
@@ -1386,9 +1516,7 @@ class MainHub extends Phaser.Scene {
             this.dialoguePrompt
         ]);
 
-        this.dialogueContainer.setVisible(
-            false
-        );
+        this.dialogueContainer.setVisible(false);
 
         this.dialogueContainer.setSize(
             210,
@@ -1422,6 +1550,7 @@ class MainHub extends Phaser.Scene {
         this.dialogueIndex = 0;
         this.activeSpeaker = null;
         this.npcLines = [];
+
     }
 
     drawSpeechBubble(width, height) {
@@ -1476,6 +1605,7 @@ class MainHub extends Phaser.Scene {
 
         this.dialogueBg.fillPath();
         this.dialogueBg.strokePath();
+
     }
 
     startDialogue(speakerKey) {
@@ -1502,54 +1632,59 @@ class MainHub extends Phaser.Scene {
         if (speakerKey === 'gabri') {
 
             this.npcLines = [
+
                 line1,
+
                 Phaser.Math.RND.pick([
                     "Aspetta un secondo... sto cercando di capire perché questa precomp continua a rompere tutto.",
                     "Sto sistemando un po' di animazioni su After Effects.",
                     "Sto lavorando su una grafica animata. Ho quasi finito!"
                 ])
+
             ];
 
         } else if (speakerKey === 'raffa') {
 
             this.npcLines = [
+
                 line1,
+
                 Phaser.Math.RND.pick([
                     "Sto cercando una cosa precisa! Se vai avanti c'è la lavagna con i punteggi!",
                     "Sto preparando l'attrezzatura per il prossimo lavoro."
                 ])
+
             ];
 
         } else {
 
             this.npcLines = [
+
                 line1,
+
                 Phaser.Math.RND.pick([
                     "Tutto bene? Ho sentito che hanno piazzato dei giochi nuovi.",
                     "Stavo giusto guardando quanto tempo ci mette qualcuno a scoprire i cabinati!"
                 ])
+
             ];
 
         }
 
         this.showDialogueLine();
 
-        this.dialogueContainer.setVisible(
-            true
-        );
+        this.dialogueContainer.setVisible(true);
+
     }
 
     showDialogueLine() {
 
         this.dialogueText.setText(
-            this.npcLines[
-                this.dialogueIndex
-            ]
+            this.npcLines[this.dialogueIndex]
         );
 
         let boxH =
-            this.dialogueText.height +
-            40;
+            this.dialogueText.height + 40;
 
         if (boxH < 70) {
             boxH = 70;
@@ -1593,6 +1728,7 @@ class MainHub extends Phaser.Scene {
             targetX - 20,
             targetY - 180 - boxH / 2
         );
+
     }
 
     advanceDialogue() {
@@ -1611,6 +1747,7 @@ class MainHub extends Phaser.Scene {
             this.closeDialogue();
 
         }
+
     }
 
     closeDialogue() {
@@ -1620,9 +1757,13 @@ class MainHub extends Phaser.Scene {
         this.dialogueContainer.setVisible(
             false
         );
+
     }
 
-    setupTouchControls(width, height) {
+    setupTouchControls(
+        width,
+        height
+    ) {
 
         this.isMovingLeft = false;
         this.isMovingRight = false;
@@ -1706,16 +1847,17 @@ class MainHub extends Phaser.Scene {
                 );
 
                 let txt =
-                    this.add.text(
-                        0,
-                        0,
-                        label,
-                        {
-                            font: "bold 22px monospace",
-                            fill: "#ff0055"
-                        }
-                    )
-                    .setOrigin(0.5);
+                    this.add
+                        .text(
+                            0,
+                            0,
+                            label,
+                            {
+                                font: "bold 22px monospace",
+                                fill: "#ff0055"
+                            }
+                        )
+                        .setOrigin(0.5);
 
                 container.add([
                     g,
@@ -1736,11 +1878,10 @@ class MainHub extends Phaser.Scene {
                     'pointerdown',
                     () => {
 
-                        container.setScale(
-                            0.88
-                        );
+                        container.setScale(0.88);
 
                         onPress(true);
+
                     }
                 );
 
@@ -1748,11 +1889,10 @@ class MainHub extends Phaser.Scene {
                     'pointerup',
                     () => {
 
-                        container.setScale(
-                            1.0
-                        );
+                        container.setScale(1.0);
 
                         onPress(false);
+
                     }
                 );
 
@@ -1760,13 +1900,13 @@ class MainHub extends Phaser.Scene {
                     'pointerout',
                     () => {
 
-                        container.setScale(
-                            1.0
-                        );
+                        container.setScale(1.0);
 
                         onPress(false);
+
                     }
                 );
+
             };
 
         createDPadBtn(
@@ -1812,9 +1952,7 @@ class MainHub extends Phaser.Scene {
             36
         );
 
-        this.actionAura.setVisible(
-            false
-        );
+        this.actionAura.setVisible(false);
 
         let btnBezel =
             this.add.graphics();
@@ -1857,16 +1995,17 @@ class MainHub extends Phaser.Scene {
         );
 
         let btnTxt =
-            this.add.text(
-                0,
-                1,
-                "VAI",
-                {
-                    font: "bold 15px monospace",
-                    fill: "#ffffff"
-                }
-            )
-            .setOrigin(0.5);
+            this.add
+                .text(
+                    0,
+                    1,
+                    "VAI",
+                    {
+                        font: "bold 15px monospace",
+                        fill: "#ffffff"
+                    }
+                )
+                .setOrigin(0.5);
 
         this.actionBtnContainer.add([
             this.actionAura,
@@ -1893,6 +2032,7 @@ class MainHub extends Phaser.Scene {
                 );
 
                 this.interact();
+
             }
         );
 
@@ -1910,6 +2050,7 @@ class MainHub extends Phaser.Scene {
         controlDeck.add([
             deckBg
         ]);
+
     }
 
     interact() {
@@ -1919,6 +2060,7 @@ class MainHub extends Phaser.Scene {
             this.advanceDialogue();
 
             return;
+
         }
 
         let distGabri =
@@ -1936,6 +2078,7 @@ class MainHub extends Phaser.Scene {
             );
 
             return;
+
         }
 
         let distNpc =
@@ -1953,6 +2096,7 @@ class MainHub extends Phaser.Scene {
             );
 
             return;
+
         }
 
         let distRaffa =
@@ -1970,6 +2114,7 @@ class MainHub extends Phaser.Scene {
             );
 
             return;
+
         }
 
         for (
@@ -2007,11 +2152,15 @@ class MainHub extends Phaser.Scene {
                     window.location.replace(
                         cab.gameData.url
                     );
+
                 }
 
                 return;
+
             }
+
         }
+
     }
 
     update() {
@@ -2023,10 +2172,13 @@ class MainHub extends Phaser.Scene {
         ) {
 
             if (this.isDialogueOpen) {
+
                 this.closeDialogue();
+
             }
 
             return;
+
         }
 
         if (this.isDialogueOpen) {
@@ -2038,11 +2190,10 @@ class MainHub extends Phaser.Scene {
                 true
             );
 
-            this.infoBox.setVisible(
-                false
-            );
+            this.infoBox.setVisible(false);
 
             return;
+
         }
 
         this.player.setVelocityX(0);
@@ -2052,13 +2203,9 @@ class MainHub extends Phaser.Scene {
             this.isMovingLeft
         ) {
 
-            this.player.setVelocityX(
-                -180
-            );
+            this.player.setVelocityX(-180);
 
-            this.player.setFlipX(
-                true
-            );
+            this.player.setFlipX(true);
 
             this.player.play(
                 'walk',
@@ -2070,13 +2217,9 @@ class MainHub extends Phaser.Scene {
             this.isMovingRight
         ) {
 
-            this.player.setVelocityX(
-                180
-            );
+            this.player.setVelocityX(180);
 
-            this.player.setFlipX(
-                false
-            );
+            this.player.setFlipX(false);
 
             this.player.play(
                 'walk',
@@ -2089,6 +2232,7 @@ class MainHub extends Phaser.Scene {
                 'idle',
                 true
             );
+
         }
 
         localStorage.setItem(
@@ -2130,11 +2274,10 @@ class MainHub extends Phaser.Scene {
                 "PARLA 💬"
             );
 
-            this.infoBox.setVisible(
-                true
-            );
+            this.infoBox.setVisible(true);
 
             return;
+
         }
 
         if (
@@ -2159,11 +2302,10 @@ class MainHub extends Phaser.Scene {
                 "PARLA 💬"
             );
 
-            this.infoBox.setVisible(
-                true
-            );
+            this.infoBox.setVisible(true);
 
             return;
+
         }
 
         if (
@@ -2188,11 +2330,10 @@ class MainHub extends Phaser.Scene {
                 "PARLA 💬"
             );
 
-            this.infoBox.setVisible(
-                true
-            );
+            this.infoBox.setVisible(true);
 
             return;
+
         }
 
         for (
@@ -2211,7 +2352,9 @@ class MainHub extends Phaser.Scene {
                 activeCabinet = cab;
 
                 break;
+
             }
+
         }
 
         if (activeCabinet) {
@@ -2254,21 +2397,29 @@ class MainHub extends Phaser.Scene {
                 this.boxActionText.setText(
                     `REC: ${myRecord} PTS | GIOCA 🕹️`
                 );
+
             }
 
-            this.infoBox.setVisible(
-                true
-            );
+            this.infoBox.setVisible(true);
 
         } else {
 
-            this.infoBox.setVisible(
-                false
-            );
+            this.infoBox.setVisible(false);
+
         }
+
     }
+
 }
 
+/*
+ * CONFIGURAZIONE PHASER
+ *
+ * IMPORTANTE:
+ *
+ * NO_CENTER evita che Phaser centri verticalmente
+ * il canvas lasciando una fascia nera sopra.
+ */
 const config = {
 
     type: Phaser.WEBGL,
@@ -2281,12 +2432,12 @@ const config = {
 
         mode: Phaser.Scale.EXACT_FIT,
 
-        autoCenter:
-            Phaser.Scale.NO_CENTER,
+        autoCenter: Phaser.Scale.NO_CENTER,
 
         width: 360,
 
         height: 740
+
     },
 
     physics: {
@@ -2300,19 +2451,101 @@ const config = {
             },
 
             debug: false
+
         }
+
     },
 
     scene: [
         MainHub
     ]
+
 };
 
 const game =
     new Phaser.Game(config);
 
+
+/*
+ * FORZA IL RESIZE DEL GIOCO QUANDO
+ * CAMBIA IL VIEWPORT DEL TELEFONO.
+ */
+function resizeGameViewport() {
+
+    const wrapper =
+        document.getElementById(
+            'game-wrapper'
+        );
+
+    if (!wrapper || !game) {
+        return;
+    }
+
+    const width =
+        window.innerWidth;
+
+    const height =
+        window.innerHeight;
+
+    wrapper.style.width =
+        width + 'px';
+
+    wrapper.style.height =
+        height + 'px';
+
+    if (
+        game.scale &&
+        game.scale.resize
+    ) {
+
+        game.scale.resize(
+            width,
+            height
+        );
+
+    }
+
+}
+
+window.addEventListener(
+    'resize',
+    resizeGameViewport
+);
+
+window.addEventListener(
+    'orientationchange',
+    () => {
+
+        setTimeout(
+            resizeGameViewport,
+            100
+        );
+
+    }
+);
+
+if (window.visualViewport) {
+
+    window.visualViewport.addEventListener(
+        'resize',
+        () => {
+
+            resizeGameViewport();
+
+        }
+    );
+
+}
+
+setTimeout(
+    resizeGameViewport,
+    100
+);
+
+
 let currentLBGameKey =
     'feedbackInvaders';
+
 
 function openProfileModal() {
 
@@ -2355,6 +2588,7 @@ function openProfileModal() {
 
         avatarBox.innerText =
             "👾";
+
     }
 
     document.getElementById(
@@ -2393,15 +2627,19 @@ function openProfileModal() {
         'profile-modal'
     ).style.display =
         'flex';
+
 }
+
 
 async function openLeaderboardModal(
     gameKey
 ) {
 
     if (gameKey) {
+
         currentLBGameKey =
             gameKey;
+
     }
 
     document.getElementById(
@@ -2412,7 +2650,9 @@ async function openLeaderboardModal(
     await fetchLeaderboardFromSupabase(
         currentLBGameKey
     );
+
 }
+
 
 async function fetchLeaderboardFromSupabase(
     gameKey
@@ -2423,11 +2663,13 @@ async function fetchLeaderboardFromSupabase(
 
     document
         .querySelectorAll('.tab-btn')
-        .forEach(btn =>
+        .forEach(btn => {
+
             btn.classList.remove(
                 'active'
-            )
-        );
+            );
+
+        });
 
     let activeTabBtn =
         document.getElementById(
@@ -2439,6 +2681,7 @@ async function fetchLeaderboardFromSupabase(
         activeTabBtn.classList.add(
             'active'
         );
+
     }
 
     const listEl =
@@ -2447,7 +2690,11 @@ async function fetchLeaderboardFromSupabase(
         );
 
     listEl.innerHTML =
-        '<div class="leaderboard-row"><span class="player-name">Caricamento classifiche...</span></div>';
+        '<div class="leaderboard-row">' +
+        '<span class="player-name">' +
+        'Caricamento classifiche...' +
+        '</span>' +
+        '</div>';
 
     let records = [];
 
@@ -2476,13 +2723,10 @@ async function fetchLeaderboardFromSupabase(
                     )
                     .limit(10);
 
-            if (
-                !error &&
-                data
-            ) {
+            if (!error && data) {
 
-                records =
-                    data;
+                records = data;
+
             }
 
         } catch (e) {
@@ -2490,7 +2734,9 @@ async function fetchLeaderboardFromSupabase(
             console.warn(
                 "Supabase non raggiungibile."
             );
+
         }
+
     }
 
     if (records.length === 0) {
@@ -2505,9 +2751,8 @@ async function fetchLeaderboardFromSupabase(
             let sc =
                 users[uname].stats
                     ? (
-                        users[uname].stats[
-                            gameKey
-                        ] || 0
+                        users[uname]
+                            .stats[gameKey] || 0
                     )
                     : 0;
 
@@ -2519,6 +2764,7 @@ async function fetchLeaderboardFromSupabase(
                 });
 
             }
+
         }
 
         if (
@@ -2541,24 +2787,34 @@ async function fetchLeaderboardFromSupabase(
             ) {
 
                 records.push({
+
                     username:
                         auth.currentUser.username,
-                    score: mySc
+
+                    score:
+                        mySc
+
                 });
 
             }
+
         }
 
         records.sort(
             (a, b) =>
                 b.score - a.score
         );
+
     }
 
     if (records.length === 0) {
 
         listEl.innerHTML =
-            '<div class="leaderboard-row"><span class="player-name">Nessun record registrato per questo gioco!</span></div>';
+            '<div class="leaderboard-row">' +
+            '<span class="player-name">' +
+            'Nessun record registrato per questo gioco!' +
+            '</span>' +
+            '</div>';
 
     } else {
 
@@ -2584,8 +2840,11 @@ async function fetchLeaderboardFromSupabase(
 
                 `
             ).join('');
+
     }
+
 }
+
 
 function switchLBTab(
     gameKey
@@ -2594,7 +2853,9 @@ function switchLBTab(
     fetchLeaderboardFromSupabase(
         gameKey
     );
+
 }
+
 
 document
     .getElementById(
@@ -2612,6 +2873,7 @@ document
         }
     );
 
+
 document
     .getElementById(
         'lb-close-btn'
@@ -2627,6 +2889,7 @@ document
 
         }
     );
+
 
 document
     .getElementById(
