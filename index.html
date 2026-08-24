@@ -94,7 +94,7 @@
             top: max(env(safe-area-inset-top), 8px);
             left: 8px;
             right: 8px;
-            height: 36px;
+            height: 38px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -108,8 +108,8 @@
             color: #ffff00;
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
-            font-size: 11px;
-            padding: 6px 10px;
+            font-size: 13px;
+            padding: 6px 12px;
             border-radius: 8px;
             cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
@@ -142,7 +142,7 @@
 
         .auth-box {
             width: 100%;
-            max-width: 320px;
+            max-width: 330px;
             background: #090918;
             border: 2px solid #ff0055 !important;
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
@@ -168,15 +168,15 @@
         }
 
         .profile-avatar {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             background: #250515;
             border: 2px solid #ff0055 !important;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 22px;
+            font-size: 24px;
             box-shadow: 0 0 10px #ff0055;
             overflow: hidden;
         }
@@ -189,14 +189,14 @@
 
         .profile-rank-title {
             color: #ffff00;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
             letter-spacing: 1px;
         }
 
         .profile-username {
             color: #ffffff;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: bold;
         }
 
@@ -204,8 +204,8 @@
             width: 100%;
             background: #04040a;
             border: 1px solid #ff0055 !important;
-            height: 10px;
-            border-radius: 5px;
+            height: 12px;
+            border-radius: 6px;
             margin-top: 8px;
             overflow: hidden;
         }
@@ -229,7 +229,7 @@
         }
 
         .badge-item {
-            font-size: 18px;
+            font-size: 20px;
             filter: grayscale(1);
             opacity: 0.3;
             transition: all 0.3s;
@@ -244,7 +244,7 @@
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
+            gap: 8px;
             margin-bottom: 12px;
         }
 
@@ -258,13 +258,13 @@
 
         .stat-card .val {
             color: #ffff00;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
         }
 
         .stat-card .lbl {
             color: #ff0055;
-            font-size: 8px;
+            font-size: 10px;
             margin-top: 2px;
             text-transform: uppercase;
             font-weight: bold;
@@ -281,8 +281,8 @@
             background: #101528;
             border: 1px solid #ff0055 !important;
             color: #ffffff;
-            font-size: 9px;
-            padding: 5px 6px;
+            font-size: 11px;
+            padding: 6px 8px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
@@ -300,7 +300,7 @@
             flex-direction: column;
             gap: 6px;
             margin: 10px 0;
-            max-height: 190px;
+            max-height: 200px;
             overflow-y: auto;
             text-align: left;
         }
@@ -309,7 +309,7 @@
             background: #04040a;
             border: 1px solid rgba(255, 0, 85, 0.3) !important;
             border-radius: 6px;
-            padding: 6px 10px;
+            padding: 8px 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -317,14 +317,14 @@
 
         .leaderboard-row .rank-pos {
             color: #ffff00;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
-            width: 24px;
+            width: 28px;
         }
 
         .leaderboard-row .player-name {
             color: #ffffff;
-            font-size: 11px;
+            font-size: 13px;
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -333,20 +333,20 @@
 
         .leaderboard-row .score-val {
             color: #ffff00;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
         }
 
         .auth-btn {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-top: 4px;
             background: #ff0055;
             color: #fff;
             border: none !important;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
         }
@@ -382,8 +382,8 @@
 
 <body>
 
-<!-- AUDIO HUB IN AUTOMATICO -->
-<audio id="hubMusic" src="assets/hub/music_hub.mp3" loop autoplay playsinline style="display:none;"></audio>
+<!-- AUDIO HUB -->
+<audio id="hubMusic" src="assets/hub/music_hub.mp3" loop playsinline style="display:none;"></audio>
 
 <script>
 if (!sessionStorage.getItem('arcade_session_active')) {
@@ -392,20 +392,17 @@ if (!sessionStorage.getItem('arcade_session_active')) {
     sessionStorage.removeItem('arcade_session_active');
 }
 
-// AVVIO AUTOMATICO MUSICA HUB
+// RIPRODUZIONE MUSICA SOLO SU AZIONE DEL GIOCATORE
 const hubMusic = document.getElementById('hubMusic');
 if (hubMusic) {
     hubMusic.volume = 0.4;
-    function playHubMusic() {
+    function playHubMusicOnInteraction() {
         if (hubMusic.paused) {
             hubMusic.play().catch(() => {});
         }
     }
-    playHubMusic();
-    window.addEventListener('DOMContentLoaded', playHubMusic);
-    window.addEventListener('load', playHubMusic);
     ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
-        window.addEventListener(evt, playHubMusic, { once: true, capture: true });
+        window.addEventListener(evt, playHubMusicOnInteraction, { capture: true });
     });
 }
 </script>
@@ -473,6 +470,7 @@ if (hubMusic) {
             <button id="profile-close-btn" class="auth-btn">
                 TORNA AL GIOCO
             </button>
+
             <button id="profile-logout-btn" class="auth-btn" style="background:#550022; margin-top:8px;">
                 LOGOUT / CAMBIA UTENTE
             </button>
@@ -482,9 +480,10 @@ if (hubMusic) {
     <!-- LEADERBOARD -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
-            <h2 style="color:#ff0055;">
+            <h2 style="color:#ff0055; font-size:18px;">
                 🌍 CLASSIFICA MONDIALE
             </h2>
+
             <div class="tab-selector">
                 <button class="tab-btn active" id="tab-feedbackInvaders" onclick="switchLBTab('feedbackInvaders')">
                     INVADERS
@@ -654,7 +653,6 @@ class MainHub extends Phaser.Scene {
         ];
 
         const selectedSkin = Phaser.Math.RND.pick(playerSkins);
-
         this.playerName = selectedSkin.replace('.png', '').charAt(0).toUpperCase() + selectedSkin.replace('.png', '').slice(1);
 
         this.load.spritesheet('player', 'assets/hub/player/' + selectedSkin, { frameWidth: 755, frameHeight: 1120 });
@@ -741,7 +739,7 @@ class MainHub extends Phaser.Scene {
             { x: 1414, y: cabY, badgeX: 1414, badgeY: this.cabBadgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
             { x: 1538, y: cabY, badgeX: 1538, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
             { x: 1655, y: cabY, badgeX: 1655, badgeY: this.cabBadgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
-            { x: 2800, y: cabY, badgeX: 2800, badgeY: this.cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
+            { x: 2460, y: cabY, badgeX: 2460, badgeY: this.cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
         this.cabinetSprites = [];
@@ -752,19 +750,20 @@ class MainHub extends Phaser.Scene {
             this.cabinetSprites.push(sprite);
         });
 
+        // INGRANDIMENTO BOX INFO POP-UP SUI CABINATI
         this.infoBox = this.add.container(0, 0).setDepth(80);
         let boxBg = this.add.graphics();
         boxBg.fillStyle(0x050515, 0.95);
         boxBg.lineStyle(2, 0xff0055, 1);
-        boxBg.fillRoundedRect(-85, -22, 170, 44, 10);
-        boxBg.strokeRoundedRect(-85, -22, 170, 44, 10);
+        boxBg.fillRoundedRect(-95, -24, 190, 48, 10);
+        boxBg.strokeRoundedRect(-95, -24, 190, 48, 10);
 
-        this.boxTitleText = this.add.text(0, -9, "", { font: "bold 10px monospace", fill: "#ffff00", align: "center" }).setOrigin(0.5);
-        this.boxActionText = this.add.text(0, 9, "GIOCA 🕹️", { font: "bold 10px monospace", fill: "#ff0055", align: "center" }).setOrigin(0.5);
+        this.boxTitleText = this.add.text(0, -10, "", { font: "bold 12px monospace", fill: "#ffff00", align: "center" }).setOrigin(0.5);
+        this.boxActionText = this.add.text(0, 10, "GIOCA 🕹️", { font: "bold 12px monospace", fill: "#ff0055", align: "center" }).setOrigin(0.5);
 
         this.infoBox.add([boxBg, this.boxTitleText, this.boxActionText]);
-        this.infoBox.setSize(170, 44);
-        this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-85, -22, 170, 44), Phaser.Geom.Rectangle.Contains);
+        this.infoBox.setSize(190, 48);
+        this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-95, -24, 190, 48), Phaser.Geom.Rectangle.Contains);
         this.infoBox.on('pointerdown', (pointer, localX, localY, event) => {
             if (event) event.stopPropagation();
             this.interact();
@@ -786,13 +785,13 @@ class MainHub extends Phaser.Scene {
     createDialogueSystem() {
         this.dialogueContainer = this.add.container(0, 0).setDepth(160);
         this.dialogueBg = this.add.graphics();
-        this.dialogueText = this.add.text(0, 0, "", { font: "bold 12px monospace", fill: "#0b0c10", align: "center", wordWrap: { width: 180 } }).setOrigin(0.5);
-        this.dialoguePrompt = this.add.text(0, 0, "► TAP", { font: "bold 10px monospace", fill: "#ff0055" }).setOrigin(0.5);
+        this.dialogueText = this.add.text(0, 0, "", { font: "bold 14px monospace", fill: "#0b0c10", align: "center", wordWrap: { width: 190 } }).setOrigin(0.5);
+        this.dialoguePrompt = this.add.text(0, 0, "► TAP", { font: "bold 12px monospace", fill: "#ff0055" }).setOrigin(0.5);
 
         this.dialogueContainer.add([this.dialogueBg, this.dialogueText, this.dialoguePrompt]);
         this.dialogueContainer.setVisible(false);
-        this.dialogueContainer.setSize(200, 160);
-        this.dialogueContainer.setInteractive(new Phaser.Geom.Rectangle(-100, -80, 200, 160), Phaser.Geom.Rectangle.Contains);
+        this.dialogueContainer.setSize(210, 160);
+        this.dialogueContainer.setInteractive(new Phaser.Geom.Rectangle(-105, -80, 210, 160), Phaser.Geom.Rectangle.Contains);
         this.dialogueContainer.on('pointerdown', (pointer, localX, localY, event) => {
             if (event) event.stopPropagation();
             this.advanceDialogue();
@@ -843,12 +842,12 @@ class MainHub extends Phaser.Scene {
     showDialogueLine() {
         this.dialogueText.setText(this.npcLines[this.dialogueIndex]);
         let boxH = this.dialogueText.height + 40;
-        if (boxH < 65) boxH = 65;
+        if (boxH < 70) boxH = 70;
 
-        this.drawSpeechBubble(200, boxH);
+        this.drawSpeechBubble(210, boxH);
 
         this.dialogueText.setPosition(0, -8);
-        this.dialoguePrompt.setPosition(200 / 2 - 25, boxH / 2 - 12);
+        this.dialoguePrompt.setPosition(210 / 2 - 25, boxH / 2 - 12);
 
         let targetX = this.npc.x;
         let targetY = this.npc.y;
