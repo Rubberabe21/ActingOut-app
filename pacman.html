@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Cyber Run - Grid Bomber</title>
 <style>
 * {
@@ -11,17 +11,19 @@
   padding: 0;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  touch-action: none !important;
   font-family: 'Courier New', Courier, monospace;
 }
-body {
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   background-color: #030305;
   color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  overflow: hidden;
 }
 #game-wrapper {
   position: relative;
@@ -75,7 +77,7 @@ canvas {
   margin-top: 6px;
 }
 
-/* JOYSTICK RETRO ANNI '80 CON BALL TOP ROSSO GLOSS */
+/* JOYSTICK RETRO ANNI '80 */
 .joystick-zone {
   position: relative;
   width: 120px;
@@ -84,7 +86,6 @@ canvas {
   border: 3px solid #00ffcc;
   border-radius: 50%;
   box-shadow: inset 0 0 18px rgba(0, 255, 204, 0.5), 0 0 15px rgba(0, 255, 204, 0.4);
-  touch-action: none;
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -271,41 +272,49 @@ const CHARACTERS = {
 let currentTheme = CHARACTERS.LAURA;
 let highScore = parseInt(localStorage.getItem('cyberRun_highScore')) || 0;
 
-// AUDIO SINTETIZZATO RETRO CON NOISE BUFFER PRE-GENERATO (OTTIMIZZATO PER SMARTPHONE)
+// AUDIO SINTETIZZATO RETRO CON BUFFER PRE-GENERATO (A PROVA DI CRASH MOBILE)
 let audioCtx = null;
 let noiseBuffer = null;
 
 function getAC() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const bufferSize = audioCtx.sampleRate * 0.4;
-    noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      output[i] = Math.random() * 2 - 1;
+  try {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+        const bufferSize = Math.floor(audioCtx.sampleRate * 0.25);
+        noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+      }
     }
-  }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  } catch(e) {}
   return audioCtx;
 }
 
 function playSound(type) {
   try {
     const ac = getAC();
+    if (!ac) return;
     const t = ac.currentTime;
 
     if (type === 'explode') {
       if (!noiseBuffer) return;
-      const dur = 0.25;
+      const dur = 0.22;
       const src = ac.createBufferSource();
       src.buffer = noiseBuffer;
       const filt = ac.createBiquadFilter();
       filt.type = 'lowpass';
       filt.frequency.setValueAtTime(800, t);
-      filt.frequency.exponentialRampToValueAtTime(50, t + dur);
+      filt.frequency.exponentialRampToValueAtTime(Math.max(1, 50), t + dur);
       const g = ac.createGain();
-      g.gain.setValueAtTime(0.22, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      g.gain.setValueAtTime(0.2, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
       src.connect(filt); filt.connect(g); g.connect(ac.destination);
       src.start(t); src.stop(t + dur);
       return;
@@ -318,27 +327,27 @@ function playSound(type) {
     if (type === 'bomb') {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(320, t);
-      osc.frequency.exponentialRampToValueAtTime(110, t + 0.12);
-      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(1, 110), t + 0.12);
+      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
       osc.start(t); osc.stop(t + 0.12);
     } else if (type === 'hit_block') {
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(200, t);
-      osc.frequency.exponentialRampToValueAtTime(350, t + 0.08);
-      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(1, 350), t + 0.08);
+      gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
       osc.start(t); osc.stop(t + 0.08);
     } else if (type === 'powerup') {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(523, t);
       osc.frequency.setValueAtTime(659, t + 0.08);
       osc.frequency.setValueAtTime(783, t + 0.16);
-      gain.gain.setValueAtTime(0.18, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+      gain.gain.setValueAtTime(0.18, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
       osc.start(t); osc.stop(t + 0.24);
     } else if (type === 'fail') {
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(240, t);
       osc.frequency.linearRampToValueAtTime(50, t + 0.35);
-      gain.gain.setValueAtTime(0.25, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      gain.gain.setValueAtTime(0.25, t); gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
       osc.start(t); osc.stop(t + 0.35);
     }
   } catch(e) {}
@@ -372,13 +381,15 @@ let player = {
 let enemies = [];
 let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
 
-// CONTROLLO JOYSTICK TOUCH (ESCLUSIONE RIGIDA MOVIMENTO OBLIQUO)
+// JOYSTICK MOBILE CON PREVENZIONE SCORRIMENTO PAGINA
 const joyZone = document.getElementById('joyZone');
 const joyKnob = document.getElementById('joyKnob');
 let joyActive = false;
 
 function handleJoyMove(clientX, clientY) {
   const rect = joyZone.getBoundingClientRect();
+  if (!rect || rect.width === 0) return;
+
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
 
@@ -386,9 +397,9 @@ function handleJoyMove(clientX, clientY) {
   let dy = clientY - centerY;
 
   const dist = Math.hypot(dx, dy);
-  const maxRadius = rect.width / 2 - 10;
+  const maxRadius = Math.max(10, rect.width / 2 - 10);
 
-  if (dist > maxRadius) {
+  if (dist > maxRadius && dist > 0) {
     dx = (dx / dist) * maxRadius;
     dy = (dy / dist) * maxRadius;
   }
@@ -397,7 +408,7 @@ function handleJoyMove(clientX, clientY) {
 
   moveUp = false; moveDown = false; moveLeft = false; moveRight = false;
 
-  const deadZone = 12;
+  const deadZone = 10;
   if (dist > deadZone) {
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx < 0) moveLeft = true;
@@ -416,18 +427,27 @@ function resetJoy() {
 }
 
 joyZone.addEventListener('pointerdown', e => {
+  if (e.cancelable) e.preventDefault();
   joyActive = true;
   try { joyZone.setPointerCapture(e.pointerId); } catch(err) {}
   getAC();
   handleJoyMove(e.clientX, e.clientY);
-});
+}, { passive: false });
 
 joyZone.addEventListener('pointermove', e => {
+  if (e.cancelable) e.preventDefault();
   if (joyActive) handleJoyMove(e.clientX, e.clientY);
-});
+}, { passive: false });
 
-joyZone.addEventListener('pointerup', resetJoy);
-joyZone.addEventListener('pointercancel', resetJoy);
+joyZone.addEventListener('pointerup', e => {
+  if (e.cancelable) e.preventDefault();
+  resetJoy();
+}, { passive: false });
+
+joyZone.addEventListener('pointercancel', e => {
+  if (e.cancelable) e.preventDefault();
+  resetJoy();
+}, { passive: false });
 
 function selectCharacter(charKey) {
   currentTheme = CHARACTERS[charKey];
@@ -654,7 +674,6 @@ function isBlocked(nx, ny) {
   return false;
 }
 
-// GUIDA RIGIDA AL CENTRO CORSIA SENZA DEVIAZIONI/DRIFT
 function updatePlayer() {
   let dx = 0, dy = 0;
 
@@ -810,7 +829,7 @@ function updateBombsAndExplosions() {
         let pgy = Math.floor(player.y / CELL_SIZE);
         if (pgx === cell.gx && pgy === cell.gy) {
           hitPlayer();
-          break; // Esce dal ciclo caselle per evitare colpi multipli nello stesso frame
+          break;
         }
       }
     }
@@ -832,12 +851,11 @@ function updateBombsAndExplosions() {
   }
 }
 
-// PROTEZIONE DA DANNICAMPI MULTIPLI NEL MEDESIMO FRAME
 function hitPlayer() {
   if (gameState !== 'PLAYING' || player.invTimer > 0) return;
 
   lives--;
-  player.invTimer = 90; // Attiva immediatamente invulnerabilità
+  player.invTimer = 90;
   playSound('fail');
 
   if (lives <= 0) {
@@ -850,81 +868,54 @@ function hitPlayer() {
   }
 }
 
+// RENDERING SENZA ALLOCAZIONI OBJECT AD OGNI FRAME (ZERO GC SPIKES)
 function drawGameWorld() {
+  ctx.strokeStyle = '#0d0d22';
+  ctx.lineWidth = 1;
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
-      let x = c * CELL_SIZE;
-      let y = r * CELL_SIZE + HUD_HEIGHT;
-      ctx.strokeStyle = '#0d0d22';
-      ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+      ctx.strokeRect(c * CELL_SIZE, r * CELL_SIZE + HUD_HEIGHT, CELL_SIZE, CELL_SIZE);
     }
   }
 
-  let renderList = [];
+  for (let i = 0; i < powerups.length; i++) {
+    drawSinglePowerup(powerups[i]);
+  }
 
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      if (map[r][c] !== 0) {
-        renderList.push({
-          type: 'block',
-          r: r, c: c,
-          sortY: (r + 1) * CELL_SIZE + HUD_HEIGHT
-        });
+  for (let i = 0; i < explosions.length; i++) {
+    let ex = explosions[i];
+    if (ex && ex.cells) {
+      for (let j = 0; j < ex.cells.length; j++) {
+        drawSingleExplosionCell(ex.cells[j]);
       }
     }
   }
 
-  powerups.forEach(pw => {
-    renderList.push({
-      type: 'powerup',
-      pw: pw,
-      sortY: (pw.gy + 0.5) * CELL_SIZE + HUD_HEIGHT
-    });
-  });
-
-  bombs.forEach(b => {
-    if (b && !b.exploded) {
-      renderList.push({
-        type: 'bomb',
-        b: b,
-        sortY: (b.gy + 0.5) * CELL_SIZE + HUD_HEIGHT
-      });
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (map[r][c] !== 0) {
+        drawSingleBlock(r, c);
+      }
     }
-  });
 
-  explosions.forEach(ex => {
-    ex.cells.forEach(cell => {
-      renderList.push({
-        type: 'explosion',
-        cell: cell,
-        sortY: (cell.gy + 0.5) * CELL_SIZE + HUD_HEIGHT
-      });
-    });
-  });
+    for (let i = 0; i < bombs.length; i++) {
+      let b = bombs[i];
+      if (b && !b.exploded && b.gy === r) {
+        drawSingleBomb(b);
+      }
+    }
 
-  enemies.forEach(e => {
-    renderList.push({
-      type: 'enemy',
-      e: e,
-      sortY: e.y + HUD_HEIGHT + 6
-    });
-  });
+    for (let i = 0; i < enemies.length; i++) {
+      let e = enemies[i];
+      if (e && Math.floor(e.y / CELL_SIZE) === r) {
+        drawSingleEnemy(e);
+      }
+    }
 
-  renderList.push({
-    type: 'player',
-    sortY: player.y + HUD_HEIGHT + player.h / 2
-  });
-
-  renderList.sort((a, b) => a.sortY - b.sortY);
-
-  renderList.forEach(item => {
-    if (item.type === 'block') drawSingleBlock(item.r, item.c);
-    else if (item.type === 'powerup') drawSinglePowerup(item.pw);
-    else if (item.type === 'bomb') drawSingleBomb(item.b);
-    else if (item.type === 'explosion') drawSingleExplosionCell(item.cell);
-    else if (item.type === 'enemy') drawSingleEnemy(item.e);
-    else if (item.type === 'player') drawSinglePlayer();
-  });
+    if (Math.floor(player.y / CELL_SIZE) === r) {
+      drawSinglePlayer();
+    }
+  }
 }
 
 function drawSingleBlock(r, c) {
@@ -979,6 +970,7 @@ function drawSingleBlock(r, c) {
 }
 
 function drawSinglePowerup(pw) {
+  if (!pw) return;
   let px = pw.gx * CELL_SIZE + CELL_SIZE / 2;
   let py = pw.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2;
 
@@ -994,6 +986,7 @@ function drawSinglePowerup(pw) {
 }
 
 function drawSingleBomb(b) {
+  if (!b) return;
   let bx = b.gx * CELL_SIZE + CELL_SIZE / 2;
   let by = b.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2;
   let pulse = Math.sin(Date.now() / 70) * 1.5;
@@ -1017,6 +1010,7 @@ function drawSingleBomb(b) {
 }
 
 function drawSingleExplosionCell(cell) {
+  if (!cell) return;
   let fx = cell.gx * CELL_SIZE;
   let fy = cell.gy * CELL_SIZE + HUD_HEIGHT;
 
@@ -1062,13 +1056,14 @@ function drawSinglePlayer() {
 }
 
 function drawSingleEnemy(e) {
+  if (!e) return;
   let ex = e.x;
   let ey = e.y + HUD_HEIGHT;
   let r = 11;
 
   ctx.save();
   ctx.beginPath();
-  ctx.fillStyle = e.color;
+  ctx.fillStyle = e.color || '#ff0055';
 
   ctx.arc(ex, ey - 2, r, Math.PI, 0, false);
   ctx.lineTo(ex + r, ey + r);
@@ -1087,8 +1082,8 @@ function drawSingleEnemy(e) {
 
   ctx.beginPath();
   ctx.fillStyle = '#000000';
-  ctx.arc(ex - 3.5 + e.dirX * 1.2, ey - 3 + e.dirY * 1.2, 1.2, 0, Math.PI * 2);
-  ctx.arc(ex + 3.5 + e.dirX * 1.2, ey - 3 + e.dirY * 1.2, 1.2, 0, Math.PI * 2);
+  ctx.arc(ex - 3.5 + (e.dirX || 0) * 1.2, ey - 3 + (e.dirY || 0) * 1.2, 1.2, 0, Math.PI * 2);
+  ctx.arc(ex + 3.5 + (e.dirX || 0) * 1.2, ey - 3 + (e.dirY || 0) * 1.2, 1.2, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -1267,6 +1262,7 @@ function gameLoop() {
 }
 
 canvas.addEventListener('pointerdown', (e) => {
+  if (e.cancelable) e.preventDefault();
   getAC();
   let rect = canvas.getBoundingClientRect();
   let x = (e.clientX - rect.left) * (canvas.width / rect.width);
@@ -1292,14 +1288,14 @@ canvas.addEventListener('pointerdown', (e) => {
     }
     return;
   }
-});
+}, { passive: false });
 
 // TASTO BOMBA
 function bindBombBtn(id) {
   let btn = document.getElementById(id);
   if (!btn) return;
   btn.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     getAC();
     if (gameState === 'TUTORIAL') {
       gameState = 'CHAR_SELECT';
@@ -1308,7 +1304,7 @@ function bindBombBtn(id) {
     } else if (gameState === 'PLAYING') {
       placeBomb();
     }
-  });
+  }, { passive: false });
 }
 bindBombBtn('btnBomb');
 

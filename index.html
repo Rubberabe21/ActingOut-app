@@ -29,8 +29,9 @@
         html, body {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             background-color: #060612;
             display: flex;
@@ -57,24 +58,31 @@
 
         @media (max-width: 600px) {
             #game-wrapper {
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100vw;
-                height: 100dvh;
-                max-width: none;
-                max-height: none;
-                border: none;
-                box-shadow: none;
+                position: fixed !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100vw !important;
+                height: 100dvh !important;
+                max-width: none !important;
+                max-height: none !important;
+                border: none !important;
+                box-shadow: none !important;
             }
         }
         
         #game-container {
-            width: 100%;
-            height: 100%;
+            width: 100% !important;
+            height: 100% !important;
             overflow: hidden;
+            position: relative;
+        }
+
+        #game-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
         }
 
         /* BARRA SUPERIORE HTML */
@@ -469,37 +477,39 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        const vWidth = 360;
-        const vHeight = this.scale.height; // Usiamo l'altezza calcolata dinamicamente da Phaser
+        // DIMENSIONI REALI DEL CANVAS CALCOLATE DA PHASER RESIZE
+        const vWidth = this.scale.width;
+        const vHeight = this.scale.height;
 
         if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('GreenKey')) {
             this.game.renderer.pipelines.add('GreenKey', new GreenKeyPipeline(this.game));
         }
 
-        // ANCORAGGIO SFONDO IN BASSO (setOrigin 0, 1): IL SOFFITTO EXTRA SALE VERSO L'ALTO
+        // ANCORAGGIO DELLO SFONDO IN BASSO: IL SOFFITTO EXTRA SALE IN ALTO RIEMPIENDO TUTTO IL DISPLAY
         let bg = this.add.image(0, vHeight, 'background').setOrigin(0, 1).setDepth(0);
-        bg.setScale(1); // Scala 1:1, il soffitto più alto copre tutta l'altezza extra
+        let bgScale = vHeight / bg.height;
+        bg.setScale(bgScale);
 
-        const worldWidth = bg.width;
+        const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONI ANCORATE DAL BORDO INFERIORE (vHeight) PER PARQUET PERFETTO
-        const floorY = vHeight - 172;
-        const gabriY = vHeight - 182;
-        const npcY = vHeight - 177;
-        const cabY = vHeight - 192;
-        this.cabBadgeY = vHeight - 410;
+        // POSIZIONI ANCORATE DAL BORDO INFERIORE DEL DISPLAY (vHeight): PIEDI INCOLLATI AL PARQUET
+        const floorY = vHeight - (172 * bgScale);
+        const gabriY = vHeight - (182 * bgScale);
+        const npcY = vHeight - (177 * bgScale);
+        const cabY = vHeight - (192 * bgScale);
+        this.cabBadgeY = vHeight - (410 * bgScale);
 
         // VIDEO MP4 RENDERIZZATI IN WEBGL CON PIPELINE GREENKEY
-        this.gabri = this.add.video(150, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.gabri = this.add.video(150 * bgScale, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21 * bgScale).setDepth(10);
         if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
         this.gabri.play(true); this.gabri.setMute(true);
 
-        this.npc = this.add.video(860, npcY, 'npc_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.npc = this.add.video(860 * bgScale, npcY, 'npc_video').setOrigin(0.5, 1).setScale(0.21 * bgScale).setDepth(10);
         if (this.npc.setPipeline) this.npc.setPipeline('GreenKey');
         this.npc.play(true); this.npc.setMute(true);
 
-        this.raffa = this.add.video(2210, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+        this.raffa = this.add.video(2210 * bgScale, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15 * bgScale).setDepth(10);
         if (this.raffa.setPipeline) this.raffa.setPipeline('GreenKey');
         this.raffa.play(true); this.raffa.setMute(true);
 
@@ -510,7 +520,7 @@ class MainHub extends Phaser.Scene {
         let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
 
         this.player = this.physics.add.sprite(startX, floorY, 'player');
-        this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
+        this.player.setOrigin(0.5, 1).setScale(0.18 * bgScale).setDepth(20).setCollideWorldBounds(true);
         this.player.play('idle');
 
         let logo = this.add.image(vWidth / 2, 85, 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
@@ -521,11 +531,11 @@ class MainHub extends Phaser.Scene {
         updateHeaderDOM();
 
         this.cabinets = [
-            { x: 1471, y: cabY, badgeX: 1471, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
-            { x: 1610, y: cabY, badgeX: 1610, badgeY: this.cabBadgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
-            { x: 1742, y: cabY, badgeX: 1742, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
-            { x: 1882, y: cabY, badgeX: 1882, badgeY: this.cabBadgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
-            { x: 2800, y: cabY, badgeX: 2800, badgeY: this.cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
+            { x: 1471 * bgScale, y: cabY, badgeX: 1471 * bgScale, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
+            { x: 1610 * bgScale, y: cabY, badgeX: 1610 * bgScale, badgeY: this.cabBadgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
+            { x: 1742 * bgScale, y: cabY, badgeX: 1742 * bgScale, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
+            { x: 1882 * bgScale, y: cabY, badgeX: 1882 * bgScale, badgeY: this.cabBadgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
+            { x: 2800 * bgScale, y: cabY, badgeX: 2800 * bgScale, badgeY: this.cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
         this.cabinetSprites = [];
@@ -712,21 +722,15 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// CALCOLO DINAMICO DELL'ASPECT RATIO REALE DELLO SCHERMO PER PHASER FIT
-const screenW = window.innerWidth || 360;
-const screenH = window.innerHeight || 740;
-const GAME_WIDTH = 360;
-const GAME_HEIGHT = Math.max(740, Math.round(GAME_WIDTH * (screenH / screenW)));
-
+// SCALA RESIZE PER ADATTARE IL CANVAS AL 100% AL DISPLAY DELL'IPHONE SENZA BANDE NERE
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
     backgroundColor: '#060612',
     scale: { 
-        mode: Phaser.Scale.FIT, 
-        autoCenter: Phaser.Scale.CENTER_BOTH, 
-        width: GAME_WIDTH, 
-        height: GAME_HEIGHT 
+        mode: Phaser.Scale.RESIZE, 
+        width: '100%', 
+        height: '100%' 
     },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
