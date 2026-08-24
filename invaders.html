@@ -333,9 +333,23 @@ const bgMusic = new Audio('assets/invaders/music.mp3');
 bgMusic.loop = true;
 bgMusic.volume = 0.5;
 
-function updateMusicState() {
-  if (musicEnabled && state === 'playing') {
+function playBgMusic() {
+  if (musicEnabled && bgMusic.paused) {
     bgMusic.play().catch(() => {});
+  }
+}
+
+// AVVIO IMMEDIATO MUSICA ALL'INGRESSO E SBLOCCO AUTOMATICO SU POLICY MOBILE
+playBgMusic();
+window.addEventListener('DOMContentLoaded', playBgMusic);
+window.addEventListener('load', playBgMusic);
+['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+  window.addEventListener(evt, () => playBgMusic(), { once: true });
+});
+
+function updateMusicState() {
+  if (musicEnabled) {
+    playBgMusic();
   } else {
     bgMusic.pause();
   }
@@ -506,7 +520,7 @@ let audioCtx = null;
 function getAC() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
-  updateMusicState();
+  playBgMusic();
   return audioCtx;
 }
 
