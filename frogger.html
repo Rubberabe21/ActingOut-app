@@ -26,42 +26,34 @@ body {
   background: #000;
   overflow: hidden;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  touch-action: none;
+  inset: 0;
 }
 
 /* =========================================================
-   NIENTE SAFE AREA IOS IN BASSO
+   WRAPPER
+   IMPORTANTE:
+   - nessun safe-area inset
+   - nessun padding-bottom
+   - occupa esattamente tutta la viewport
    ========================================================= */
 
 #game-wrapper {
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-
-  width: 100%;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 0;
   max-width: 440px;
-
-  height: 100%;
-  min-height: 100%;
-  max-height: none;
+  margin: 0 auto;
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
 
   background: #000;
 
-  /*
-   * IMPORTANTE:
-   * nessun env(safe-area-inset-bottom)
-   */
-  padding-top: 6px;
+  padding-top: 42px;
   padding-bottom: 0;
   padding-left: 6px;
   padding-right: 6px;
@@ -69,41 +61,55 @@ body {
   overflow: hidden;
 }
 
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .top-header {
   width: 100%;
+  flex: 0 0 auto;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   padding: 6px 8px;
+
   background: #222;
   border-radius: 8px;
-  flex-shrink: 0;
+
+  min-height: 30px;
 }
 
 .header-title {
   color: #00d2ff;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: .6px;
+  letter-spacing: 0.6px;
   font-family: 'Courier New', monospace;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .opt-btn {
+  flex: 0 0 auto;
+
   background: #333;
   border: 1px solid #555;
   color: #ffea00;
+
   padding: 4px 7px;
+
   font-family: 'Courier New', monospace;
   font-size: 9px;
   font-weight: bold;
+
   border-radius: 4px;
-  cursor: pointer;
-  flex-shrink: 0;
 }
 
 .opt-btn:active {
-  transform: scale(.92);
+  transform: scale(0.92);
 }
 
 /* =========================================================
@@ -111,9 +117,9 @@ body {
    ========================================================= */
 
 #canvas-container {
+  width: 100%;
   flex: 1 1 auto;
   min-height: 0;
-  width: 100%;
 
   display: flex;
   justify-content: center;
@@ -127,20 +133,20 @@ body {
 canvas {
   display: block;
 
-  max-width: 100%;
-  max-height: 100%;
-
   width: auto;
   height: auto;
+
+  max-width: 100%;
+  max-height: 100%;
 
   aspect-ratio: 338 / 486;
 
   background: #181818;
+
   border: 1.5px solid #3a3a3a;
-  box-shadow: 0 4px 20px rgba(0,0,0,.8);
   border-radius: 6px;
 
-  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.8);
 }
 
 /* =========================================================
@@ -148,15 +154,14 @@ canvas {
    ========================================================= */
 
 .control-deck {
-  flex: 0 0 auto;
-
   width: 100%;
+  flex: 0 0 auto;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
-  padding: 4px 0;
+  padding: 3px 0;
 }
 
 .joystick-container {
@@ -169,9 +174,9 @@ canvas {
   display: grid;
 
   grid-template-columns: 68px 68px 68px;
-  grid-template-rows: 48px 48px 48px;
+  grid-template-rows: 44px 44px 44px;
 
-  gap: 4px;
+  gap: 3px;
 }
 
 .ctrl-btn {
@@ -199,13 +204,9 @@ canvas {
 
   box-shadow:
     0 4px 0 #530000,
-    0 6px 10px rgba(0,0,0,.5);
+    0 6px 10px rgba(0,0,0,0.5);
 
   text-shadow: 0 2px 0 #7a0000;
-
-  transition:
-    transform .04s linear,
-    box-shadow .04s linear;
 }
 
 .ctrl-btn:active {
@@ -213,75 +214,79 @@ canvas {
 
   box-shadow:
     0 1px 0 #530000,
-    0 2px 4px rgba(0,0,0,.4);
+    0 2px 4px rgba(0,0,0,0.4);
 }
 
-/* =========================================================
-   NUOVO TASTO CENTRALE
-   ========================================================= */
-
+/* Tasto centrale */
 .ctrl-btn-center {
   display: flex;
   justify-content: center;
   align-items: center;
 
-  background: #111;
-  border: 2px solid #00d2ff;
+  background: linear-gradient(
+    180deg,
+    #333 0%,
+    #191919 100%
+  );
 
-  color: #00d2ff;
+  border: 2px solid #777;
+
+  color: #ffea00;
 
   font-family: 'Courier New', monospace;
-  font-size: 15px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: bold;
 
   border-radius: 10px;
 
-  cursor: pointer;
-
   box-shadow:
-    0 4px 0 #003d4a,
-    0 6px 10px rgba(0,0,0,.5);
+    0 4px 0 #050505,
+    0 6px 10px rgba(0,0,0,0.5);
 
-  visibility: visible;
-  pointer-events: auto;
+  cursor: pointer;
 }
 
 .ctrl-btn-center:active {
   transform: translateY(3px);
 
   box-shadow:
-    0 1px 0 #003d4a,
-    0 2px 4px rgba(0,0,0,.4);
+    0 1px 0 #050505,
+    0 2px 4px rgba(0,0,0,0.4);
+}
+
+.dpad-empty {
+  visibility: hidden;
 }
 
 /* =========================================================
-   TORNA IN STUDIO
+   ESCI
    ========================================================= */
 
 .exit-btn {
-  flex: 0 0 auto;
-
   width: 100%;
   height: 36px;
+
+  flex: 0 0 36px;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
   background: #111;
+
   color: #ff3366;
 
   font-family: 'Courier New', monospace;
   font-weight: bold;
   font-size: 11px;
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
 
   border: 1px solid #222;
   border-radius: 6px;
 
   cursor: pointer;
 
-  margin-bottom: 0;
+  margin: 0;
 }
 
 .exit-btn:active {
@@ -298,10 +303,10 @@ canvas {
   position: fixed;
   inset: 0;
 
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100dvh;
 
-  background: rgba(0,0,0,.95);
+  background: rgba(0,0,0,0.95);
 
   z-index: 200;
 
@@ -319,7 +324,7 @@ canvas {
 
   border: 2px solid #00d2ff;
 
-  box-shadow: 0 0 25px rgba(0,210,255,.3);
+  box-shadow: 0 0 25px rgba(0,210,255,0.3);
 
   border-radius: 12px;
 
@@ -327,16 +332,20 @@ canvas {
 
   display: flex;
   flex-direction: column;
+
   gap: 14px;
 
-  color: white;
+  color: #fff;
+
   text-align: center;
 }
 
 .modal-title {
   color: #ffea00;
+
   font-size: 14px;
   font-weight: 900;
+
   font-family: 'Courier New', monospace;
 }
 
@@ -344,6 +353,7 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
+
   gap: 6px;
 
   background: #111;
@@ -357,7 +367,9 @@ canvas {
 .option-label {
   font-size: 11px;
   font-weight: bold;
+
   color: #00d2ff;
+
   font-family: 'Courier New', monospace;
 }
 
@@ -370,20 +382,21 @@ canvas {
 
   border: 1.5px solid #ff0055;
 
-  color: white;
+  color: #fff;
 
   font-weight: bold;
   font-size: 12px;
+
   font-family: 'Courier New', monospace;
 
   border-radius: 6px;
-
-  cursor: pointer;
 }
 
 .toggle-btn.active {
   border-color: #00ff66;
+
   color: #00ff66;
+
   background: #122818;
 }
 
@@ -398,11 +411,10 @@ canvas {
 
   font-weight: bold;
   font-size: 12px;
+
   font-family: 'Courier New', monospace;
 
   border-radius: 6px;
-
-  cursor: pointer;
 }
 </style>
 </head>
@@ -415,7 +427,7 @@ canvas {
   loop
   autoplay
   playsinline
-  style="display:none">
+  style="display:none;">
 </audio>
 
 <div id="game-wrapper">
@@ -440,20 +452,20 @@ canvas {
 
       <div class="dpad-grid">
 
-        <div></div>
+        <div class="dpad-empty"></div>
 
         <div class="ctrl-btn" id="btnUp">
           ▲
         </div>
 
-        <div></div>
+        <div class="dpad-empty"></div>
 
 
         <div class="ctrl-btn" id="btnLeft">
           ◀
         </div>
 
-        <!-- NUOVO TASTO OK -->
+        <!-- CENTRALE = OK -->
         <div class="ctrl-btn-center" id="btnCenter">
           OK
         </div>
@@ -463,13 +475,13 @@ canvas {
         </div>
 
 
-        <div></div>
+        <div class="dpad-empty"></div>
 
         <div class="ctrl-btn" id="btnDown">
           ▼
         </div>
 
-        <div></div>
+        <div class="dpad-empty"></div>
 
       </div>
 
@@ -602,19 +614,16 @@ let musicEnabled =
 let sfxEnabled =
   localStorage.getItem('deadlineDrive_sfx') !== 'false';
 
-const bgMusic = document.getElementById('bgMusic');
+const bgMusic =
+  document.getElementById('bgMusic');
 
-bgMusic.volume = .4;
+bgMusic.volume = 0.4;
 
 function playBgMusic() {
 
-  if (
-    musicEnabled &&
-    bgMusic.paused
-  ) {
+  if (musicEnabled && bgMusic.paused) {
     bgMusic.play().catch(() => {});
   }
-
 }
 
 playBgMusic();
@@ -644,219 +653,13 @@ window.addEventListener(
 
 });
 
-
 function updateMusicState() {
 
   if (musicEnabled) {
-
     playBgMusic();
-
   } else {
-
     bgMusic.pause();
-
   }
-
-}
-
-
-let audioCtx = null;
-
-function getAC() {
-
-  try {
-
-    if (!audioCtx) {
-
-      const AudioContextClass =
-        window.AudioContext ||
-        window.webkitAudioContext;
-
-      if (AudioContextClass) {
-        audioCtx = new AudioContextClass();
-      }
-
-    }
-
-    if (
-      audioCtx &&
-      audioCtx.state === 'suspended'
-    ) {
-
-      audioCtx.resume().catch(() => {});
-
-    }
-
-  } catch(e) {}
-
-  playBgMusic();
-
-  return audioCtx;
-}
-
-
-function playSound(type) {
-
-  if (!sfxEnabled) return;
-
-  try {
-
-    const ac = getAC();
-
-    if (!ac) return;
-
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-
-    osc.connect(gain);
-    gain.connect(ac.destination);
-
-
-    if (type === 'cross') {
-
-      osc.type = 'triangle';
-
-      osc.frequency.setValueAtTime(
-        523,
-        ac.currentTime
-      );
-
-      osc.frequency.setValueAtTime(
-        659,
-        ac.currentTime + .08
-      );
-
-      gain.gain.setValueAtTime(
-        .18,
-        ac.currentTime
-      );
-
-      osc.start();
-      osc.stop(ac.currentTime + .16);
-
-    }
-
-    else if (type === 'crash') {
-
-      osc.type = 'sawtooth';
-
-      osc.frequency.setValueAtTime(
-        250,
-        ac.currentTime
-      );
-
-      osc.frequency.exponentialRampToValueAtTime(
-        40,
-        ac.currentTime + .25
-      );
-
-      gain.gain.setValueAtTime(
-        .25,
-        ac.currentTime
-      );
-
-      osc.start();
-      osc.stop(ac.currentTime + .25);
-
-    }
-
-    else if (type === 'guard_active') {
-
-      osc.type = 'sine';
-
-      osc.frequency.setValueAtTime(
-        600,
-        ac.currentTime
-      );
-
-      osc.frequency.linearRampToValueAtTime(
-        1200,
-        ac.currentTime + .1
-      );
-
-      gain.gain.setValueAtTime(
-        .15,
-        ac.currentTime
-      );
-
-      osc.start();
-      osc.stop(ac.currentTime + .1);
-
-    }
-
-    else if (type === 'pickup') {
-
-      osc.type = 'triangle';
-
-      osc.frequency.setValueAtTime(
-        440,
-        ac.currentTime
-      );
-
-      osc.frequency.setValueAtTime(
-        880,
-        ac.currentTime + .1
-      );
-
-      gain.gain.setValueAtTime(
-        .2,
-        ac.currentTime
-      );
-
-      osc.start();
-      osc.stop(ac.currentTime + .2);
-
-    }
-
-    else if (type === 'malus') {
-
-      osc.type = 'sawtooth';
-
-      osc.frequency.setValueAtTime(
-        180,
-        ac.currentTime
-      );
-
-      osc.frequency.linearRampToValueAtTime(
-        80,
-        ac.currentTime + .2
-      );
-
-      gain.gain.setValueAtTime(
-        .2,
-        ac.currentTime
-      );
-
-      osc.start();
-      osc.stop(ac.currentTime + .2);
-
-    }
-
-    else if (type === 'fail') {
-
-      osc.type = 'sawtooth';
-
-      osc.frequency.setValueAtTime(
-        220,
-        ac.currentTime
-      );
-
-      osc.frequency.linearRampToValueAtTime(
-        50,
-        ac.currentTime + .3
-      );
-
-      gain.gain.setValueAtTime(
-        .25,
-        ac.currentTime
-      );
-
-      osc.start();
-      osc.stop(ac.currentTime + .3);
-
-    }
-
-  } catch(e) {}
 
 }
 
@@ -887,21 +690,16 @@ function renderOptionButtons() {
     `toggle-btn ${musicEnabled ? 'active' : ''}`;
 
   btnToggleMusic.innerText =
-    musicEnabled
-      ? 'ON 🎵'
-      : 'OFF 🔇';
+    musicEnabled ? 'ON 🎵' : 'OFF 🔇';
 
 
   btnToggleSfx.className =
     `toggle-btn ${sfxEnabled ? 'active' : ''}`;
 
   btnToggleSfx.innerText =
-    sfxEnabled
-      ? 'ON 🔊'
-      : 'OFF 🔇';
+    sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
 
 }
-
 
 renderOptionButtons();
 
@@ -963,24 +761,265 @@ btnCloseSettings.onclick = () => {
 
 
 /* =========================================================
-   IMMAGINI
+   AUDIO CONTEXT
    ========================================================= */
 
-const imgGiulia = new Image();
-imgGiulia.src = 'assets/frogger/giulia.png';
+let audioCtx = null;
 
-const imgTobi = new Image();
-imgTobi.src = 'assets/frogger/tobi.png';
+function getAC() {
 
-const imgDave = new Image();
-imgDave.src = 'assets/frogger/dave.png';
+  try {
 
-const imgLuca = new Image();
-imgLuca.src = 'assets/frogger/luca.png';
+    if (!audioCtx) {
+
+      const AudioContextClass =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if (AudioContextClass) {
+        audioCtx =
+          new AudioContextClass();
+      }
+
+    }
+
+    if (
+      audioCtx &&
+      audioCtx.state === 'suspended'
+    ) {
+
+      audioCtx.resume().catch(() => {});
+
+    }
+
+  } catch(e) {}
+
+  playBgMusic();
+
+  return audioCtx;
+}
+
+
+function playSound(type) {
+
+  if (!sfxEnabled) return;
+
+  try {
+
+    const ac = getAC();
+
+    if (!ac) return;
+
+    const osc =
+      ac.createOscillator();
+
+    const gain =
+      ac.createGain();
+
+    osc.connect(gain);
+    gain.connect(ac.destination);
+
+
+    if (type === 'cross') {
+
+      osc.type = 'triangle';
+
+      osc.frequency.setValueAtTime(
+        523,
+        ac.currentTime
+      );
+
+      osc.frequency.setValueAtTime(
+        659,
+        ac.currentTime + 0.08
+      );
+
+      gain.gain.setValueAtTime(
+        0.18,
+        ac.currentTime
+      );
+
+      osc.start();
+      osc.stop(
+        ac.currentTime + 0.16
+      );
+
+    }
+
+    else if (type === 'crash') {
+
+      osc.type = 'sawtooth';
+
+      osc.frequency.setValueAtTime(
+        250,
+        ac.currentTime
+      );
+
+      osc.frequency.exponentialRampToValueAtTime(
+        40,
+        ac.currentTime + 0.25
+      );
+
+      gain.gain.setValueAtTime(
+        0.25,
+        ac.currentTime
+      );
+
+      osc.start();
+
+      osc.stop(
+        ac.currentTime + 0.25
+      );
+
+    }
+
+    else if (type === 'guard_active') {
+
+      osc.type = 'sine';
+
+      osc.frequency.setValueAtTime(
+        600,
+        ac.currentTime
+      );
+
+      osc.frequency.linearRampToValueAtTime(
+        1200,
+        ac.currentTime + 0.1
+      );
+
+      gain.gain.setValueAtTime(
+        0.15,
+        ac.currentTime
+      );
+
+      osc.start();
+
+      osc.stop(
+        ac.currentTime + 0.1
+      );
+
+    }
+
+    else if (type === 'pickup') {
+
+      osc.type = 'triangle';
+
+      osc.frequency.setValueAtTime(
+        440,
+        ac.currentTime
+      );
+
+      osc.frequency.setValueAtTime(
+        880,
+        ac.currentTime + 0.1
+      );
+
+      gain.gain.setValueAtTime(
+        0.2,
+        ac.currentTime
+      );
+
+      osc.start();
+
+      osc.stop(
+        ac.currentTime + 0.2
+      );
+
+    }
+
+    else if (type === 'malus') {
+
+      osc.type = 'sawtooth';
+
+      osc.frequency.setValueAtTime(
+        180,
+        ac.currentTime
+      );
+
+      osc.frequency.linearRampToValueAtTime(
+        80,
+        ac.currentTime + 0.2
+      );
+
+      gain.gain.setValueAtTime(
+        0.2,
+        ac.currentTime
+      );
+
+      osc.start();
+
+      osc.stop(
+        ac.currentTime + 0.2
+      );
+
+    }
+
+    else if (type === 'fail') {
+
+      osc.type = 'sawtooth';
+
+      osc.frequency.setValueAtTime(
+        220,
+        ac.currentTime
+      );
+
+      osc.frequency.linearRampToValueAtTime(
+        50,
+        ac.currentTime + 0.3
+      );
+
+      gain.gain.setValueAtTime(
+        0.25,
+        ac.currentTime
+      );
+
+      osc.start();
+
+      osc.stop(
+        ac.currentTime + 0.3
+      );
+
+    }
+
+  } catch(e) {}
+
+}
 
 
 /* =========================================================
-   CLIP
+   IMMAGINI
+   ========================================================= */
+
+const imgGiulia =
+  new Image();
+
+imgGiulia.src =
+  'assets/frogger/giulia.png';
+
+
+const imgTobi =
+  new Image();
+
+imgTobi.src =
+  'assets/frogger/tobi.png';
+
+
+const imgDave =
+  new Image();
+
+imgDave.src =
+  'assets/frogger/dave.png';
+
+
+const imgLuca =
+  new Image();
+
+imgLuca.src =
+  'assets/frogger/luca.png';
+
+
+/* =========================================================
+   PREMIERE CLIPS
    ========================================================= */
 
 const PREMIERE_CLIPS = {
@@ -1014,7 +1053,7 @@ const PREMIERE_CLIPS = {
     border: '#e64273',
     textCol: '#ffd4e2',
     topBar: '#ffee00',
-    wMult: 2,
+    wMult: 2.0,
     hMult: 1
   },
 
@@ -1026,7 +1065,7 @@ const PREMIERE_CLIPS = {
     textCol: '#fdf8c2',
     topBar: '#00ff66',
     isAudio: true,
-    wMult: 2,
+    wMult: 2.0,
     hMult: 1
   },
 
@@ -1061,7 +1100,7 @@ const PREMIERE_CLIPS = {
     border: '#8b3adb',
     textCol: '#e8cbff',
     topBar: '#ffee00',
-    wMult: 3,
+    wMult: 3.0,
     hMult: 1
   },
 
@@ -1080,7 +1119,7 @@ const PREMIERE_CLIPS = {
 
 
 /* =========================================================
-   LIVELLI
+   LEVEL
    ========================================================= */
 
 const LEVEL_THEMES = [
@@ -1120,60 +1159,60 @@ const CHARACTERS = {
 
   GIULIA: {
     id: 'GIULIA',
-    name: 'GIULIA',
-    subtitle: 'Lead Video Editor',
-    perkBonus: 'BONUS: Precisione (Punti 1.25x)',
-    perkMalus: 'MALUS: Sensibile al Glitch',
-    primary: '#00d2ff',
-    bg: '#181818',
+    name: "GIULIA",
+    subtitle: "Lead Video Editor",
+    perkBonus: "BONUS: Precisione (Punti 1.25x)",
+    perkMalus: "MALUS: Sensibile al Glitch",
+    primary: "#00d2ff",
+    bg: "#181818",
     img: imgGiulia,
-    arrowCol: '#00d2ff',
-    arrowGlow: '#005f73',
+    arrowCol: "#00d2ff",
+    arrowGlow: "#005f73",
     speed: 2.8,
     scoreMult: 1.25
   },
 
   TOBI: {
     id: 'TOBI',
-    name: 'TOBI',
-    subtitle: 'Assistant Video Editor',
-    perkBonus: 'BONUS: Agilità (+20% Velocità)',
-    perkMalus: 'MALUS: Punteggio Base (-10%)',
-    primary: '#ffd700',
-    bg: '#181818',
+    name: "TOBI",
+    subtitle: "Assistant Video Editor",
+    perkBonus: "BONUS: Agilità (+20% Velocità)",
+    perkMalus: "MALUS: Punteggio Base (-10%)",
+    primary: "#ffd700",
+    bg: "#181818",
     img: imgTobi,
-    arrowCol: '#ffd700',
-    arrowGlow: '#886600',
+    arrowCol: "#ffd700",
+    arrowGlow: "#886600",
     speed: 3.4,
-    scoreMult: .9
+    scoreMult: 0.9
   },
 
   DAVE: {
     id: 'DAVE',
-    name: 'DAVE',
-    subtitle: 'Focused Director',
-    perkBonus: 'BONUS: Autorità (+30% Punteggio)',
-    perkMalus: 'MALUS: Passo Pesante (-20% Velocità)',
-    primary: '#ff0055',
-    bg: '#181818',
+    name: "DAVE",
+    subtitle: "Focused Director",
+    perkBonus: "BONUS: Autorità (+30% Punteggio)",
+    perkMalus: "MALUS: Passo Pesante (-20% Velocità)",
+    primary: "#ff0055",
+    bg: "#181818",
     img: imgDave,
-    arrowCol: '#ff0055',
-    arrowGlow: '#880022',
-    speed: 2,
+    arrowCol: "#ff0055",
+    arrowGlow: "#880022",
+    speed: 2.0,
     scoreMult: 1.3
   },
 
   LUCA: {
     id: 'LUCA',
-    name: 'LUCA',
-    subtitle: 'VFX Artist Whiz',
-    perkBonus: 'BONUS: VFX Master (+15% Punti)',
-    perkMalus: 'MALUS: Meno Vite Iniziali',
-    primary: '#ffaa00',
-    bg: '#181818',
+    name: "LUCA",
+    subtitle: "VFX Artist Whiz",
+    perkBonus: "BONUS: VFX Master (+15% Punti)",
+    perkMalus: "MALUS: Meno Vite Iniziali",
+    primary: "#ffaa00",
+    bg: "#181818",
     img: imgLuca,
-    arrowCol: '#ffaa00',
-    arrowGlow: '#885500',
+    arrowCol: "#ffaa00",
+    arrowGlow: "#885500",
     speed: 3.2,
     scoreMult: 1.15
   }
@@ -1189,7 +1228,7 @@ const CHARACTER_LIST = [
 
 
 /* =========================================================
-   PICKUP
+   PICKUPS
    ========================================================= */
 
 const PICKUP_TYPES = {
@@ -1206,7 +1245,7 @@ const PICKUP_TYPES = {
     label: '🎬 PROXY 2X',
     pts: 400,
     isMalus: false,
-    scoreBoost: 2
+    scoreBoost: 2.0
   },
 
   CACHE_BOOST: {
@@ -1230,7 +1269,7 @@ const PICKUP_TYPES = {
     label: '🐌 DROP',
     pts: -100,
     isMalus: true,
-    slowFactor: .6
+    slowFactor: 0.6
   },
 
   DISK_FULL: {
@@ -1245,19 +1284,23 @@ const PICKUP_TYPES = {
 
 
 /* =========================================================
-   STATO
+   GAME STATE
    ========================================================= */
 
-let currentTheme = CHARACTERS.GIULIA;
+let currentTheme =
+  CHARACTERS.GIULIA;
 
 let highScore =
   parseInt(
-    localStorage.getItem('deadlineDrive_highScore')
+    localStorage.getItem(
+      'deadlineDrive_highScore'
+    )
   ) || 0;
 
 let activeLanes = [];
 
-let gameState = 'TUTORIAL';
+let gameState =
+  'TUTORIAL';
 
 let level = 1;
 
@@ -1286,9 +1329,9 @@ let player = {
 
   nextMoveAllowedTimer: 0,
 
-  speedMult: 1,
+  speedMult: 1.0,
 
-  tempScoreMult: 1,
+  tempScoreMult: 1.0,
 
   glitchTimer: 0
 
@@ -1306,7 +1349,7 @@ let particles = [];
 
 
 /* =========================================================
-   GENERAZIONE LANES
+   LANES
    ========================================================= */
 
 function createNewLane(
@@ -1318,8 +1361,8 @@ function createNewLane(
 
   let safeChance =
     Math.max(
-      .20,
-      .45 - level * .08
+      0.20,
+      0.45 - (level * 0.08)
     );
 
 
@@ -1337,63 +1380,63 @@ function createNewLane(
         )
       );
 
-  }
+  } else {
 
-  else {
-
-    let topLane = activeLanes[0];
+    let topLane =
+      activeLanes[0];
 
     isSafe =
       (
         topLane &&
         topLane.type === 'SAFE'
       )
-        ? false
-        : Math.random() < safeChance;
+      ? false
+      : Math.random() < safeChance;
 
   }
 
 
   let laneType =
-    isSafe
-      ? 'SAFE'
-      : 'ROAD';
-
+    isSafe ? 'SAFE' : 'ROAD';
 
   let dir =
-    Math.random() < .5
+    Math.random() < 0.5
       ? 1
       : -1;
 
 
   let speedFactor =
-    .38 + Math.min(
-      level * .16,
+    0.38 +
+    Math.min(
+      level * 0.16,
       1.2
     );
 
 
   let baseSpeed =
     (
-      .45 +
-      Math.random() * .35
-    ) * speedFactor;
+      0.45 +
+      Math.random() * 0.35
+    ) *
+    speedFactor;
 
 
   let vTypes =
-    Object.values(PREMIERE_CLIPS);
+    Object.values(
+      PREMIERE_CLIPS
+    );
 
 
   let trackLabel =
-    r % 5 === 0
-      ? 'V3'
-      : r % 5 === 1
-        ? 'V2'
-        : r % 5 === 2
-          ? 'V1'
-          : r % 5 === 3
-            ? 'A1'
-            : 'A2';
+    (r % 5 === 0)
+      ? "V3"
+      : (r % 5 === 1)
+        ? "V2"
+        : (r % 5 === 2)
+          ? "V1"
+          : (r % 5 === 3)
+            ? "A1"
+            : "A2";
 
 
   let laneObj = {
@@ -1402,7 +1445,7 @@ function createNewLane(
 
     trackLabel:
       isSafe
-        ? 'SAFE'
+        ? "SAFE"
         : trackLabel,
 
     bg:
@@ -1410,7 +1453,7 @@ function createNewLane(
         ? '#1c2230'
         : '#141416',
 
-    dir,
+    dir: dir,
 
     speed: baseSpeed,
 
@@ -1429,8 +1472,8 @@ function createNewLane(
 
     let minGap =
       Math.max(
-        4,
-        10 - level * 1.5
+        4.0,
+        10.0 - (level * 1.5)
       );
 
 
@@ -1461,7 +1504,7 @@ function createNewLane(
 
         laneObj.objects.push({
 
-          x,
+          x: x,
 
           type: vType,
 
@@ -1482,23 +1525,27 @@ function createNewLane(
       CELL_SIZE * 3
     );
 
+
   }
 
   else if (
     isSafe &&
-    Math.random() < .35
+    Math.random() < 0.35
   ) {
 
-    let keys =
-      Object.keys(PICKUP_TYPES);
+    let pTypeKeys =
+      Object.keys(
+        PICKUP_TYPES
+      );
 
-    let key =
-      keys[
+    let chosenKey =
+      pTypeKeys[
         Math.floor(
           Math.random() *
-          keys.length
+          pTypeKeys.length
         )
       ];
+
 
     laneObj.pickups.push({
 
@@ -1509,7 +1556,7 @@ function createNewLane(
         ) + 2,
 
       type:
-        PICKUP_TYPES[key]
+        PICKUP_TYPES[chosenKey]
 
     });
 
@@ -1517,7 +1564,6 @@ function createNewLane(
 
 
   return laneObj;
-
 }
 
 
@@ -1531,6 +1577,7 @@ function startInfiniteScroll() {
 
   visualScrollOffset = 0;
 
+
   for (
     let r = 0;
     r < ROWS;
@@ -1538,10 +1585,14 @@ function startInfiniteScroll() {
   ) {
 
     activeLanes.push(
-      createNewLane(true, r)
+      createNewLane(
+        true,
+        r
+      )
     );
 
   }
+
 
   resetPlayer();
 
@@ -1551,7 +1602,9 @@ function startInfiniteScroll() {
 function resetPlayer() {
 
   player.gx =
-    Math.floor(COLS / 2);
+    Math.floor(
+      COLS / 2
+    );
 
   player.gy =
     ROWS - 2;
@@ -1563,15 +1616,15 @@ function resetPlayer() {
   player.guardTimer = 0;
   player.nextMoveAllowedTimer = 0;
 
-  player.speedMult = 1;
-  player.tempScoreMult = 1;
+  player.speedMult = 1.0;
+  player.tempScoreMult = 1.0;
   player.glitchTimer = 0;
 
 }
 
 
 /* =========================================================
-   INPUT PLAYER
+   PLAYER
    ========================================================= */
 
 function updatePlayer() {
@@ -1581,6 +1634,7 @@ function updatePlayer() {
   ) {
     player.nextMoveAllowedTimer--;
   }
+
 
   if (
     player.glitchTimer > 0
@@ -1618,9 +1672,7 @@ function updatePlayer() {
       moveDown;
 
 
-    if (
-      player.glitchTimer > 0
-    ) {
+    if (player.glitchTimer > 0) {
 
       let tL = inLeft;
       let tR = inRight;
@@ -1728,16 +1780,15 @@ function updatePlayer() {
   }
 
 
-  if (player.invTimer > 0) {
+  if (player.invTimer > 0)
     player.invTimer--;
-  }
 
-  if (player.guardTimer > 0) {
+  if (player.guardTimer > 0)
     player.guardTimer--;
-  }
 
 
   checkPickups();
+
   checkCollisions();
 
 }
@@ -1779,68 +1830,77 @@ function scrollWorldDown() {
 
 
 /* =========================================================
-   VEICOLI
+   VEHICLES
    ========================================================= */
 
 function updateVehicles() {
 
   visualScrollOffset +=
-    (0 - visualScrollOffset) *
-    .25;
+    (
+      0 -
+      visualScrollOffset
+    ) *
+    0.25;
 
 
   if (
     Math.abs(
       visualScrollOffset
-    ) < .1
+    ) < 0.1
   ) {
+
     visualScrollOffset = 0;
+
   }
 
 
-  activeLanes.forEach(lane => {
+  activeLanes.forEach(
+    lane => {
 
-    if (
-      lane.type === 'ROAD'
-    ) {
+      if (
+        lane.type === 'ROAD'
+      ) {
 
-      lane.objects.forEach(obj => {
+        lane.objects.forEach(
+          obj => {
 
-        obj.x +=
-          lane.speed *
-          lane.dir;
+            obj.x +=
+              lane.speed *
+              lane.dir;
 
 
-        if (
-          lane.dir > 0 &&
-          obj.x >
-          CANVAS_W + obj.w
-        ) {
+            if (
+              lane.dir > 0 &&
+              obj.x >
+              CANVAS_W + obj.w
+            ) {
 
-          obj.x =
-            TRACK_HEADER_W -
-            obj.w;
+              obj.x =
+                TRACK_HEADER_W -
+                obj.w;
 
-        }
+            }
 
-        else if (
-          lane.dir < 0 &&
-          obj.x <
-          TRACK_HEADER_W -
-          obj.w
-        ) {
+            else if (
+              lane.dir < 0 &&
+              obj.x <
+              TRACK_HEADER_W -
+              obj.w
+            ) {
 
-          obj.x =
-            CANVAS_W +
-            obj.w;
+              obj.x =
+                CANVAS_W +
+                obj.w;
 
-        }
+            }
 
-      });
+          }
+        );
+
+      }
 
     }
-
-  });
+  );
 
 
   for (
@@ -1849,15 +1909,23 @@ function updateVehicles() {
     i--
   ) {
 
-    let p = particles[i];
+    let p =
+      particles[i];
 
     p.x += p.vx;
     p.y += p.vy;
-
     p.life--;
 
-    if (p.life <= 0) {
-      particles.splice(i, 1);
+
+    if (
+      p.life <= 0
+    ) {
+
+      particles.splice(
+        i,
+        1
+      );
+
     }
 
   }
@@ -1866,7 +1934,7 @@ function updateVehicles() {
 
 
 /* =========================================================
-   PARTICELLE
+   PARTICLES
    ========================================================= */
 
 function addParticles(
@@ -1884,18 +1952,18 @@ function addParticles(
 
     particles.push({
 
-      x,
-      y,
+      x: x,
+      y: y,
 
       vx:
-        (Math.random() - .5) * 6,
+        (Math.random() - 0.5) * 6,
 
       vy:
-        (Math.random() - .5) * 6,
+        (Math.random() - 0.5) * 6,
 
       life: 16,
 
-      color
+      color: color
 
     });
 
@@ -1905,7 +1973,7 @@ function addParticles(
 
 
 /* =========================================================
-   PICKUP
+   PICKUPS
    ========================================================= */
 
 function checkPickups() {
@@ -1949,15 +2017,24 @@ function checkPickups() {
 
         playSound('malus');
 
-        if (p.type.slowFactor) {
+
+        if (
+          p.type.slowFactor
+        ) {
+
           player.speedMult =
             p.type.slowFactor;
+
         }
+
 
         if (
           p.type.invertControls
         ) {
-          player.glitchTimer = 180;
+
+          player.glitchTimer =
+            180;
+
         }
 
       }
@@ -1966,19 +2043,26 @@ function checkPickups() {
 
         playSound('pickup');
 
+
         if (
           p.type.speedBoost
         ) {
+
           player.speedMult =
             p.type.speedBoost;
+
         }
+
 
         if (
           p.type.scoreBoost
         ) {
+
           player.tempScoreMult =
             p.type.scoreBoost;
+
         }
+
 
         if (
           p.type.shieldDuration
@@ -1998,10 +2082,10 @@ function checkPickups() {
 
       addParticles(
         player.gx * CELL_SIZE +
-          CELL_SIZE / 2,
+        CELL_SIZE / 2,
 
         player.gy * CELL_SIZE +
-          HUD_HEIGHT,
+        HUD_HEIGHT,
 
         p.type.isMalus
           ? '#ff0055'
@@ -2024,7 +2108,7 @@ function checkPickups() {
 
 
 /* =========================================================
-   COLLISIONI
+   COLLISION
    ========================================================= */
 
 function isInvincible() {
@@ -2048,7 +2132,8 @@ function checkCollisions() {
 
 
   let playerX =
-    player.gx * CELL_SIZE +
+    player.gx *
+    CELL_SIZE +
     CELL_SIZE / 2;
 
 
@@ -2071,7 +2156,9 @@ function checkCollisions() {
 
 
     let lane =
-      activeLanes[checkLaneIdx];
+      activeLanes[
+        checkLaneIdx
+      ];
 
 
     if (
@@ -2082,40 +2169,45 @@ function checkCollisions() {
     }
 
 
-    lane.objects.forEach(obj => {
+    lane.objects.forEach(
+      obj => {
 
-      if (
-        offset === 1 &&
-        obj.hMult !== 2
-      ) {
-        return;
+        if (
+          offset === 1 &&
+          obj.hMult !== 2
+        ) {
+          return;
+        }
+
+
+        let oLeft =
+          obj.x;
+
+        let oRight =
+          obj.x +
+          obj.w;
+
+
+        let pLeft =
+          playerX -
+          player.w / 2;
+
+        let pRight =
+          playerX +
+          player.w / 2;
+
+
+        if (
+          pLeft < oRight &&
+          pRight > oLeft
+        ) {
+
+          hitPlayer();
+
+        }
+
       }
-
-
-      let oLeft = obj.x;
-      let oRight =
-        obj.x + obj.w;
-
-
-      let pLeft =
-        playerX -
-        player.w / 2;
-
-      let pRight =
-        playerX +
-        player.w / 2;
-
-
-      if (
-        pLeft < oRight &&
-        pRight > oLeft
-      ) {
-
-        hitPlayer();
-
-      }
-
-    });
+    );
 
   }
 
@@ -2130,10 +2222,12 @@ function hitPlayer() {
 
 
   addParticles(
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
       CELL_SIZE / 2,
 
-    player.gy * CELL_SIZE +
+    player.gy *
+      CELL_SIZE +
       HUD_HEIGHT,
 
     '#ff0055',
@@ -2142,9 +2236,12 @@ function hitPlayer() {
   );
 
 
-  if (lives <= 0) {
+  if (
+    lives <= 0
+  ) {
 
-    gameState = 'GAME_OVER';
+    gameState =
+      'GAME_OVER';
 
     playSound('fail');
 
@@ -2179,18 +2276,24 @@ function hitPlayer() {
 
 
     player.gx =
-      Math.floor(COLS / 2);
+      Math.floor(
+        COLS / 2
+      );
 
     player.gy =
       respawnGy;
 
-    player.invTimer = 90;
+    player.invTimer =
+      90;
 
-    player.glitchTimer = 0;
+    player.glitchTimer =
+      0;
 
-    player.speedMult = 1;
+    player.speedMult =
+      1.0;
 
-    player.tempScoreMult = 1;
+    player.tempScoreMult =
+      1.0;
 
   }
 
@@ -2198,18 +2301,20 @@ function hitPlayer() {
 
 
 /* =========================================================
-   DISEGNO MONDO
+   DRAW WORLD
    ========================================================= */
 
 function drawGameWorld() {
 
-  ctx.fillStyle = '#181818';
+  ctx.fillStyle =
+    '#181818';
 
   ctx.fillRect(
     0,
     HUD_HEIGHT,
     CANVAS_W,
-    CANVAS_H - HUD_HEIGHT
+    CANVAS_H -
+      HUD_HEIGHT
   );
 
 
@@ -2217,7 +2322,8 @@ function drawGameWorld() {
     (lane, r) => {
 
       let y =
-        r * CELL_SIZE +
+        r *
+        CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
@@ -2257,45 +2363,49 @@ function drawGameWorld() {
       ) {
 
         let y =
-          r * CELL_SIZE +
+          r *
+          CELL_SIZE +
           HUD_HEIGHT +
           visualScrollOffset;
 
 
-        lane.pickups.forEach(p => {
+        lane.pickups.forEach(
+          p => {
 
-          let px =
-            p.gx * CELL_SIZE +
-            CELL_SIZE / 2;
+            let px =
+              p.gx *
+                CELL_SIZE +
+              CELL_SIZE / 2;
 
-          let py =
-            y +
-            CELL_SIZE / 2;
-
-
-          ctx.fillStyle =
-            p.type.isMalus
-              ? '#ff0055'
-              : '#ffff00';
+            let py =
+              y +
+              CELL_SIZE / 2;
 
 
-          ctx.font =
-            '11px sans-serif';
-
-          ctx.textAlign =
-            'center';
-
-          ctx.textBaseline =
-            'middle';
+            ctx.fillStyle =
+              p.type.isMalus
+                ? '#ff0055'
+                : '#ffff00';
 
 
-          ctx.fillText(
-            p.type.label.split(' ')[0],
-            px,
-            py
-          );
+            ctx.font =
+              '11px sans-serif';
 
-        });
+            ctx.textAlign =
+              'center';
+
+            ctx.textBaseline =
+              'middle';
+
+
+            ctx.fillText(
+              p.type.label.split(' ')[0],
+              px,
+              py
+            );
+
+          }
+        );
 
       }
 
@@ -2312,7 +2422,9 @@ function drawGameWorld() {
 
         drawObstacles(
           lane,
-          r * CELL_SIZE +
+
+          r *
+            CELL_SIZE +
             HUD_HEIGHT +
             visualScrollOffset
         );
@@ -2327,7 +2439,8 @@ function drawGameWorld() {
     (lane, r) => {
 
       let y =
-        r * CELL_SIZE +
+        r *
+        CELL_SIZE +
         HUD_HEIGHT +
         visualScrollOffset;
 
@@ -2379,7 +2492,14 @@ function drawGameWorld() {
   );
 
 
-  particles.forEach(p => {
+  for (
+    let i = 0;
+    i < particles.length;
+    i++
+  ) {
+
+    let p =
+      particles[i];
 
     ctx.fillStyle =
       p.color;
@@ -2391,18 +2511,20 @@ function drawGameWorld() {
       4
     );
 
-  });
+  }
 
 
   let playheadX =
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
     CELL_SIZE / 2;
 
 
   ctx.strokeStyle =
-    'rgba(0,210,255,.4)';
+    'rgba(0,210,255,0.4)';
 
   ctx.lineWidth = 1.5;
+
 
   ctx.beginPath();
 
@@ -2425,7 +2547,7 @@ function drawGameWorld() {
 
 
 /* =========================================================
-   OSTACOLI
+   OBSTACLES
    ========================================================= */
 
 function drawObstacles(
@@ -2439,9 +2561,12 @@ function drawObstacles(
       let x = obj.x;
       let y = laneY;
 
-      let vData = obj.type;
+      let vData =
+        obj.type;
 
-      let blockW = obj.w;
+      let blockW =
+        obj.w;
+
 
       let blockH =
         (
@@ -2499,7 +2624,7 @@ function drawObstacles(
 
 
       ctx.fillStyle =
-        'rgba(0,0,0,.4)';
+        'rgba(0,0,0,0.4)';
 
       ctx.fillRect(
         x + 4,
@@ -2534,7 +2659,7 @@ function drawObstacles(
       ) {
 
         ctx.strokeStyle =
-          'rgba(255,255,255,.18)';
+          'rgba(255,255,255,0.18)';
 
         ctx.lineWidth = 1;
 
@@ -2577,8 +2702,12 @@ function drawObstacles(
 
       ctx.fillText(
         vData.label,
-        x + blockW / 2 + 6,
-        y + blockH / 2 + 1,
+        x +
+          blockW / 2 +
+          6,
+        y +
+          blockH / 2 +
+          1,
         blockW - 22
       );
 
@@ -2592,20 +2721,22 @@ function drawObstacles(
 
 
 /* =========================================================
-   PLAYER
+   PLAYER DRAW
    ========================================================= */
 
 function drawSinglePlayer() {
 
   let playerY =
-    player.gy * CELL_SIZE +
+    player.gy *
+      CELL_SIZE +
     HUD_HEIGHT +
     CELL_SIZE / 2 +
     visualScrollOffset;
 
 
   let playerX =
-    player.gx * CELL_SIZE +
+    player.gx *
+      CELL_SIZE +
     CELL_SIZE / 2;
 
 
@@ -2620,6 +2751,7 @@ function drawSinglePlayer() {
 
 
   ctx.save();
+
 
   ctx.translate(
     playerX,
@@ -2671,7 +2803,7 @@ function drawSinglePlayer() {
 
 
   ctx.strokeStyle =
-    '#fff';
+    '#ffffff';
 
   ctx.lineWidth = 1.5;
 
@@ -2710,6 +2842,7 @@ function drawSinglePlayer() {
       '#00ff66';
 
     ctx.lineWidth = 2;
+
 
     ctx.beginPath();
 
@@ -2771,7 +2904,7 @@ function drawHUD() {
     'left';
 
   ctx.fillText(
-    currentTheme.name,
+    `${currentTheme.name}`,
     8,
     16
   );
@@ -2788,7 +2921,7 @@ function drawHUD() {
 
 
   ctx.fillStyle =
-    '#fff';
+    '#ffffff';
 
   ctx.font =
     'bold 10px monospace';
@@ -2833,6 +2966,7 @@ function drawHUD() {
   ctx.fillStyle =
     '#ff0055';
 
+
   ctx.fillText(
     `VITE: ${'❤️'.repeat(lives)}`,
     canvas.width - 8,
@@ -2849,7 +2983,7 @@ function drawHUD() {
 function drawTutorial() {
 
   ctx.fillStyle =
-    'rgba(20,20,24,.96)';
+    'rgba(20,20,24,0.96)';
 
   ctx.fillRect(
     0,
@@ -2908,6 +3042,7 @@ function drawTutorial() {
   ctx.textAlign =
     'left';
 
+
   ctx.fillText(
     '1. RISALI LA TIMELINE',
     22,
@@ -2916,10 +3051,11 @@ function drawTutorial() {
 
 
   ctx.fillStyle =
-    '#fff';
+    '#ffffff';
 
   ctx.font =
     '11px sans-serif';
+
 
   ctx.fillText(
     '• Evita i blocchi clip: Media Offline, GPU Crash,',
@@ -2927,11 +3063,13 @@ function drawTutorial() {
     90
   );
 
+
   ctx.fillText(
     '  Lumetri FX e tracce audio fuori sync!',
     22,
     106
   );
+
 
   ctx.fillText(
     '• Avanza verso l\'alto per fare punti!',
@@ -2954,6 +3092,7 @@ function drawTutorial() {
 
   ctx.fill();
 
+
   ctx.strokeStyle =
     '#00ff66';
 
@@ -2971,6 +3110,7 @@ function drawTutorial() {
   ctx.textAlign =
     'left';
 
+
   ctx.fillText(
     '2. POTENZIAMENTI BONUS 🎁',
     22,
@@ -2979,10 +3119,11 @@ function drawTutorial() {
 
 
   ctx.fillStyle =
-    '#fff';
+    '#ffffff';
 
   ctx.font =
     '11px sans-serif';
+
 
   ctx.fillText(
     '• 💾 Auto-Save (+300 PTS) | 🎬 Proxy (2X Punti)',
@@ -2990,11 +3131,13 @@ function drawTutorial() {
     183
   );
 
+
   ctx.fillText(
     '• ⚡ Cache (+150 PTS & Boost Velocità)',
     22,
     199
   );
+
 
   ctx.fillText(
     '• 🛡️ Render Shield: Scudo invincibile temporaneo!',
@@ -3017,6 +3160,7 @@ function drawTutorial() {
 
   ctx.fill();
 
+
   ctx.strokeStyle =
     '#ff0055';
 
@@ -3034,6 +3178,7 @@ function drawTutorial() {
   ctx.textAlign =
     'left';
 
+
   ctx.fillText(
     '3. MALUS TRAPPOLA ⚠️',
     22,
@@ -3042,16 +3187,18 @@ function drawTutorial() {
 
 
   ctx.fillStyle =
-    '#fff';
+    '#ffffff';
 
   ctx.font =
     '11px sans-serif';
+
 
   ctx.fillText(
     '• 🐌 Drop Frame: Rallenta temporaneamente (-100)',
     22,
     279
   );
+
 
   ctx.fillText(
     '• ⚠️ Full Disk: Inverte i comandi di guida! (-200)',
@@ -3068,6 +3215,7 @@ function drawTutorial() {
 
   ctx.textAlign =
     'center';
+
 
   ctx.fillText(
     `RECORD ATTUALE: ${highScore} PTS`,
@@ -3090,8 +3238,9 @@ function drawTutorial() {
 
   ctx.fill();
 
+
   ctx.strokeStyle =
-    '#fff';
+    '#ffffff';
 
   ctx.lineWidth = 1.5;
 
@@ -3099,10 +3248,11 @@ function drawTutorial() {
 
 
   ctx.fillStyle =
-    '#000';
+    '#000000';
 
   ctx.font =
     'bold 12px monospace';
+
 
   ctx.fillText(
     'AVANTI: SCEGLI VIDEOMAKER ►',
@@ -3114,13 +3264,13 @@ function drawTutorial() {
 
 
 /* =========================================================
-   SELEZIONE PERSONAGGIO
+   CHARACTER SELECT
    ========================================================= */
 
 function drawCharSelect() {
 
   ctx.fillStyle =
-    'rgba(20,20,24,.96)';
+    'rgba(20,20,24,0.96)';
 
   ctx.fillRect(
     0,
@@ -3173,6 +3323,7 @@ function drawCharSelect() {
     12
   );
 
+
   ctx.fillStyle =
     '#25252d';
 
@@ -3198,6 +3349,7 @@ function drawCharSelect() {
 
 
   ctx.save();
+
 
   drawRoundRect(
     ctx,
@@ -3234,6 +3386,7 @@ function drawCharSelect() {
 
     ctx.fill();
 
+
     ctx.fillStyle =
       c.primary;
 
@@ -3242,6 +3395,7 @@ function drawCharSelect() {
 
     ctx.textAlign =
       'center';
+
 
     ctx.fillText(
       c.name[0],
@@ -3264,6 +3418,7 @@ function drawCharSelect() {
     12
   );
 
+
   ctx.strokeStyle =
     c.primary;
 
@@ -3281,6 +3436,7 @@ function drawCharSelect() {
   ctx.textAlign =
     'center';
 
+
   ctx.fillText(
     c.name,
     CANVAS_W / 2,
@@ -3289,10 +3445,11 @@ function drawCharSelect() {
 
 
   ctx.fillStyle =
-    '#fff';
+    '#ffffff';
 
   ctx.font =
     'bold 11px -apple-system, sans-serif';
+
 
   ctx.fillText(
     c.subtitle,
@@ -3307,6 +3464,7 @@ function drawCharSelect() {
   ctx.font =
     '10px monospace';
 
+
   ctx.fillText(
     c.perkBonus,
     CANVAS_W / 2,
@@ -3317,6 +3475,7 @@ function drawCharSelect() {
   ctx.fillStyle =
     '#ff0055';
 
+
   ctx.fillText(
     c.perkMalus,
     CANVAS_W / 2,
@@ -3324,36 +3483,110 @@ function drawCharSelect() {
   );
 
 
+  /*
+   * NUOVA ISTRUZIONE:
+   * il centrale del joystick è OK
+   */
+
   ctx.fillStyle =
     c.primary;
 
   ctx.font =
     'bold 12px monospace';
 
+
   ctx.fillText(
-    'CENTRO = OK',
+    '◄  CAMBIA CON ◀ / ▶',
     CANVAS_W / 2,
-    cardY + 310
+    cardY + 304
   );
 
 
   ctx.fillStyle =
-    '#00d2ff';
+    '#00ff66';
 
   ctx.font =
-    'bold 16px monospace';
+    'bold 12px monospace';
+
 
   ctx.fillText(
-    '◄  CAMBIA PERSONAGGIO  ►',
+    'PREMI OK PER CONFERMARE',
     CANVAS_W / 2,
-    cardY + cardH + 20
+    cardY + 326
+  );
+
+
+  /*
+   * frecce grafiche
+   */
+
+  ctx.fillStyle =
+    '#ffffff';
+
+  ctx.font =
+    'bold 18px monospace';
+
+
+  ctx.fillText(
+    '◀',
+    cardX + 35,
+    cardY + 350
+  );
+
+
+  ctx.fillText(
+    '▶',
+    cardX + cardW - 35,
+    cardY + 350
+  );
+
+
+  /*
+   * centrale OK visualizzato
+   */
+
+  drawRoundRect(
+    ctx,
+    CANVAS_W / 2 - 42,
+    cardY + 337,
+    84,
+    32,
+    7
+  );
+
+
+  ctx.fillStyle =
+    '#111';
+
+  ctx.fill();
+
+
+  ctx.strokeStyle =
+    '#00ff66';
+
+  ctx.lineWidth = 1.5;
+
+  ctx.stroke();
+
+
+  ctx.fillStyle =
+    '#00ff66';
+
+  ctx.font =
+    'bold 11px monospace';
+
+
+  ctx.fillText(
+    'OK',
+    CANVAS_W / 2,
+    cardY + 358
   );
 
 }
 
 
 /* =========================================================
-   SELEZIONE PERSONAGGIO
+   CHARACTER INPUT
    ========================================================= */
 
 function handleSelectionInput(dir) {
@@ -3386,65 +3619,13 @@ function handleSelectionInput(dir) {
 
 
 /* =========================================================
-   CONFERMA CENTRALE
-   ========================================================= */
-
-function confirmMenu() {
-
-  getAC();
-
-  playSound('pickup');
-
-
-  if (
-    gameState === 'TUTORIAL'
-  ) {
-
-    gameState =
-      'CHAR_SELECT';
-
-    return;
-
-  }
-
-
-  if (
-    gameState === 'CHAR_SELECT'
-  ) {
-
-    selectCharacter(
-      CHARACTER_LIST[
-        selectedCharIndex
-      ]
-    );
-
-    return;
-
-  }
-
-
-  if (
-    gameState === 'GAME_OVER'
-  ) {
-
-    gameState =
-      'CHAR_SELECT';
-
-    return;
-
-  }
-
-}
-
-
-/* =========================================================
    LEVEL CLEAR
    ========================================================= */
 
 function drawLevelClear() {
 
   ctx.fillStyle =
-    'rgba(20,20,24,.88)';
+    'rgba(20,20,24,0.88)';
 
   ctx.fillRect(
     0,
@@ -3521,7 +3702,7 @@ function drawLevelClear() {
 function drawGameOver() {
 
   ctx.fillStyle =
-    'rgba(20,20,24,.94)';
+    'rgba(20,20,24,0.94)';
 
   ctx.fillRect(
     0,
@@ -3580,7 +3761,7 @@ function drawGameOver() {
     Math.floor(
       Date.now() / 400
     ) % 2 === 0
-      ? '#fff'
+      ? '#ffffff'
       : currentTheme.primary;
 
 
@@ -3589,7 +3770,7 @@ function drawGameOver() {
 
 
   ctx.fillText(
-    'CENTRO = GIOCA ANCORA',
+    '► TOCCA PER GIOCARE ANCORA ◄',
     canvas.width / 2,
     canvas.height / 2 + 80
   );
@@ -3598,13 +3779,13 @@ function drawGameOver() {
 
 
 /* =========================================================
-   PAUSA
+   PAUSE
    ========================================================= */
 
 function drawPause() {
 
   ctx.fillStyle =
-    'rgba(0,0,0,.75)';
+    'rgba(0,0,0,0.75)';
 
   ctx.fillRect(
     0,
@@ -3684,9 +3865,11 @@ function gameLoop() {
     ) {
 
       updateVehicles();
+
       updatePlayer();
 
       drawGameWorld();
+
       drawHUD();
 
     }
@@ -3696,7 +3879,9 @@ function gameLoop() {
     ) {
 
       drawGameWorld();
+
       drawHUD();
+
       drawPause();
 
     }
@@ -3706,7 +3891,9 @@ function gameLoop() {
     ) {
 
       drawGameWorld();
+
       drawLevelClear();
+
       drawHUD();
 
     }
@@ -3716,6 +3903,7 @@ function gameLoop() {
     ) {
 
       drawGameWorld();
+
       drawGameOver();
 
     }
@@ -3725,7 +3913,7 @@ function gameLoop() {
   catch(err) {
 
     console.error(
-      'Game Loop Error:',
+      "Game Loop Error:",
       err
     );
 
@@ -3740,12 +3928,10 @@ function gameLoop() {
 
 
 /* =========================================================
-   PERSONAGGIO
+   SELECT CHARACTER
    ========================================================= */
 
-function selectCharacter(
-  charKey
-) {
+function selectCharacter(charKey) {
 
   currentTheme =
     CHARACTERS[charKey];
@@ -3772,7 +3958,7 @@ function selectCharacter(
 
 
 /* =========================================================
-   TOUCH CANVAS
+   CANVAS INPUT
    ========================================================= */
 
 canvas.addEventListener(
@@ -3836,11 +4022,16 @@ canvas.addEventListener(
     ) {
 
       /*
-       * Nel menu il canvas NON conferma più.
-       * La conferma avviene solo dal tasto centrale.
+       * Ora il canvas NON conferma più
+       * semplicemente toccandolo.
+       *
+       * La conferma avviene dal
+       * pulsante centrale OK.
        */
 
-      if (y >= 400) {
+      if (
+        y >= 400
+      ) {
 
         handleSelectionInput(
           x < CANVAS_W / 2
@@ -3893,10 +4084,8 @@ canvas.addEventListener(
       gameState === 'GAME_OVER'
     ) {
 
-      /*
-       * Anche GAME OVER viene
-       * confermato dal tasto centrale.
-       */
+      gameState =
+        'CHAR_SELECT';
 
       return;
 
@@ -3910,16 +4099,17 @@ canvas.addEventListener(
 
 
 /* =========================================================
-   NUOVO SISTEMA TASTI
+   D-PAD
    ========================================================= */
 
-function bindDirectionBtn(
+function bindBtn(
   id,
-  directionSetter
+  onPress
 ) {
 
-  const btn =
+  let btn =
     document.getElementById(id);
+
 
   if (!btn) return;
 
@@ -3932,29 +4122,21 @@ function bindDirectionBtn(
         e.preventDefault();
       }
 
+
       getAC();
 
 
       /*
-       * DURANTE I MENU:
-       *
-       * SINISTRA / DESTRA
-       * cambiano personaggio.
-       *
-       * SU / GIÙ
-       * non confermano nulla.
-       *
-       * DURANTE IL GIOCO:
-       * funzionano normalmente.
+       * Nel menu:
+       * SINISTRA / DESTRA = cambio
+       * SU / GIÙ = niente
        */
 
       if (
         gameState === 'CHAR_SELECT'
       ) {
 
-        if (
-          id === 'btnLeft'
-        ) {
+        if (id === 'btnLeft') {
 
           handleSelectionInput(-1);
 
@@ -3973,17 +4155,45 @@ function bindDirectionBtn(
       }
 
 
+      /*
+       * Tutorial:
+       * qualsiasi freccia porta
+       * alla selezione.
+       */
+
       if (
-        gameState === 'TUTORIAL' ||
-        gameState === 'GAME_OVER'
+        gameState === 'TUTORIAL'
       ) {
+
+        gameState =
+          'CHAR_SELECT';
+
+        playSound('cross');
 
         return;
 
       }
 
 
-      directionSetter(true);
+      /*
+       * Game Over:
+       * qualsiasi freccia riapre
+       * la selezione.
+       */
+
+      if (
+        gameState === 'GAME_OVER'
+      ) {
+
+        gameState =
+          'CHAR_SELECT';
+
+        return;
+
+      }
+
+
+      onPress(true);
 
     },
     {
@@ -4000,8 +4210,7 @@ function bindDirectionBtn(
         e.preventDefault();
       }
 
-
-      directionSetter(false);
+      onPress(false);
 
     },
     {
@@ -4013,9 +4222,7 @@ function bindDirectionBtn(
   btn.addEventListener(
     'pointercancel',
     () => {
-
-      directionSetter(false);
-
+      onPress(false);
     }
   );
 
@@ -4023,43 +4230,45 @@ function bindDirectionBtn(
   btn.addEventListener(
     'pointerleave',
     () => {
-
-      directionSetter(false);
-
+      onPress(false);
     }
   );
 
 }
 
 
-bindDirectionBtn(
+/* =========================================================
+   D-PAD NORMALI
+   ========================================================= */
+
+bindBtn(
   'btnUp',
-  value => {
-    moveUp = value;
+  isDown => {
+    moveUp = isDown;
   }
 );
 
 
-bindDirectionBtn(
+bindBtn(
   'btnDown',
-  value => {
-    moveDown = value;
+  isDown => {
+    moveDown = isDown;
   }
 );
 
 
-bindDirectionBtn(
+bindBtn(
   'btnLeft',
-  value => {
-    moveLeft = value;
+  isDown => {
+    moveLeft = isDown;
   }
 );
 
 
-bindDirectionBtn(
+bindBtn(
   'btnRight',
-  value => {
-    moveRight = value;
+  isDown => {
+    moveRight = isDown;
   }
 );
 
@@ -4085,7 +4294,48 @@ btnCenter.addEventListener(
 
     getAC();
 
-    confirmMenu();
+
+    if (
+      gameState === 'CHAR_SELECT'
+    ) {
+
+      selectCharacter(
+        CHARACTER_LIST[
+          selectedCharIndex
+        ]
+      );
+
+      playSound('pickup');
+
+      return;
+
+    }
+
+
+    if (
+      gameState === 'TUTORIAL'
+    ) {
+
+      gameState =
+        'CHAR_SELECT';
+
+      playSound('cross');
+
+      return;
+
+    }
+
+
+    if (
+      gameState === 'GAME_OVER'
+    ) {
+
+      gameState =
+        'CHAR_SELECT';
+
+      return;
+
+    }
 
   },
   {
@@ -4095,7 +4345,7 @@ btnCenter.addEventListener(
 
 
 /* =========================================================
-   TASTIERA FISICA
+   KEYBOARD
    ========================================================= */
 
 const keys = {};
@@ -4111,17 +4361,15 @@ window.addEventListener(
 
 
     if (
-      gameState === 'TUTORIAL'
-    ) {
-
-      if (
+      gameState === 'TUTORIAL' &&
+      (
         e.code === 'Space' ||
         e.code === 'Enter'
-      ) {
+      )
+    ) {
 
-        confirmMenu();
-
-      }
+      gameState =
+        'CHAR_SELECT';
 
     }
 
@@ -4150,16 +4398,16 @@ window.addEventListener(
       }
 
 
-      /*
-       * ENTER / SPACE = OK
-       */
-
       if (
         e.code === 'Space' ||
         e.code === 'Enter'
       ) {
 
-        confirmMenu();
+        selectCharacter(
+          CHARACTER_LIST[
+            selectedCharIndex
+          ]
+        );
 
       }
 
@@ -4167,17 +4415,15 @@ window.addEventListener(
 
 
     else if (
-      gameState === 'GAME_OVER'
-    ) {
-
-      if (
+      gameState === 'GAME_OVER' &&
+      (
         e.code === 'Space' ||
         e.code === 'Enter'
-      ) {
+      )
+    ) {
 
-        confirmMenu();
-
-      }
+      gameState =
+        'CHAR_SELECT';
 
     }
 
@@ -4203,7 +4449,7 @@ function keyPressed(code) {
 
 
 /* =========================================================
-   SALVATAGGIO
+   SAVE SCORE
    ========================================================= */
 
 function saveScore() {
@@ -4214,7 +4460,8 @@ function saveScore() {
       score > highScore
     ) {
 
-      highScore = score;
+      highScore =
+        score;
 
       localStorage.setItem(
         'deadlineDrive_highScore',
@@ -4274,7 +4521,7 @@ function saveScore() {
       if (
         curUser.username &&
         !curUser.username.startsWith(
-          'GUEST_'
+          "GUEST_"
         )
       ) {
 
@@ -4316,7 +4563,7 @@ function saveScore() {
   catch(e) {
 
     console.warn(
-      'Save score error:',
+      "Save score error:",
       e
     );
 
@@ -4326,7 +4573,7 @@ function saveScore() {
 
 
 /* =========================================================
-   USCITA
+   EXIT
    ========================================================= */
 
 function exitGame() {
