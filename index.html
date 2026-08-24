@@ -469,26 +469,40 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        const vWidth = this.scale.width;
-        const vHeight = this.scale.height;
+        const vWidth = 360;
+        const vHeight = this.scale.height; // Altezza reale calcolata da Phaser
 
+        // INIZIALIZZAZIONE PIPELINE GREENKEY
         if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('GreenKey')) {
             this.game.renderer.pipelines.add('GreenKey', new GreenKeyPipeline(this.game));
         }
 
+        // SFONDO SCALATO A 740 PER MANTENERE IL RAPPORTO E LA PROSPETTIVA PERFETTA
         let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
-        let bgScale = vHeight / bg.height;
+        let bgScale = 740 / bg.height;
         bg.setScale(bgScale);
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONAMENTO PROPORZIONALE
-        const floorY = vHeight * (568 / 740);
-        const gabriY = vHeight * (558 / 740);
-        const npcY = vHeight * (563 / 740);
-        const cabY = vHeight * (548 / 740);
-        const cabBadgeY = vHeight * (330 / 740);
+        // ESTENSIONE DEL PARQUET IN LEGNO SOTTO AI 740PX PER COPRIRE LO SCHERMO DELL'IPHONE
+        if (vHeight > 735) {
+            let floorExt = this.add.graphics().setDepth(0);
+            floorExt.fillStyle(0xba855c, 1); // Colore legno parquet originale
+            floorExt.fillRect(0, 735, worldWidth + 500, vHeight - 735);
 
+            let floorLine = this.add.graphics().setDepth(0);
+            floorLine.fillStyle(0x8a5d3b, 1); // Riga scura di separazione assi
+            floorLine.fillRect(0, 735, worldWidth + 500, 2);
+        }
+
+        // POSIZIONI Y FISSE SUL PARQUET ORIGINALE (NESSUN PERSONAGGIO CHE VOLTEGGIA!)
+        const floorY = 568;
+        const gabriY = 558;
+        const npcY = 563;
+        const cabY = 548;
+        this.cabBadgeY = 330;
+
+        // VIDEO MP4 RENDERIZZATI IN WEBGL CON PIPELINE GREENKEY
         this.gabri = this.add.video(150, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
         this.gabri.play(true); this.gabri.setMute(true);
@@ -521,11 +535,11 @@ class MainHub extends Phaser.Scene {
         updateHeaderDOM();
 
         this.cabinets = [
-            { x: 1471, y: cabY, badgeX: 1471, badgeY: cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
-            { x: 1610, y: cabY, badgeX: 1610, badgeY: cabBadgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
-            { x: 1742, y: cabY, badgeX: 1742, badgeY: cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
-            { x: 1882, y: cabY, badgeX: 1882, badgeY: cabBadgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
-            { x: 2800, y: cabY, badgeX: 2800, badgeY: cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
+            { x: 1471, y: cabY, badgeX: 1471, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
+            { x: 1610, y: cabY, badgeX: 1610, badgeY: this.cabBadgeY, title: "CYBER RUN", key: "cyberRun", type: "game", url: "./pacman.html" },
+            { x: 1742, y: cabY, badgeX: 1742, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
+            { x: 1882, y: cabY, badgeX: 1882, badgeY: this.cabBadgeY, title: "DEADLINE DODGE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
+            { x: 2800, y: cabY, badgeX: 2800, badgeY: this.cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
         ];
 
         this.cabinetSprites = [];
@@ -689,16 +703,14 @@ class MainHub extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(this.keyEnter)) this.interact();
 
         let activeCabinet = null;
-        const cabBadgeY = this.scale.height * (330 / 740);
-
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y) < 70) {
-            this.infoBox.setPosition(this.gabri.x, cabBadgeY); this.boxTitleText.setText("Gabri"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+            this.infoBox.setPosition(this.gabri.x, this.cabBadgeY); this.boxTitleText.setText("Gabri"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
         }
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y) < 70) {
-            this.infoBox.setPosition(this.npc.x, cabBadgeY); this.boxTitleText.setText("Giovannone"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+            this.infoBox.setPosition(this.npc.x, this.cabBadgeY); this.boxTitleText.setText("Giovannone"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
         }
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y) < 70) {
-            this.infoBox.setPosition(this.raffa.x, cabBadgeY); this.boxTitleText.setText("Raffa"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
+            this.infoBox.setPosition(this.raffa.x, this.cabBadgeY); this.boxTitleText.setText("Raffa"); this.boxActionText.setText("PARLA 💬"); this.infoBox.setVisible(true); return;
         }
 
         for (let cab of this.cabinetSprites) {
@@ -715,7 +727,7 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// CALCOLO DINAMICO PER CORRISPONDERE ALL'ASPECT RATIO DELLO SCHERMO REALE
+// CALCOLO DINAMICO DEL RAPPORTO D'ASPECT PER ADATTARE PHASER AL DISPLAY DELL'IPHONE
 const screenW = window.innerWidth || 360;
 const screenH = window.innerHeight || 740;
 const GAME_WIDTH = 360;
