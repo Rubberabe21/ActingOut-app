@@ -544,11 +544,9 @@ class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 
                 void main() {
                     vec4 texColor = texture2D(uMainSampler, outTexCoord);
-                    vec3 keyColor1 = vec3(0.235, 1.0, 0.0);
-                    vec3 keyColor2 = vec3(0.431, 0.604, 0.396); // #6E9A65
-                    float diff1 = distance(texColor.rgb, keyColor1);
-                    float diff2 = distance(texColor.rgb, keyColor2);
-                    if (diff1 < 0.45 || diff2 < 0.35) {
+                    vec3 keyColor = vec3(0.2392, 1.0, 0.0118); // #3DFF03
+                    float diff = distance(texColor.rgb, keyColor);
+                    if (diff < 0.45) {
                         discard;
                     } else {
                         gl_FragColor = texColor * outTint;
@@ -697,7 +695,7 @@ class MainHub extends Phaser.Scene {
         this.gabri.play(true);
         this.gabri.setMute(true);
 
-        this.pierri = this.add.video(160, 580, 'pierri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        this.pierri = this.add.video(440, 580, 'pierri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.pierri.setPipeline) this.pierri.setPipeline('GreenKey');
         this.pierri.play(true);
         this.pierri.setMute(true);
