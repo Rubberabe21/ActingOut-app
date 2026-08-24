@@ -469,7 +469,7 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // LETTURA DINAMICA DELL'ALTEZZA DELLA SCENA PHASER
+        // SCALA DINAMICA SULLE DIMENSIONI REALI DEL CANVAS PHASER
         const vWidth = this.scale.width;
         const vHeight = this.scale.height;
         const scaleRatioY = vHeight / 740;
@@ -485,7 +485,7 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONAMENTO PROPORZIONALE
+        // POSIZIONI RIPROPORZIONATE ALLA SCALA VERTICALE REALE DELLO SCHERMO
         this.cabBadgeY = 330 * scaleRatioY;
         const floorY = 568 * scaleRatioY;
         const gabriY = 558 * scaleRatioY;
@@ -717,7 +717,7 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// CALCOLO DINAMICO DELLE PROPORZIONI DELLO SCHERMO
+// CALCOLO DINAMICO DEL RAPPORTO D'ASPECT EFFETTIVO DELLO SCHERMO REALE
 const screenW = window.innerWidth || 360;
 const screenH = window.innerHeight || 740;
 const GAME_WIDTH = 360;
