@@ -23,6 +23,7 @@
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent !important;
             -webkit-touch-callout: none !important;
+            -webkit-focus-ring-color: transparent !important;
             outline: none !important;
             border: none;
             touch-action: manipulation;
@@ -35,8 +36,8 @@
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            width: 100vw !important;
-            height: 100dvh !important;
+            width: 100% !important;
+            height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
@@ -44,25 +45,43 @@
             background-color: #000000 !important;
         }
 
-        #game-wrapper, #game-container {
+        #game-wrapper {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
             background: #000000 !important;
+            box-shadow: none !important;
+            border: none !important;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000000 !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* FORZA IL GIOCO AD ATTACCARSI AL FONDO */
+            align-items: center;
+        }
 
-        /* FORZA IL CANVAS A STIRARSI FINO AI BORDI ASSOLUTI DELLO SCHERMO */
         #game-container canvas {
             display: block;
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            margin-top: auto !important; /* LO SPAZIO IN ECCESSO VA SUL SOFFITTO */
+            margin-bottom: 0 !important; /* INCOLLATO AL BORDO INFERIORE DEL TELEFONO */
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
 
         #top-header-bar {
@@ -79,7 +98,7 @@
         }
         .header-btn {
             background: #060614;
-            border: 1.5px solid #ff0055;
+            border: 1.5px solid #ff0055 !important;
             color: #ffff00;
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
@@ -92,7 +111,7 @@
         .header-btn:active { transform: scale(0.95); }
         #header-score-btn {
             color: #ff0055;
-            border-color: #ff0055;
+            border-color: #ff0055 !important;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
@@ -111,16 +130,17 @@
             width: 100%;
             max-width: 320px;
             background: #090918;
-            border: 2px solid #ff0055;
+            border: 2px solid #ff0055 !important;
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
             border-radius: 14px;
             padding: 18px;
             text-align: center;
             color: #fff;
         }
+
         .profile-card-header {
             background: linear-gradient(90deg, #150520, #051525);
-            border: 1px solid #ff0055;
+            border: 1px solid #ff0055 !important;
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 12px;
@@ -132,38 +152,110 @@
             text-align: left;
         }
         .profile-avatar {
-            width: 44px; height: 44px; background: #250515;
-            border: 2px solid #ff0055; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 22px; box-shadow: 0 0 10px #ff0055; overflow: hidden;
+            width: 44px;
+            height: 44px;
+            background: #250515;
+            border: 2px solid #ff0055 !important;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            box-shadow: 0 0 10px #ff0055;
+            overflow: hidden;
         }
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .profile-rank-title { color: #ffff00; font-size: 11px; font-weight: bold; letter-spacing: 1px; }
         .profile-username { color: #ffffff; font-size: 15px; font-weight: bold; }
         
-        .xp-bar-container { width: 100%; background: #04040a; border: 1px solid #ff0055; height: 10px; border-radius: 5px; margin-top: 8px; overflow: hidden; }
-        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #ffff00, #ff0055); width: 0%; box-shadow: 0 0 8px #ff0055; transition: width 0.4s ease; }
+        .xp-bar-container {
+            width: 100%;
+            background: #04040a;
+            border: 1px solid #ff0055 !important;
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffff00, #ff0055);
+            width: 0%;
+            box-shadow: 0 0 8px #ff0055;
+            transition: width 0.4s ease;
+        }
         
-        .badges-row { display: flex; justify-content: space-around; background: #04040a; border: 1px dashed rgba(255, 0, 85, 0.4); border-radius: 8px; padding: 8px; margin-bottom: 12px; }
+        .badges-row {
+            display: flex;
+            justify-content: space-around;
+            background: #04040a;
+            border: 1px dashed rgba(255, 0, 85, 0.4) !important;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
         .badge-item { font-size: 18px; filter: grayscale(1); opacity: 0.3; transition: all 0.3s; }
         .badge-item.unlocked { filter: grayscale(0); opacity: 1; transform: scale(1.1); }
         
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
-        .stat-card { background: #04040a; border: 1px solid rgba(255, 0, 85, 0.4); border-radius: 8px; padding: 8px 4px; text-align: center; }
+        .stat-card {
+            background: #04040a;
+            border: 1px solid rgba(255, 0, 85, 0.4) !important;
+            border-radius: 8px;
+            padding: 8px 4px;
+            text-align: center;
+        }
         .stat-card .val { color: #ffff00; font-size: 13px; font-weight: bold; }
         .stat-card .lbl { color: #ff0055; font-size: 8px; margin-top: 2px; text-transform: uppercase; font-weight: bold; }
 
         .tab-selector { display: flex; justify-content: space-around; gap: 4px; margin-bottom: 10px; }
-        .tab-btn { background: #101528; border: 1px solid #ff0055; color: #ffffff; font-size: 9px; padding: 5px 6px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .tab-btn.active { background: #ff0055; color: #fff; border-color: #ff0055; box-shadow: 0 0 8px rgba(255, 0, 85, 0.6); }
+        .tab-btn {
+            background: #101528;
+            border: 1px solid #ff0055 !important;
+            color: #ffffff;
+            font-size: 9px;
+            padding: 5px 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-btn.active { background: #ff0055; color: #fff; border-color: #ff0055 !important; box-shadow: 0 0 8px rgba(255, 0, 85, 0.6); }
         
-        .leaderboard-list { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; max-height: 190px; overflow-y: auto; text-align: left; }
-        .leaderboard-row { background: #04040a; border: 1px solid rgba(255, 0, 85, 0.3); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; }
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 10px 0;
+            max-height: 190px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        .leaderboard-row {
+            background: #04040a;
+            border: 1px solid rgba(255, 0, 85, 0.3) !important;
+            border-radius: 6px;
+            padding: 6px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .leaderboard-row .rank-pos { color: #ffff00; font-size: 11px; font-weight: bold; width: 24px; }
         .leaderboard-row .player-name { color: #ffffff; font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .leaderboard-row .score-val { color: #ffff00; font-size: 11px; font-weight: bold; }
 
-        .auth-btn { width: 100%; padding: 10px; margin-top: 4px; background: #ff0055; color: #fff; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 0 10px rgba(255, 0, 85, 0.6); }
+        .auth-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            background: #ff0055;
+            color: #fff;
+            border: none !important;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+        }
         .auth-btn:active { transform: scale(0.96); }
 
         .crt-overlay {
@@ -206,7 +298,9 @@ if (!sessionStorage.getItem('arcade_session_active')) {
                         <div id="profile-username" class="profile-username">PLAYER_1</div>
                     </div>
                 </div>
-                <div class="xp-bar-container"><div id="profile-xp-fill" class="xp-bar-fill"></div></div>
+                <div class="xp-bar-container">
+                    <div id="profile-xp-fill" class="xp-bar-fill"></div>
+                </div>
             </div>
 
             <div class="badges-row">
@@ -232,15 +326,18 @@ if (!sessionStorage.getItem('arcade_session_active')) {
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <h2 style="color:#ff0055;">🌍 CLASSIFICA MONDIALE</h2>
+
             <div class="tab-selector">
                 <button class="tab-btn active" id="tab-feedbackInvaders" onclick="switchLBTab('feedbackInvaders')">INVADERS</button>
                 <button class="tab-btn" id="tab-cyberRun" onclick="switchLBTab('cyberRun')">CYBER RUN</button>
                 <button class="tab-btn" id="tab-pixelPunch" onclick="switchLBTab('pixelPunch')">PUNCH</button>
                 <button class="tab-btn" id="tab-deadlineDrive" onclick="switchLBTab('deadlineDrive')">DODGE</button>
             </div>
+
             <div class="leaderboard-list" id="lb-records-list">
                 <div class="leaderboard-row"><span class="player-name">Caricamento classifiche...</span></div>
             </div>
+
             <button id="lb-close-btn" class="auth-btn">CHIUDI CLASSIFICA</button>
         </div>
     </div>
@@ -272,7 +369,11 @@ class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
                     vec4 texColor = texture2D(uMainSampler, outTexCoord);
                     vec3 keyColor = vec3(0.235, 1.0, 0.0);
                     float diff = distance(texColor.rgb, keyColor);
-                    if (diff < 0.45) { discard; } else { gl_FragColor = texColor * outTint; }
+                    if (diff < 0.45) {
+                        discard;
+                    } else {
+                        gl_FragColor = texColor * outTint;
+                    }
                 }
             `
         });
@@ -280,9 +381,15 @@ class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 }
 
 class AuthManager {
-    constructor() { this.currentUser = null; this.init(); }
+    constructor() {
+        this.currentUser = null;
+        this.init();
+    }
+
     init() {
-        if (!localStorage.getItem('arcade_users')) localStorage.setItem('arcade_users', JSON.stringify({}));
+        if (!localStorage.getItem('arcade_users')) {
+            localStorage.setItem('arcade_users', JSON.stringify({}));
+        }
         const savedUser = localStorage.getItem('arcade_current_user');
         if (savedUser) {
             this.currentUser = JSON.parse(savedUser);
@@ -295,8 +402,10 @@ class AuthManager {
             window.location.replace('./start.html');
         }
     }
+
     getUsers() { return JSON.parse(localStorage.getItem('arcade_users')) || {}; }
     saveUsers(users) { localStorage.setItem('arcade_users', JSON.stringify(users)); }
+
     getRankInfo() {
         let totalPts = 0;
         if (this.currentUser) {
@@ -309,15 +418,25 @@ class AuthManager {
         if (totalPts >= 100)  return { title: "CHALLENGER 🕹️", level: 2, xpPct: (totalPts - 100) };
         return { title: "ROOKIE 🐣", level: 1, xpPct: totalPts };
     }
-    logout() { localStorage.removeItem('arcade_current_user'); window.location.replace('./start.html'); }
+
+    logout() {
+        localStorage.removeItem('arcade_current_user');
+        window.location.replace('./start.html');
+    }
 }
+
 const auth = new AuthManager();
 
 function updateHeaderDOM() {
     const userBtn = document.getElementById('header-user-btn');
     const scoreBtn = document.getElementById('header-score-btn');
-    if (auth.currentUser && auth.currentUser.username) { userBtn.innerText = "👤 " + auth.currentUser.username; } 
-    else { userBtn.innerText = "👤 LOGIN"; }
+
+    if (auth.currentUser && auth.currentUser.username) {
+        userBtn.innerText = "👤 " + auth.currentUser.username;
+    } else {
+        userBtn.innerText = "👤 LOGIN";
+    }
+
     if (auth.currentUser && auth.currentUser.stats) {
         let s = auth.currentUser.stats;
         let totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
@@ -331,20 +450,13 @@ document.getElementById('header-user-btn').addEventListener('click', () => {
 });
 document.getElementById('header-score-btn').addEventListener('click', () => { openProfileModal(); });
 
-// CALCOLO ALTEZZA DINAMICA IN BASE ALLO SCHERMO REALE
-const screenW = window.innerWidth;
-const screenH = window.innerHeight;
-// La larghezza logica è fissa a 360
-const GAME_WIDTH = 360;
-// L'altezza logica viene allungata dinamicamente in base allo schermo del tuo telefono!
-const GAME_HEIGHT = Math.max(740, Math.floor(GAME_WIDTH * (screenH / screenW)));
-
 class MainHub extends Phaser.Scene {
     constructor() { super({ key: 'MainHub' }); }
 
     preload() {
         this.load.image('background', 'assets/hub/background.png');
         this.load.image('logo', 'assets/hub/logo.png');
+
         this.load.video('npc_video', 'assets/hub/personaggio.mp4', 'loadeddata', false, true);
         this.load.video('gabri_video', 'assets/hub/gabri.mp4', 'loadeddata', false, true);
         this.load.video('raffa_video', 'assets/hub/raffa.mp4', 'loadeddata', false, true);
@@ -360,32 +472,35 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        const vWidth = GAME_WIDTH;
-        const vHeight = GAME_HEIGHT; // Usa l'altezza calcolata appositamente
+        const vWidth = 360;
+        // ALZATO L'ALTEZZA A 800 PER FARE SPAZIO AL TUO NUOVO SOFFITTO
+        const vHeight = 800; 
+
+        // ========================================================
+        // 🔥 SPOSTA IL GIOCO QUI 🔥
+        // Aumenta questo valore (es: 30, 50) per spingere tutto in basso
+        // Diminuiscilo (es: -20, -40) per tirare tutto in alto
+        const SPOSTAMENTO_Y = 30; 
+        // ========================================================
 
         if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('GreenKey')) {
             this.game.renderer.pipelines.add('GreenKey', new GreenKeyPipeline(this.game));
         }
 
-        // SFONDO ANCORATO AL FONDO (setOrigin 0, 1 -> y = vHeight)
-        let bg = this.add.image(0, vHeight, 'background').setOrigin(0, 1).setDepth(0);
-        
-        // Lo sfondo si adatta in larghezza
+        // Lo sfondo è ancorato al fondo (vHeight) + il tuo SPOSTAMENTO_Y
+        let bg = this.add.image(0, vHeight + SPOSTAMENTO_Y, 'background').setOrigin(0, 1).setDepth(0);
         let bgScale = vWidth / bg.width;
-        // Se c'è più soffitto e l'altezza richiede più spazio, si adatta all'altezza
-        if (bg.height * bgScale < vHeight) { bgScale = vHeight / bg.height; }
         bg.setScale(bgScale);
 
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONI ANCORATE AL FONDO DEL DISPLAY 
-        // (vHeight - X) garantisce che i piedi tocchino il pavimento vero, a prescindere dall'altezza dell'iPhone
-        const floorY = vHeight - 172;
-        const gabriY = vHeight - 182;
-        const npcY = vHeight - 177;
-        const cabY = vHeight - 192;
-        this.cabBadgeY = vHeight - 410;
+        // Anche il pavimento e i personaggi seguono lo spostamento
+        const floorY = vHeight - 172 + SPOSTAMENTO_Y;
+        const gabriY = vHeight - 182 + SPOSTAMENTO_Y;
+        const npcY   = vHeight - 177 + SPOSTAMENTO_Y;
+        const cabY   = vHeight - 192 + SPOSTAMENTO_Y;
+        this.cabBadgeY = vHeight - 410 + SPOSTAMENTO_Y;
 
         this.gabri = this.add.video(150, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
         if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
@@ -409,8 +524,9 @@ class MainHub extends Phaser.Scene {
         this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
         this.player.play('idle');
 
-        let logo = this.add.image(vWidth / 2, 85, 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
+        let logo = this.add.image(vWidth / 2, 85 + Math.min(0, SPOSTAMENTO_Y), 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
         logo.setDisplaySize(280, (logo.height / logo.width) * 280);
+
         this.tweens.add({ targets: logo, scaleX: logo.scaleX * 1.03, scaleY: logo.scaleY * 1.03, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
         updateHeaderDOM();
@@ -608,15 +724,16 @@ class MainHub extends Phaser.Scene {
     }
 }
 
+// SCALE FIT SBLOCCATA VERTICALMENTE (Solo CENTER_HORIZONTALLY)
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
     backgroundColor: '#000000',
     scale: { 
         mode: Phaser.Scale.FIT, 
-        autoCenter: Phaser.Scale.CENTER_BOTH, 
-        width: GAME_WIDTH, 
-        height: GAME_HEIGHT 
+        autoCenter: Phaser.Scale.CENTER_HORIZONTALLY, 
+        width: 360, 
+        height: 800 // ALZATO PER FARE SPAZIO AL SOFFITTO
     },
     physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
     scene: [MainHub]
