@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Deadline Drive - Studio Cross</title>
 <style>
 * {
@@ -11,11 +11,14 @@
   padding: 0;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-focus-ring-color: transparent !important;
+  outline: none !important;
   touch-action: manipulation;
   font-family: 'Courier New', Courier, monospace;
 }
 body {
-  background-color: #030305;
+  background-color: #030305 !important;
   color: #fff;
   display: flex;
   justify-content: center;
@@ -34,9 +37,9 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 6px;
-  background: #080816;
-  border: 1.5px solid rgba(0, 255, 204, 0.3);
-  box-shadow: 0 0 35px rgba(0, 255, 204, 0.2);
+  background: #080816 !important;
+  border: none !important;
+  box-shadow: none !important;
   border-radius: 14px;
 }
 #canvas-container {
@@ -54,14 +57,13 @@ canvas {
   height: auto;
   aspect-ratio: 338 / 486;
   object-fit: contain;
-  border: 2px solid #00ffcc;
-  box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2), 0 0 20px rgba(0, 255, 204, 0.15);
+  border: 2px solid #ff0055 !important;
+  box-shadow: inset 0 0 15px rgba(255, 0, 85, 0.2) !important;
   border-radius: 10px;
   background: #04040c;
   cursor: pointer;
 }
 
-/* PLANCIA CONTROLLI XL CENTRATA ED ERGONOMICA */
 .control-deck {
   width: 100%;
   display: flex;
@@ -69,8 +71,8 @@ canvas {
   align-items: center;
   padding: 8px;
   background: linear-gradient(180deg, #121428 0%, #050610 100%);
-  border: 2px solid #00ffcc;
-  box-shadow: inset 0 0 15px rgba(0,255,204,0.15), 0 0 20px rgba(0,255,204,0.25);
+  border: 2px solid #ff0055 !important;
+  box-shadow: inset 0 0 15px rgba(255,0,85,0.15) !important;
   border-radius: 12px;
 }
 .joystick-container {
@@ -86,8 +88,8 @@ canvas {
 }
 .ctrl-btn {
   background: linear-gradient(180deg, #252a54 0%, #0e1028 100%);
-  border: 1.5px solid #00ffcc;
-  color: #00ffcc;
+  border: 1.5px solid #ff0055 !important;
+  color: #ff0055 !important;
   font-size: 18px;
   font-weight: bold;
   border-radius: 8px;
@@ -95,15 +97,15 @@ canvas {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 3px 0 #007788, inset 0 1px 0 rgba(255,255,255,0.3);
-  text-shadow: 0 0 6px #00ffcc;
+  box-shadow: 0 3px 0 #88002d, inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  text-shadow: 0 0 6px #ff0055 !important;
 }
 .ctrl-btn:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 #007788;
-  background: #00ffcc;
-  color: #000;
-  text-shadow: none;
+  box-shadow: 0 1px 0 #88002d !important;
+  background: #ff0055 !important;
+  color: #000 !important;
+  text-shadow: none !important;
 }
 .ctrl-btn-center {
   display: flex;
@@ -111,17 +113,16 @@ canvas {
   align-items: center;
   background: #050610;
   border-radius: 50%;
-  border: 1.5px solid rgba(0,255,204,0.4);
+  border: 1.5px solid rgba(255,0,85,0.4) !important;
 }
 .dpad-core {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: radial-gradient(circle, #00ffcc 0%, #006677 100%);
-  box-shadow: 0 0 8px #00ffcc;
+  background: radial-gradient(circle, #ff0055 0%, #66001a 100%) !important;
+  box-shadow: 0 0 8px #ff0055 !important;
 }
 
-/* TASTO ACTION RENDER */
 .arcade-action-container {
   display: flex;
   justify-content: center;
@@ -165,8 +166,8 @@ canvas {
   margin-top: 4px;
   padding: 10px;
   background: #1a1a2e;
-  border: 1.5px solid #ff0055;
-  color: #ff0055;
+  border: 1.5px solid #ff0055 !important;
+  color: #ff0055 !important;
   font-weight: bold;
   font-size: 11px;
   border-radius: 8px;
@@ -211,8 +212,8 @@ const ROWS = 17;
 const CELL_SIZE = 26;
 const HUD_HEIGHT = 44;
 
-const CANVAS_W = COLS * CELL_SIZE; // 338px
-const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; // 486px
+const CANVAS_W = COLS * CELL_SIZE; 
+const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; 
 
 canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
@@ -229,22 +230,20 @@ function drawRoundRect(c, x, y, w, h, r) {
   c.closePath();
 }
 
-// Assets Grafici Studio
 const imgGiulia = new Image(); imgGiulia.src = 'assets/frogger/giulia.png';
 const imgTobi   = new Image(); imgTobi.src   = 'assets/frogger/tobi.png';
 const imgDave   = new Image(); imgDave.src   = 'assets/frogger/dave.png';
 const imgLuca   = new Image(); imgLuca.src   = 'assets/frogger/luca.png';
 
-// Blocco Ostacoli Creativi con Varietà di Colori (Rosso, Giallo, Neon)
 const OBSTACLE_TYPES = {
-  FRAME_DROP:   { type: 'FRAME_DROP',   label: 'DROP FRAME',    bg: '#002b4a', border: '#00ccff', textCol: '#ccf5ff', wMult: 1.8, hMult: 1 },
+  FRAME_DROP:   { type: 'FRAME_DROP',   label: 'DROP FRAME',    bg: '#002b4a', border: '#ff0055', textCol: '#ccf5ff', wMult: 1.8, hMult: 1 },
   EXPORT_LENTO: { type: 'EXPORT_LENTO', label: 'EXPORT LENTO',  bg: '#3b3300', border: '#ffff00', textCol: '#ffffaa', wMult: 2.2, hMult: 1 },
   BUG_CRITICO:  { type: 'BUG_CRITICO',  label: 'BUG CRITICO',   bg: '#4a0000', border: '#ff0000', textCol: '#ffaaaa', wMult: 2.0, hMult: 1 },
   AUDIO_OUT:    { type: 'AUDIO_OUT',    label: 'AUDIO NO SYNC', bg: '#4a3d00', border: '#ffcc00', textCol: '#ffffcc', wMult: 2.4, hMult: 1 },
   CLIENT_EDIT:  { type: 'CLIENT_EDIT',  label: 'CAMBIO CLIENTE', bg: '#4a001a', border: '#ff0055', textCol: '#ffaacc', wMult: 2.8, hMult: 1 },
   DISCO_PIENO:  { type: 'DISCO_PIENO',  label: 'DISCO PIENO!',   bg: '#3f3000', border: '#ffbb00', textCol: '#fff5aa', wMult: 2.2, hMult: 1 },
   OVERHEAT:     { type: 'OVERHEAT',     label: 'GPU OVERHEAT',   bg: '#550000', border: '#ff2200', textCol: '#ffcccc', wMult: 2.0, hMult: 1 },
-  SET_DELAY:    { type: 'SET_DELAY',    label: 'SET RITARDO',   bg: '#1c2838', border: '#2a6090', textCol: '#88c0ff', wMult: 3.2, hMult: 2 }, // Blocco a 2 Righe!
+  SET_DELAY:    { type: 'SET_DELAY',    label: 'SET RITARDO',   bg: '#1c2838', border: '#2a6090', textCol: '#88c0ff', wMult: 3.2, hMult: 2 },
   RENDER_CRASH: { type: 'RENDER_CRASH', label: 'RENDER CRASH!', bg: '#500005', border: '#ff0000', textCol: '#ffffff', wMult: 3.4, hMult: 1 }
 };
 
@@ -255,14 +254,13 @@ const LEVEL_THEMES = [
   { levelMin: 4, title: "STAGE 4: CAOS PRIMA DELLE 18:00", msg: "Massima velocità e ostacoli continui!" }
 ];
 
-// Frecce Personalizzate per Ciascun Personaggio
 const CHARACTERS = {
   GIULIA: {
     id: 'GIULIA', name: "GIULIA", subtitle: "Lead Video Editor",
     perkBonus: "BONUS: Precisione (Punti 1.25x)",
     perkMalus: "MALUS: Ricarica Render Lenta (+25%)",
-    primary: "#00ffcc", bg: "#040414", img: imgGiulia,
-    arrowCol: "#00ffcc", arrowGlow: "#008888",
+    primary: "#ff0055", bg: "#040414", img: imgGiulia,
+    arrowCol: "#ff0055", arrowGlow: "#880022",
     speed: 2.8, guardCooldown: 400, scoreMult: 1.25
   },
   TOBI: {
@@ -285,8 +283,8 @@ const CHARACTERS = {
     id: 'LUCA', name: "LUCA", subtitle: "VFX Artist Whiz",
     perkBonus: "BONUS: VFX Ricarica (Render -15%)",
     perkMalus: "MALUS: Render Fragile",
-    primary: "#00ffff", bg: "#140e00", img: imgLuca,
-    arrowCol: "#00ffff", arrowGlow: "#006688",
+    primary: "#ffaa00", bg: "#140e00", img: imgLuca,
+    arrowCol: "#ffaa00", arrowGlow: "#885500",
     speed: 3.2, guardCooldown: 270, scoreMult: 1.15
   }
 };
@@ -355,7 +353,7 @@ let gameState = 'TUTORIAL';
 let level = 1;
 let score = 0;
 let lives = 3;
-let visualScrollOffset = 0; // Offset morbido per scorrimento fluido
+let visualScrollOffset = 0; 
 
 let player = {
   gx: Math.floor(COLS / 2),
@@ -403,7 +401,7 @@ function createNewLane(isInitialSetup = false, r = 0) {
   let laneObj = {
     type: laneType,
     bg: isSafe ? '#080820' : '#0e1224',
-    wallCol: currentTheme.wallCol || '#00ffcc',
+    wallCol: currentTheme.wallCol || '#ff0055',
     dir: dir,
     speed: baseSpeed,
     objects: [],
@@ -516,12 +514,11 @@ function updatePlayer() {
   checkCollisions();
 }
 
-// Scorrimento Infinito Morbido e Fluido
 function scrollWorldDown() {
   activeLanes.pop();
   activeLanes.unshift(createNewLane(false));
   player.gy++; 
-  visualScrollOffset -= CELL_SIZE; // Compensa l'avanzamento visivo
+  visualScrollOffset -= CELL_SIZE; 
   score += Math.floor(15 * level * currentTheme.scoreMult * player.tempScoreMult);
 
   if (score > level * 1200) {
@@ -530,7 +527,6 @@ function scrollWorldDown() {
 }
 
 function updateVehicles() {
-  // Interpolazione continua dell'offset visivo per ammorbidire lo scorrimento
   visualScrollOffset += (0 - visualScrollOffset) * 0.25;
   if (Math.abs(visualScrollOffset) < 0.1) visualScrollOffset = 0;
 
@@ -612,19 +608,17 @@ function hitPlayer() {
   }
 }
 
-// Rendering a Più Passaggi per Non Sovrascrivere i Blocchi a 2 Righe
 function drawGameWorld() {
   ctx.fillStyle = '#0a0a22'; 
   ctx.fillRect(0, HUD_HEIGHT, CANVAS_W, CANVAS_H - HUD_HEIGHT);
 
-  // Passaggio 1: Sfondi Corsie
   activeLanes.forEach((lane, r) => {
     let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
     ctx.fillStyle = lane.bg;
     ctx.fillRect(0, y, CANVAS_W, CELL_SIZE);
     
     if (lane.type === 'SAFE') {
-      ctx.strokeStyle = lane.wallCol || '#00ffcc';
+      ctx.strokeStyle = lane.wallCol || '#ff0055';
       ctx.lineWidth = 1;
       ctx.strokeRect(0, y, CANVAS_W, CELL_SIZE);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
@@ -636,14 +630,13 @@ function drawGameWorld() {
     }
   });
 
-  // Passaggio 2: Pickups
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'SAFE') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
       lane.pickups.forEach(p => {
         let px = p.gx * CELL_SIZE + CELL_SIZE / 2;
         let py = y + CELL_SIZE / 2;
-        ctx.fillStyle = p.type.isMalus ? '#ff0055' : '#00ffcc';
+        ctx.fillStyle = p.type.isMalus ? '#ff0055' : '#ffff00';
         ctx.font = '11px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -652,7 +645,6 @@ function drawGameWorld() {
     }
   });
 
-  // Passaggio 3: Ostacoli (Disegnati sopra tutti i pavimenti)
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'ROAD') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
@@ -681,7 +673,6 @@ function drawObstacles(lane, laneY) {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.fillRect(x + 2, y + 2, blockW - 4, 3);
     
-    // Garanzia di contenimento assoluto del testo nel blocco
     ctx.fillStyle = vData.textCol;
     ctx.font = 'bold 10px monospace';
     ctx.textAlign = 'center';
@@ -691,7 +682,6 @@ function drawObstacles(lane, laneY) {
   });
 }
 
-// Player: TRIANGOLO CON LA PUNTA IN BASSO
 function drawSinglePlayer() {
   let playerY = player.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2 + visualScrollOffset;
   let playerX = player.gx * CELL_SIZE + CELL_SIZE / 2;
@@ -709,11 +699,10 @@ function drawSinglePlayer() {
   ctx.shadowBlur = 12;
   ctx.fillStyle = currentTheme.arrowCol;
 
-  // Triangolo direzionale orientato verso il BASSO
   ctx.beginPath();
-  ctx.moveTo(0, 10);    // Punta inferiore
-  ctx.lineTo(-10, -9);  // Angolo alto sinistro
-  ctx.lineTo(10, -9);   // Angolo alto destro
+  ctx.moveTo(0, 10);    
+  ctx.lineTo(-10, -9);  
+  ctx.lineTo(10, -9);   
   ctx.closePath();
   ctx.fill();
 
@@ -721,7 +710,6 @@ function drawSinglePlayer() {
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // Sfaccettatura 3D
   ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
   ctx.beginPath();
   ctx.moveTo(0, 10);
@@ -737,9 +725,9 @@ function drawSinglePlayer() {
   }
 
   if (player.guardTimer > 0) {
-    ctx.shadowColor = '#00ffcc';
+    ctx.shadowColor = '#ff0055';
     ctx.shadowBlur = 12;
-    ctx.strokeStyle = '#00ffcc';
+    ctx.strokeStyle = '#ff0055';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(0, 0, 16, 0, Math.PI * 2);
@@ -768,7 +756,7 @@ function drawHUD() {
   let tData = LEVEL_THEMES[Math.min(level - 1, LEVEL_THEMES.length - 1)];
   ctx.fillText(tData.title, canvas.width / 2, 26);
 
-  ctx.fillStyle = '#00ffcc';
+  ctx.fillStyle = '#ffff00';
   ctx.font = 'bold 10px monospace';
   ctx.textAlign = 'right';
   ctx.fillText(`REC: ${highScore}`, canvas.width - 8, 16);
@@ -783,7 +771,7 @@ function drawHUD() {
     ctx.fillStyle = '#0a0a22';
     ctx.fillRect(barX, barY, barW, barH);
     let fillPct = 1 - (player.guardCooldownTimer / currentTheme.guardCooldown);
-    ctx.fillStyle = (player.guardCooldownTimer <= 0) ? '#00ffcc' : '#ff0055';
+    ctx.fillStyle = (player.guardCooldownTimer <= 0) ? '#ff0055' : '#88002d';
     ctx.fillRect(barX, barY, barW * fillPct, barH);
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 0.5;
@@ -795,15 +783,15 @@ function drawTutorial() {
   ctx.fillStyle = 'rgba(4, 4, 18, 0.96)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = '#00ffcc';
+  ctx.fillStyle = '#ff0055';
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('DEADLINE DODGE 🚗', canvas.width / 2, 40);
 
   drawRoundRect(ctx, 12, 60, 314, 78, 10);
   ctx.fillStyle = '#101228'; ctx.fill();
-  ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+  ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
   ctx.fillText('SCHIVA GLI OSTACOLI DI SET', 22, 82);
   ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
   ctx.fillText('Attraversa le tracce ed evita', 22, 100);
@@ -908,7 +896,7 @@ function drawCharSelect() {
   ctx.fillText('► TOCCA PER CONFERMARE ◄', CANVAS_W / 2, cardY + 238);
 
   let arrowY = cardY + cardH + 24;
-  ctx.fillStyle = '#00ffcc';
+  ctx.fillStyle = '#ff0055';
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('◄  CAMBIA PERSONAGGIO  ►', CANVAS_W / 2, arrowY);
@@ -932,7 +920,7 @@ function drawLevelClear() {
   ctx.textAlign = 'center';
   ctx.fillText(`${tData.title} COMPLETE! 🎉`, canvas.width / 2, canvas.height / 2 - 30);
 
-  ctx.fillStyle = '#00ffcc';
+  ctx.fillStyle = '#ff0055';
   ctx.font = 'bold 10px monospace';
   ctx.fillText(tData.msg, canvas.width / 2, canvas.height / 2);
 
@@ -954,7 +942,7 @@ function drawGameOver() {
   ctx.font = 'bold 15px monospace';
   ctx.fillText(`PUNTEGGIO: ${score}`, canvas.width / 2, canvas.height / 2 + 5);
 
-  ctx.fillStyle = '#00ffcc';
+  ctx.fillStyle = '#ff0055';
   ctx.font = 'bold 11px monospace';
   ctx.fillText(`RECORD ATTUALE: ${highScore}`, canvas.width / 2, canvas.height / 2 + 35);
 

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade</title>
 
-    <!-- ICONA WEB APP E PWA FULLSCREEN -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,12 +17,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* DISATTIVAZIONE TOTALE E SEVERA DEL TAP HIGHLIGHT E FOCUS RING BLU DI IOS SAFARI */
         *, *:focus, *:active, canvas, button, input, div, a {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+            -webkit-tap-highlight-color: transparent !important;
             -webkit-touch-callout: none !important;
             -webkit-focus-ring-color: transparent !important;
             outline: none !important;
@@ -32,7 +30,6 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
-        /* BLOCCA IL BROWSER AI 4 ANGOLI SENZA MOLEGGIO O SFONDO NATIVO SAFARI */
         html, body {
             position: fixed !important;
             top: 0 !important;
@@ -85,10 +82,9 @@
             border: none !important;
             outline: none !important;
             box-shadow: none !important;
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* BARRA SUPERIORE HTML */
         #top-header-bar {
             position: absolute;
             top: max(env(safe-area-inset-top), 8px);
@@ -120,7 +116,6 @@
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
 
-        /* OVERLAY PROFILO E CLASSIFICHE */
         .auth-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -293,7 +288,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         <button id="header-score-btn" class="header-btn">⚡ 0 PTS</button>
     </div>
 
-    <!-- MODAL PROFILO LOCALE -->
     <div id="profile-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <div class="profile-card-header">
@@ -328,7 +322,6 @@ if (!sessionStorage.getItem('arcade_session_active')) {
         </div>
     </div>
 
-    <!-- MODAL CLASSIFICA -->
     <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
         <div class="auth-box">
             <h2 style="color:#ff0055;">🌍 CLASSIFICA MONDIALE</h2>

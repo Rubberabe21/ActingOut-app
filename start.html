@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Agency Arcade - Benvenuto</title>
 
-    <!-- ICONA WEB APP E PWA FULLSCREEN -->
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,22 +16,25 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        * {
+        *, *:focus, *:active, button, input, div, a {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            -webkit-focus-ring-color: transparent !important;
+            outline: none !important;
             touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
         }
         
-        /* FIX DEFINITIVO iOS: BLOCCA IL SITO AI 4 ANGOLI SENZA SCORRIMENTO */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #060612;
+            background-color: #060612 !important;
             position: fixed; 
         }
         
@@ -44,7 +46,7 @@
             bottom: 0;
             width: 100%;
             height: 100%;
-            background: #060612;
+            background: #060612 !important;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -52,7 +54,6 @@
             align-items: center;
         }
 
-        /* COMANDO MENU A FORMA DI PICCOLO QUADRATINO CON X */
         .top-home-btn {
             position: absolute;
             top: max(env(safe-area-inset-top), 10px);
@@ -61,13 +62,13 @@
             height: 28px;
             padding: 0;
             background: #090918;
-            border: 1.5px solid #00ffcc;
-            color: #00ffcc;
+            border: 1.5px solid #ff0055 !important;
+            color: #ff0055 !important;
             font-size: 13px;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
-            box-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
+            box-shadow: 0 0 8px rgba(255, 0, 85, 0.3) !important;
             z-index: 250;
             display: none;
             justify-content: center;
@@ -93,7 +94,7 @@
             width: 250px;
             height: auto;
             margin-bottom: 24px;
-            filter: drop-shadow(0 0 15px rgba(0, 255, 204, 0.4));
+            filter: drop-shadow(0 0 15px rgba(255, 0, 85, 0.4));
             animation: floatLogo 2s ease-in-out infinite alternate;
         }
         @keyframes floatLogo {
@@ -119,13 +120,13 @@
             width: 85%;
             padding: 12px;
             background: #101528;
-            border: 1.5px solid #00ffcc;
-            color: #00ffcc;
+            border: 1.5px solid #ff0055 !important;
+            color: #ffffff !important;
             font-size: 13px;
             font-weight: bold;
             border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.2) !important;
         }
         .arcade-secondary-btn:active { transform: scale(0.95); }
 
@@ -179,11 +180,11 @@
         .speech-bubble {
             position: relative;
             background: #ffffff;
-            border: 3px solid #00ffcc;
+            border: 3px solid #ff0055 !important;
             border-radius: 16px;
             padding: 12px 14px;
             color: #000000;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5) !important;
             width: 100%;
             z-index: 10;
         }
@@ -208,7 +209,7 @@
             transform: translateX(-50%);
             border-width: 15px 12px 0;
             border-style: solid;
-            border-color: #00ffcc transparent;
+            border-color: #ff0055 transparent !important;
             display: block;
             width: 0;
             z-index: 1;
@@ -264,8 +265,8 @@
             width: 100%;
             padding: 12px;
             background: #04040a;
-            border: 2px solid #ff0055;
-            color: #00ffcc;
+            border: 2px solid #ff0055 !important;
+            color: #ffff00 !important;
             border-radius: 8px;
             font-size: 15px;
             outline: none;
@@ -282,8 +283,8 @@
             width: 100%;
             padding: 6px;
             background: #04040a;
-            border: 2px solid #00ffcc;
-            box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2);
+            border: 2px solid #ff0055 !important;
+            box-shadow: inset 0 0 15px rgba(255, 0, 85, 0.2) !important;
             border-radius: 12px;
             margin-bottom: 2px;
             -webkit-overflow-scrolling: touch;
@@ -292,7 +293,7 @@
             width: 6px;
         }
         .choice-grid::-webkit-scrollbar-thumb {
-            background: #00ffcc;
+            background: #ff0055 !important;
             border-radius: 4px;
         }
 
@@ -326,8 +327,8 @@
             overflow-y: auto;
             padding: 6px;
             background: #04040a;
-            border: 2px solid #00ffcc;
-            box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2), 0 0 15px rgba(0, 255, 204, 0.3);
+            border: 2px solid #ff0055 !important;
+            box-shadow: inset 0 0 15px rgba(255, 0, 85, 0.2), 0 0 15px rgba(255, 0, 85, 0.3) !important;
             border-radius: 12px;
             margin-bottom: 2px;
             scroll-behavior: smooth;
@@ -341,9 +342,9 @@
             border-radius: 4px;
         }
         .avatar-grid::-webkit-scrollbar-thumb {
-            background: #00ffcc;
+            background: #ff0055 !important;
             border-radius: 4px;
-            box-shadow: 0 0 8px #00ffcc;
+            box-shadow: 0 0 8px #ff0055 !important;
         }
 
         .avatar-option {
@@ -357,8 +358,8 @@
             transition: transform 0.15s ease-in-out, border-color 0.15s ease-in-out;
         }
         .avatar-option.selected {
-            border-color: #00ffcc;
-            box-shadow: 0 0 12px #00ffcc;
+            border-color: #ff0055 !important;
+            box-shadow: 0 0 12px #ff0055 !important;
             transform: scale(1.05);
             z-index: 5;
         }
@@ -366,14 +367,14 @@
         .arcade-next-btn {
             width: 100%;
             padding: 12px;
-            background: #00ffcc;
+            background: #ff0055 !important;
             border: none;
-            color: #000000;
+            color: #ffffff !important;
             font-size: 13px;
             font-weight: 900;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 0 12px rgba(0, 255, 204, 0.5);
+            box-shadow: 0 0 12px rgba(255, 0, 85, 0.5) !important;
             transition: opacity 0.2s ease, transform 0.1s ease;
             flex-shrink: 0;
         }
@@ -701,7 +702,6 @@ function renderStep() {
     npcStageBox.style.display = "flex";
 
     typeWriter(stepData.text, () => {
-        // DELAY PRIMA DI FAR COMPARIRE LE OPZIONI O L'INPUT
         setTimeout(() => {
             if (stepData.type === "username") {
                 inputField.style.display = "block";

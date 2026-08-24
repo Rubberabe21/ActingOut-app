@@ -2,13 +2,18 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Login - Agency Arcade</title>
     <style>
-        * {
+        *, *:focus, *:active, button, input, div, a {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            -webkit-focus-ring-color: transparent !important;
+            outline: none !important;
+            touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
         }
         html, body {
@@ -17,7 +22,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #030305;
+            background-color: #030305 !important;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -28,9 +33,9 @@
             height: 100%;
             max-width: 360px;
             max-height: 740px;
-            box-shadow: 0 0 35px rgba(255, 0, 85, 0.25);
-            background: #060612;
-            border: 1px solid rgba(255, 0, 85, 0.25);
+            box-shadow: none !important;
+            background: #060612 !important;
+            border: none !important;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -39,8 +44,8 @@
         .auth-box {
             width: 100%;
             background: #090918;
-            border: 2px solid #ff0055;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15);
+            border: 2px solid #ff0055 !important;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4) !important;
             border-radius: 14px;
             padding: 24px;
             text-align: center;
@@ -58,8 +63,8 @@
             padding: 12px;
             margin-bottom: 12px;
             background: #04040a;
-            border: 1px solid #00ffcc;
-            color: #00ffcc;
+            border: 1px solid #ff0055 !important;
+            color: #ffff00 !important;
             border-radius: 6px;
             font-size: 13px;
             outline: none;
@@ -69,31 +74,30 @@
             width: 100%;
             padding: 12px;
             margin-top: 6px;
-            background: #ff0055;
-            color: #fff;
-            border: none;
+            background: #ff0055 !important;
+            color: #fff !important;
+            border: none !important;
             border-radius: 6px;
             font-weight: bold;
             font-size: 13px;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6) !important;
         }
         .auth-btn:active { transform: scale(0.96); }
         .btn-guest {
-            background: #222233;
-            border: 1px solid #00ffcc;
-            color: #00ffcc;
+            background: #222233 !important;
+            border: 1px solid #ff0055 !important;
+            color: #ffffff !important;
             margin-top: 10px;
         }
         .auth-toggle {
             margin-top: 14px;
             font-size: 11px;
-            color: #00ffcc;
+            color: #ff0055 !important;
             cursor: pointer;
             text-decoration: underline;
         }
 
-        /* --- Effetto Patina CRT Arcade --- */
         .crt-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
