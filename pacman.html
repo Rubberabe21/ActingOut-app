@@ -75,7 +75,7 @@ canvas {
   margin-top: 6px;
 }
 
-/* JOYSTICK RETRO ANNI '80 */
+/* JOYSTICK RETRO ANNI '80 CON BALL TOP ROSSO GLOSS */
 .joystick-zone {
   position: relative;
   width: 120px;
@@ -271,10 +271,20 @@ const CHARACTERS = {
 let currentTheme = CHARACTERS.LAURA;
 let highScore = parseInt(localStorage.getItem('cyberRun_highScore')) || 0;
 
-// AUDIO SINTETIZZATO RETRO (WEB AUDIO API)
+// AUDIO SINTETIZZATO RETRO CON NOISE BUFFER PRE-GENERATO (OTTIMIZZATO PER SMARTPHONE)
 let audioCtx = null;
+let noiseBuffer = null;
+
 function getAC() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const bufferSize = audioCtx.sampleRate * 0.4;
+    noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+  }
   if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
 }
@@ -283,6 +293,24 @@ function playSound(type) {
   try {
     const ac = getAC();
     const t = ac.currentTime;
+
+    if (type === 'explode') {
+      if (!noiseBuffer) return;
+      const dur = 0.25;
+      const src = ac.createBufferSource();
+      src.buffer = noiseBuffer;
+      const filt = ac.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(800, t);
+      filt.frequency.exponentialRampToValueAtTime(50, t + dur);
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.22, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      src.connect(filt); filt.connect(g); g.connect(ac.destination);
+      src.start(t); src.stop(t + dur);
+      return;
+    }
+
     const osc = ac.createOscillator();
     const gain = ac.createGain();
     osc.connect(gain); gain.connect(ac.destination);
@@ -299,18 +327,6 @@ function playSound(type) {
       osc.frequency.exponentialRampToValueAtTime(350, t + 0.08);
       gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
       osc.start(t); osc.stop(t + 0.08);
-    } else if (type === 'explode') {
-      const dur = 0.28;
-      const buf = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-      const src = ac.createBufferSource(); src.buffer = buf;
-      const filt = ac.createBiquadFilter(); filt.type = 'lowpass';
-      filt.frequency.setValueAtTime(800, t); filt.frequency.exponentialRampToValueAtTime(60, t + dur);
-      const g = ac.createGain();
-      g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      src.connect(filt); filt.connect(g); g.connect(ac.destination);
-      src.start(t);
     } else if (type === 'powerup') {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(523, t);
@@ -401,7 +417,7 @@ function resetJoy() {
 
 joyZone.addEventListener('pointerdown', e => {
   joyActive = true;
-  joyZone.setPointerCapture(e.pointerId);
+  try { joyZone.setPointerCapture(e.pointerId); } catch(err) {}
   getAC();
   handleJoyMove(e.clientX, e.clientY);
 });
@@ -607,7 +623,6 @@ function overlapsTile(px, py, pw, ph, gx, gy) {
   return (pLeft < tRight && pRight > tLeft && pTop < tBottom && pBottom > tTop);
 }
 
-// COLLISIONI DINAMICHE: LA BOMBA DIVENTA UN OSTACHETTO SOLIDO SOLO QUANDO IL GIOCATORE NE ESCI COMPLETAMENTE
 function isBlocked(nx, ny) {
   let eps = 0.5;
   let left = nx - player.w / 2 + eps;
@@ -748,7 +763,7 @@ function updateEnemies() {
       e.y += e.dirY * e.speed;
     }
 
-    if (player.invTimer <= 0) {
+    if (player.invTimer <= 0 && gameState === 'PLAYING') {
       let pDist = Math.hypot(player.x - e.x, player.y - e.y);
       if (pDist < 12) {
         hitPlayer();
@@ -775,7 +790,9 @@ function updateBombsAndExplosions() {
     if (!ex) continue;
     ex.timer--;
 
-    ex.cells.forEach(cell => {
+    for (let cIdx = 0; cIdx < ex.cells.length; cIdx++) {
+      let cell = ex.cells[cIdx];
+
       for (let eIdx = enemies.length - 1; eIdx >= 0; eIdx--) {
         let e = enemies[eIdx];
         if (!e) continue;
@@ -788,14 +805,15 @@ function updateBombsAndExplosions() {
         }
       }
 
-      if (player.invTimer <= 0) {
+      if (gameState === 'PLAYING' && player.invTimer <= 0) {
         let pgx = Math.floor(player.x / CELL_SIZE);
         let pgy = Math.floor(player.y / CELL_SIZE);
         if (pgx === cell.gx && pgy === cell.gy) {
           hitPlayer();
+          break; // Esce dal ciclo caselle per evitare colpi multipli nello stesso frame
         }
       }
-    });
+    }
 
     if (ex.timer <= 0) explosions.splice(i, 1);
   }
@@ -814,11 +832,14 @@ function updateBombsAndExplosions() {
   }
 }
 
+// PROTEZIONE DA DANNICAMPI MULTIPLI NEL MEDESIMO FRAME
 function hitPlayer() {
-  if (player.invTimer > 0) return;
+  if (gameState !== 'PLAYING' || player.invTimer > 0) return;
 
   lives--;
+  player.invTimer = 90; // Attiva immediatamente invulnerabilità
   playSound('fail');
+
   if (lives <= 0) {
     gameState = 'GAME_OVER';
     gameOverLockTimer = 60;
@@ -826,7 +847,6 @@ function hitPlayer() {
   } else {
     player.x = 1 * CELL_SIZE + CELL_SIZE / 2;
     player.y = 1 * CELL_SIZE + CELL_SIZE / 2;
-    player.invTimer = 90;
   }
 }
 
