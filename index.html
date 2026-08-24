@@ -64,6 +64,7 @@
                 right: 0 !important;
                 width: 100vw !important;
                 height: 100dvh !important;
+                height: -webkit-fill-available !important;
                 max-width: none !important;
                 max-height: none !important;
                 border: none !important;
@@ -72,10 +73,20 @@
         }
         
         #game-container {
-            width: 100% !important;
-            height: 100% !important;
-            overflow: hidden;
             position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* ANCORA IL CANVAS IN BASSO: SPOSTA IL VUOTO NERO SUL SOFFITTO */
+        #game-container canvas {
+            position: absolute !important;
+            bottom: 0 !important;
+            top: auto !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            margin: 0 !important;
         }
 
         /* BARRA SUPERIORE HTML */
@@ -470,7 +481,7 @@ class MainHub extends Phaser.Scene {
     }
 
     create() {
-        // SCENA RIGIDAMENTE A 360x740 PER MANTENERE IL PERSONAGGIO INCOLLATO AL PARQUET
+        // SCENA RIGIDAMENTE A 360x740
         const vWidth = 360;
         const vHeight = 740;
 
@@ -486,7 +497,7 @@ class MainHub extends Phaser.Scene {
         const worldWidth = bg.width * bgScale;
         this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
-        // POSIZIONI FISSE ORIGINALI PERFETTAMENTE ANCORATE AL PAVIMENTO
+        // POSIZIONI ORIGINALI PERFETTAMENTE ANCORATE AL PAVIMENTO
         const floorY = 568;
         const gabriY = 558;
         const npcY = 563;
@@ -715,7 +726,7 @@ class MainHub extends Phaser.Scene {
     }
 }
 
-// NO_CENTER DISATTIVA IL CENTRAMENTO AUTOMATICO DI PHASER PER PERMETTERE L'ANCORAGGIO IN BASSO
+// SCALE FIT CON NO_CENTER PER DISATTIVARE IL CENTRAMENTO AUTOMATICO DI PHASER
 const config = {
     type: Phaser.WEBGL,
     parent: 'game-container',
@@ -732,7 +743,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-// CALCOLO ESATTO DELLO SPAZIO EXTRA PER SPINGERE IL CANVAS CONTRO IL BORDO INFERIORE DEL DISPLAY
+// FUNZIONE REALE PER SPINGERE IL CANVAS IN BASSO SUL DISPLAY
 function forceCanvasToBottom() {
     const container = document.getElementById('game-container');
     if (!container) return;
