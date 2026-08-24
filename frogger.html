@@ -5,12 +5,20 @@
 
 <meta
   name="viewport"
-  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  content="width=device-width,
+  initial-scale=1.0,
+  maximum-scale=1.0,
+  user-scalable=no,
+  viewport-fit=cover"
 >
 
 <title>Deadline Drive - Premiere Pro Timeline Rush</title>
 
 <style>
+
+/* =========================================================
+   RESET
+========================================================= */
 
 * {
   margin: 0;
@@ -34,92 +42,117 @@
 }
 
 
-html,
-body {
+/* =========================================================
+   BODY
+========================================================= */
 
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #111;
+}
+
+body {
   width: 100%;
   height: 100%;
 
-  min-width: 100%;
-  min-height: 100%;
+  min-height: 100dvh;
 
   overflow: hidden;
 
-  background: #1e1e1e;
-
+  background: #111;
   color: #e0e0e0;
 
   margin: 0;
   padding: 0;
 
-}
-
-
-body {
-
-  position: fixed;
-
-  inset: 0;
-
   display: block;
 
-  border: 0 !important;
-  outline: 0 !important;
-
+  border: none !important;
+  outline: none !important;
 }
 
 
 /* =========================================================
-   CONTENITORE PRINCIPALE
-   ========================================================= */
+   GAME WRAPPER
+========================================================= */
 
 #game-wrapper {
 
   position: fixed;
 
-  left: 0;
   top: 0;
+  left: 0;
 
   width: 100vw;
   height: 100dvh;
 
-  max-width: 440px;
+  min-height: 100dvh;
+
+  max-width: none;
+  max-height: none;
+
+  overflow: hidden;
+
+  display: grid;
+
+  /*
+    HEADER
+    GAME
+    JOYSTICK
+    EXIT
+  */
+
+  grid-template-rows:
+    auto
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  align-items: stretch;
 
   background: #1e1e1e;
 
-  display: flex;
+  /*
+    IMPORTANTE:
+    il padding superiore tiene conto
+    del notch dell'iPhone.
+  */
 
-  flex-direction: column;
+  padding-top:
+    max(
+      env(safe-area-inset-top),
+      8px
+    );
 
-  align-items: center;
+  padding-left: 8px;
+  padding-right: 8px;
 
-  margin: 0;
-  padding: 0;
+  /*
+    NIENTE padding-bottom qui.
+    Il fondo viene gestito dal pulsante.
+  */
 
-  overflow: hidden;
+  padding-bottom: 0;
 
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
 
+  border-radius: 0 !important;
 }
 
 
 /* =========================================================
-   HEADER
-   ========================================================= */
+   TOP BAR
+========================================================= */
 
 .top-header {
 
-  position: relative;
-
   width: 100%;
 
-  height: 30px;
-
   min-height: 30px;
-
-  flex: 0 0 30px;
 
   display: flex;
 
@@ -127,16 +160,21 @@ body {
   align-items: center;
 
   padding:
-    0
-    7px;
+    4px 6px;
 
   background: #282828;
 
   border: none !important;
   outline: none !important;
 
-  z-index: 20;
+  border-radius:
+    6px 6px 0 0;
 
+  margin: 0;
+
+  flex-shrink: 0;
+
+  z-index: 10;
 }
 
 
@@ -144,67 +182,63 @@ body {
 
   color: #00d2ff;
 
-  font-size: 10px;
+  font-size: 11px;
 
   font-weight: 700;
 
-  letter-spacing: 0.7px;
+  letter-spacing: 0.8px;
 
   font-family:
     'Courier New',
     monospace;
 
+  white-space: nowrap;
 }
 
 
 .opt-btn {
 
-  background: #333333;
+  background: #333;
 
-  border: 1px solid #555555;
+  border:
+    1px solid #555;
 
   color: #ffea00;
 
-  padding: 3px 7px;
+  padding:
+    3px 8px;
 
   font-family:
     'Courier New',
     monospace;
 
-  font-size: 9px;
+  font-size: 10px;
 
   font-weight: bold;
 
   border-radius: 4px;
 
+  cursor: pointer;
+
+  flex-shrink: 0;
 }
 
 
 .opt-btn:active {
-
   transform: scale(0.92);
-
 }
 
 
 /* =========================================================
-   AREA GIOCO
-   ========================================================= */
+   GAME AREA
+========================================================= */
 
 #canvas-container {
 
   position: relative;
 
   width: 100%;
-
-  /*
-    QUESTO È IL PUNTO IMPORTANTE:
-
-    il gioco occupa tutto lo spazio disponibile
-    tra header e controlli.
-  */
-
-  flex: 1 1 auto;
+  height: 100%;
 
   min-height: 0;
 
@@ -215,17 +249,27 @@ body {
 
   overflow: hidden;
 
-  padding: 2px 4px 0 4px;
+  /*
+    IMPORTANTISSIMO:
+    il gioco può occupare tutto lo spazio
+    disponibile tra header e joystick.
+  */
+
+  padding:
+    4px 0;
 
 }
 
+
+/* =========================================================
+   CANVAS
+========================================================= */
 
 canvas {
 
   display: block;
 
   width: auto;
-
   height: auto;
 
   max-width: 100%;
@@ -233,68 +277,63 @@ canvas {
 
   object-fit: contain;
 
-  aspect-ratio: 338 / 486;
+  aspect-ratio:
+    338 / 486;
 
   background: #181818;
 
-  border: 1.5px solid #3a3a3a;
+  border:
+    1.5px solid #3a3a3a;
 
   box-shadow:
     0 4px 20px rgba(0,0,0,0.6);
 
-  border-radius: 4px;
+  border-radius: 5px;
+
+  cursor: pointer;
 
 }
 
 
 /* =========================================================
-   CONTROLLI ARCADE
-   ========================================================= */
+   JOYSTICK AREA
+========================================================= */
 
 .control-deck {
 
-  /*
-    NON È PIÙ UNA BARRA.
-
-    È semplicemente lo spazio dei joystick.
-  */
-
   width: 100%;
-
-  flex: 0 0 auto;
 
   display: flex;
 
   justify-content: center;
   align-items: center;
 
+  /*
+    Più grande e più vicino al fondo.
+  */
+
   padding:
-
-    4px
-
-    0
-
-    calc(
-      4px +
-      env(safe-area-inset-bottom)
-    );
+    8px 0 7px;
 
   margin: 0;
 
   background: transparent;
 
   border: none !important;
-
   outline: none !important;
 
   box-shadow: none !important;
+
+  border-radius: 0;
+
+  flex-shrink: 0;
 
 }
 
 
 /* =========================================================
    JOYSTICK
-   ========================================================= */
+========================================================= */
 
 .joystick-container {
 
@@ -303,29 +342,26 @@ canvas {
   display: flex;
 
   justify-content: center;
-
   align-items: center;
 
 }
 
 
-/*
-   D-PAD PIÙ GRANDE
-
-   Niente elemento centrale.
-*/
+/* =========================================================
+   D-PAD
+========================================================= */
 
 .dpad-grid {
 
   display: grid;
 
   grid-template-columns:
-    repeat(3, 76px);
+    repeat(3, 74px);
 
   grid-template-rows:
-    repeat(2, 62px);
+    repeat(3, 62px);
 
-  gap: 6px;
+  gap: 5px;
 
   justify-content: center;
   align-items: center;
@@ -333,25 +369,14 @@ canvas {
 }
 
 
-/* celle vuote */
-
-.dpad-empty {
-
-  width: 100%;
-  height: 100%;
-
-}
-
-
 /* =========================================================
-   TASTI ARCADE
-   ========================================================= */
+   TASTI DIREZIONALI
+   STILE CABINATO ARCADE
+========================================================= */
 
 .ctrl-btn {
 
-  position: relative;
-
-  width: 76px;
+  width: 74px;
   height: 62px;
 
   display: flex;
@@ -359,184 +384,264 @@ canvas {
   justify-content: center;
   align-items: center;
 
-  cursor: pointer;
-
   border-radius: 13px;
 
-  border:
-
-    3px solid
-
-    #ffea00;
+  /*
+    Aspetto più da pulsante arcade.
+  */
 
   background:
-
     linear-gradient(
       180deg,
-      #ff4b00 0%,
-      #c40000 55%,
-      #720000 100%
+      #ff4d8d 0%,
+      #e50055 45%,
+      #a8003e 100%
     );
 
-  color: #ffffff;
+  border:
+    3px solid #ff8fba;
+
+  color: #fff;
 
   font-size: 30px;
 
   font-weight: 900;
 
-  text-shadow:
+  line-height: 1;
 
-    2px 2px 0 #6b0000,
+  cursor: pointer;
 
-    0 0 8px rgba(
-      255,
-      255,
-      255,
-      0.45
-    );
+  /*
+    Effetto pulsante fisico.
+  */
 
   box-shadow:
 
-    0 6px 0 #510000,
+    0 7px 0 #680028,
 
-    0 8px 12px rgba(
-      0,
-      0,
-      0,
-      0.65
-    ),
+    0 10px 14px
+      rgba(0,0,0,0.55),
 
-    inset 0 3px 0 rgba(
-      255,
-      255,
-      255,
-      0.35
-    ),
+    inset 0 4px 5px
+      rgba(255,255,255,0.35),
 
-    inset 0 -5px 0 rgba(
-      0,
-      0,
-      0,
-      0.2
-    );
+    inset 0 -5px 8px
+      rgba(0,0,0,0.25);
+
+  text-shadow:
+    0 2px 3px rgba(0,0,0,0.5);
 
   transition:
-
     transform 0.05s,
-
     box-shadow 0.05s;
 
 }
 
 
 /*
-   effetto luce superiore
+   COLORI DIFFERENTI PER DIREZIONE
 */
 
-.ctrl-btn::before {
-
-  content: "";
-
-  position: absolute;
-
-  top: 6px;
-  left: 9px;
-  right: 9px;
-
-  height: 8px;
-
-  border-radius: 8px;
+#btnUp {
 
   background:
-    rgba(
-      255,
-      255,
-      255,
-      0.18
+    linear-gradient(
+      180deg,
+      #29e6ff 0%,
+      #00a9d0 50%,
+      #00627c 100%
     );
+
+  border-color: #8ff4ff;
+
+  box-shadow:
+
+    0 7px 0 #004c61,
+
+    0 10px 14px
+      rgba(0,0,0,0.55),
+
+    inset 0 4px 5px
+      rgba(255,255,255,0.4),
+
+    inset 0 -5px 8px
+      rgba(0,0,0,0.25);
 
 }
 
 
-/* pressione */
+#btnDown {
 
-.ctrl-btn:active {
+  background:
+    linear-gradient(
+      180deg,
+      #9d72ff 0%,
+      #6735d8 50%,
+      #3a1d82 100%
+    );
 
-  transform:
-    translateY(5px);
+  border-color: #cbb8ff;
 
   box-shadow:
 
-    0 1px 0 #510000,
+    0 7px 0 #2a155e,
 
-    0 3px 6px rgba(
-      0,
-      0,
-      0,
-      0.5
-    ),
+    0 10px 14px
+      rgba(0,0,0,0.55),
 
-    inset 0 3px 0 rgba(
-      255,
-      255,
-      255,
-      0.2
-    );
+    inset 0 4px 5px
+      rgba(255,255,255,0.35),
+
+    inset 0 -5px 8px
+      rgba(0,0,0,0.25);
+
+}
+
+
+#btnLeft {
 
   background:
-
     linear-gradient(
       180deg,
-      #ff6500 0%,
-      #d40000 100%
+      #ffdf38 0%,
+      #f3a900 50%,
+      #a96600 100%
     );
+
+  border-color: #fff09b;
+
+  box-shadow:
+
+    0 7px 0 #704400,
+
+    0 10px 14px
+      rgba(0,0,0,0.55),
+
+    inset 0 4px 5px
+      rgba(255,255,255,0.4),
+
+    inset 0 -5px 8px
+      rgba(0,0,0,0.25);
+
+}
+
+
+#btnRight {
+
+  background:
+    linear-gradient(
+      180deg,
+      #4dff8a 0%,
+      #00c95a 50%,
+      #007332 100%
+    );
+
+  border-color: #a2ffc3;
+
+  box-shadow:
+
+    0 7px 0 #004d23,
+
+    0 10px 14px
+      rgba(0,0,0,0.55),
+
+    inset 0 4px 5px
+      rgba(255,255,255,0.4),
+
+    inset 0 -5px 8px
+      rgba(0,0,0,0.25);
 
 }
 
 
 /* =========================================================
-   PULSANTE TORNA IN STUDIO
-   ========================================================= */
+   PRESSIONE TASTO
+========================================================= */
+
+.ctrl-btn:active {
+
+  transform:
+    translateY(6px)
+    scale(0.97);
+
+  box-shadow:
+
+    0 1px 0 #333,
+
+    0 4px 7px
+      rgba(0,0,0,0.45),
+
+    inset 0 4px 8px
+      rgba(0,0,0,0.3);
+
+}
+
+
+/* =========================================================
+   CENTRO D-PAD
+   COMPLETAMENTE VUOTO
+========================================================= */
+
+.ctrl-btn-center {
+
+  width: 74px;
+  height: 62px;
+
+  display: block;
+
+  background: transparent;
+
+  border: none;
+
+  box-shadow: none;
+
+}
+
+
+/*
+   ELIMINA EVENTUALE VECCHIO CORE
+*/
+
+.dpad-core {
+  display: none !important;
+}
+
+
+/* =========================================================
+   EXIT BUTTON
+========================================================= */
 
 .exit-btn {
 
+  width: 100%;
+
+  height: 38px;
+
+  min-height: 38px;
+
+  margin: 0;
+
   /*
-    IMPORTANTISSIMO:
-
-    il pulsante non occupa più una riga
-    del layout con spazio sotto.
-
-    È ancorato al fondo.
+    Spazio inferiore SOLO qui,
+    per rispettare la home indicator dell'iPhone.
   */
 
-  position: relative;
-
-  width: calc(
-    100% -
-    16px
-  );
-
-  height: 31px;
-
-  flex: 0 0 31px;
-
-  margin:
-
-    0
-
-    8px
-
+  padding:
+    0 8px
     max(
-      3px,
-      env(safe-area-inset-bottom)
+      env(safe-area-inset-bottom),
+      6px
     );
 
-  padding: 0;
+  padding-bottom:
+    max(
+      env(safe-area-inset-bottom),
+      6px
+    );
 
-  background: #222222;
+  background: #171717;
 
   border: none !important;
-
   outline: none !important;
 
   color: #ff3366;
@@ -547,34 +652,45 @@ canvas {
 
   font-weight: bold;
 
-  font-size: 10px;
+  font-size: 11px;
 
-  border-radius: 5px;
+  border-radius: 0;
 
   cursor: pointer;
 
   text-align: center;
 
+  flex-shrink: 0;
+
   display: flex;
 
-  align-items: center;
   justify-content: center;
+  align-items: center;
 
+}
+
+
+/*
+   NIENTE LINEA SOPRA
+*/
+
+.exit-btn::before,
+.exit-btn::after {
+  display: none !important;
 }
 
 
 .exit-btn:active {
 
-  transform: scale(0.97);
-
-  background: #2d2d2d;
+  transform:
+    scale(0.97);
 
 }
 
 
 /* =========================================================
    MODALE
-   ========================================================= */
+========================================================= */
 
 .modal-overlay {
 
@@ -589,12 +705,7 @@ canvas {
   height: 100%;
 
   background:
-    rgba(
-      18,
-      18,
-      18,
-      0.95
-    );
+    rgba(18,18,18,0.95);
 
   z-index: 200;
 
@@ -615,17 +726,11 @@ canvas {
   background: #232323;
 
   border:
-    2px solid
-    #00d2ff;
+    2px solid #00d2ff;
 
   box-shadow:
     0 0 25px
-    rgba(
-      0,
-      210,
-      255,
-      0.3
-    );
+    rgba(0,210,255,0.3);
 
   border-radius: 12px;
 
@@ -637,7 +742,7 @@ canvas {
 
   gap: 14px;
 
-  color: #ffffff;
+  color: #fff;
 
   text-align: center;
 
@@ -674,8 +779,7 @@ canvas {
   padding: 8px;
 
   border:
-    1px solid
-    #3a3a3a;
+    1px solid #3a3a3a;
 
   border-radius: 6px;
 
@@ -706,10 +810,9 @@ canvas {
   background: #2a2a2a;
 
   border:
-    1.5px solid
-    #ff0055;
+    1.5px solid #ff0055;
 
-  color: #ffffff;
+  color: #fff;
 
   font-weight: bold;
 
@@ -745,7 +848,7 @@ canvas {
 
   border: none;
 
-  color: #000000;
+  color: #000;
 
   font-weight: bold;
 
@@ -763,19 +866,92 @@ canvas {
 
 
 /* =========================================================
-   SCHERMI MOLTO BASSI
-   ========================================================= */
+   IPHONE / SCHERMI STRETTI
+========================================================= */
 
-@media (
-  max-width: 440px
-) and (
-  max-height: 700px
-) {
+@media (max-width: 440px) {
+
+  html,
+  body {
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+  }
+
+
+  #game-wrapper {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100dvh;
+
+    min-height: 100dvh;
+
+    max-width: none;
+    max-height: none;
+
+    /*
+      Il notch viene gestito QUI.
+    */
+
+    padding-top:
+      max(
+        env(safe-area-inset-top),
+        8px
+      );
+
+    padding-left: 5px;
+    padding-right: 5px;
+
+    padding-bottom: 0;
+
+    /*
+      Quattro righe:
+      header
+      gioco
+      joystick
+      torna in studio
+    */
+
+    grid-template-rows:
+      auto
+      minmax(0, 1fr)
+      auto
+      auto;
+
+  }
+
 
   .top-header {
 
-    height: 26px;
-    flex-basis: 26px;
+    border-radius:
+      5px 5px 0 0;
+
+  }
+
+
+  #canvas-container {
+
+    padding:
+      2px 0;
+
+  }
+
+
+  /*
+    Joystick ancora più basso.
+  */
+
+  .control-deck {
+
+    padding:
+      7px 0 5px;
 
   }
 
@@ -783,37 +959,59 @@ canvas {
   .dpad-grid {
 
     grid-template-columns:
-      repeat(3, 68px);
+      repeat(3, 70px);
 
     grid-template-rows:
-      repeat(2, 54px);
+      repeat(3, 58px);
 
-    gap: 5px;
+    gap: 4px;
 
   }
 
 
   .ctrl-btn {
 
-    width: 68px;
-    height: 54px;
+    width: 70px;
+    height: 58px;
 
-    font-size: 26px;
+    font-size: 28px;
+
+    border-width: 3px;
+
+  }
+
+
+  .ctrl-btn-center {
+
+    width: 70px;
+    height: 58px;
 
   }
 
 
-  .control-deck {
-
-    padding-top: 2px;
-
-  }
-
+  /*
+    IL PULSANTE È L'ULTIMA COSA DELLO SCHERMO.
+  */
 
   .exit-btn {
 
-    height: 28px;
-    flex-basis: 28px;
+    height: auto;
+
+    min-height: 40px;
+
+    padding-top: 5px;
+
+    padding-bottom:
+      max(
+        env(safe-area-inset-bottom),
+        8px
+      );
+
+    margin: 0;
+
+    border-radius: 0;
+
+    background: #171717;
 
   }
 
@@ -821,32 +1019,88 @@ canvas {
 
 
 /* =========================================================
-   SCHERMI GRANDI
-   ========================================================= */
+   IPHONE MOLTO BASSO / SCHERMO PICCOLO
+========================================================= */
 
-@media (
-  min-height: 850px
-) {
+@media (max-width: 440px) and (max-height: 700px) {
+
+  .top-header {
+
+    min-height: 28px;
+
+    padding:
+      3px 5px;
+
+  }
+
+
+  .header-title {
+
+    font-size: 9px;
+
+  }
+
+
+  .opt-btn {
+
+    font-size: 9px;
+
+    padding:
+      2px 6px;
+
+  }
+
+
+  .control-deck {
+
+    padding:
+      4px 0 3px;
+
+  }
+
 
   .dpad-grid {
 
     grid-template-columns:
-      repeat(3, 82px);
+      repeat(3, 60px);
 
     grid-template-rows:
-      repeat(2, 66px);
+      repeat(3, 48px);
 
-    gap: 7px;
+    gap: 3px;
 
   }
 
 
   .ctrl-btn {
 
-    width: 82px;
-    height: 66px;
+    width: 60px;
+    height: 48px;
 
-    font-size: 32px;
+    font-size: 24px;
+
+  }
+
+
+  .ctrl-btn-center {
+
+    width: 60px;
+    height: 48px;
+
+  }
+
+
+  .exit-btn {
+
+    min-height: 34px;
+
+    font-size: 10px;
+
+    padding-bottom:
+      max(
+        env(safe-area-inset-bottom),
+        6px
+      );
 
   }
 
@@ -865,8 +1119,8 @@ canvas {
   loop
   autoplay
   playsinline
-  style="display:none;"
-></audio>
+  style="display:none;">
+</audio>
 
 
 <div id="game-wrapper">
@@ -874,7 +1128,7 @@ canvas {
 
   <!-- =====================================================
        HEADER
-       ===================================================== -->
+  ====================================================== -->
 
   <div class="top-header">
 
@@ -894,7 +1148,7 @@ canvas {
 
   <!-- =====================================================
        GAME
-       ===================================================== -->
+  ====================================================== -->
 
   <div id="canvas-container">
 
@@ -905,7 +1159,7 @@ canvas {
 
   <!-- =====================================================
        JOYSTICK
-       ===================================================== -->
+  ====================================================== -->
 
   <div class="control-deck">
 
@@ -913,7 +1167,13 @@ canvas {
 
       <div class="dpad-grid">
 
-        <div class="dpad-empty"></div>
+
+        <!-- VUOTO -->
+
+        <div></div>
+
+
+        <!-- UP -->
 
         <div
           class="ctrl-btn"
@@ -922,8 +1182,13 @@ canvas {
           ▲
         </div>
 
-        <div class="dpad-empty"></div>
 
+        <!-- VUOTO -->
+
+        <div></div>
+
+
+        <!-- LEFT -->
 
         <div
           class="ctrl-btn"
@@ -932,12 +1197,15 @@ canvas {
           ◀
         </div>
 
+
+        <!-- CENTRO VUOTO -->
+
         <div
-          class="ctrl-btn"
-          id="btnDown"
-        >
-          ▼
-        </div>
+          class="ctrl-btn-center"
+        ></div>
+
+
+        <!-- RIGHT -->
 
         <div
           class="ctrl-btn"
@@ -945,6 +1213,26 @@ canvas {
         >
           ▶
         </div>
+
+
+        <!-- VUOTO -->
+
+        <div></div>
+
+
+        <!-- DOWN -->
+
+        <div
+          class="ctrl-btn"
+          id="btnDown"
+        >
+          ▼
+        </div>
+
+
+        <!-- VUOTO -->
+
+        <div></div>
 
       </div>
 
@@ -955,7 +1243,7 @@ canvas {
 
   <!-- =====================================================
        EXIT
-       ===================================================== -->
+  ====================================================== -->
 
   <button
     class="exit-btn"
@@ -966,8 +1254,8 @@ canvas {
 
 
   <!-- =====================================================
-       MODALE
-       ===================================================== -->
+       SETTINGS
+  ====================================================== -->
 
   <div
     class="modal-overlay"
@@ -1024,16 +1312,14 @@ canvas {
 
   </div>
 
-
 </div>
 
 
 <script>
 
-
 /* =========================================================
    CANVAS
-   ========================================================= */
+========================================================= */
 
 const canvas =
   document.getElementById('game');
@@ -1043,24 +1329,17 @@ const ctx =
 
 
 const COLS = 13;
-
 const ROWS = 17;
-
 const CELL_SIZE = 26;
 
 const HUD_HEIGHT = 44;
-
 const TRACK_HEADER_W = 38;
 
-
 const CANVAS_W =
-  COLS *
-  CELL_SIZE;
-
+  COLS * CELL_SIZE;
 
 const CANVAS_H =
-  ROWS *
-  CELL_SIZE +
+  ROWS * CELL_SIZE +
   HUD_HEIGHT;
 
 
@@ -1072,8 +1351,8 @@ canvas.height =
 
 
 /* =========================================================
-   UTILITY
-   ========================================================= */
+   ROUND RECT
+========================================================= */
 
 function drawRoundRect(
   c,
@@ -1084,26 +1363,11 @@ function drawRoundRect(
   r
 ) {
 
-  if (
-    w <
-    2 * r
-  ) {
+  if (w < 2 * r)
+    r = w / 2;
 
-    r =
-      w / 2;
-
-  }
-
-
-  if (
-    h <
-    2 * r
-  ) {
-
-    r =
-      h / 2;
-
-  }
+  if (h < 2 * r)
+    r = h / 2;
 
 
   c.beginPath();
@@ -1158,7 +1422,7 @@ function drawRoundRect(
 
 /* =========================================================
    AUDIO
-   ========================================================= */
+========================================================= */
 
 let musicEnabled =
   localStorage.getItem(
@@ -1178,8 +1442,7 @@ const bgMusic =
   );
 
 
-bgMusic.volume =
-  0.4;
+bgMusic.volume = 0.4;
 
 
 function playBgMusic() {
@@ -1223,9 +1486,7 @@ window.addEventListener(
   window.addEventListener(
     evt,
     () => playBgMusic(),
-    {
-      once: true
-    }
+    { once: true }
   );
 
 });
@@ -1250,7 +1511,7 @@ function updateMusicState() {
 
 /* =========================================================
    SETTINGS
-   ========================================================= */
+========================================================= */
 
 const settingsModal =
   document.getElementById(
@@ -1356,12 +1617,10 @@ btnToggleSfx.onclick = () => {
 btnOpenSettings.onclick = () => {
 
   if (
-    gameState ===
-    'PLAYING'
+    gameState === 'PLAYING'
   ) {
 
-    gameState =
-      'PAUSE';
+    gameState = 'PAUSE';
 
   }
 
@@ -1382,8 +1641,7 @@ btnCloseSettings.onclick = () => {
 
 
   if (
-    gameState ===
-    'PAUSE'
+    gameState === 'PAUSE'
   ) {
 
     gameState =
@@ -1399,10 +1657,9 @@ btnCloseSettings.onclick = () => {
 
 /* =========================================================
    AUDIO SYNTH
-   ========================================================= */
+========================================================= */
 
-let audioCtx =
-  null;
+let audioCtx = null;
 
 
 function getAC() {
@@ -1416,9 +1673,7 @@ function getAC() {
         window.webkitAudioContext;
 
 
-      if (
-        AudioContextClass
-      ) {
+      if (AudioContextClass) {
 
         audioCtx =
           new AudioContextClass();
@@ -1484,9 +1739,7 @@ function playSound(type) {
     );
 
 
-    if (
-      type === 'cross'
-    ) {
+    if (type === 'cross') {
 
       osc.type =
         'triangle';
@@ -1513,16 +1766,13 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.16
+        ac.currentTime + 0.16
       );
 
     }
 
 
-    else if (
-      type === 'crash'
-    ) {
+    else if (type === 'crash') {
 
       osc.type =
         'sawtooth';
@@ -1549,16 +1799,14 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.25
+        ac.currentTime + 0.25
       );
 
     }
 
 
     else if (
-      type ===
-      'guard_active'
+      type === 'guard_active'
     ) {
 
       osc.type =
@@ -1586,8 +1834,7 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.1
+        ac.currentTime + 0.1
       );
 
     }
@@ -1622,8 +1869,7 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.2
+        ac.currentTime + 0.2
       );
 
     }
@@ -1658,8 +1904,7 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.2
+        ac.currentTime + 0.2
       );
 
     }
@@ -1694,8 +1939,7 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime +
-        0.3
+        ac.currentTime + 0.3
       );
 
     }
@@ -1708,8 +1952,8 @@ function playSound(type) {
 
 
 /* =========================================================
-   RITRATTI
-   ========================================================= */
+   IMMAGINI
+========================================================= */
 
 const imgGiulia =
   new Image();
@@ -1741,312 +1985,150 @@ imgLuca.src =
 
 /* =========================================================
    CLIP
-   ========================================================= */
+========================================================= */
 
 const PREMIERE_CLIPS = {
 
   BLUE_A_ROLL: {
-
-    type:
-      'A_ROLL',
-
-    label:
-      'A001_C004.MOV',
-
-    bg:
-      '#2b52a1',
-
-    border:
-      '#5682e8',
-
-    textCol:
-      '#d0e0ff',
-
-    topBar:
-      '#00ff66',
-
-    wMult:
-      2.2,
-
-    hMult:
-      1
-
+    type: 'A_ROLL',
+    label: 'A001_C004.MOV',
+    bg: '#2b52a1',
+    border: '#5682e8',
+    textCol: '#d0e0ff',
+    topBar: '#00ff66',
+    wMult: 2.2,
+    hMult: 1
   },
 
 
   PURPLE_B_ROLL: {
-
-    type:
-      'B_ROLL',
-
-    label:
-      'B002_DRONE.MP4',
-
-    bg:
-      '#7f22a7',
-
-    border:
-      '#b842df',
-
-    textCol:
-      '#f2c8ff',
-
-    topBar:
-      '#ff0055',
-
-    wMult:
-      2.5,
-
-    hMult:
-      1
-
+    type: 'B_ROLL',
+    label: 'B002_DRONE.MP4',
+    bg: '#7f22a7',
+    border: '#b842df',
+    textCol: '#f2c8ff',
+    topBar: '#ff0055',
+    wMult: 2.5,
+    hMult: 1
   },
 
 
   ROSE_LUMETRI: {
-
-    type:
-      'LUMETRI',
-
-    label:
-      'LUMETRI COLOR',
-
-    bg:
-      '#a11b43',
-
-    border:
-      '#e64273',
-
-    textCol:
-      '#ffd4e2',
-
-    topBar:
-      '#ffee00',
-
-    wMult:
-      2.0,
-
-    hMult:
-      1
-
+    type: 'LUMETRI',
+    label: 'LUMETRI COLOR',
+    bg: '#a11b43',
+    border: '#e64273',
+    textCol: '#ffd4e2',
+    topBar: '#ffee00',
+    wMult: 2.0,
+    hMult: 1
   },
 
 
   GOLD_VOICEOVER: {
-
-    type:
-      'VOICEOVER',
-
-    label:
-      'VO_MASTER_V2',
-
-    bg:
-      '#8f7d18',
-
-    border:
-      '#dbc330',
-
-    textCol:
-      '#fdf8c2',
-
-    topBar:
-      '#00ff66',
-
-    isAudio:
-      true,
-
-    wMult:
-      2.0,
-
-    hMult:
-      1
-
+    type: 'VOICEOVER',
+    label: 'VO_MASTER_V2',
+    bg: '#8f7d18',
+    border: '#dbc330',
+    textCol: '#fdf8c2',
+    topBar: '#00ff66',
+    isAudio: true,
+    wMult: 2.0,
+    hMult: 1
   },
 
 
   GREEN_SFX: {
-
-    type:
-      'SFX_WAVE',
-
-    label:
-      'SFX_WHOOSH.WAV',
-
-    bg:
-      '#2d7a3a',
-
-    border:
-      '#4ec462',
-
-    textCol:
-      '#d2f8da',
-
-    topBar:
-      '#00ff66',
-
-    isAudio:
-      true,
-
-    wMult:
-      1.8,
-
-    hMult:
-      1
-
+    type: 'SFX_WAVE',
+    label: 'SFX_WHOOSH.WAV',
+    bg: '#2d7a3a',
+    border: '#4ec462',
+    textCol: '#d2f8da',
+    topBar: '#00ff66',
+    isAudio: true,
+    wMult: 1.8,
+    hMult: 1
   },
 
 
   TEAL_MUSIC: {
-
-    type:
-      'MUSIC',
-
-    label:
-      'BEAT_TRACK_FLAC',
-
-    bg:
-      '#147b85',
-
-    border:
-      '#23b3be',
-
-    textCol:
-      '#c2f8fc',
-
-    topBar:
-      '#00ff66',
-
-    isAudio:
-      true,
-
-    wMult:
-      2.8,
-
-    hMult:
-      1
-
+    type: 'MUSIC',
+    label: 'BEAT_TRACK_FLAC',
+    bg: '#147b85',
+    border: '#23b3be',
+    textCol: '#c2f8fc',
+    topBar: '#00ff66',
+    isAudio: true,
+    wMult: 2.8,
+    hMult: 1
   },
 
 
   NESTED_SEQ: {
-
-    type:
-      'NESTED',
-
-    label:
-      'NEST_INTRO_SEQ',
-
-    bg:
-      '#5b1e8a',
-
-    border:
-      '#8b3adb',
-
-    textCol:
-      '#e8cbff',
-
-    topBar:
-      '#ffee00',
-
-    wMult:
-      3.0,
-
-    hMult:
-      1
-
+    type: 'NESTED',
+    label: 'NEST_INTRO_SEQ',
+    bg: '#5b1e8a',
+    border: '#8b3adb',
+    textCol: '#e8cbff',
+    topBar: '#ffee00',
+    wMult: 3.0,
+    hMult: 1
   },
 
 
   OFFLINE_RED: {
-
-    type:
-      'OFFLINE',
-
-    label:
-      'MEDIA OFFLINE! 🔴',
-
-    bg:
-      '#8b0000',
-
-    border:
-      '#ff3333',
-
-    textCol:
-      '#ffffff',
-
-    topBar:
-      '#ff0000',
-
-    wMult:
-      3.2,
-
-    hMult:
-      1
-
+    type: 'OFFLINE',
+    label: 'MEDIA OFFLINE! 🔴',
+    bg: '#8b0000',
+    border: '#ff3333',
+    textCol: '#ffffff',
+    topBar: '#ff0000',
+    wMult: 3.2,
+    hMult: 1
   }
 
 };
 
 
 /* =========================================================
-   LEVEL
-   ========================================================= */
+   LEVEL THEMES
+========================================================= */
 
 const LEVEL_THEMES = [
 
   {
-
-    levelMin:
-      1,
-
+    levelMin: 1,
     title:
       "STAGE 1: ASSEMBLY TIMELINE",
-
     msg:
       "Primi stacchi video: pochi ostacoli e flusso regolare!"
-
   },
 
 
   {
-
-    levelMin:
-      2,
-
+    levelMin: 2,
     title:
       "STAGE 2: MONTAGGIO RUSH",
-
     msg:
       "Aumentano le clip b-roll e le tracce audio!"
-
   },
 
 
   {
-
-    levelMin:
-      3,
-
+    levelMin: 3,
     title:
       "STAGE 3: COLOR & FX MULTI-LAYER",
-
     msg:
       "Lumetri Color, Nested Sequences e tracce complesse!"
-
   },
 
 
   {
-
-    levelMin:
-      4,
-
+    levelMin: 4,
     title:
       "STAGE 4: EXPORT FINALE PRE-DEADLINE",
-
     msg:
       "Massima densità e velocità sulla Timeline!"
-
   }
 
 ];
@@ -2054,314 +2136,156 @@ const LEVEL_THEMES = [
 
 /* =========================================================
    PERSONAGGI
-   ========================================================= */
+========================================================= */
 
 const CHARACTERS = {
 
   GIULIA: {
-
-    id:
-      'GIULIA',
-
-    name:
-      "GIULIA",
-
-    subtitle:
-      "Lead Video Editor",
-
+    id: 'GIULIA',
+    name: "GIULIA",
+    subtitle: "Lead Video Editor",
     perkBonus:
       "BONUS: Precisione (Punti 1.25x)",
-
     perkMalus:
       "MALUS: Sensibile al Glitch",
-
-    primary:
-      "#00d2ff",
-
-    bg:
-      "#181818",
-
-    img:
-      imgGiulia,
-
-    arrowCol:
-      "#00d2ff",
-
-    arrowGlow:
-      "#005f73",
-
-    speed:
-      2.8,
-
-    scoreMult:
-      1.25
-
+    primary: "#00d2ff",
+    bg: "#181818",
+    img: imgGiulia,
+    arrowCol: "#00d2ff",
+    arrowGlow: "#005f73",
+    speed: 2.8,
+    scoreMult: 1.25
   },
 
 
   TOBI: {
-
-    id:
-      'TOBI',
-
-    name:
-      "TOBI",
-
-    subtitle:
-      "Assistant Video Editor",
-
+    id: 'TOBI',
+    name: "TOBI",
+    subtitle: "Assistant Video Editor",
     perkBonus:
       "BONUS: Agilità (+20% Velocità)",
-
     perkMalus:
       "MALUS: Punteggio Base (-10%)",
-
-    primary:
-      "#ffd700",
-
-    bg:
-      "#181818",
-
-    img:
-      imgTobi,
-
-    arrowCol:
-      "#ffd700",
-
-    arrowGlow:
-      "#886600",
-
-    speed:
-      3.4,
-
-    scoreMult:
-      0.9
-
+    primary: "#ffd700",
+    bg: "#181818",
+    img: imgTobi,
+    arrowCol: "#ffd700",
+    arrowGlow: "#886600",
+    speed: 3.4,
+    scoreMult: 0.9
   },
 
 
   DAVE: {
-
-    id:
-      'DAVE',
-
-    name:
-      "DAVE",
-
-    subtitle:
-      "Focused Director",
-
+    id: 'DAVE',
+    name: "DAVE",
+    subtitle: "Focused Director",
     perkBonus:
       "BONUS: Autorità (+30% Punteggio)",
-
     perkMalus:
       "MALUS: Passo Pesante (-20% Velocità)",
-
-    primary:
-      "#ff0055",
-
-    bg:
-      "#181818",
-
-    img:
-      imgDave,
-
-    arrowCol:
-      "#ff0055",
-
-    arrowGlow:
-      "#880022",
-
-    speed:
-      2.0,
-
-    scoreMult:
-      1.3
-
+    primary: "#ff0055",
+    bg: "#181818",
+    img: imgDave,
+    arrowCol: "#ff0055",
+    arrowGlow: "#880022",
+    speed: 2.0,
+    scoreMult: 1.3
   },
 
 
   LUCA: {
-
-    id:
-      'LUCA',
-
-    name:
-      "LUCA",
-
-    subtitle:
-      "VFX Artist Whiz",
-
+    id: 'LUCA',
+    name: "LUCA",
+    subtitle: "VFX Artist Whiz",
     perkBonus:
       "BONUS: VFX Master (+15% Punti)",
-
     perkMalus:
       "MALUS: Meno Vite Iniziali",
-
-    primary:
-      "#ffaa00",
-
-    bg:
-      "#181818",
-
-    img:
-      imgLuca,
-
-    arrowCol:
-      "#ffaa00",
-
-    arrowGlow:
-      "#885500",
-
-    speed:
-      3.2,
-
-    scoreMult:
-      1.15
-
+    primary: "#ffaa00",
+    bg: "#181818",
+    img: imgLuca,
+    arrowCol: "#ffaa00",
+    arrowGlow: "#885500",
+    speed: 3.2,
+    scoreMult: 1.15
   }
 
 };
 
 
 const CHARACTER_LIST = [
-
   'GIULIA',
   'TOBI',
   'DAVE',
   'LUCA'
-
 ];
 
 
 /* =========================================================
-   PICKUP
-   ========================================================= */
+   PICKUPS
+========================================================= */
 
 const PICKUP_TYPES = {
 
   AUTO_SAVE: {
-
-    type:
-      'AUTOSAVE',
-
-    label:
-      '💾 SAVE',
-
-    pts:
-      300,
-
-    isMalus:
-      false
-
+    type: 'AUTOSAVE',
+    label: '💾 SAVE',
+    pts: 300,
+    isMalus: false
   },
 
 
   PROXY_ON: {
-
-    type:
-      'PROXY',
-
-    label:
-      '🎬 PROXY 2X',
-
-    pts:
-      400,
-
-    isMalus:
-      false,
-
-    scoreBoost:
-      2.0
-
+    type: 'PROXY',
+    label: '🎬 PROXY 2X',
+    pts: 400,
+    isMalus: false,
+    scoreBoost: 2.0
   },
 
 
   CACHE_BOOST: {
-
-    type:
-      'CACHE',
-
-    label:
-      '⚡ CACHE',
-
-    pts:
-      150,
-
-    isMalus:
-      false,
-
-    speedBoost:
-      1.3
-
+    type: 'CACHE',
+    label: '⚡ CACHE',
+    pts: 150,
+    isMalus: false,
+    speedBoost: 1.3
   },
 
 
   GUARD: {
-
-    type:
-      'GUARD',
-
-    label:
-      '🛡️ RENDER',
-
-    pts:
-      250,
-
-    isMalus:
-      false,
-
-    shieldDuration:
-      180
-
+    type: 'GUARD',
+    label: '🛡️ RENDER',
+    pts: 250,
+    isMalus: false,
+    shieldDuration: 180
   },
 
 
   DROP_FRAME: {
-
-    type:
-      'DROP_FRAME',
-
-    label:
-      '🐌 DROP',
-
-    pts:
-      -100,
-
-    isMalus:
-      true,
-
-    slowFactor:
-      0.6
-
+    type: 'DROP_FRAME',
+    label: '🐌 DROP',
+    pts: -100,
+    isMalus: true,
+    slowFactor: 0.6
   },
 
 
   DISK_FULL: {
-
-    type:
-      'DISK_FULL',
-
-    label:
-      '⚠️ FULL DISK',
-
-    pts:
-      -200,
-
-    isMalus:
-      true,
-
-    invertControls:
-      true
-
+    type: 'DISK_FULL',
+    label: '⚠️ FULL DISK',
+    pts: -200,
+    isMalus: true,
+    invertControls: true
   }
 
 };
 
 
 /* =========================================================
-   GAME STATE
-   ========================================================= */
+   GAME VARIABLES
+========================================================= */
 
 let currentTheme =
   CHARACTERS.GIULIA;
@@ -2377,113 +2301,81 @@ let highScore =
 
 let activeLanes = [];
 
-
 let gameState =
   'TUTORIAL';
 
+let level = 1;
 
-let level =
-  1;
+let score = 0;
 
+let lives = 3;
 
-let score =
-  0;
-
-
-let lives =
-  3;
-
-
-let visualScrollOffset =
-  0;
+let visualScrollOffset = 0;
 
 
 let player = {
 
   gx:
-    Math.floor(
-      COLS / 2
-    ),
+    Math.floor(COLS / 2),
 
   gy:
     ROWS - 2,
 
-  w:
-    16,
+  w: 16,
 
-  h:
-    16,
+  h: 16,
 
-  facingLeft:
-    false,
+  facingLeft: false,
 
-  invTimer:
-    0,
+  invTimer: 0,
 
-  guardTimer:
-    0,
+  guardTimer: 0,
 
-  nextMoveAllowedTimer:
-    0,
+  nextMoveAllowedTimer: 0,
 
-  speedMult:
-    1.0,
+  speedMult: 1.0,
 
-  tempScoreMult:
-    1.0,
+  tempScoreMult: 1.0,
 
-  glitchTimer:
-    0
+  glitchTimer: 0
 
 };
 
 
-let moveUp =
-  false;
+let moveUp = false;
 
-let moveDown =
-  false;
+let moveDown = false;
 
-let moveLeft =
-  false;
+let moveLeft = false;
 
-let moveRight =
-  false;
+let moveRight = false;
 
+let selectedCharIndex = 0;
 
-let selectedCharIndex =
-  0;
-
-
-let particles =
-  [];
+let particles = [];
 
 
 /* =========================================================
-   LANE
-   ========================================================= */
+   LANE GENERATION
+========================================================= */
 
 function createNewLane(
   isInitialSetup = false,
   r = 0
 ) {
 
-  let isSafe =
-    false;
+  let isSafe = false;
 
 
   let safeChance =
     Math.max(
       0.20,
       0.45 -
-      level *
-      0.08
+      (level * 0.08)
     );
 
 
-  if (
-    isInitialSetup
-  ) {
+  if (isInitialSetup) {
 
     isSafe =
       (
@@ -2507,12 +2399,10 @@ function createNewLane(
 
     if (
       topLane &&
-      topLane.type ===
-      'SAFE'
+      topLane.type === 'SAFE'
     ) {
 
-      isSafe =
-        false;
+      isSafe = false;
 
     }
 
@@ -2543,8 +2433,7 @@ function createNewLane(
   let speedFactor =
     0.38 +
     Math.min(
-      level *
-      0.16,
+      level * 0.16,
       1.2
     );
 
@@ -2552,8 +2441,7 @@ function createNewLane(
   let baseSpeed =
     (
       0.45 +
-      Math.random() *
-      0.35
+      Math.random() * 0.35
     ) *
     speedFactor;
 
@@ -2568,54 +2456,40 @@ function createNewLane(
     "V1";
 
 
-  if (
-    r % 5 === 0
-  ) {
+  if (r % 5 === 0) {
 
-    trackLabel =
-      "V3";
+    trackLabel = "V3";
 
   }
 
-  else if (
-    r % 5 === 1
-  ) {
+  else if (r % 5 === 1) {
 
-    trackLabel =
-      "V2";
+    trackLabel = "V2";
 
   }
 
-  else if (
-    r % 5 === 2
-  ) {
+  else if (r % 5 === 2) {
 
-    trackLabel =
-      "V1";
+    trackLabel = "V1";
 
   }
 
-  else if (
-    r % 5 === 3
-  ) {
+  else if (r % 5 === 3) {
 
-    trackLabel =
-      "A1";
+    trackLabel = "A1";
 
   }
 
   else {
 
-    trackLabel =
-      "A2";
+    trackLabel = "A2";
 
   }
 
 
   let laneObj = {
 
-    type:
-      laneType,
+    type: laneType,
 
     trackLabel:
       isSafe
@@ -2627,25 +2501,18 @@ function createNewLane(
         ? '#1c2230'
         : '#141416',
 
-    dir:
-      dir,
+    dir: dir,
 
-    speed:
-      baseSpeed,
+    speed: baseSpeed,
 
-    objects:
-      [],
+    objects: [],
 
-    pickups:
-      []
+    pickups: []
 
   };
 
 
-  if (
-    laneType ===
-    'ROAD'
-  ) {
+  if (laneType === 'ROAD') {
 
     let x =
       TRACK_HEADER_W -
@@ -2656,8 +2523,7 @@ function createNewLane(
       Math.max(
         4.0,
         10.0 -
-        level *
-        1.5
+        (level * 1.5)
       );
 
 
@@ -2675,8 +2541,7 @@ function createNewLane(
       if (
         x <
         CANVAS_W +
-        CELL_SIZE *
-        3
+        CELL_SIZE * 3
       ) {
 
         let vType =
@@ -2690,11 +2555,9 @@ function createNewLane(
 
         laneObj.objects.push({
 
-          x:
-            x,
+          x: x,
 
-          type:
-            vType,
+          type: vType,
 
           w:
             vType.wMult *
@@ -2712,8 +2575,7 @@ function createNewLane(
     while (
       x <
       CANVAS_W +
-      CELL_SIZE *
-      3
+      CELL_SIZE * 3
     );
 
   }
@@ -2721,8 +2583,7 @@ function createNewLane(
 
   else if (
     isSafe &&
-    Math.random() <
-    0.35
+    Math.random() < 0.35
   ) {
 
     let pTypeKeys =
@@ -2745,9 +2606,7 @@ function createNewLane(
       gx:
         Math.floor(
           Math.random() *
-          (
-            COLS - 3
-          )
+          (COLS - 3)
         ) + 2,
 
       type:
@@ -2767,16 +2626,13 @@ function createNewLane(
 
 /* =========================================================
    START
-   ========================================================= */
+========================================================= */
 
 function startInfiniteScroll() {
 
-  activeLanes =
-    [];
+  activeLanes = [];
 
-
-  visualScrollOffset =
-    0;
+  visualScrollOffset = 0;
 
 
   for (
@@ -2812,49 +2668,33 @@ function resetPlayer() {
     ROWS - 2;
 
 
-  player.w =
-    16;
+  player.w = 16;
 
+  player.h = 16;
 
-  player.h =
-    16;
+  player.invTimer = 0;
 
+  player.guardTimer = 0;
 
-  player.invTimer =
-    0;
+  player.nextMoveAllowedTimer = 0;
 
+  player.speedMult = 1.0;
 
-  player.guardTimer =
-    0;
+  player.tempScoreMult = 1.0;
 
-
-  player.nextMoveAllowedTimer =
-    0;
-
-
-  player.speedMult =
-    1.0;
-
-
-  player.tempScoreMult =
-    1.0;
-
-
-  player.glitchTimer =
-    0;
+  player.glitchTimer = 0;
 
 }
 
 
 /* =========================================================
    PLAYER
-   ========================================================= */
+========================================================= */
 
 function updatePlayer() {
 
   if (
-    player.nextMoveAllowedTimer >
-    0
+    player.nextMoveAllowedTimer > 0
   ) {
 
     player.nextMoveAllowedTimer--;
@@ -2863,8 +2703,7 @@ function updatePlayer() {
 
 
   if (
-    player.glitchTimer >
-    0
+    player.glitchTimer > 0
   ) {
 
     player.glitchTimer--;
@@ -2873,87 +2712,50 @@ function updatePlayer() {
 
 
   if (
-    player.nextMoveAllowedTimer <=
-    0
+    player.nextMoveAllowedTimer <= 0
   ) {
 
-    let dx =
-      0;
-
-
-    let dy =
-      0;
+    let dx = 0;
+    let dy = 0;
 
 
     let inLeft =
-      keyPressed(
-        'ArrowLeft'
-      ) ||
-      keyPressed(
-        'KeyA'
-      ) ||
+      keyPressed('ArrowLeft') ||
+      keyPressed('KeyA') ||
       moveLeft;
 
 
     let inRight =
-      keyPressed(
-        'ArrowRight'
-      ) ||
-      keyPressed(
-        'KeyD'
-      ) ||
+      keyPressed('ArrowRight') ||
+      keyPressed('KeyD') ||
       moveRight;
 
 
     let inUp =
-      keyPressed(
-        'ArrowUp'
-      ) ||
-      keyPressed(
-        'KeyW'
-      ) ||
+      keyPressed('ArrowUp') ||
+      keyPressed('KeyW') ||
       moveUp;
 
 
     let inDown =
-      keyPressed(
-        'ArrowDown'
-      ) ||
-      keyPressed(
-        'KeyS'
-      ) ||
+      keyPressed('ArrowDown') ||
+      keyPressed('KeyS') ||
       moveDown;
 
 
     if (
-      player.glitchTimer >
-      0
+      player.glitchTimer > 0
     ) {
 
-      let tempL =
-        inLeft;
+      let tempL = inLeft;
+      let tempR = inRight;
+      let tempU = inUp;
+      let tempD = inDown;
 
-      let tempR =
-        inRight;
-
-      let tempU =
-        inUp;
-
-      let tempD =
-        inDown;
-
-
-      inLeft =
-        tempR;
-
-      inRight =
-        tempL;
-
-      inUp =
-        tempD;
-
-      inDown =
-        tempU;
+      inLeft = tempR;
+      inRight = tempL;
+      inUp = tempD;
+      inDown = tempU;
 
     }
 
@@ -2967,9 +2769,7 @@ function updatePlayer() {
 
     }
 
-    else if (
-      inRight
-    ) {
+    else if (inRight) {
 
       dx++;
 
@@ -2985,9 +2785,7 @@ function updatePlayer() {
 
     }
 
-    else if (
-      inDown
-    ) {
+    else if (inDown) {
 
       dy++;
 
@@ -3000,17 +2798,14 @@ function updatePlayer() {
     ) {
 
       let ngx =
-        player.gx +
-        dx;
+        player.gx + dx;
 
 
       let ngy =
-        player.gy +
-        dy;
+        player.gy + dy;
 
 
-      let minGx =
-        2;
+      let minGx = 2;
 
 
       if (
@@ -3020,12 +2815,9 @@ function updatePlayer() {
         ngy < ROWS
       ) {
 
-        player.gx =
-          ngx;
+        player.gx = ngx;
 
-
-        player.gy =
-          ngy;
+        player.gy = ngy;
 
 
         if (
@@ -3037,24 +2829,19 @@ function updatePlayer() {
 
         }
 
-        else if (
-          dy < 0
-        ) {
+        else if (dy < 0) {
 
-          score +=
-            Math.floor(
-              10 *
-              level *
-              currentTheme.scoreMult *
-              player.tempScoreMult
-            );
+          score += Math.floor(
+            10 *
+            level *
+            currentTheme.scoreMult *
+            player.tempScoreMult
+          );
 
         }
 
 
-        playSound(
-          'cross'
-        );
+        playSound('cross');
 
 
         let effSpeed =
@@ -3066,8 +2853,7 @@ function updatePlayer() {
           Math.max(
             5,
             Math.floor(
-              14 /
-              effSpeed
+              14 / effSpeed
             )
           );
 
@@ -3079,8 +2865,7 @@ function updatePlayer() {
 
 
   if (
-    player.invTimer >
-    0
+    player.invTimer > 0
   ) {
 
     player.invTimer--;
@@ -3089,8 +2874,7 @@ function updatePlayer() {
 
 
   if (
-    player.guardTimer >
-    0
+    player.guardTimer > 0
   ) {
 
     player.guardTimer--;
@@ -3107,7 +2891,7 @@ function updatePlayer() {
 
 /* =========================================================
    SCROLL
-   ========================================================= */
+========================================================= */
 
 function scrollWorldDown() {
 
@@ -3126,19 +2910,17 @@ function scrollWorldDown() {
     CELL_SIZE;
 
 
-  score +=
-    Math.floor(
-      15 *
-      level *
-      currentTheme.scoreMult *
-      player.tempScoreMult
-    );
+  score += Math.floor(
+    15 *
+    level *
+    currentTheme.scoreMult *
+    player.tempScoreMult
+  );
 
 
   if (
     score >
-    level *
-    1200
+    level * 1200
   ) {
 
     level++;
@@ -3150,7 +2932,7 @@ function scrollWorldDown() {
 
 /* =========================================================
    VEHICLES
-   ========================================================= */
+========================================================= */
 
 function updateVehicles() {
 
@@ -3165,12 +2947,10 @@ function updateVehicles() {
   if (
     Math.abs(
       visualScrollOffset
-    ) <
-    0.1
+    ) < 0.1
   ) {
 
-    visualScrollOffset =
-      0;
+    visualScrollOffset = 0;
 
   }
 
@@ -3179,8 +2959,7 @@ function updateVehicles() {
     lane => {
 
       if (
-        lane.type ===
-        'ROAD'
+        lane.type === 'ROAD'
       ) {
 
         lane.objects.forEach(
@@ -3237,13 +3016,9 @@ function updateVehicles() {
       particles[i];
 
 
-    p.x +=
-      p.vx;
+    p.x += p.vx;
 
-
-    p.y +=
-      p.vy;
-
+    p.y += p.vy;
 
     p.life--;
 
@@ -3265,8 +3040,8 @@ function updateVehicles() {
 
 
 /* =========================================================
-   PARTICELLE
-   ========================================================= */
+   PARTICLES
+========================================================= */
 
 function addParticles(
   x,
@@ -3283,31 +3058,25 @@ function addParticles(
 
     particles.push({
 
-      x:
-        x,
+      x: x,
 
-      y:
-        y,
+      y: y,
 
       vx:
         (
           Math.random() -
           0.5
-        ) *
-        6,
+        ) * 6,
 
       vy:
         (
           Math.random() -
           0.5
-        ) *
-        6,
+        ) * 6,
 
-      life:
-        16,
+      life: 16,
 
-      color:
-        color
+      color: color
 
     });
 
@@ -3318,7 +3087,7 @@ function addParticles(
 
 /* =========================================================
    PICKUPS
-   ========================================================= */
+========================================================= */
 
 function checkPickups() {
 
@@ -3330,8 +3099,7 @@ function checkPickups() {
 
   if (
     !currentLane ||
-    currentLane.pickups.length ===
-    0
+    currentLane.pickups.length === 0
   ) {
 
     return;
@@ -3351,24 +3119,20 @@ function checkPickups() {
 
 
     if (
-      p.gx ===
-      player.gx
+      p.gx === player.gx
     ) {
 
-      score +=
-        Math.floor(
-          p.type.pts *
-          currentTheme.scoreMult
-        );
+      score += Math.floor(
+        p.type.pts *
+        currentTheme.scoreMult
+      );
 
 
       if (
         p.type.isMalus
       ) {
 
-        playSound(
-          'malus'
-        );
+        playSound('malus');
 
 
         if (
@@ -3394,9 +3158,7 @@ function checkPickups() {
 
       else {
 
-        playSound(
-          'pickup'
-        );
+        playSound('pickup');
 
 
         if (
@@ -3468,18 +3230,13 @@ function checkPickups() {
 
 /* =========================================================
    COLLISION
-   ========================================================= */
+========================================================= */
 
 function isInvincible() {
 
   return (
-
-    player.invTimer >
-    0 ||
-
-    player.guardTimer >
-    0
-
+    player.invTimer > 0 ||
+    player.guardTimer > 0
   );
 
 }
@@ -3488,8 +3245,7 @@ function isInvincible() {
 function checkCollisions() {
 
   if (
-    gameState !==
-    'PLAYING' ||
+    gameState !== 'PLAYING' ||
     isInvincible()
   ) {
 
@@ -3500,7 +3256,7 @@ function checkCollisions() {
 
   let playerX =
     player.gx *
-    CELL_SIZE +
+      CELL_SIZE +
     CELL_SIZE / 2;
 
 
@@ -3533,8 +3289,7 @@ function checkCollisions() {
 
     if (
       !lane ||
-      lane.type !==
-      'ROAD'
+      lane.type !== 'ROAD'
     ) {
 
       continue;
@@ -3575,10 +3330,8 @@ function checkCollisions() {
 
 
         if (
-          pLeft <
-          oRight &&
-          pRight >
-          oLeft
+          pLeft < oRight &&
+          pRight > oLeft
         ) {
 
           hitPlayer();
@@ -3595,15 +3348,13 @@ function checkCollisions() {
 
 /* =========================================================
    HIT
-   ========================================================= */
+========================================================= */
 
 function hitPlayer() {
 
   lives--;
 
-  playSound(
-    'crash'
-  );
+  playSound('crash');
 
 
   addParticles(
@@ -3630,9 +3381,7 @@ function hitPlayer() {
     gameState =
       'GAME_OVER';
 
-    playSound(
-      'fail'
-    );
+    playSound('fail');
 
     saveScore();
 
@@ -3645,8 +3394,7 @@ function hitPlayer() {
 
 
     for (
-      let r =
-        player.gy;
+      let r = player.gy;
       r < ROWS;
       r++
     ) {
@@ -3657,8 +3405,7 @@ function hitPlayer() {
         'SAFE'
       ) {
 
-        respawnGy =
-          r;
+        respawnGy = r;
 
         break;
 
@@ -3698,8 +3445,8 @@ function hitPlayer() {
 
 
 /* =========================================================
-   WORLD DRAW
-   ========================================================= */
+   WORLD
+========================================================= */
 
 function drawGameWorld() {
 
@@ -3708,16 +3455,11 @@ function drawGameWorld() {
 
 
   ctx.fillRect(
-
     0,
-
     HUD_HEIGHT,
-
     CANVAS_W,
-
     CANVAS_H -
-    HUD_HEIGHT
-
+      HUD_HEIGHT
   );
 
 
@@ -3736,15 +3478,10 @@ function drawGameWorld() {
 
 
       ctx.fillRect(
-
         0,
-
         y,
-
         CANVAS_W,
-
         CELL_SIZE
-
       );
 
 
@@ -3752,20 +3489,14 @@ function drawGameWorld() {
         '#222226';
 
 
-      ctx.lineWidth =
-        1;
+      ctx.lineWidth = 1;
 
 
       ctx.strokeRect(
-
         0,
-
         y,
-
         CANVAS_W,
-
         CELL_SIZE
-
       );
 
     }
@@ -3776,8 +3507,7 @@ function drawGameWorld() {
     (lane, r) => {
 
       if (
-        lane.type ===
-        'SAFE'
+        lane.type === 'SAFE'
       ) {
 
         let y =
@@ -3792,7 +3522,7 @@ function drawGameWorld() {
 
             let px =
               p.gx *
-              CELL_SIZE +
+                CELL_SIZE +
               CELL_SIZE / 2;
 
 
@@ -3820,14 +3550,10 @@ function drawGameWorld() {
 
 
             ctx.fillText(
-
               p.type.label
                 .split(' ')[0],
-
               px,
-
               py
-
             );
 
           }
@@ -3843,8 +3569,7 @@ function drawGameWorld() {
     (lane, r) => {
 
       if (
-        lane.type ===
-        'ROAD'
+        lane.type === 'ROAD'
       ) {
 
         let y =
@@ -3880,15 +3605,10 @@ function drawGameWorld() {
 
 
       ctx.fillRect(
-
         0,
-
         y,
-
         TRACK_HEADER_W,
-
         CELL_SIZE
-
       );
 
 
@@ -3896,20 +3616,14 @@ function drawGameWorld() {
         '#323238';
 
 
-      ctx.lineWidth =
-        1;
+      ctx.lineWidth = 1;
 
 
       ctx.strokeRect(
-
         0,
-
         y,
-
         TRACK_HEADER_W,
-
         CELL_SIZE
-
       );
 
 
@@ -3930,14 +3644,10 @@ function drawGameWorld() {
 
 
       ctx.fillText(
-
         lane.trackLabel,
-
         TRACK_HEADER_W / 2,
-
         y +
-        CELL_SIZE / 2
-
+          CELL_SIZE / 2
       );
 
     }
@@ -3959,15 +3669,10 @@ function drawGameWorld() {
 
 
     ctx.fillRect(
-
       p.x,
-
       p.y,
-
       4,
-
       4
-
     );
 
   }
@@ -3975,12 +3680,12 @@ function drawGameWorld() {
 
   let playheadX =
     player.gx *
-    CELL_SIZE +
+      CELL_SIZE +
     CELL_SIZE / 2;
 
 
   ctx.strokeStyle =
-    'rgba(0, 210, 255, 0.4)';
+    'rgba(0,210,255,0.4)';
 
 
   ctx.lineWidth =
@@ -4011,8 +3716,8 @@ function drawGameWorld() {
 
 
 /* =========================================================
-   OSTACOLI
-   ========================================================= */
+   OBSTACLES
+========================================================= */
 
 function drawObstacles(
   lane,
@@ -4043,8 +3748,7 @@ function drawObstacles(
           obj.hMult === 2
             ? CELL_SIZE * 2
             : CELL_SIZE
-        ) -
-        2;
+        ) - 2;
 
 
       if (
@@ -4065,15 +3769,10 @@ function drawObstacles(
 
 
       ctx.fillRect(
-
         x + 1,
-
         y + 1,
-
         blockW - 2,
-
         blockH
-
       );
 
 
@@ -4083,15 +3782,10 @@ function drawObstacles(
 
 
       ctx.fillRect(
-
         x + 1,
-
         y + 1,
-
         blockW - 2,
-
         2
-
       );
 
 
@@ -4099,20 +3793,14 @@ function drawObstacles(
         vData.border;
 
 
-      ctx.lineWidth =
-        1;
+      ctx.lineWidth = 1;
 
 
       ctx.strokeRect(
-
         x + 1,
-
         y + 1,
-
         blockW - 2,
-
         blockH
-
       );
 
 
@@ -4121,15 +3809,10 @@ function drawObstacles(
 
 
       ctx.fillRect(
-
         x + 4,
-
         y + 4,
-
         13,
-
         10
-
       );
 
 
@@ -4150,13 +3833,9 @@ function drawObstacles(
 
 
       ctx.fillText(
-
         'fx',
-
         x + 10,
-
         y + 9
-
       );
 
 
@@ -4168,8 +3847,7 @@ function drawObstacles(
           'rgba(255,255,255,0.18)';
 
 
-        ctx.lineWidth =
-          1;
+        ctx.lineWidth = 1;
 
 
         ctx.beginPath();
@@ -4182,24 +3860,16 @@ function drawObstacles(
 
 
         ctx.moveTo(
-
           x + 18,
-
           y +
-          blockH / 2
-
+            blockH / 2
         );
 
 
         ctx.lineTo(
-
-          x +
-          blockW -
-          6,
-
+          x + blockW - 6,
           y +
-          blockH / 2
-
+            blockH / 2
         );
 
 
@@ -4228,20 +3898,14 @@ function drawObstacles(
 
 
       ctx.fillText(
-
         vData.label,
-
         x +
-        blockW / 2 +
-        6,
-
+          blockW / 2 +
+          6,
         y +
-        blockH / 2 +
-        1,
-
-        blockW -
-        22
-
+          blockH / 2 +
+          1,
+        blockW - 22
       );
 
 
@@ -4255,13 +3919,13 @@ function drawObstacles(
 
 /* =========================================================
    PLAYER DRAW
-   ========================================================= */
+========================================================= */
 
 function drawSinglePlayer() {
 
   let playerY =
     player.gy *
-    CELL_SIZE +
+      CELL_SIZE +
     HUD_HEIGHT +
     CELL_SIZE / 2 +
     visualScrollOffset;
@@ -4269,17 +3933,15 @@ function drawSinglePlayer() {
 
   let playerX =
     player.gx *
-    CELL_SIZE +
+      CELL_SIZE +
     CELL_SIZE / 2;
 
 
   if (
-    player.invTimer >
-    0 &&
+    player.invTimer > 0 &&
     Math.floor(
       player.invTimer / 4
-    ) % 2 ===
-    0
+    ) % 2 === 0
   ) {
 
     return;
@@ -4354,7 +4016,7 @@ function drawSinglePlayer() {
 
 
   ctx.strokeStyle =
-    '#ffffff';
+    '#fff';
 
 
   ctx.lineWidth =
@@ -4365,8 +4027,7 @@ function drawSinglePlayer() {
 
 
   if (
-    player.glitchTimer >
-    0
+    player.glitchTimer > 0
   ) {
 
     ctx.fillStyle =
@@ -4387,8 +4048,7 @@ function drawSinglePlayer() {
 
 
   if (
-    player.guardTimer >
-    0
+    player.guardTimer > 0
   ) {
 
     ctx.shadowColor =
@@ -4411,17 +4071,11 @@ function drawSinglePlayer() {
 
 
     ctx.arc(
-
       0,
-
       0,
-
       16,
-
       0,
-
       Math.PI * 2
-
     );
 
 
@@ -4437,7 +4091,7 @@ function drawSinglePlayer() {
 
 /* =========================================================
    HUD
-   ========================================================= */
+========================================================= */
 
 function drawHUD() {
 
@@ -4446,15 +4100,10 @@ function drawHUD() {
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     HUD_HEIGHT
-
   );
 
 
@@ -4467,15 +4116,10 @@ function drawHUD() {
 
 
   ctx.strokeRect(
-
     0,
-
     0,
-
     canvas.width,
-
     HUD_HEIGHT
-
   );
 
 
@@ -4492,13 +4136,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     `${currentTheme.name}`,
-
     8,
-
     16
-
   );
 
 
@@ -4507,18 +4147,14 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     `PTS: ${score}`,
-
     8,
-
     32
-
   );
 
 
   ctx.fillStyle =
-    '#ffffff';
+    '#fff';
 
 
   ctx.font =
@@ -4539,13 +4175,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     tData.title,
-
     canvas.width / 2,
-
     26
-
   );
 
 
@@ -4562,13 +4194,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     `REC: ${highScore}`,
-
     canvas.width - 8,
-
     16
-
   );
 
 
@@ -4577,13 +4205,9 @@ function drawHUD() {
 
 
   ctx.fillText(
-
     `VITE: ${'❤️'.repeat(lives)}`,
-
     canvas.width - 8,
-
     34
-
   );
 
 }
@@ -4591,24 +4215,19 @@ function drawHUD() {
 
 /* =========================================================
    TUTORIAL
-   ========================================================= */
+========================================================= */
 
 function drawTutorial() {
 
   ctx.fillStyle =
-    'rgba(20, 20, 24, 0.96)';
+    'rgba(20,20,24,0.96)';
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -4625,30 +4244,19 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     'PREMIERE TIMELINE RUSH 🎬',
-
     canvas.width / 2,
-
     38
-
   );
 
 
   drawRoundRect(
-
     ctx,
-
     12,
-
     52,
-
     314,
-
     85,
-
     10
-
   );
 
 
@@ -4683,18 +4291,14 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '1. RISALI LA TIMELINE',
-
     22,
-
     72
-
   );
 
 
   ctx.fillStyle =
-    '#ffffff';
+    '#fff';
 
 
   ctx.font =
@@ -4702,52 +4306,33 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '• Evita i blocchi clip: Media Offline, GPU Crash,',
-
     22,
-
     90
-
   );
 
 
   ctx.fillText(
-
     '  Lumetri FX e tracce audio fuori sync!',
-
     22,
-
     106
-
   );
 
 
   ctx.fillText(
-
     '• Avanza verso l\'alto per fare punti!',
-
     22,
-
     122
-
   );
 
 
   drawRoundRect(
-
     ctx,
-
     12,
-
     145,
-
     314,
-
     88,
-
     10
-
   );
 
 
@@ -4782,18 +4367,14 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '2. POTENZIAMENTI BONUS 🎁',
-
     22,
-
     165
-
   );
 
 
   ctx.fillStyle =
-    '#ffffff';
+    '#fff';
 
 
   ctx.font =
@@ -4801,52 +4382,33 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '• 💾 Auto-Save (+300 PTS) | 🎬 Proxy (2X Punti)',
-
     22,
-
     183
-
   );
 
 
   ctx.fillText(
-
     '• ⚡ Cache (+150 PTS & Boost Velocità)',
-
     22,
-
     199
-
   );
 
 
   ctx.fillText(
-
     '• 🛡️ Render Shield: Scudo invincibile temporaneo!',
-
     22,
-
     215
-
   );
 
 
   drawRoundRect(
-
     ctx,
-
     12,
-
     241,
-
     314,
-
     80,
-
     10
-
   );
 
 
@@ -4881,18 +4443,14 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '3. MALUS TRAPPOLA ⚠️',
-
     22,
-
     261
-
   );
 
 
   ctx.fillStyle =
-    '#ffffff';
+    '#fff';
 
 
   ctx.font =
@@ -4900,24 +4458,16 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     '• 🐌 Drop Frame: Rallenta temporaneamente (-100)',
-
     22,
-
     279
-
   );
 
 
   ctx.fillText(
-
     '• ⚠️ Full Disk: Inverte i comandi di guida! (-200)',
-
     22,
-
     297
-
   );
 
 
@@ -4934,30 +4484,19 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     `RECORD ATTUALE: ${highScore} PTS`,
-
     canvas.width / 2,
-
     342
-
   );
 
 
   drawRoundRect(
-
     ctx,
-
     16,
-
     368,
-
     306,
-
     42,
-
     10
-
   );
 
 
@@ -4969,7 +4508,7 @@ function drawTutorial() {
 
 
   ctx.strokeStyle =
-    '#ffffff';
+    '#fff';
 
 
   ctx.lineWidth =
@@ -4980,7 +4519,7 @@ function drawTutorial() {
 
 
   ctx.fillStyle =
-    '#000000';
+    '#000';
 
 
   ctx.font =
@@ -4988,13 +4527,9 @@ function drawTutorial() {
 
 
   ctx.fillText(
-
     'AVANTI: SCEGLI VIDEOMAKER ►',
-
     canvas.width / 2,
-
     396
-
   );
 
 }
@@ -5002,24 +4537,19 @@ function drawTutorial() {
 
 /* =========================================================
    CHARACTER SELECT
-   ========================================================= */
+========================================================= */
 
 function drawCharSelect() {
 
   ctx.fillStyle =
-    'rgba(20, 20, 24, 0.96)';
+    'rgba(20,20,24,0.96)';
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -5036,13 +4566,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     'Scegli il tuo Creativo in Deadline Drive',
-
     canvas.width / 2,
-
     28
-
   );
 
 
@@ -5053,44 +4579,28 @@ function drawCharSelect() {
 
 
   let c =
-    CHARACTERS[
-      cKey
-    ];
+    CHARACTERS[cKey];
 
 
-  let cardW =
-    318;
+  let cardW = 318;
 
-
-  let cardH =
-    395;
+  let cardH = 395;
 
 
   let cardX =
-    (
-      CANVAS_W -
-      cardW
-    ) / 2;
+    (CANVAS_W - cardW) / 2;
 
 
-  let cardY =
-    38;
+  let cardY = 38;
 
 
   drawRoundRect(
-
     ctx,
-
     cardX,
-
     cardY,
-
     cardW,
-
     cardH,
-
     12
-
   );
 
 
@@ -5112,43 +4622,29 @@ function drawCharSelect() {
   ctx.stroke();
 
 
-  let boxW =
-    160;
+  let boxW = 160;
 
-
-  let boxH =
-    160;
+  let boxH = 160;
 
 
   let boxX =
-    (
-      CANVAS_W -
-      boxW
-    ) / 2;
+    (CANVAS_W - boxW) / 2;
 
 
   let boxY =
-    cardY +
-    14;
+    cardY + 14;
 
 
   ctx.save();
 
 
   drawRoundRect(
-
     ctx,
-
     boxX,
-
     boxY,
-
     boxW,
-
     boxH,
-
     12
-
   );
 
 
@@ -5158,22 +4654,15 @@ function drawCharSelect() {
   if (
     c.img &&
     c.img.complete &&
-    c.img.naturalWidth >
-    0
+    c.img.naturalWidth > 0
   ) {
 
     ctx.drawImage(
-
       c.img,
-
       boxX,
-
       boxY,
-
       boxW,
-
       boxH
-
     );
 
   }
@@ -5200,13 +4689,9 @@ function drawCharSelect() {
 
 
     ctx.fillText(
-
       c.name[0],
-
       CANVAS_W / 2,
-
       boxY + 95
-
     );
 
   }
@@ -5216,19 +4701,12 @@ function drawCharSelect() {
 
 
   drawRoundRect(
-
     ctx,
-
     boxX,
-
     boxY,
-
     boxW,
-
     boxH,
-
     12
-
   );
 
 
@@ -5256,18 +4734,14 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     c.name,
-
     CANVAS_W / 2,
-
     cardY + 200
-
   );
 
 
   ctx.fillStyle =
-    '#ffffff';
+    '#fff';
 
 
   ctx.font =
@@ -5275,13 +4749,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     c.subtitle,
-
     CANVAS_W / 2,
-
     cardY + 222
-
   );
 
 
@@ -5294,13 +4764,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     c.perkBonus,
-
     CANVAS_W / 2,
-
     cardY + 248
-
   );
 
 
@@ -5309,13 +4775,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     c.perkMalus,
-
     CANVAS_W / 2,
-
     cardY + 268
-
   );
 
 
@@ -5328,13 +4790,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     '► TOCCA PER CONFERMARE ◄',
-
     CANVAS_W / 2,
-
     cardY + 310
-
   );
 
 
@@ -5357,13 +4815,9 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-
     '◄  CAMBIA PERSONAGGIO  ►',
-
     CANVAS_W / 2,
-
     arrowY
-
   );
 
 }
@@ -5371,15 +4825,11 @@ function drawCharSelect() {
 
 /* =========================================================
    SELECTION
-   ========================================================= */
+========================================================= */
 
-function handleSelectionInput(
-  dir
-) {
+function handleSelectionInput(dir) {
 
-  playSound(
-    'cross'
-  );
+  playSound('cross');
 
 
   selectedCharIndex +=
@@ -5387,13 +4837,11 @@ function handleSelectionInput(
 
 
   if (
-    selectedCharIndex <
-    0
+    selectedCharIndex < 0
   ) {
 
     selectedCharIndex =
-      CHARACTER_LIST.length -
-      1;
+      CHARACTER_LIST.length - 1;
 
   }
 
@@ -5403,8 +4851,7 @@ function handleSelectionInput(
     CHARACTER_LIST.length
   ) {
 
-    selectedCharIndex =
-      0;
+    selectedCharIndex = 0;
 
   }
 
@@ -5413,24 +4860,19 @@ function handleSelectionInput(
 
 /* =========================================================
    LEVEL CLEAR
-   ========================================================= */
+========================================================= */
 
 function drawLevelClear() {
 
   ctx.fillStyle =
-    'rgba(20, 20, 24, 0.88)';
+    'rgba(20,20,24,0.88)';
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -5456,13 +4898,9 @@ function drawLevelClear() {
 
 
   ctx.fillText(
-
     `${tData.title} COMPLETE! 🎉`,
-
     canvas.width / 2,
-
     canvas.height / 2 - 30
-
   );
 
 
@@ -5475,13 +4913,9 @@ function drawLevelClear() {
 
 
   ctx.fillText(
-
     tData.msg,
-
     canvas.width / 2,
-
     canvas.height / 2
-
   );
 
 
@@ -5494,17 +4928,13 @@ function drawLevelClear() {
 
 
   ctx.fillText(
-
     `BONUS STAGE: +${Math.floor(
       1000 *
       (level - 1) *
       currentTheme.scoreMult
     )} PTS`,
-
     canvas.width / 2,
-
     canvas.height / 2 + 35
-
   );
 
 }
@@ -5512,24 +4942,19 @@ function drawLevelClear() {
 
 /* =========================================================
    GAME OVER
-   ========================================================= */
+========================================================= */
 
 function drawGameOver() {
 
   ctx.fillStyle =
-    'rgba(20, 20, 24, 0.94)';
+    'rgba(20,20,24,0.94)';
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -5546,13 +4971,9 @@ function drawGameOver() {
 
 
   ctx.fillText(
-
     'DEADLINE MISSED! 💀',
-
     canvas.width / 2,
-
     canvas.height / 2 - 40
-
   );
 
 
@@ -5565,13 +4986,9 @@ function drawGameOver() {
 
 
   ctx.fillText(
-
     `PUNTEGGIO: ${score}`,
-
     canvas.width / 2,
-
     canvas.height / 2 + 5
-
   );
 
 
@@ -5584,13 +5001,9 @@ function drawGameOver() {
 
 
   ctx.fillText(
-
     `RECORD ATTUALE: ${highScore}`,
-
     canvas.width / 2,
-
     canvas.height / 2 + 35
-
   );
 
 
@@ -5607,38 +5020,29 @@ function drawGameOver() {
 
 
   ctx.fillText(
-
     '► TOCCA PER GIOCARE ANCORA ◄',
-
     canvas.width / 2,
-
     canvas.height / 2 + 80
-
   );
 
 }
 
 
 /* =========================================================
-   PAUSA
-   ========================================================= */
+   PAUSE
+========================================================= */
 
 function drawPause() {
 
   ctx.fillStyle =
-    'rgba(0, 0, 0, 0.75)';
+    'rgba(0,0,0,0.75)';
 
 
   ctx.fillRect(
-
     0,
-
     0,
-
     canvas.width,
-
     canvas.height
-
   );
 
 
@@ -5655,13 +5059,9 @@ function drawPause() {
 
 
   ctx.fillText(
-
     'IN PAUSA',
-
     canvas.width / 2,
-
     canvas.height / 2 - 10
-
   );
 
 
@@ -5674,13 +5074,9 @@ function drawPause() {
 
 
   ctx.fillText(
-
     'TOCCA IL GIOCO PER RIPRENDERE',
-
     canvas.width / 2,
-
     canvas.height / 2 + 20
-
   );
 
 }
@@ -5688,22 +5084,17 @@ function drawPause() {
 
 /* =========================================================
    GAME LOOP
-   ========================================================= */
+========================================================= */
 
 function gameLoop() {
 
   try {
 
     ctx.clearRect(
-
       0,
-
       0,
-
       canvas.width,
-
       canvas.height
-
     );
 
 
@@ -5716,6 +5107,7 @@ function gameLoop() {
 
     }
 
+
     else if (
       gameState ===
       'CHAR_SELECT'
@@ -5724,6 +5116,7 @@ function gameLoop() {
       drawCharSelect();
 
     }
+
 
     else if (
       gameState ===
@@ -5740,6 +5133,7 @@ function gameLoop() {
 
     }
 
+
     else if (
       gameState ===
       'PAUSE'
@@ -5753,6 +5147,7 @@ function gameLoop() {
 
     }
 
+
     else if (
       gameState ===
       'LEVEL_CLEAR'
@@ -5765,6 +5160,7 @@ function gameLoop() {
       drawHUD();
 
     }
+
 
     else if (
       gameState ===
@@ -5797,17 +5193,15 @@ function gameLoop() {
 
 
 /* =========================================================
-   CHARACTER SELECT
-   ========================================================= */
+   SELECT CHARACTER
+========================================================= */
 
 function selectCharacter(
   charKey
 ) {
 
   currentTheme =
-    CHARACTERS[
-      charKey
-    ];
+    CHARACTERS[charKey];
 
 
   canvas.style.borderColor =
@@ -5825,26 +5219,20 @@ function selectCharacter(
     'PLAYING';
 
 
-  playSound(
-    'pickup'
-  );
+  playSound('pickup');
 
 }
 
 
 /* =========================================================
-   CANVAS TOUCH
-   ========================================================= */
+   CANVAS INPUT
+========================================================= */
 
 canvas.addEventListener(
-
   'pointerdown',
+  e => {
 
-  (e) => {
-
-    if (
-      e.cancelable
-    ) {
+    if (e.cancelable) {
 
       e.preventDefault();
 
@@ -5885,16 +5273,12 @@ canvas.addEventListener(
       'TUTORIAL'
     ) {
 
-      if (
-        y >= 330
-      ) {
+      if (y >= 330) {
 
         gameState =
           'CHAR_SELECT';
 
-        playSound(
-          'cross'
-        );
+        playSound('cross');
 
       }
 
@@ -5908,9 +5292,7 @@ canvas.addEventListener(
       'CHAR_SELECT'
     ) {
 
-      if (
-        y >= 400
-      ) {
+      if (y >= 400) {
 
         if (
           x <
@@ -5936,11 +5318,9 @@ canvas.addEventListener(
       else {
 
         selectCharacter(
-
           CHARACTER_LIST[
             selectedCharIndex
           ]
-
         );
 
       }
@@ -6000,18 +5380,15 @@ canvas.addEventListener(
     }
 
   },
-
   {
-    passive:
-      false
+    passive: false
   }
-
 );
 
 
 /* =========================================================
    BUTTON BINDING
-   ========================================================= */
+========================================================= */
 
 function bindBtn(
   id,
@@ -6019,9 +5396,7 @@ function bindBtn(
 ) {
 
   let btn =
-    document.getElementById(
-      id
-    );
+    document.getElementById(id);
 
 
   if (!btn)
@@ -6029,14 +5404,10 @@ function bindBtn(
 
 
   btn.addEventListener(
-
     'pointerdown',
+    e => {
 
-    (e) => {
-
-      if (
-        e.cancelable
-      ) {
+      if (e.cancelable) {
 
         e.preventDefault();
 
@@ -6064,89 +5435,63 @@ function bindBtn(
       ) {
 
         selectCharacter(
-
           CHARACTER_LIST[
             selectedCharIndex
           ]
-
         );
 
       }
 
       else {
 
-        onPress(
-          true
-        );
+        onPress(true);
 
       }
 
     },
-
     {
-      passive:
-        false
+      passive: false
     }
-
   );
 
 
   btn.addEventListener(
-
     'pointerup',
+    e => {
 
-    (e) => {
-
-      if (
-        e.cancelable
-      ) {
+      if (e.cancelable) {
 
         e.preventDefault();
 
       }
 
 
-      onPress(
-        false
-      );
+      onPress(false);
 
     },
-
     {
-      passive:
-        false
+      passive: false
     }
-
   );
 
 
   btn.addEventListener(
-
     'pointercancel',
-
     () => {
 
-      onPress(
-        false
-      );
+      onPress(false);
 
     }
-
   );
 
 }
 
 
-/* =========================================================
-   CONTROLLI
-   ========================================================= */
-
 bindBtn(
   'btnUp',
   isDown => {
 
-    moveUp =
-      isDown;
+    moveUp = isDown;
 
   }
 );
@@ -6156,8 +5501,7 @@ bindBtn(
   'btnDown',
   isDown => {
 
-    moveDown =
-      isDown;
+    moveDown = isDown;
 
   }
 );
@@ -6167,8 +5511,7 @@ bindBtn(
   'btnLeft',
   isDown => {
 
-    moveLeft =
-      isDown;
+    moveLeft = isDown;
 
   }
 );
@@ -6178,8 +5521,7 @@ bindBtn(
   'btnRight',
   isDown => {
 
-    moveRight =
-      isDown;
+    moveRight = isDown;
 
   }
 );
@@ -6187,21 +5529,16 @@ bindBtn(
 
 /* =========================================================
    KEYBOARD
-   ========================================================= */
+========================================================= */
 
-const keys =
-  {};
+const keys = {};
 
 
 window.addEventListener(
-
   'keydown',
-
   e => {
 
-    keys[e.code] =
-      true;
-
+    keys[e.code] = true;
 
     getAC();
 
@@ -6210,10 +5547,8 @@ window.addEventListener(
       gameState ===
       'TUTORIAL' &&
       (
-        e.code ===
-        'Space' ||
-        e.code ===
-        'Enter'
+        e.code === 'Space' ||
+        e.code === 'Enter'
       )
     ) {
 
@@ -6230,9 +5565,8 @@ window.addEventListener(
 
       if (
         e.key ===
-        'ArrowLeft' ||
-        e.key ===
-        'a'
+          'ArrowLeft' ||
+        e.key === 'a'
       ) {
 
         handleSelectionInput(
@@ -6244,9 +5578,8 @@ window.addEventListener(
 
       if (
         e.key ===
-        'ArrowRight' ||
-        e.key ===
-        'd'
+          'ArrowRight' ||
+        e.key === 'd'
       ) {
 
         handleSelectionInput(
@@ -6257,18 +5590,14 @@ window.addEventListener(
 
 
       if (
-        e.code ===
-        'Space' ||
-        e.code ===
-        'Enter'
+        e.code === 'Space' ||
+        e.code === 'Enter'
       ) {
 
         selectCharacter(
-
           CHARACTER_LIST[
             selectedCharIndex
           ]
-
         );
 
       }
@@ -6280,10 +5609,8 @@ window.addEventListener(
       gameState ===
       'GAME_OVER' &&
       (
-        e.code ===
-        'Space' ||
-        e.code ===
-        'Enter'
+        e.code === 'Space' ||
+        e.code === 'Enter'
       )
     ) {
 
@@ -6293,21 +5620,16 @@ window.addEventListener(
     }
 
   }
-
 );
 
 
 window.addEventListener(
-
   'keyup',
-
   e => {
 
-    keys[e.code] =
-      false;
+    keys[e.code] = false;
 
   }
-
 );
 
 
@@ -6315,24 +5637,21 @@ function keyPressed(
   code
 ) {
 
-  return !!keys[
-    code
-  ];
+  return !!keys[code];
 
 }
 
 
 /* =========================================================
    SAVE SCORE
-   ========================================================= */
+========================================================= */
 
 function saveScore() {
 
   try {
 
     if (
-      score >
-      highScore
+      score > highScore
     ) {
 
       highScore =
@@ -6340,11 +5659,8 @@ function saveScore() {
 
 
       localStorage.setItem(
-
         'deadlineDrive_highScore',
-
         highScore.toString()
-
       );
 
     }
@@ -6365,9 +5681,7 @@ function saveScore() {
       );
 
 
-    if (
-      !rawUser
-    ) {
+    if (!rawUser) {
 
       return;
 
@@ -6400,13 +5714,10 @@ function saveScore() {
 
 
       localStorage.setItem(
-
         'arcade_current_user',
-
         JSON.stringify(
           curUser
         )
-
       );
 
 
@@ -6425,9 +5736,7 @@ function saveScore() {
 
         let users =
           rawUsers
-            ? JSON.parse(
-                rawUsers
-              )
+            ? JSON.parse(rawUsers)
             : {};
 
 
@@ -6444,13 +5753,8 @@ function saveScore() {
 
 
           localStorage.setItem(
-
             'arcade_users',
-
-            JSON.stringify(
-              users
-            )
-
+            JSON.stringify(users)
           );
 
         }
@@ -6474,13 +5778,12 @@ function saveScore() {
 
 
 /* =========================================================
-   USCITA
-   ========================================================= */
+   EXIT
+========================================================= */
 
 function exitGame() {
 
   saveScore();
-
 
   bgMusic.pause();
 
@@ -6493,7 +5796,7 @@ function exitGame() {
 
 /* =========================================================
    START
-   ========================================================= */
+========================================================= */
 
 requestAnimationFrame(
   gameLoop
