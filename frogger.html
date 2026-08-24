@@ -12,13 +12,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-
   touch-action: none !important;
-
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -29,10 +26,8 @@
     sans-serif;
 }
 
-
 html,
 body {
-
   width: 100%;
   height: 100%;
   min-height: 100%;
@@ -44,18 +39,13 @@ body {
   color: #e0e0e0;
 
   display: flex;
-
   justify-content: center;
   align-items: center;
-
 }
 
-
 body {
-
   border: 0 !important;
   outline: 0 !important;
-
 }
 
 
@@ -71,24 +61,33 @@ body {
   height: 100dvh;
 
   max-width: 440px;
-  max-height: 860px;
 
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
+  display: grid;
 
   /*
-    NON usiamo più space-between.
-    Ogni elemento riceve il proprio spazio.
+    HEADER
+    GIOCO
+    CONTROLLI
+    EXIT
   */
-  justify-content: flex-start;
 
-  padding:
-    max(env(safe-area-inset-top), 5px)
-    6px
-    max(env(safe-area-inset-bottom), 3px)
-    6px;
+  grid-template-rows:
+    auto
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  align-items: stretch;
+
+  padding-top:
+    max(env(safe-area-inset-top), 4px);
+
+  padding-right: 6px;
+
+  padding-bottom:
+    max(env(safe-area-inset-bottom), 4px);
+
+  padding-left: 6px;
 
   background: #1e1e1e;
 
@@ -97,6 +96,7 @@ body {
   box-shadow: none !important;
   border-radius: 0 !important;
 
+  overflow: hidden;
 }
 
 
@@ -120,19 +120,14 @@ body {
   border: none !important;
   outline: none !important;
 
-  border-radius: 6px 6px 0 0;
+  border-radius: 7px;
 
-  /*
-    header molto compatto
-  */
-  height: 27px;
-
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 
   flex-shrink: 0;
 
+  min-height: 28px;
 }
-
 
 .header-title {
 
@@ -142,16 +137,24 @@ body {
 
   font-weight: 700;
 
-  letter-spacing: 0.6px;
+  letter-spacing: 0.7px;
 
-  font-family: 'Courier New', monospace;
+  font-family:
+    'Courier New',
+    monospace;
 
   white-space: nowrap;
 
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  padding-right: 6px;
 }
 
-
 .opt-btn {
+
+  flex-shrink: 0;
 
   background: #333333;
 
@@ -161,7 +164,9 @@ body {
 
   padding: 3px 7px;
 
-  font-family: 'Courier New', monospace;
+  font-family:
+    'Courier New',
+    monospace;
 
   font-size: 9px;
 
@@ -170,9 +175,7 @@ body {
   border-radius: 4px;
 
   cursor: pointer;
-
 }
-
 
 .opt-btn:active {
 
@@ -182,7 +185,7 @@ body {
 
 
 /* =========================================================
-   GAME CANVAS AREA
+   CANVAS AREA
    ========================================================= */
 
 #canvas-container {
@@ -190,12 +193,7 @@ body {
   position: relative;
 
   width: 100%;
-
-  /*
-    Il canvas prende quasi tutto lo spazio verticale
-    disponibile.
-  */
-  flex: 1 1 auto;
+  height: 100%;
 
   min-height: 0;
 
@@ -206,30 +204,52 @@ body {
 
   overflow: hidden;
 
+  /*
+    IMPORTANTISSIMO:
+
+    Il canvas deve poter usare
+    tutta l'altezza disponibile.
+
+    Non usiamo più flex:1
+    e soprattutto non usiamo
+    max-height:100% insieme ad
+    aspect-ratio sul canvas.
+  */
+
+  padding: 0;
+
+  margin: 0;
 }
 
 
+/* =========================================================
+   CANVAS
+   ========================================================= */
+
 canvas {
 
+  display: block;
+
   /*
-    QUESTA È LA MODIFICA PRINCIPALE.
-
-    Prima il canvas poteva rimanere vicino alla dimensione
-    intrinseca 338x486.
-
-    Ora viene espanso verticalmente fino al massimo spazio
-    disponibile, mantenendo il rapporto originale.
+    Dimensione reale del gioco.
   */
 
-  height: 100%;
   width: auto;
+  height: 100%;
 
-  max-height: 100%;
+  /*
+    Limite orizzontale.
+  */
+
   max-width: 100%;
 
-  aspect-ratio: 338 / 486;
+  /*
+    NON comprimere il canvas.
+  */
 
-  display: block;
+  aspect-ratio: auto;
+
+  object-fit: contain;
 
   border: 1.5px solid #3a3a3a;
 
@@ -242,6 +262,7 @@ canvas {
 
   border-radius: 6px;
 
+  flex-shrink: 0;
 }
 
 
@@ -258,30 +279,24 @@ canvas {
   justify-content: center;
   align-items: center;
 
-  /*
-    Poco spazio sopra.
-    Il joystick rimane molto più vicino al fondo.
-  */
-
   padding:
-    4px
+
+    7px
     12px
-    1px
+    5px
     12px;
 
   background: #232323;
 
   border: none !important;
   outline: none !important;
+  box-shadow: none !important;
 
   border-radius: 10px;
 
-  margin-top: 2px;
-
-  box-shadow: none !important;
+  margin-top: 3px;
 
   flex-shrink: 0;
-
 }
 
 
@@ -296,6 +311,7 @@ canvas {
   justify-content: center;
   align-items: center;
 
+  width: 100%;
 }
 
 
@@ -304,15 +320,18 @@ canvas {
   display: grid;
 
   grid-template-columns:
-    repeat(3, 62px);
+    repeat(3, 60px);
 
   grid-template-rows:
     repeat(3, 50px);
 
-  gap: 3px;
-
+  gap: 4px;
 }
 
+
+/* =========================================================
+   CONTROL BUTTON
+   ========================================================= */
 
 .ctrl-btn {
 
@@ -332,7 +351,7 @@ canvas {
 
   font-weight: bold;
 
-  border-radius: 9px;
+  border-radius: 10px;
 
   display: flex;
 
@@ -342,18 +361,23 @@ canvas {
   cursor: pointer;
 
   box-shadow:
-    0 3px 0 #005f73,
-    inset 0 1px 0 rgba(255,255,255,0.2);
+
+    0 4px 0 #005f73,
+
+    inset
+    0 1px 0
+    rgba(255,255,255,0.2);
 
   text-shadow:
-    0 0 6px rgba(0,210,255,0.6);
-
+    0 0 6px
+    rgba(0, 210, 255, 0.6);
 }
 
 
 .ctrl-btn:active {
 
-  transform: translateY(3px);
+  transform:
+    translateY(3px);
 
   box-shadow:
     0 1px 0 #005f73;
@@ -363,9 +387,12 @@ canvas {
   color: #000;
 
   text-shadow: none;
-
 }
 
+
+/* =========================================================
+   CENTRO JOYSTICK
+   ========================================================= */
 
 .ctrl-btn-center {
 
@@ -379,15 +406,15 @@ canvas {
   border-radius: 50%;
 
   border:
-    1.5px solid rgba(0,210,255,0.3);
-
+    1.5px solid
+    rgba(0,210,255,0.3);
 }
 
 
 .dpad-core {
 
-  width: 19px;
-  height: 19px;
+  width: 20px;
+  height: 20px;
 
   border-radius: 50%;
 
@@ -400,7 +427,6 @@ canvas {
 
   box-shadow:
     0 0 10px #00d2ff;
-
 }
 
 
@@ -414,7 +440,7 @@ canvas {
 
   margin-top: 2px;
 
-  padding: 5px;
+  padding: 6px;
 
   background: #222222;
 
@@ -423,7 +449,9 @@ canvas {
 
   color: #ff3366;
 
-  font-family: 'Courier New', monospace;
+  font-family:
+    'Courier New',
+    monospace;
 
   font-weight: bold;
 
@@ -436,13 +464,13 @@ canvas {
   text-align: center;
 
   flex-shrink: 0;
-
 }
 
 
 .exit-btn:active {
 
-  transform: scale(0.96);
+  transform:
+    scale(0.96);
 
 }
 
@@ -472,7 +500,6 @@ canvas {
   align-items: center;
 
   padding: 16px;
-
 }
 
 
@@ -488,7 +515,8 @@ canvas {
     2px solid #00d2ff;
 
   box-shadow:
-    0 0 25px rgba(0,210,255,0.3);
+    0 0 25px
+    rgba(0,210,255,0.3);
 
   border-radius: 12px;
 
@@ -503,7 +531,6 @@ canvas {
   color: #ffffff;
 
   text-align: center;
-
 }
 
 
@@ -515,8 +542,9 @@ canvas {
 
   font-weight: 900;
 
-  font-family: 'Courier New', monospace;
-
+  font-family:
+    'Courier New',
+    monospace;
 }
 
 
@@ -538,7 +566,6 @@ canvas {
     1px solid #3a3a3a;
 
   border-radius: 6px;
-
 }
 
 
@@ -550,8 +577,9 @@ canvas {
 
   color: #00d2ff;
 
-  font-family: 'Courier New', monospace;
-
+  font-family:
+    'Courier New',
+    monospace;
 }
 
 
@@ -572,12 +600,13 @@ canvas {
 
   font-size: 12px;
 
-  font-family: 'Courier New', monospace;
+  font-family:
+    'Courier New',
+    monospace;
 
   border-radius: 6px;
 
   cursor: pointer;
-
 }
 
 
@@ -588,7 +617,6 @@ canvas {
   color: #00ff66;
 
   background: #122818;
-
 }
 
 
@@ -606,11 +634,85 @@ canvas {
 
   font-size: 12px;
 
-  font-family: 'Courier New', monospace;
+  font-family:
+    'Courier New',
+    monospace;
 
   border-radius: 6px;
 
   cursor: pointer;
+}
+
+
+/* =========================================================
+   SCHERMI MOLTO BASSI
+   ========================================================= */
+
+@media (max-height: 650px) {
+
+  #game-wrapper {
+
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+  }
+
+  .top-header {
+
+    min-height: 24px;
+
+    padding: 2px 5px;
+
+  }
+
+  .header-title {
+
+    font-size: 8px;
+
+  }
+
+  .opt-btn {
+
+    font-size: 8px;
+
+    padding:
+      2px 5px;
+
+  }
+
+  .control-deck {
+
+    padding:
+      4px 8px
+      3px 8px;
+
+  }
+
+  .dpad-grid {
+
+    grid-template-columns:
+      repeat(3, 52px);
+
+    grid-template-rows:
+      repeat(3, 42px);
+
+    gap: 3px;
+
+  }
+
+  .ctrl-btn {
+
+    font-size: 19px;
+
+  }
+
+  .exit-btn {
+
+    padding: 4px;
+
+    font-size: 8px;
+
+  }
 
 }
 
@@ -624,123 +726,68 @@ canvas {
   #game-wrapper {
 
     width: 100vw;
+
     height: 100dvh;
 
     max-width: none;
+
     max-height: none;
 
-    padding:
-      max(env(safe-area-inset-top), 4px)
-      4px
-      max(env(safe-area-inset-bottom), 2px)
-      4px;
-
     border-radius: 0 !important;
+
     border: none !important;
 
   }
 
-
-  .top-header {
-
-    height: 26px;
-
-    padding:
-      3px 5px;
-
-    margin-bottom: 1px;
-
-  }
+}
 
 
-  .header-title {
+/* =========================================================
+   SCHERMI MOLTO STRETTI
+   ========================================================= */
 
-    font-size: 9px;
-
-  }
-
-
-  .opt-btn {
-
-    font-size: 8px;
-
-    padding:
-      3px 6px;
-
-  }
-
-
-  #canvas-container {
-
-    /*
-      Quasi tutta la schermata è dedicata al gioco.
-    */
-    flex: 1 1 auto;
-
-    min-height: 0;
-
-  }
-
-
-  canvas {
-
-    /*
-      Massima altezza possibile.
-    */
-    height: 100%;
-    width: auto;
-
-    max-height: 100%;
-    max-width: 100%;
-
-  }
-
-
-  .control-deck {
-
-    /*
-      Il joystick scende verso il fondo.
-    */
-    padding:
-      3px
-      8px
-      1px
-      8px;
-
-    margin-top: 1px;
-
-  }
-
+@media (max-width: 360px) {
 
   .dpad-grid {
 
     grid-template-columns:
-      repeat(3, 58px);
+      repeat(3, 54px);
 
     grid-template-rows:
       repeat(3, 46px);
 
-    gap: 3px;
+  }
+
+}
+
+
+/* =========================================================
+   LANDSCAPE
+   ========================================================= */
+
+@media (
+  orientation: landscape
+) {
+
+  #game-wrapper {
+
+    max-width: 900px;
+
+    grid-template-rows:
+      auto
+      minmax(0, 1fr)
+      auto
+      auto;
 
   }
 
+  .dpad-grid {
 
-  .ctrl-btn {
+    grid-template-columns:
+      repeat(3, 52px);
 
-    font-size: 21px;
-
-    border-radius: 8px;
-
-  }
-
-
-  .exit-btn {
-
-    margin-top: 1px;
-
-    padding: 4px;
-
-    font-size: 8px;
+    grid-template-rows:
+      repeat(3, 42px);
 
   }
 
@@ -766,6 +813,8 @@ canvas {
 <div id="game-wrapper">
 
 
+  <!-- HEADER -->
+
   <div class="top-header">
 
     <span class="header-title">
@@ -783,6 +832,8 @@ canvas {
   </div>
 
 
+  <!-- CANVAS -->
+
   <div id="canvas-container">
 
     <canvas id="game"></canvas>
@@ -790,13 +841,19 @@ canvas {
   </div>
 
 
+  <!-- JOYSTICK -->
+
   <div class="control-deck">
 
     <div class="joystick-container">
 
       <div class="dpad-grid">
 
-        <div style="visibility:hidden"></div>
+
+        <div
+          style="visibility:hidden">
+        </div>
+
 
         <div
           class="ctrl-btn"
@@ -806,7 +863,10 @@ canvas {
 
         </div>
 
-        <div style="visibility:hidden"></div>
+
+        <div
+          style="visibility:hidden">
+        </div>
 
 
         <div
@@ -818,9 +878,12 @@ canvas {
         </div>
 
 
-        <div class="ctrl-btn-center">
+        <div
+          class="ctrl-btn-center">
 
-          <div class="dpad-core"></div>
+          <div
+            class="dpad-core">
+          </div>
 
         </div>
 
@@ -834,7 +897,10 @@ canvas {
         </div>
 
 
-        <div style="visibility:hidden"></div>
+        <div
+          style="visibility:hidden">
+        </div>
+
 
         <div
           class="ctrl-btn"
@@ -844,7 +910,11 @@ canvas {
 
         </div>
 
-        <div style="visibility:hidden"></div>
+
+        <div
+          style="visibility:hidden">
+        </div>
+
 
       </div>
 
@@ -852,6 +922,8 @@ canvas {
 
   </div>
 
+
+  <!-- EXIT -->
 
   <button
     class="exit-btn"
@@ -862,6 +934,8 @@ canvas {
   </button>
 
 
+  <!-- SETTINGS -->
+
   <div
     class="modal-overlay"
     id="settingsModal">
@@ -871,15 +945,20 @@ canvas {
 
 
       <div class="modal-title">
+
         ⚙️ TIMELINE SETTINGS
+
       </div>
 
 
       <div class="option-item">
 
         <span class="option-label">
+
           MUSICA DI SOTTOFONDO
+
         </span>
+
 
         <button
           class="toggle-btn active"
@@ -895,8 +974,11 @@ canvas {
       <div class="option-item">
 
         <span class="option-label">
+
           EFFETTI SONORI (SFX)
+
         </span>
+
 
         <button
           class="toggle-btn active"
@@ -928,6 +1010,10 @@ canvas {
 
 <script>
 
+/* =========================================================
+   CANVAS
+   ========================================================= */
+
 const canvas =
   document.getElementById('game');
 
@@ -937,16 +1023,14 @@ const ctx =
 
 const COLS = 13;
 const ROWS = 17;
-
 const CELL_SIZE = 26;
-
 const HUD_HEIGHT = 44;
-
 const TRACK_HEADER_W = 38;
 
 
 const CANVAS_W =
   COLS * CELL_SIZE;
+
 
 const CANVAS_H =
   ROWS * CELL_SIZE +
@@ -973,11 +1057,26 @@ function drawRoundRect(
   r
 ) {
 
-  if (w < 2 * r)
-    r = w / 2;
+  if (
+    w <
+    2 * r
+  ) {
 
-  if (h < 2 * r)
-    r = h / 2;
+    r =
+      w / 2;
+
+  }
+
+
+  if (
+    h <
+    2 * r
+  ) {
+
+    r =
+      h / 2;
+
+  }
 
 
   c.beginPath();
@@ -1052,7 +1151,8 @@ const bgMusic =
   );
 
 
-bgMusic.volume = 0.4;
+bgMusic.volume =
+  0.4;
 
 
 function playBgMusic() {
@@ -1096,7 +1196,9 @@ window.addEventListener(
   window.addEventListener(
     evt,
     () => playBgMusic(),
-    { once: true }
+    {
+      once: true
+    }
   );
 
 });
@@ -1227,10 +1329,12 @@ btnToggleSfx.onclick = () => {
 btnOpenSettings.onclick = () => {
 
   if (
-    gameState === 'PLAYING'
+    gameState ===
+    'PLAYING'
   ) {
 
-    gameState = 'PAUSE';
+    gameState =
+      'PAUSE';
 
   }
 
@@ -1251,7 +1355,8 @@ btnCloseSettings.onclick = () => {
 
 
   if (
-    gameState === 'PAUSE'
+    gameState ===
+    'PAUSE'
   ) {
 
     gameState =
@@ -1283,7 +1388,9 @@ function getAC() {
         window.webkitAudioContext;
 
 
-      if (AudioContextClass) {
+      if (
+        AudioContextClass
+      ) {
 
         audioCtx =
           new AudioContextClass();
@@ -1295,7 +1402,8 @@ function getAC() {
 
     if (
       audioCtx &&
-      audioCtx.state === 'suspended'
+      audioCtx.state ===
+      'suspended'
     ) {
 
       audioCtx
@@ -1319,8 +1427,7 @@ function getAC() {
 
 function playSound(type) {
 
-  if (!sfxEnabled)
-    return;
+  if (!sfxEnabled) return;
 
 
   try {
@@ -1329,8 +1436,7 @@ function playSound(type) {
       getAC();
 
 
-    if (!ac)
-      return;
+    if (!ac) return;
 
 
     const osc =
@@ -1349,7 +1455,8 @@ function playSound(type) {
 
 
     if (
-      type === 'cross'
+      type ===
+      'cross'
     ) {
 
       osc.type =
@@ -1377,14 +1484,16 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime + 0.16
+        ac.currentTime +
+        0.16
       );
 
     }
 
 
     else if (
-      type === 'crash'
+      type ===
+      'crash'
     ) {
 
       osc.type =
@@ -1399,7 +1508,8 @@ function playSound(type) {
 
       osc.frequency.exponentialRampToValueAtTime(
         40,
-        ac.currentTime + 0.25
+        ac.currentTime +
+        0.25
       );
 
 
@@ -1412,14 +1522,16 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime + 0.25
+        ac.currentTime +
+        0.25
       );
 
     }
 
 
     else if (
-      type === 'guard_active'
+      type ===
+      'guard_active'
     ) {
 
       osc.type =
@@ -1434,7 +1546,8 @@ function playSound(type) {
 
       osc.frequency.linearRampToValueAtTime(
         1200,
-        ac.currentTime + 0.1
+        ac.currentTime +
+        0.1
       );
 
 
@@ -1447,14 +1560,16 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime + 0.1
+        ac.currentTime +
+        0.1
       );
 
     }
 
 
     else if (
-      type === 'pickup'
+      type ===
+      'pickup'
     ) {
 
       osc.type =
@@ -1469,7 +1584,8 @@ function playSound(type) {
 
       osc.frequency.setValueAtTime(
         880,
-        ac.currentTime + 0.1
+        ac.currentTime +
+        0.1
       );
 
 
@@ -1482,14 +1598,16 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime + 0.2
+        ac.currentTime +
+        0.2
       );
 
     }
 
 
     else if (
-      type === 'malus'
+      type ===
+      'malus'
     ) {
 
       osc.type =
@@ -1504,7 +1622,8 @@ function playSound(type) {
 
       osc.frequency.linearRampToValueAtTime(
         80,
-        ac.currentTime + 0.2
+        ac.currentTime +
+        0.2
       );
 
 
@@ -1517,14 +1636,16 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime + 0.2
+        ac.currentTime +
+        0.2
       );
 
     }
 
 
     else if (
-      type === 'fail'
+      type ===
+      'fail'
     ) {
 
       osc.type =
@@ -1539,7 +1660,8 @@ function playSound(type) {
 
       osc.frequency.linearRampToValueAtTime(
         50,
-        ac.currentTime + 0.3
+        ac.currentTime +
+        0.3
       );
 
 
@@ -1552,7 +1674,8 @@ function playSound(type) {
       osc.start();
 
       osc.stop(
-        ac.currentTime + 0.3
+        ac.currentTime +
+        0.3
       );
 
     }
@@ -1604,174 +1727,241 @@ const PREMIERE_CLIPS = {
 
   BLUE_A_ROLL: {
 
-    type: 'A_ROLL',
+    type:
+      'A_ROLL',
 
-    label: 'A001_C004.MOV',
+    label:
+      'A001_C004.MOV',
 
-    bg: '#2b52a1',
+    bg:
+      '#2b52a1',
 
-    border: '#5682e8',
+    border:
+      '#5682e8',
 
-    textCol: '#d0e0ff',
+    textCol:
+      '#d0e0ff',
 
-    topBar: '#00ff66',
+    topBar:
+      '#00ff66',
 
-    wMult: 2.2,
+    wMult:
+      2.2,
 
-    hMult: 1
+    hMult:
+      1
 
   },
 
 
   PURPLE_B_ROLL: {
 
-    type: 'B_ROLL',
+    type:
+      'B_ROLL',
 
-    label: 'B002_DRONE.MP4',
+    label:
+      'B002_DRONE.MP4',
 
-    bg: '#7f22a7',
+    bg:
+      '#7f22a7',
 
-    border: '#b842df',
+    border:
+      '#b842df',
 
-    textCol: '#f2c8ff',
+    textCol:
+      '#f2c8ff',
 
-    topBar: '#ff0055',
+    topBar:
+      '#ff0055',
 
-    wMult: 2.5,
+    wMult:
+      2.5,
 
-    hMult: 1
+    hMult:
+      1
 
   },
 
 
   ROSE_LUMETRI: {
 
-    type: 'LUMETRI',
+    type:
+      'LUMETRI',
 
-    label: 'LUMETRI COLOR',
+    label:
+      'LUMETRI COLOR',
 
-    bg: '#a11b43',
+    bg:
+      '#a11b43',
 
-    border: '#e64273',
+    border:
+      '#e64273',
 
-    textCol: '#ffd4e2',
+    textCol:
+      '#ffd4e2',
 
-    topBar: '#ffee00',
+    topBar:
+      '#ffee00',
 
-    wMult: 2.0,
+    wMult:
+      2.0,
 
-    hMult: 1
+    hMult:
+      1
 
   },
 
 
   GOLD_VOICEOVER: {
 
-    type: 'VOICEOVER',
+    type:
+      'VOICEOVER',
 
-    label: 'VO_MASTER_V2',
+    label:
+      'VO_MASTER_V2',
 
-    bg: '#8f7d18',
+    bg:
+      '#8f7d18',
 
-    border: '#dbc330',
+    border:
+      '#dbc330',
 
-    textCol: '#fdf8c2',
+    textCol:
+      '#fdf8c2',
 
-    topBar: '#00ff66',
+    topBar:
+      '#00ff66',
 
-    isAudio: true,
+    isAudio:
+      true,
 
-    wMult: 2.0,
+    wMult:
+      2.0,
 
-    hMult: 1
+    hMult:
+      1
 
   },
 
 
   GREEN_SFX: {
 
-    type: 'SFX_WAVE',
+    type:
+      'SFX_WAVE',
 
-    label: 'SFX_WHOOSH.WAV',
+    label:
+      'SFX_WHOOSH.WAV',
 
-    bg: '#2d7a3a',
+    bg:
+      '#2d7a3a',
 
-    border: '#4ec462',
+    border:
+      '#4ec462',
 
-    textCol: '#d2f8da',
+    textCol:
+      '#d2f8da',
 
-    topBar: '#00ff66',
+    topBar:
+      '#00ff66',
 
-    isAudio: true,
+    isAudio:
+      true,
 
-    wMult: 1.8,
+    wMult:
+      1.8,
 
-    hMult: 1
+    hMult:
+      1
 
   },
 
 
   TEAL_MUSIC: {
 
-    type: 'MUSIC',
+    type:
+      'MUSIC',
 
-    label: 'BEAT_TRACK_FLAC',
+    label:
+      'BEAT_TRACK_FLAC',
 
-    bg: '#147b85',
+    bg:
+      '#147b85',
 
-    border: '#23b3be',
+    border:
+      '#23b3be',
 
-    textCol: '#c2f8fc',
+    textCol:
+      '#c2f8fc',
 
-    topBar: '#00ff66',
+    topBar:
+      '#00ff66',
 
-    isAudio: true,
+    isAudio:
+      true,
 
-    wMult: 2.8,
+    wMult:
+      2.8,
 
-    hMult: 1
+    hMult:
+      1
 
   },
 
 
   NESTED_SEQ: {
 
-    type: 'NESTED',
+    type:
+      'NESTED',
 
-    label: 'NEST_INTRO_SEQ',
+    label:
+      'NEST_INTRO_SEQ',
 
-    bg: '#5b1e8a',
+    bg:
+      '#5b1e8a',
 
-    border: '#8b3adb',
+    border:
+      '#8b3adb',
 
-    textCol: '#e8cbff',
+    textCol:
+      '#e8cbff',
 
-    topBar: '#ffee00',
+    topBar:
+      '#ffee00',
 
-    wMult: 3.0,
+    wMult:
+      3.0,
 
-    hMult: 1
+    hMult:
+      1
 
   },
 
 
   OFFLINE_RED: {
 
-    type: 'OFFLINE',
+    type:
+      'OFFLINE',
 
-    label: 'MEDIA OFFLINE! 🔴',
+    label:
+      'MEDIA OFFLINE! 🔴',
 
-    bg: '#8b0000',
+    bg:
+      '#8b0000',
 
-    border: '#ff3333',
+    border:
+      '#ff3333',
 
-    textCol: '#ffffff',
+    textCol:
+      '#ffffff',
 
-    topBar: '#ff0000',
+    topBar:
+      '#ff0000',
 
-    wMult: 3.2,
+    wMult:
+      3.2,
 
-    hMult: 1
+    hMult:
+      1
 
   }
 
@@ -1786,7 +1976,8 @@ const LEVEL_THEMES = [
 
   {
 
-    levelMin: 1,
+    levelMin:
+      1,
 
     title:
       "STAGE 1: ASSEMBLY TIMELINE",
@@ -1799,7 +1990,8 @@ const LEVEL_THEMES = [
 
   {
 
-    levelMin: 2,
+    levelMin:
+      2,
 
     title:
       "STAGE 2: MONTAGGIO RUSH",
@@ -1812,7 +2004,8 @@ const LEVEL_THEMES = [
 
   {
 
-    levelMin: 3,
+    levelMin:
+      3,
 
     title:
       "STAGE 3: COLOR & FX MULTI-LAYER",
@@ -1825,7 +2018,8 @@ const LEVEL_THEMES = [
 
   {
 
-    levelMin: 4,
+    levelMin:
+      4,
 
     title:
       "STAGE 4: EXPORT FINALE PRE-DEADLINE",
@@ -1846,9 +2040,11 @@ const CHARACTERS = {
 
   GIULIA: {
 
-    id: 'GIULIA',
+    id:
+      'GIULIA',
 
-    name: "GIULIA",
+    name:
+      "GIULIA",
 
     subtitle:
       "Lead Video Editor",
@@ -1859,28 +2055,37 @@ const CHARACTERS = {
     perkMalus:
       "MALUS: Sensibile al Glitch",
 
-    primary: "#00d2ff",
+    primary:
+      "#00d2ff",
 
-    bg: "#181818",
+    bg:
+      "#181818",
 
-    img: imgGiulia,
+    img:
+      imgGiulia,
 
-    arrowCol: "#00d2ff",
+    arrowCol:
+      "#00d2ff",
 
-    arrowGlow: "#005f73",
+    arrowGlow:
+      "#005f73",
 
-    speed: 2.8,
+    speed:
+      2.8,
 
-    scoreMult: 1.25
+    scoreMult:
+      1.25
 
   },
 
 
   TOBI: {
 
-    id: 'TOBI',
+    id:
+      'TOBI',
 
-    name: "TOBI",
+    name:
+      "TOBI",
 
     subtitle:
       "Assistant Video Editor",
@@ -1891,28 +2096,37 @@ const CHARACTERS = {
     perkMalus:
       "MALUS: Punteggio Base (-10%)",
 
-    primary: "#ffd700",
+    primary:
+      "#ffd700",
 
-    bg: "#181818",
+    bg:
+      "#181818",
 
-    img: imgTobi,
+    img:
+      imgTobi,
 
-    arrowCol: "#ffd700",
+    arrowCol:
+      "#ffd700",
 
-    arrowGlow: "#886600",
+    arrowGlow:
+      "#886600",
 
-    speed: 3.4,
+    speed:
+      3.4,
 
-    scoreMult: 0.9
+    scoreMult:
+      0.9
 
   },
 
 
   DAVE: {
 
-    id: 'DAVE',
+    id:
+      'DAVE',
 
-    name: "DAVE",
+    name:
+      "DAVE",
 
     subtitle:
       "Focused Director",
@@ -1923,28 +2137,37 @@ const CHARACTERS = {
     perkMalus:
       "MALUS: Passo Pesante (-20% Velocità)",
 
-    primary: "#ff0055",
+    primary:
+      "#ff0055",
 
-    bg: "#181818",
+    bg:
+      "#181818",
 
-    img: imgDave,
+    img:
+      imgDave,
 
-    arrowCol: "#ff0055",
+    arrowCol:
+      "#ff0055",
 
-    arrowGlow: "#880022",
+    arrowGlow:
+      "#880022",
 
-    speed: 2.0,
+    speed:
+      2.0,
 
-    scoreMult: 1.3
+    scoreMult:
+      1.3
 
   },
 
 
   LUCA: {
 
-    id: 'LUCA',
+    id:
+      'LUCA',
 
-    name: "LUCA",
+    name:
+      "LUCA",
 
     subtitle:
       "VFX Artist Whiz",
@@ -1955,19 +2178,26 @@ const CHARACTERS = {
     perkMalus:
       "MALUS: Meno Vite Iniziali",
 
-    primary: "#ffaa00",
+    primary:
+      "#ffaa00",
 
-    bg: "#181818",
+    bg:
+      "#181818",
 
-    img: imgLuca,
+    img:
+      imgLuca,
 
-    arrowCol: "#ffaa00",
+    arrowCol:
+      "#ffaa00",
 
-    arrowGlow: "#885500",
+    arrowGlow:
+      "#885500",
 
-    speed: 3.2,
+    speed:
+      3.2,
 
-    scoreMult: 1.15
+    scoreMult:
+      1.15
 
   }
 
@@ -1992,88 +2222,117 @@ const PICKUP_TYPES = {
 
   AUTO_SAVE: {
 
-    type: 'AUTOSAVE',
+    type:
+      'AUTOSAVE',
 
-    label: '💾 SAVE',
+    label:
+      '💾 SAVE',
 
-    pts: 300,
+    pts:
+      300,
 
-    isMalus: false
+    isMalus:
+      false
 
   },
 
 
   PROXY_ON: {
 
-    type: 'PROXY',
+    type:
+      'PROXY',
 
-    label: '🎬 PROXY 2X',
+    label:
+      '🎬 PROXY 2X',
 
-    pts: 400,
+    pts:
+      400,
 
-    isMalus: false,
+    isMalus:
+      false,
 
-    scoreBoost: 2.0
+    scoreBoost:
+      2.0
 
   },
 
 
   CACHE_BOOST: {
 
-    type: 'CACHE',
+    type:
+      'CACHE',
 
-    label: '⚡ CACHE',
+    label:
+      '⚡ CACHE',
 
-    pts: 150,
+    pts:
+      150,
 
-    isMalus: false,
+    isMalus:
+      false,
 
-    speedBoost: 1.3
+    speedBoost:
+      1.3
 
   },
 
 
   GUARD: {
 
-    type: 'GUARD',
+    type:
+      'GUARD',
 
-    label: '🛡️ RENDER',
+    label:
+      '🛡️ RENDER',
 
-    pts: 250,
+    pts:
+      250,
 
-    isMalus: false,
+    isMalus:
+      false,
 
-    shieldDuration: 180
+    shieldDuration:
+      180
 
   },
 
 
   DROP_FRAME: {
 
-    type: 'DROP_FRAME',
+    type:
+      'DROP_FRAME',
 
-    label: '🐌 DROP',
+    label:
+      '🐌 DROP',
 
-    pts: -100,
+    pts:
+      -100,
 
-    isMalus: true,
+    isMalus:
+      true,
 
-    slowFactor: 0.6
+    slowFactor:
+      0.6
 
   },
 
 
   DISK_FULL: {
 
-    type: 'DISK_FULL',
+    type:
+      'DISK_FULL',
 
-    label: '⚠️ FULL DISK',
+    label:
+      '⚠️ FULL DISK',
 
-    pts: -200,
+    pts:
+      -200,
 
-    isMalus: true,
+    isMalus:
+      true,
 
-    invertControls: true
+    invertControls:
+      true
 
   }
 
@@ -2103,14 +2362,20 @@ let gameState =
   'TUTORIAL';
 
 
-let level = 1;
-
-let score = 0;
-
-let lives = 3;
+let level =
+  1;
 
 
-let visualScrollOffset = 0;
+let score =
+  0;
+
+
+let lives =
+  3;
+
+
+let visualScrollOffset =
+  0;
 
 
 let player = {
@@ -2121,44 +2386,62 @@ let player = {
   gy:
     ROWS - 2,
 
-  w: 16,
+  w:
+    16,
 
-  h: 16,
+  h:
+    16,
 
-  facingLeft: false,
+  facingLeft:
+    false,
 
-  invTimer: 0,
+  invTimer:
+    0,
 
-  guardTimer: 0,
+  guardTimer:
+    0,
 
-  nextMoveAllowedTimer: 0,
+  nextMoveAllowedTimer:
+    0,
 
-  speedMult: 1.0,
+  speedMult:
+    1.0,
 
-  tempScoreMult: 1.0,
+  tempScoreMult:
+    1.0,
 
-  glitchTimer: 0
+  glitchTimer:
+    0
 
 };
 
 
-let moveUp = false;
-
-let moveDown = false;
-
-let moveLeft = false;
-
-let moveRight = false;
+let moveUp =
+  false;
 
 
-let selectedCharIndex = 0;
+let moveDown =
+  false;
 
 
-let particles = [];
+let moveLeft =
+  false;
+
+
+let moveRight =
+  false;
+
+
+let selectedCharIndex =
+  0;
+
+
+let particles =
+  [];
 
 
 /* =========================================================
-   LANE CREATION
+   LANE GENERATOR
    ========================================================= */
 
 function createNewLane(
@@ -2166,17 +2449,21 @@ function createNewLane(
   r = 0
 ) {
 
-  let isSafe = false;
+  let isSafe =
+    false;
 
 
   let safeChance =
     Math.max(
       0.20,
-      0.45 - (level * 0.08)
+      0.45 -
+      (level * 0.08)
     );
 
 
-  if (isInitialSetup) {
+  if (
+    isInitialSetup
+  ) {
 
     isSafe =
       (
@@ -2192,7 +2479,6 @@ function createNewLane(
 
   }
 
-
   else {
 
     let topLane =
@@ -2201,13 +2487,14 @@ function createNewLane(
 
     if (
       topLane &&
-      topLane.type === 'SAFE'
+      topLane.type ===
+      'SAFE'
     ) {
 
-      isSafe = false;
+      isSafe =
+        false;
 
     }
-
 
     else {
 
@@ -2227,7 +2514,8 @@ function createNewLane(
 
 
   let dir =
-    Math.random() < 0.5
+    Math.random() <
+    0.5
       ? 1
       : -1;
 
@@ -2258,37 +2546,41 @@ function createNewLane(
     "V1";
 
 
-  if (r % 5 === 0) {
+  if (
+    r % 5 === 0
+  ) {
 
     trackLabel =
       "V3";
 
   }
 
-
-  else if (r % 5 === 1) {
+  else if (
+    r % 5 === 1
+  ) {
 
     trackLabel =
       "V2";
 
   }
 
-
-  else if (r % 5 === 2) {
+  else if (
+    r % 5 === 2
+  ) {
 
     trackLabel =
       "V1";
 
   }
 
-
-  else if (r % 5 === 3) {
+  else if (
+    r % 5 === 3
+  ) {
 
     trackLabel =
       "A1";
 
   }
-
 
   else {
 
@@ -2319,15 +2611,18 @@ function createNewLane(
     speed:
       baseSpeed,
 
-    objects: [],
+    objects:
+      [],
 
-    pickups: []
+    pickups:
+      []
 
   };
 
 
   if (
-    laneType === 'ROAD'
+    laneType ===
+    'ROAD'
   ) {
 
     let x =
@@ -2338,9 +2633,8 @@ function createNewLane(
     let minGap =
       Math.max(
         4.0,
-        10.0 - (
-          level * 1.5
-        )
+        10.0 -
+        (level * 1.5)
       );
 
 
@@ -2371,9 +2665,11 @@ function createNewLane(
 
         laneObj.objects.push({
 
-          x: x,
+          x:
+            x,
 
-          type: vType,
+          type:
+            vType,
 
           w:
             vType.wMult *
@@ -2399,7 +2695,8 @@ function createNewLane(
 
   else if (
     isSafe &&
-    Math.random() < 0.35
+    Math.random() <
+    0.35
   ) {
 
     let pTypeKeys =
@@ -2441,14 +2738,16 @@ function createNewLane(
 
 
 /* =========================================================
-   START / RESET
+   START
    ========================================================= */
 
 function startInfiniteScroll() {
 
-  activeLanes = [];
+  activeLanes =
+    [];
 
-  visualScrollOffset = 0;
+  visualScrollOffset =
+    0;
 
 
   for (
@@ -2472,6 +2771,10 @@ function startInfiniteScroll() {
 }
 
 
+/* =========================================================
+   RESET PLAYER
+   ========================================================= */
+
 function resetPlayer() {
 
   player.gx =
@@ -2484,22 +2787,36 @@ function resetPlayer() {
     ROWS - 2;
 
 
-  player.w = 16;
+  player.w =
+    16;
 
-  player.h = 16;
+
+  player.h =
+    16;
 
 
-  player.invTimer = 0;
+  player.invTimer =
+    0;
 
-  player.guardTimer = 0;
 
-  player.nextMoveAllowedTimer = 0;
+  player.guardTimer =
+    0;
 
-  player.speedMult = 1.0;
 
-  player.tempScoreMult = 1.0;
+  player.nextMoveAllowedTimer =
+    0;
 
-  player.glitchTimer = 0;
+
+  player.speedMult =
+    1.0;
+
+
+  player.tempScoreMult =
+    1.0;
+
+
+  player.glitchTimer =
+    0;
 
 }
 
@@ -2511,7 +2828,8 @@ function resetPlayer() {
 function updatePlayer() {
 
   if (
-    player.nextMoveAllowedTimer > 0
+    player.nextMoveAllowedTimer >
+    0
   ) {
 
     player.nextMoveAllowedTimer--;
@@ -2520,7 +2838,8 @@ function updatePlayer() {
 
 
   if (
-    player.glitchTimer > 0
+    player.glitchTimer >
+    0
   ) {
 
     player.glitchTimer--;
@@ -2529,12 +2848,15 @@ function updatePlayer() {
 
 
   if (
-    player.nextMoveAllowedTimer <= 0
+    player.nextMoveAllowedTimer <=
+    0
   ) {
 
-    let dx = 0;
+    let dx =
+      0;
 
-    let dy = 0;
+    let dy =
+      0;
 
 
     let inLeft =
@@ -2562,7 +2884,8 @@ function updatePlayer() {
 
 
     if (
-      player.glitchTimer > 0
+      player.glitchTimer >
+      0
     ) {
 
       let tempL =
@@ -2602,7 +2925,6 @@ function updatePlayer() {
 
     }
 
-
     else if (inRight) {
 
       dx++;
@@ -2619,7 +2941,6 @@ function updatePlayer() {
 
     }
 
-
     else if (inDown) {
 
       dy++;
@@ -2633,14 +2954,17 @@ function updatePlayer() {
     ) {
 
       let ngx =
-        player.gx + dx;
+        player.gx +
+        dx;
 
 
       let ngy =
-        player.gy + dy;
+        player.gy +
+        dy;
 
 
-      let minGx = 2;
+      let minGx =
+        2;
 
 
       if (
@@ -2665,7 +2989,6 @@ function updatePlayer() {
           scrollWorldDown();
 
         }
-
 
         else if (
           dy < 0
@@ -2696,7 +3019,8 @@ function updatePlayer() {
           Math.max(
             5,
             Math.floor(
-              14 / effSpeed
+              14 /
+              effSpeed
             )
           );
 
@@ -2708,7 +3032,8 @@ function updatePlayer() {
 
 
   if (
-    player.invTimer > 0
+    player.invTimer >
+    0
   ) {
 
     player.invTimer--;
@@ -2717,7 +3042,8 @@ function updatePlayer() {
 
 
   if (
-    player.guardTimer > 0
+    player.guardTimer >
+    0
   ) {
 
     player.guardTimer--;
@@ -2733,7 +3059,7 @@ function updatePlayer() {
 
 
 /* =========================================================
-   WORLD SCROLL
+   SCROLL
    ========================================================= */
 
 function scrollWorldDown() {
@@ -2791,10 +3117,12 @@ function updateVehicles() {
   if (
     Math.abs(
       visualScrollOffset
-    ) < 0.1
+    ) <
+    0.1
   ) {
 
-    visualScrollOffset = 0;
+    visualScrollOffset =
+      0;
 
   }
 
@@ -2803,7 +3131,8 @@ function updateVehicles() {
     lane => {
 
       if (
-        lane.type === 'ROAD'
+        lane.type ===
+        'ROAD'
       ) {
 
         lane.objects.forEach(
@@ -2826,7 +3155,6 @@ function updateVehicles() {
                 obj.w;
 
             }
-
 
             else if (
               lane.dir < 0 &&
@@ -2907,9 +3235,11 @@ function addParticles(
 
     particles.push({
 
-      x: x,
+      x:
+        x,
 
-      y: y,
+      y:
+        y,
 
       vx:
         (
@@ -2923,9 +3253,11 @@ function addParticles(
           0.5
         ) * 6,
 
-      life: 16,
+      life:
+        16,
 
-      color: color
+      color:
+        color
 
     });
 
@@ -2948,7 +3280,8 @@ function checkPickups() {
 
   if (
     !currentLane ||
-    currentLane.pickups.length === 0
+    currentLane.pickups.length ===
+    0
   ) {
 
     return;
@@ -2970,7 +3303,8 @@ function checkPickups() {
 
 
     if (
-      p.gx === player.gx
+      p.gx ===
+      player.gx
     ) {
 
       score +=
@@ -3010,7 +3344,6 @@ function checkPickups() {
 
       }
 
-
       else {
 
         playSound(
@@ -3044,7 +3377,6 @@ function checkPickups() {
 
           player.guardTimer =
             p.type.shieldDuration;
-
 
           playSound(
             'guard_active'
@@ -3087,23 +3419,33 @@ function checkPickups() {
 
 
 /* =========================================================
-   COLLISIONS
+   INVINCIBILITY
    ========================================================= */
 
 function isInvincible() {
 
   return (
-    player.invTimer > 0 ||
-    player.guardTimer > 0
+
+    player.invTimer >
+    0 ||
+
+    player.guardTimer >
+    0
+
   );
 
 }
 
 
+/* =========================================================
+   COLLISIONS
+   ========================================================= */
+
 function checkCollisions() {
 
   if (
-    gameState !== 'PLAYING' ||
+    gameState !==
+    'PLAYING' ||
     isInvincible()
   ) {
 
@@ -3147,7 +3489,8 @@ function checkCollisions() {
 
     if (
       !lane ||
-      lane.type !== 'ROAD'
+      lane.type !==
+      'ROAD'
     ) {
 
       continue;
@@ -3204,10 +3547,13 @@ function checkCollisions() {
 }
 
 
+/* =========================================================
+   HIT
+   ========================================================= */
+
 function hitPlayer() {
 
   lives--;
-
 
   playSound(
     'crash'
@@ -3238,16 +3584,13 @@ function hitPlayer() {
     gameState =
       'GAME_OVER';
 
-
     playSound(
       'fail'
     );
 
-
     saveScore();
 
   }
-
 
   else {
 
@@ -3256,14 +3599,18 @@ function hitPlayer() {
 
 
     for (
-      let r = player.gy;
+      let r =
+        player.gy;
+
       r < ROWS;
+
       r++
     ) {
 
       if (
         activeLanes[r] &&
-        activeLanes[r].type === 'SAFE'
+        activeLanes[r].type ===
+        'SAFE'
       ) {
 
         respawnGy =
@@ -3317,11 +3664,16 @@ function drawGameWorld() {
 
 
   ctx.fillRect(
+
     0,
+
     HUD_HEIGHT,
+
     CANVAS_W,
+
     CANVAS_H -
     HUD_HEIGHT
+
   );
 
 
@@ -3340,10 +3692,15 @@ function drawGameWorld() {
 
 
       ctx.fillRect(
+
         0,
+
         y,
+
         CANVAS_W,
+
         CELL_SIZE
+
       );
 
 
@@ -3351,14 +3708,20 @@ function drawGameWorld() {
         '#222226';
 
 
-      ctx.lineWidth = 1;
+      ctx.lineWidth =
+        1;
 
 
       ctx.strokeRect(
+
         0,
+
         y,
+
         CANVAS_W,
+
         CELL_SIZE
+
       );
 
     }
@@ -3369,7 +3732,8 @@ function drawGameWorld() {
     (lane, r) => {
 
       if (
-        lane.type === 'SAFE'
+        lane.type ===
+        'SAFE'
       ) {
 
         let y =
@@ -3412,9 +3776,14 @@ function drawGameWorld() {
 
 
             ctx.fillText(
-              p.type.label.split(' ')[0],
+
+              p.type.label
+                .split(' ')[0],
+
               px,
+
               py
+
             );
 
           }
@@ -3430,7 +3799,8 @@ function drawGameWorld() {
     (lane, r) => {
 
       if (
-        lane.type === 'ROAD'
+        lane.type ===
+        'ROAD'
       ) {
 
         let y =
@@ -3466,10 +3836,15 @@ function drawGameWorld() {
 
 
       ctx.fillRect(
+
         0,
+
         y,
+
         TRACK_HEADER_W,
+
         CELL_SIZE
+
       );
 
 
@@ -3477,14 +3852,20 @@ function drawGameWorld() {
         '#323238';
 
 
-      ctx.lineWidth = 1;
+      ctx.lineWidth =
+        1;
 
 
       ctx.strokeRect(
+
         0,
+
         y,
+
         TRACK_HEADER_W,
+
         CELL_SIZE
+
       );
 
 
@@ -3505,10 +3886,14 @@ function drawGameWorld() {
 
 
       ctx.fillText(
+
         lane.trackLabel,
+
         TRACK_HEADER_W / 2,
+
         y +
         CELL_SIZE / 2
+
       );
 
     }
@@ -3530,10 +3915,15 @@ function drawGameWorld() {
 
 
     ctx.fillRect(
+
       p.x,
+
       p.y,
+
       4,
+
       4
+
     );
 
   }
@@ -3557,14 +3947,20 @@ function drawGameWorld() {
 
 
   ctx.moveTo(
+
     playheadX,
+
     HUD_HEIGHT
+
   );
 
 
   ctx.lineTo(
+
     playheadX,
+
     CANVAS_H
+
   );
 
 
@@ -3630,10 +4026,15 @@ function drawObstacles(
 
 
       ctx.fillRect(
+
         x + 1,
+
         y + 1,
+
         blockW - 2,
+
         blockH
+
       );
 
 
@@ -3643,10 +4044,15 @@ function drawObstacles(
 
 
       ctx.fillRect(
+
         x + 1,
+
         y + 1,
+
         blockW - 2,
+
         2
+
       );
 
 
@@ -3654,14 +4060,20 @@ function drawObstacles(
         vData.border;
 
 
-      ctx.lineWidth = 1;
+      ctx.lineWidth =
+        1;
 
 
       ctx.strokeRect(
+
         x + 1,
+
         y + 1,
+
         blockW - 2,
+
         blockH
+
       );
 
 
@@ -3670,10 +4082,15 @@ function drawObstacles(
 
 
       ctx.fillRect(
+
         x + 4,
+
         y + 4,
+
         13,
+
         10
+
       );
 
 
@@ -3694,9 +4111,13 @@ function drawObstacles(
 
 
       ctx.fillText(
+
         'fx',
+
         x + 10,
+
         y + 9
+
       );
 
 
@@ -3708,7 +4129,8 @@ function drawObstacles(
           'rgba(255,255,255,0.18)';
 
 
-        ctx.lineWidth = 1;
+        ctx.lineWidth =
+          1;
 
 
         ctx.beginPath();
@@ -3721,14 +4143,24 @@ function drawObstacles(
 
 
         ctx.moveTo(
+
           x + 18,
-          y + blockH / 2
+
+          y +
+          blockH / 2
+
         );
 
 
         ctx.lineTo(
-          x + blockW - 6,
-          y + blockH / 2
+
+          x +
+          blockW -
+          6,
+
+          y +
+          blockH / 2
+
         );
 
 
@@ -3757,14 +4189,20 @@ function drawObstacles(
 
 
       ctx.fillText(
+
         vData.label,
+
         x +
           blockW / 2 +
           6,
+
         y +
           blockH / 2 +
           1,
-        blockW - 22
+
+        blockW -
+          22
+
       );
 
 
@@ -3797,10 +4235,12 @@ function drawSinglePlayer() {
 
 
   if (
-    player.invTimer > 0 &&
+    player.invTimer >
+    0 &&
     Math.floor(
       player.invTimer / 4
-    ) % 2 === 0
+    ) % 2 ===
+    0
   ) {
 
     return;
@@ -3886,7 +4326,8 @@ function drawSinglePlayer() {
 
 
   if (
-    player.glitchTimer > 0
+    player.glitchTimer >
+    0
   ) {
 
     ctx.fillStyle =
@@ -3907,7 +4348,8 @@ function drawSinglePlayer() {
 
 
   if (
-    player.guardTimer > 0
+    player.guardTimer >
+    0
   ) {
 
     ctx.shadowColor =
@@ -3959,10 +4401,15 @@ function drawHUD() {
 
 
   ctx.fillRect(
+
     0,
+
     0,
+
     canvas.width,
+
     HUD_HEIGHT
+
   );
 
 
@@ -3975,10 +4422,15 @@ function drawHUD() {
 
 
   ctx.strokeRect(
+
     0,
+
     0,
+
     canvas.width,
+
     HUD_HEIGHT
+
   );
 
 
@@ -3995,9 +4447,13 @@ function drawHUD() {
 
 
   ctx.fillText(
+
     `${currentTheme.name}`,
+
     8,
+
     16
+
   );
 
 
@@ -4006,9 +4462,13 @@ function drawHUD() {
 
 
   ctx.fillText(
+
     `PTS: ${score}`,
+
     8,
+
     32
+
   );
 
 
@@ -4034,9 +4494,13 @@ function drawHUD() {
 
 
   ctx.fillText(
+
     tData.title,
+
     canvas.width / 2,
+
     26
+
   );
 
 
@@ -4053,9 +4517,13 @@ function drawHUD() {
 
 
   ctx.fillText(
+
     `REC: ${highScore}`,
+
     canvas.width - 8,
+
     16
+
   );
 
 
@@ -4064,9 +4532,15 @@ function drawHUD() {
 
 
   ctx.fillText(
-    `VITE: ${'❤️'.repeat(lives)}`,
+
+    `VITE: ${
+      '❤️'.repeat(lives)
+    }`,
+
     canvas.width - 8,
+
     34
+
   );
 
 }
@@ -4083,10 +4557,15 @@ function drawTutorial() {
 
 
   ctx.fillRect(
+
     0,
+
     0,
+
     canvas.width,
+
     canvas.height
+
   );
 
 
@@ -4103,19 +4582,30 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     'PREMIERE TIMELINE RUSH 🎬',
+
     canvas.width / 2,
+
     38
+
   );
 
 
   drawRoundRect(
+
     ctx,
+
     12,
+
     52,
+
     314,
+
     85,
+
     10
+
   );
 
 
@@ -4150,9 +4640,13 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     '1. RISALI LA TIMELINE',
+
     22,
+
     72
+
   );
 
 
@@ -4165,33 +4659,52 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     '• Evita i blocchi clip: Media Offline, GPU Crash,',
+
     22,
+
     90
+
   );
 
 
   ctx.fillText(
+
     '  Lumetri FX e tracce audio fuori sync!',
+
     22,
+
     106
+
   );
 
 
   ctx.fillText(
+
     '• Avanza verso l\'alto per fare punti!',
+
     22,
+
     122
+
   );
 
 
   drawRoundRect(
+
     ctx,
+
     12,
+
     145,
+
     314,
+
     88,
+
     10
+
   );
 
 
@@ -4226,9 +4739,13 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     '2. POTENZIAMENTI BONUS 🎁',
+
     22,
+
     165
+
   );
 
 
@@ -4241,33 +4758,52 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     '• 💾 Auto-Save (+300 PTS) | 🎬 Proxy (2X Punti)',
+
     22,
+
     183
+
   );
 
 
   ctx.fillText(
+
     '• ⚡ Cache (+150 PTS & Boost Velocità)',
+
     22,
+
     199
+
   );
 
 
   ctx.fillText(
+
     '• 🛡️ Render Shield: Scudo invincibile temporaneo!',
+
     22,
+
     215
+
   );
 
 
   drawRoundRect(
+
     ctx,
+
     12,
+
     241,
+
     314,
+
     80,
+
     10
+
   );
 
 
@@ -4302,9 +4838,13 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     '3. MALUS TRAPPOLA ⚠️',
+
     22,
+
     261
+
   );
 
 
@@ -4317,16 +4857,24 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     '• 🐌 Drop Frame: Rallenta temporaneamente (-100)',
+
     22,
+
     279
+
   );
 
 
   ctx.fillText(
+
     '• ⚠️ Full Disk: Inverte i comandi di guida! (-200)',
+
     22,
+
     297
+
   );
 
 
@@ -4343,19 +4891,30 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     `RECORD ATTUALE: ${highScore} PTS`,
+
     canvas.width / 2,
+
     342
+
   );
 
 
   drawRoundRect(
+
     ctx,
+
     16,
+
     368,
+
     306,
+
     42,
+
     10
+
   );
 
 
@@ -4386,9 +4945,13 @@ function drawTutorial() {
 
 
   ctx.fillText(
+
     'AVANTI: SCEGLI VIDEOMAKER ►',
+
     canvas.width / 2,
+
     396
+
   );
 
 }
@@ -4405,10 +4968,15 @@ function drawCharSelect() {
 
 
   ctx.fillRect(
+
     0,
+
     0,
+
     canvas.width,
+
     canvas.height
+
   );
 
 
@@ -4425,9 +4993,13 @@ function drawCharSelect() {
 
 
   ctx.fillText(
+
     'Scegli il tuo Creativo in Deadline Drive',
+
     canvas.width / 2,
+
     28
+
   );
 
 
@@ -4438,9 +5010,7 @@ function drawCharSelect() {
 
 
   let c =
-    CHARACTERS[
-      cKey
-    ];
+    CHARACTERS[cKey];
 
 
   let cardW =
@@ -4463,12 +5033,19 @@ function drawCharSelect() {
 
 
   drawRoundRect(
+
     ctx,
+
     cardX,
+
     cardY,
+
     cardW,
+
     cardH,
+
     12
+
   );
 
 
@@ -4506,19 +5083,27 @@ function drawCharSelect() {
 
 
   let boxY =
-    cardY + 14;
+    cardY +
+    14;
 
 
   ctx.save();
 
 
   drawRoundRect(
+
     ctx,
+
     boxX,
+
     boxY,
+
     boxW,
+
     boxH,
+
     12
+
   );
 
 
@@ -4528,19 +5113,25 @@ function drawCharSelect() {
   if (
     c.img &&
     c.img.complete &&
-    c.img.naturalWidth > 0
+    c.img.naturalWidth >
+    0
   ) {
 
     ctx.drawImage(
+
       c.img,
+
       boxX,
+
       boxY,
+
       boxW,
+
       boxH
+
     );
 
   }
-
 
   else {
 
@@ -4564,9 +5155,13 @@ function drawCharSelect() {
 
 
     ctx.fillText(
+
       c.name[0],
+
       CANVAS_W / 2,
+
       boxY + 95
+
     );
 
   }
@@ -4576,12 +5171,19 @@ function drawCharSelect() {
 
 
   drawRoundRect(
+
     ctx,
+
     boxX,
+
     boxY,
+
     boxW,
+
     boxH,
+
     12
+
   );
 
 
@@ -4609,9 +5211,13 @@ function drawCharSelect() {
 
 
   ctx.fillText(
+
     c.name,
+
     CANVAS_W / 2,
+
     cardY + 200
+
   );
 
 
@@ -4624,9 +5230,13 @@ function drawCharSelect() {
 
 
   ctx.fillText(
+
     c.subtitle,
+
     CANVAS_W / 2,
+
     cardY + 222
+
   );
 
 
@@ -4639,9 +5249,13 @@ function drawCharSelect() {
 
 
   ctx.fillText(
+
     c.perkBonus,
+
     CANVAS_W / 2,
+
     cardY + 248
+
   );
 
 
@@ -4650,9 +5264,13 @@ function drawCharSelect() {
 
 
   ctx.fillText(
+
     c.perkMalus,
+
     CANVAS_W / 2,
+
     cardY + 268
+
   );
 
 
@@ -4665,9 +5283,13 @@ function drawCharSelect() {
 
 
   ctx.fillText(
+
     '► TOCCA PER CONFERMARE ◄',
+
     CANVAS_W / 2,
+
     cardY + 310
+
   );
 
 
@@ -4690,16 +5312,20 @@ function drawCharSelect() {
 
 
   ctx.fillText(
-    '◄  CAMBIA PERSONAGGIO  ►',
+
+    '◄ CAMBIA PERSONAGGIO ►',
+
     CANVAS_W / 2,
+
     arrowY
+
   );
 
 }
 
 
 /* =========================================================
-   CHARACTER INPUT
+   SELECTION
    ========================================================= */
 
 function handleSelectionInput(
@@ -4716,11 +5342,13 @@ function handleSelectionInput(
 
 
   if (
-    selectedCharIndex < 0
+    selectedCharIndex <
+    0
   ) {
 
     selectedCharIndex =
-      CHARACTER_LIST.length - 1;
+      CHARACTER_LIST.length -
+      1;
 
   }
 
@@ -4730,7 +5358,8 @@ function handleSelectionInput(
     CHARACTER_LIST.length
   ) {
 
-    selectedCharIndex = 0;
+    selectedCharIndex =
+      0;
 
   }
 
@@ -4748,10 +5377,15 @@ function drawLevelClear() {
 
 
   ctx.fillRect(
+
     0,
+
     0,
+
     canvas.width,
+
     canvas.height
+
   );
 
 
@@ -4777,9 +5411,13 @@ function drawLevelClear() {
 
 
   ctx.fillText(
+
     `${tData.title} COMPLETE! 🎉`,
+
     canvas.width / 2,
+
     canvas.height / 2 - 30
+
   );
 
 
@@ -4792,9 +5430,13 @@ function drawLevelClear() {
 
 
   ctx.fillText(
+
     tData.msg,
+
     canvas.width / 2,
+
     canvas.height / 2
+
   );
 
 
@@ -4807,13 +5449,17 @@ function drawLevelClear() {
 
 
   ctx.fillText(
+
     `BONUS STAGE: +${Math.floor(
       1000 *
       (level - 1) *
       currentTheme.scoreMult
     )} PTS`,
+
     canvas.width / 2,
+
     canvas.height / 2 + 35
+
   );
 
 }
@@ -4830,10 +5476,15 @@ function drawGameOver() {
 
 
   ctx.fillRect(
+
     0,
+
     0,
+
     canvas.width,
+
     canvas.height
+
   );
 
 
@@ -4850,9 +5501,13 @@ function drawGameOver() {
 
 
   ctx.fillText(
+
     'DEADLINE MISSED! 💀',
+
     canvas.width / 2,
+
     canvas.height / 2 - 40
+
   );
 
 
@@ -4865,9 +5520,13 @@ function drawGameOver() {
 
 
   ctx.fillText(
+
     `PUNTEGGIO: ${score}`,
+
     canvas.width / 2,
+
     canvas.height / 2 + 5
+
   );
 
 
@@ -4880,9 +5539,13 @@ function drawGameOver() {
 
 
   ctx.fillText(
+
     `RECORD ATTUALE: ${highScore}`,
+
     canvas.width / 2,
+
     canvas.height / 2 + 35
+
   );
 
 
@@ -4899,9 +5562,13 @@ function drawGameOver() {
 
 
   ctx.fillText(
+
     '► TOCCA PER GIOCARE ANCORA ◄',
+
     canvas.width / 2,
+
     canvas.height / 2 + 80
+
   );
 
 }
@@ -4918,10 +5585,15 @@ function drawPause() {
 
 
   ctx.fillRect(
+
     0,
+
     0,
+
     canvas.width,
+
     canvas.height
+
   );
 
 
@@ -4938,9 +5610,13 @@ function drawPause() {
 
 
   ctx.fillText(
+
     'IN PAUSA',
+
     canvas.width / 2,
+
     canvas.height / 2 - 10
+
   );
 
 
@@ -4953,9 +5629,13 @@ function drawPause() {
 
 
   ctx.fillText(
+
     'TOCCA IL GIOCO PER RIPRENDERE',
+
     canvas.width / 2,
+
     canvas.height / 2 + 20
+
   );
 
 }
@@ -4970,33 +5650,39 @@ function gameLoop() {
   try {
 
     ctx.clearRect(
+
       0,
+
       0,
+
       canvas.width,
+
       canvas.height
+
     );
 
 
     if (
-      gameState === 'TUTORIAL'
+      gameState ===
+      'TUTORIAL'
     ) {
 
       drawTutorial();
 
     }
 
-
     else if (
-      gameState === 'CHAR_SELECT'
+      gameState ===
+      'CHAR_SELECT'
     ) {
 
       drawCharSelect();
 
     }
 
-
     else if (
-      gameState === 'PLAYING'
+      gameState ===
+      'PLAYING'
     ) {
 
       updateVehicles();
@@ -5009,9 +5695,9 @@ function gameLoop() {
 
     }
 
-
     else if (
-      gameState === 'PAUSE'
+      gameState ===
+      'PAUSE'
     ) {
 
       drawGameWorld();
@@ -5022,9 +5708,9 @@ function gameLoop() {
 
     }
 
-
     else if (
-      gameState === 'LEVEL_CLEAR'
+      gameState ===
+      'LEVEL_CLEAR'
     ) {
 
       drawGameWorld();
@@ -5035,9 +5721,9 @@ function gameLoop() {
 
     }
 
-
     else if (
-      gameState === 'GAME_OVER'
+      gameState ===
+      'GAME_OVER'
     ) {
 
       drawGameWorld();
@@ -5047,7 +5733,6 @@ function gameLoop() {
     }
 
   }
-
 
   catch (err) {
 
@@ -5067,7 +5752,7 @@ function gameLoop() {
 
 
 /* =========================================================
-   CHARACTER SELECT
+   SELECT CHARACTER
    ========================================================= */
 
 function selectCharacter(
@@ -5085,9 +5770,7 @@ function selectCharacter(
 
 
   canvas.style.boxShadow =
-    `inset 0 0 15px ${
-      currentTheme.primary
-    }`;
+    `inset 0 0 15px ${currentTheme.primary}`;
 
 
   startInfiniteScroll();
@@ -5105,14 +5788,18 @@ function selectCharacter(
 
 
 /* =========================================================
-   CANVAS TOUCH
+   CANVAS INPUT
    ========================================================= */
 
 canvas.addEventListener(
+
   'pointerdown',
+
   (e) => {
 
-    if (e.cancelable) {
+    if (
+      e.cancelable
+    ) {
 
       e.preventDefault();
 
@@ -5149,7 +5836,8 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'TUTORIAL'
+      gameState ===
+      'TUTORIAL'
     ) {
 
       if (
@@ -5173,7 +5861,8 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'CHAR_SELECT'
+      gameState ===
+      'CHAR_SELECT'
     ) {
 
       if (
@@ -5191,7 +5880,6 @@ canvas.addEventListener(
 
         }
 
-
         else {
 
           handleSelectionInput(
@@ -5202,13 +5890,14 @@ canvas.addEventListener(
 
       }
 
-
       else {
 
         selectCharacter(
+
           CHARACTER_LIST[
             selectedCharIndex
           ]
+
         );
 
       }
@@ -5220,11 +5909,13 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'PLAYING'
+      gameState ===
+      'PLAYING'
     ) {
 
       if (
-        y < HUD_HEIGHT
+        y <
+        HUD_HEIGHT
       ) {
 
         gameState =
@@ -5242,7 +5933,8 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'PAUSE'
+      gameState ===
+      'PAUSE'
     ) {
 
       gameState =
@@ -5258,7 +5950,8 @@ canvas.addEventListener(
 
 
     if (
-      gameState === 'GAME_OVER'
+      gameState ===
+      'GAME_OVER'
     ) {
 
       gameState =
@@ -5270,9 +5963,12 @@ canvas.addEventListener(
     }
 
   },
+
   {
-    passive: false
+    passive:
+      false
   }
+
 );
 
 
@@ -5291,15 +5987,18 @@ function bindBtn(
     );
 
 
-  if (!btn)
-    return;
+  if (!btn) return;
 
 
   btn.addEventListener(
+
     'pointerdown',
+
     (e) => {
 
-      if (e.cancelable) {
+      if (
+        e.cancelable
+      ) {
 
         e.preventDefault();
 
@@ -5310,8 +6009,10 @@ function bindBtn(
 
 
       if (
-        gameState === 'TUTORIAL' ||
-        gameState === 'GAME_OVER'
+        gameState ===
+        'TUTORIAL' ||
+        gameState ===
+        'GAME_OVER'
       ) {
 
         gameState =
@@ -5319,67 +6020,87 @@ function bindBtn(
 
       }
 
-
       else if (
-        gameState === 'CHAR_SELECT'
+        gameState ===
+        'CHAR_SELECT'
       ) {
 
         selectCharacter(
+
           CHARACTER_LIST[
             selectedCharIndex
           ]
+
         );
 
       }
 
-
       else {
 
-        onPress(true);
+        onPress(
+          true
+        );
 
       }
 
     },
+
     {
-      passive: false
+      passive:
+        false
     }
+
   );
 
 
   btn.addEventListener(
+
     'pointerup',
+
     (e) => {
 
-      if (e.cancelable) {
+      if (
+        e.cancelable
+      ) {
 
         e.preventDefault();
 
       }
 
 
-      onPress(false);
+      onPress(
+        false
+      );
 
     },
+
     {
-      passive: false
+      passive:
+        false
     }
+
   );
 
 
   btn.addEventListener(
+
     'pointercancel',
+
     () => {
 
-      onPress(false);
+      onPress(
+        false
+      );
 
     }
+
   );
 
 }
 
 
 /* =========================================================
-   JOYSTICK
+   CONTROLS
    ========================================================= */
 
 bindBtn(
@@ -5434,7 +6155,9 @@ const keys = {};
 
 
 window.addEventListener(
+
   'keydown',
+
   e => {
 
     keys[e.code] =
@@ -5445,10 +6168,13 @@ window.addEventListener(
 
 
     if (
-      gameState === 'TUTORIAL' &&
+      gameState ===
+      'TUTORIAL' &&
       (
-        e.code === 'Space' ||
-        e.code === 'Enter'
+        e.code ===
+        'Space' ||
+        e.code ===
+        'Enter'
       )
     ) {
 
@@ -5459,12 +6185,15 @@ window.addEventListener(
 
 
     else if (
-      gameState === 'CHAR_SELECT'
+      gameState ===
+      'CHAR_SELECT'
     ) {
 
       if (
-        e.key === 'ArrowLeft' ||
-        e.key === 'a'
+        e.key ===
+        'ArrowLeft' ||
+        e.key ===
+        'a'
       ) {
 
         handleSelectionInput(
@@ -5475,8 +6204,10 @@ window.addEventListener(
 
 
       if (
-        e.key === 'ArrowRight' ||
-        e.key === 'd'
+        e.key ===
+        'ArrowRight' ||
+        e.key ===
+        'd'
       ) {
 
         handleSelectionInput(
@@ -5487,14 +6218,18 @@ window.addEventListener(
 
 
       if (
-        e.code === 'Space' ||
-        e.code === 'Enter'
+        e.code ===
+        'Space' ||
+        e.code ===
+        'Enter'
       ) {
 
         selectCharacter(
+
           CHARACTER_LIST[
             selectedCharIndex
           ]
+
         );
 
       }
@@ -5503,10 +6238,13 @@ window.addEventListener(
 
 
     else if (
-      gameState === 'GAME_OVER' &&
+      gameState ===
+      'GAME_OVER' &&
       (
-        e.code === 'Space' ||
-        e.code === 'Enter'
+        e.code ===
+        'Space' ||
+        e.code ===
+        'Enter'
       )
     ) {
 
@@ -5516,17 +6254,21 @@ window.addEventListener(
     }
 
   }
+
 );
 
 
 window.addEventListener(
+
   'keyup',
+
   e => {
 
     keys[e.code] =
       false;
 
   }
+
 );
 
 
@@ -5534,7 +6276,9 @@ function keyPressed(
   code
 ) {
 
-  return !!keys[code];
+  return !!keys[
+    code
+  ];
 
 }
 
@@ -5548,7 +6292,8 @@ function saveScore() {
   try {
 
     if (
-      score > highScore
+      score >
+      highScore
     ) {
 
       highScore =
@@ -5556,8 +6301,11 @@ function saveScore() {
 
 
       localStorage.setItem(
+
         'deadlineDrive_highScore',
+
         highScore.toString()
+
       );
 
     }
@@ -5611,10 +6359,13 @@ function saveScore() {
 
 
       localStorage.setItem(
+
         'arcade_current_user',
+
         JSON.stringify(
           curUser
         )
+
       );
 
 
@@ -5652,10 +6403,13 @@ function saveScore() {
 
 
           localStorage.setItem(
+
             'arcade_users',
+
             JSON.stringify(
               users
             )
+
           );
 
         }
@@ -5666,12 +6420,14 @@ function saveScore() {
 
   }
 
-
   catch (e) {
 
     console.warn(
+
       "Save score error:",
+
       e
+
     );
 
   }
