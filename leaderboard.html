@@ -2,13 +2,15 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Classifiche Mondiali - Agency Arcade</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
             font-family: 'Courier New', Courier, monospace;
         }
         html, body {
@@ -28,13 +30,30 @@
             height: 100%;
             max-width: 360px;
             max-height: 740px;
-            box-shadow: 0 0 35px rgba(0, 255, 204, 0.25);
             background: #060612;
-            border: 1px solid rgba(0, 255, 204, 0.25);
+            border: none !important;
+            box-shadow: none !important;
             display: flex;
             flex-direction: column;
             padding: 16px;
         }
+
+        @media (max-width: 600px) {
+            #leaderboard-wrapper {
+                position: fixed !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100vw !important;
+                height: 100dvh !important;
+                max-width: none !important;
+                max-height: none !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+
         .header-box {
             text-align: center;
             margin-bottom: 12px;
@@ -65,7 +84,7 @@
             flex: 1;
             padding: 6px 4px;
             background: #090918;
-            border: 1px solid #00ffcc;
+            border: 1px solid #ff0055;
             color: #8899a6;
             font-size: 9px;
             font-weight: bold;
@@ -85,7 +104,7 @@
         .board-container {
             flex: 1;
             background: #04040a;
-            border: 1px solid rgba(0, 255, 204, 0.3);
+            border: 1px solid rgba(255, 0, 85, 0.3);
             border-radius: 10px;
             padding: 8px;
             overflow-y: auto;
@@ -98,7 +117,7 @@
             margin-bottom: 6px;
             background: #0a0a1a;
             border-radius: 6px;
-            border-left: 3px solid #00ffcc;
+            border-left: 3px solid #ff0055;
         }
         .rank-row.top1 { border-left-color: #ffff00; background: #1a1600; }
         .rank-row.top2 { border-left-color: #c0c0c0; background: #12121e; }
@@ -120,7 +139,7 @@
         .rank-score {
             font-size: 11px;
             font-weight: bold;
-            color: #00ffcc;
+            color: #ffff00;
         }
 
         /* PULSANTE BACK */
@@ -129,14 +148,14 @@
             padding: 12px;
             margin-top: 10px;
             background: #1a1a2e;
-            border: 2px solid #00ffcc;
-            color: #00ffcc;
+            border: 2px solid #ff0055;
+            color: #ffffff;
             border-radius: 8px;
             font-weight: bold;
             font-size: 12px;
             cursor: pointer;
             text-align: center;
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
         .back-btn:active { transform: scale(0.96); }
 
@@ -181,7 +200,6 @@
 </div>
 
 <script>
-// Mock Punteggi Globali Retro Arcade + Utenti reali salvati nel browser
 const defaultGlobalScores = {
     feedbackInvaders: [
         { name: "NEON_KING", score: 4200 },
@@ -216,7 +234,6 @@ const defaultGlobalScores = {
 function getLeaderboardData(gameKey) {
     let list = [...defaultGlobalScores[gameKey]];
 
-    // Unisce gli utenti registrati localmente se hanno punteggi
     try {
         let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
         Object.keys(users).forEach(uname => {
@@ -226,7 +243,6 @@ function getLeaderboardData(gameKey) {
             }
         });
 
-        // Controlla anche l'utente corrente Guest/User
         let cur = JSON.parse(localStorage.getItem('arcade_current_user'));
         if (cur && cur.stats && cur.stats[gameKey] > 0) {
             let exists = list.find(item => item.name === cur.username);
@@ -236,7 +252,6 @@ function getLeaderboardData(gameKey) {
         }
     } catch(e) {}
 
-    // Ordina decrescente
     list.sort((a, b) => b.score - a.score);
     return list.slice(0, 10);
 }
@@ -270,7 +285,6 @@ function showBoard(gameKey, btnElem) {
     container.innerHTML = html;
 }
 
-// Inizializza sulla prima scheda
 showBoard('feedbackInvaders');
 </script>
 </body>

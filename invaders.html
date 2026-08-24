@@ -263,6 +263,8 @@
 </head>
 <body>
 
+<audio id="bgMusic" src="assets/invaders/music.mp3" loop autoplay playsinline style="display:none;"></audio>
+
 <div id="game-wrapper">
   <!-- TOP BAR CON PULSANTE OPZIONI -->
   <div class="top-header">
@@ -328,23 +330,25 @@ let joySensitivity = parseFloat(localStorage.getItem('invaders_joySens')) || 1.0
 let musicEnabled = localStorage.getItem('invaders_music') !== 'false';
 let sfxEnabled = localStorage.getItem('invaders_sfx') !== 'false';
 
-// Caricamento Audio Musica di Sottofondo
-const bgMusic = new Audio('assets/invaders/music.mp3');
-bgMusic.loop = true;
+// Caricamento Audio Musica di Sottofondo da DOM
+const bgMusic = document.getElementById('bgMusic');
 bgMusic.volume = 0.5;
 
 function playBgMusic() {
   if (musicEnabled && bgMusic.paused) {
-    bgMusic.play().catch(() => {});
+    let p = bgMusic.play();
+    if (p !== undefined) {
+      p.catch(() => {});
+    }
   }
 }
 
-// AVVIO IMMEDIATO MUSICA ALL'INGRESSO E SBLOCCO AUTOMATICO SU POLICY MOBILE
+// AVVIO IMMEDIATO MUSICA ALL'INGRESSO
 playBgMusic();
 window.addEventListener('DOMContentLoaded', playBgMusic);
 window.addEventListener('load', playBgMusic);
-['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
-  window.addEventListener(evt, () => playBgMusic(), { once: true });
+['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
+  window.addEventListener(evt, playBgMusic, { once: true, capture: true });
 });
 
 function updateMusicState() {

@@ -94,20 +94,47 @@
     cursor: pointer;
   }
 
-  .exit-btn {
+  /* PULSANTE SPECIALE FERIE */
+  .ferie-btn {
     width: 100%;
     margin-top: 4px;
     padding: 8px;
+    background: linear-gradient(180deg, #00ffcc 0%, #008899 100%);
+    border: 2px solid #ffffff;
+    color: #000;
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  .ferie-btn:disabled {
+    background: #1a1a2e;
+    border-color: #444;
+    color: #666;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .ferie-btn:active:not(:disabled) { transform: scale(0.96); }
+
+  .exit-btn {
+    width: 100%;
+    margin-top: 4px;
+    padding: 6px;
     background: #100826;
-    border: 1.5px solid #00ffcc;
-    color: #00ffcc;
+    border: 1.5px solid #ff0055;
+    color: #ff0055;
     font-family: 'Courier New', monospace;
     font-weight: bold;
     font-size: 10px;
     letter-spacing: 1px;
     border-radius: 6px;
     cursor: pointer;
-    box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
     flex-shrink: 0;
   }
   .exit-btn:active { transform: scale(0.96); }
@@ -149,7 +176,7 @@
     align-items: center;
     gap: 6px;
     background: #160a2c;
-    padding: 10px;
+    padding: 8px;
     border: 1px solid rgba(0, 255, 204, 0.4);
     border-radius: 8px;
   }
@@ -190,6 +217,8 @@
 </head>
 <body>
 
+<audio id="bgMusic" src="assets/PixelPunch/music_punch.mp3" loop autoplay playsinline style="display:none;"></audio>
+
 <div id="wrapper">
   <!-- TOP BAR CON PULSANTE OPZIONI -->
   <div class="top-header">
@@ -201,6 +230,7 @@
     <canvas id="game"></canvas>
   </div>
 
+  <button class="ferie-btn" id="btnFerie" disabled>🌴 FERIE: VAI IN PAUSA RELAX (15s)</button>
   <button class="exit-btn" onclick="exitGame()">◄ TORNA ALL'HUB ARCADE</button>
 
   <!-- MODALE OPZIONI -->
@@ -241,13 +271,11 @@ function drawRoundRect(c, x, y, w, h, r) {
   c.closePath();
 }
 
-// --- OPZIONI E SALVATAGGIO ---
+// --- CONFIGURAZIONE E AUDIO AUTOPLAY ---
 let musicEnabled = localStorage.getItem('pixelPunch_music') !== 'false';
 let sfxEnabled = localStorage.getItem('pixelPunch_sfx') !== 'false';
 
-// Musica di Sottofondo
-const bgMusic = new Audio('assets/PixelPunch/music_punch.mp3');
-bgMusic.loop = true;
+const bgMusic = document.getElementById('bgMusic');
 bgMusic.volume = 0.4;
 
 function playBgMusic() {
@@ -256,12 +284,11 @@ function playBgMusic() {
   }
 }
 
-// Avvio automatico ed al primo tocco
 playBgMusic();
 window.addEventListener('DOMContentLoaded', playBgMusic);
 window.addEventListener('load', playBgMusic);
 ['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
-  window.addEventListener(evt, () => playBgMusic(), { once: true });
+  window.addEventListener(evt, playBgMusic, { once: true, capture: true });
 });
 
 function updateMusicState() {
@@ -321,7 +348,6 @@ const imgIris = new Image(); imgIris.src = 'assets/PixelPunch/iris.png';
 const imgCristina = new Image(); imgCristina.src = 'assets/PixelPunch/tosatto.png';
 const imgRachele = new Image(); imgRachele.src = 'assets/PixelPunch/rache.png';
 
-// Configurazione Personaggi & Abilità Speciali
 const CHARACTERS = {
     IRIS: {
         id: 'IRIS',
@@ -332,7 +358,8 @@ const CHARACTERS = {
         bg: "#06061a",
         padBg: "#120f2e",
         img: imgIris,
-        baseTime: 60
+        baseTime: 60,
+        ferieTime: 15
     },
     CRISTINA: {
         id: 'CRISTINA',
@@ -343,24 +370,24 @@ const CHARACTERS = {
         bg: "#120e00",
         padBg: "#261a00",
         img: imgCristina,
-        baseTime: 60
+        baseTime: 60,
+        ferieTime: 15
     },
     RACHELE: {
         id: 'RACHELE',
         name: "RACHELE",
         subtitle: "Rachele, l'inarrestabile",
-        perkDesc: "BONUS: +5s Tempo Extra & Super Combo",
+        perkDesc: "BONUS: +5s Tempo & Ferie Extra (+20s)",
         primary: "#ff33aa",
         bg: "#140018",
         padBg: "#28002b",
         img: imgRachele,
-        baseTime: 65
+        baseTime: 65,
+        ferieTime: 20
     }
 };
 
 let currentTheme = CHARACTERS.IRIS;
-
-// Gestione Record Personale
 let highScore = parseInt(localStorage.getItem('pixelPunch_highScore')) || 0;
 let isNewRecord = false;
 
@@ -423,15 +450,23 @@ function playSound(type) {
     } catch(e) {}
 }
 
-// Stati: 'TUTORIAL', 'CHAR_SELECT', 'PLAYING', 'PAUSE', 'GAMEOVER'
-let state = 'TUTORIAL';
+// MECCANICHE E STATI GIOCO
+let state = 'TUTORIAL'; // 'TUTORIAL', 'CHAR_SELECT', 'PLAYING', 'PAUSE', 'GAMEOVER'
 let score = 0;
 let timeLeft = 60;
 let combo = 0;
+let stress = 0; // 0 to 100%
+let elapsedMatchTime = 0;
+
+let ferieActive = false;
+let ferieTimer = 0;
+let ferieUsed = false;
+
 let particles = [];
 let floatingTexts = [];
 
-// Notifiche Standard
+const btnFerie = document.getElementById('btnFerie');
+
 const BAD_NOTIFS = [
     { line1: "LOGO PIÙ", line2: "GRANDE!" },
     { line1: "LAVORO PER", line2: "IERI!" },
@@ -441,7 +476,6 @@ const BAD_NOTIFS = [
     { line1: "FONTS PIÙ", line2: "LEGGIBILE!" }
 ];
 
-// Griglia 3x3 Tasti XL
 const gridPads = [
     { id: 0, x: 15,  y: 75,  w: 110, h: 140, keyLabel: "1 / Q" },
     { id: 1, x: 135, y: 75,  w: 110, h: 140, keyLabel: "2 / W" },
@@ -469,6 +503,21 @@ const gridPads = [
 let lastSpawnTime = 0;
 let gameTimerInterval = null;
 
+btnFerie.onclick = () => {
+  if (state === 'PLAYING' && !ferieUsed && !ferieActive) {
+    ferieActive = true;
+    ferieUsed = true;
+    ferieTimer = currentTheme.ferieTime;
+    stress = Math.max(0, stress - 25);
+    playSound('golden');
+    
+    gridPads.forEach(p => p.active = false);
+    btnFerie.disabled = true;
+    btnFerie.innerText = "🌴 IN FERIE... RELAX! 😎";
+    addFloatText(cvs.width / 2, 280, "FERIE ATTIVATE! -25% STRESS", "#00ffcc");
+  }
+};
+
 function selectCharacter(charKey) {
     currentTheme = CHARACTERS[charKey];
     cvs.style.borderColor = currentTheme.primary;
@@ -480,15 +529,42 @@ function startMatch() {
     state = 'PLAYING';
     score = 0;
     timeLeft = currentTheme.baseTime;
+    stress = 0;
     combo = 0;
+    elapsedMatchTime = 0;
+    
+    ferieActive = false;
+    ferieTimer = 0;
+    ferieUsed = false;
+    btnFerie.disabled = false;
+    btnFerie.innerText = `🌴 FERIE: VAI IN PAUSA RELAX (${currentTheme.ferieTime}s)`;
+
     isNewRecord = false;
     gridPads.forEach(p => p.active = false);
 
     if (gameTimerInterval) clearInterval(gameTimerInterval);
     gameTimerInterval = setInterval(() => {
         if (state === 'PLAYING') {
-            timeLeft--;
-            if (timeLeft <= 0) {
+            elapsedMatchTime++;
+
+            if (ferieActive) {
+                ferieTimer--;
+                stress = Math.max(0, stress - 1.5);
+                if (ferieTimer <= 0) {
+                    ferieActive = false;
+                    btnFerie.innerText = "🌴 FERIE GIÀ UTILIZZATE";
+                }
+            } else {
+                timeLeft--;
+                stress = Math.min(100, stress + 0.4 + (elapsedMatchTime * 0.015));
+            }
+
+            if (stress >= 100) {
+                state = 'GAMEOVER';
+                playSound('fail');
+                saveScore();
+                clearInterval(gameTimerInterval);
+            } else if (timeLeft <= 0) {
                 state = 'GAMEOVER';
                 playSound('coffee');
                 saveScore();
@@ -499,50 +575,60 @@ function startMatch() {
 }
 
 function spawnTicket() {
+    if (ferieActive) return;
+
     let inactive = gridPads.filter(p => !p.active);
     if (inactive.length === 0) return;
+
+    let activeCount = gridPads.filter(p => p.active).length;
+    let maxAllowed = 1;
+    if (elapsedMatchTime > 10) maxAllowed = 2;
+    if (elapsedMatchTime > 25) maxAllowed = 3;
+    if (elapsedMatchTime > 45) maxAllowed = 4;
+
+    if (activeCount >= maxAllowed) return;
 
     let target = inactive[Math.floor(Math.random() * inactive.length)];
     target.active = true;
 
     let rand = Math.random();
-    let duration = Math.max(50, 95 - Math.floor(score / 500) * 5);
+    let duration = Math.max(55, 140 - Math.floor(elapsedMatchTime * 1.5));
 
-    // Perk Iris: 20% di probabilità di auto-risoluzione immediata
     if (currentTheme.id === 'IRIS' && rand < 0.20 && rand >= 0.05) {
         score += 100;
+        stress = Math.max(0, stress - 2);
         addParticles(target.x + target.w/2, target.y + target.h/2, currentTheme.primary, 8);
         addFloatText(target.x + target.w/2, target.y + target.h/2, "AI AUTO-FIX! +100", currentTheme.primary);
         target.active = false;
         return;
     }
 
-    if (rand < 0.12) { // CAFFÈ ESPRESSO
+    if (rand < 0.12) {
         target.type = 'COFFEE';
         target.hp = 1;
         target.line1 = "CAFFÈ";
         target.line2 = "BONUS";
-    } else if (rand < 0.20) { // GOLDEN VIP FILE
+    } else if (rand < 0.20) {
         target.type = 'GOLDEN';
         target.hp = 1;
         target.line1 = "CLIENTE VIP";
         target.line2 = "+3 SECONDI";
-    } else if (rand < 0.35) { // FEEDBACK APPROVATO (TRAPPOLA)
+    } else if (rand < 0.35) {
         target.type = 'TRAP';
         target.hp = 1;
         target.line1 = "FEEDBACK";
         target.line2 = "APPROVATO";
-    } else if (rand < 0.45) { // FILE CORROTTO GLITCH (TRAPPOLA SEVERA)
+    } else if (rand < 0.45) {
         target.type = 'GLITCH';
         target.hp = 1;
         target.line1 = "FILE";
         target.line2 = "CORROTTO";
-    } else if (rand < 0.65) { // DOPPIA REVISIONE (2 TAP)
+    } else if (rand < 0.65) {
         target.type = 'DOUBLE';
         target.hp = 2;
         target.line1 = "REVISIONE";
         target.line2 = "DOPPIA (2x)";
-    } else { // REVISIONE STANDARD
+    } else {
         target.type = 'BAD';
         target.hp = 1;
         let b = BAD_NOTIFS[Math.floor(Math.random() * BAD_NOTIFS.length)];
@@ -556,13 +642,14 @@ function spawnTicket() {
 
 function hitPad(pad) {
     pad.pressAnim = 6;
-    if (!pad.active) return;
+    if (!pad.active || ferieActive) return;
 
     if (pad.type === 'TRAP') {
         pad.active = false;
         combo = 0;
         let pen = (currentTheme.id === 'CRISTINA') ? 0 : 50;
         score = Math.max(0, score - pen);
+        if (currentTheme.id !== 'CRISTINA') stress = Math.min(100, stress + 10);
         playSound('fail');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#00ffcc');
         addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, (pen === 0 ? "NO PENALTY!" : "-50 PTS"), "#00ffcc");
@@ -572,15 +659,17 @@ function hitPad(pad) {
         combo = 0;
         score = Math.max(0, score - 100);
         timeLeft = Math.max(1, timeLeft - 2);
+        stress = Math.min(100, stress + 15);
         playSound('fail');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ff0055');
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "GLITCH! -2s", "#ff0055");
+        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "GLITCH! +15% STRESS", "#ff0055");
     }
     else if (pad.type === 'COFFEE') {
         pad.active = false;
         combo++;
         let pts = (currentTheme.id === 'CRISTINA') ? 600 : 300;
         score += pts;
+        stress = Math.max(0, stress - (currentTheme.id === 'CRISTINA' ? 15 : 10));
         playSound('coffee');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffcc00');
         addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts} CAFFÈ!`, "#ffcc00");
@@ -590,6 +679,7 @@ function hitPad(pad) {
         combo++;
         score += 500;
         timeLeft += 3;
+        stress = Math.max(0, stress - 12);
         playSound('golden');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffd700', 16);
         addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "+500 PTS (+3s!)", "#ffd700");
@@ -602,6 +692,7 @@ function hitPad(pad) {
             combo++;
             let pts = 250;
             score += pts;
+            stress = Math.max(0, stress - 4);
             addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#aa00ff', 12);
             addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts} RISOLTA!`, "#aa00ff");
         } else {
@@ -615,6 +706,7 @@ function hitPad(pad) {
         let comboBonus = (currentTheme.id === 'RACHELE') ? (combo * 25) : (combo > 3 ? 50 : 0);
         let pts = 100 + comboBonus;
         score += pts;
+        stress = Math.max(0, stress - 2);
         playSound('hit');
         addParticles(pad.x + pad.w/2, pad.y + pad.h/2, currentTheme.primary);
         addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts}`, "#ffff00");
@@ -648,7 +740,7 @@ function update() {
 
     if (state !== 'PLAYING') return;
 
-    let spawnDelay = Math.max(350, 600 - Math.floor(score / 400) * 30);
+    let spawnDelay = Math.max(380, 1100 - Math.floor(elapsedMatchTime * 12));
     if (Date.now() - lastSpawnTime > spawnDelay) {
         spawnTicket();
         lastSpawnTime = Date.now();
@@ -661,6 +753,7 @@ function update() {
                 p.active = false;
                 if (p.type === 'BAD' || p.type === 'DOUBLE') {
                     combo = 0;
+                    stress = Math.min(100, stress + 8); // Penalità stress per ticket scaduto
                 }
             }
         }
@@ -673,46 +766,47 @@ function draw() {
     ctx.fillStyle = currentTheme.bg;
     ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-    // --- SCHERMATA 1: REGOLE E TUTORIAL RIDISEGNATO ---
+    // --- SCHERMATA 1: REGOLE E TUTORIAL OBIETTIVI ---
     if (state === 'TUTORIAL') {
         ctx.fillStyle = '#00ffcc';
         ctx.font = 'bold 18px monospace'; ctx.textAlign = 'center';
         ctx.fillText('PIXEL PUNCH: TUTORIAL 🥊', cvs.width / 2, 38);
 
-        // Card 1: Revisioni
-        drawRoundRect(ctx, 15, 55, 350, 80, 10);
-        ctx.fillStyle = '#101228'; ctx.fill();
-        ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('1. ELIMINA LE REVISIONI ROSSE', 28, 76);
-        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-        ctx.fillText('Tocca i ticket rossi per guadagnare punti.', 28, 94);
-        ctx.fillText('Revisioni Viola: richiedono 2 tocchi veloci!', 28, 110);
-
-        // Card 2: Bonus VIP & Caffè
-        drawRoundRect(ctx, 15, 145, 350, 80, 10);
-        ctx.fillStyle = '#101228'; ctx.fill();
-        ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('2. PRENDI CAFFÈ & VIP FILES', 28, 166);
-        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-        ctx.fillText('Caffè Giallo: +300 PTS Bonus!', 28, 184);
-        ctx.fillText('VIP File Oro: +500 PTS e +3 Sec Tempo Extra!', 28, 200);
-
-        // Card 3: Trappole
-        drawRoundRect(ctx, 15, 235, 350, 80, 10);
+        // Card 1: Stress & Obiettivo
+        drawRoundRect(ctx, 15, 55, 350, 75, 10);
         ctx.fillStyle = '#101228'; ctx.fill();
         ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2; ctx.stroke();
         ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('3. ATTENTO AI FEEDBACK GIÀ OK!', 28, 256);
+        ctx.fillText('1. EVITA IL BURNOUT (STRESS)', 28, 74);
         ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
-        ctx.fillText('Feedback Verde: NON TOCCARE! È già approvato.', 28, 274);
-        ctx.fillStyle = '#ff0055';
-        ctx.fillText('File Corrotto Nero: Toglie punti e tempo!', 28, 290);
+        ctx.fillText('Gestisci le revisioni ed evita che lo Stress', 28, 92);
+        ctx.fillText('raggiunga il 100%! La velocità aumenta nel tempo.', 28, 108);
+
+        // Card 2: Ticket
+        drawRoundRect(ctx, 15, 140, 350, 85, 10);
+        ctx.fillStyle = '#101228'; ctx.fill();
+        ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+        ctx.fillText('2. TIPOLOGIE DI TICKET', 28, 158);
+        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
+        ctx.fillText('🔴 Rosso (+100) | 🟣 Viola (2 Tap: +250)', 28, 175);
+        ctx.fillText('☕ Giallo (Caffè: -Stress) | ⭐ Oro (+3 Sec)', 28, 191);
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillText('🟢 Verde & 🖤 Nero: TRAPPOLE! NON TOCCARE!', 28, 207);
+
+        // Card 3: Ferie
+        drawRoundRect(ctx, 15, 235, 350, 75, 10);
+        ctx.fillStyle = '#101228'; ctx.fill();
+        ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+        ctx.fillText('3. TASTO FERIE 🌴', 28, 254);
+        ctx.fillStyle = '#ffffff'; ctx.font = '10px monospace';
+        ctx.fillText('Usa il pulsante in basso 1 volta per partita', 28, 272);
+        ctx.fillText('per bloccare i ticket e ridurre lo Stress!', 28, 288);
 
         // Record
         ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(`⏱️ TURNO DI BATTAGLIA | RECORD: ${highScore}`, cvs.width / 2, 335);
+        ctx.fillText(`RECORD ATTUALE: ${highScore} PTS`, cvs.width / 2, 335);
 
         // Tasto Avanti
         drawRoundRect(ctx, 20, 365, 340, 45, 10);
@@ -753,7 +847,6 @@ function draw() {
             ctx.fillStyle = b.col; ctx.font = 'bold 11px monospace';
             ctx.fillText('SELEZIONA ►', 30, b.y + 102);
 
-            // Immagine Personaggio
             if (c.img && c.img.complete && c.img.naturalWidth !== 0) {
                 ctx.save();
                 drawRoundRect(ctx, 245, b.y + 12, 100, 100, 10);
@@ -819,23 +912,40 @@ function draw() {
         ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
     });
 
-    // --- HUD HEADER ---
-    ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, cvs.width, 55);
-    ctx.strokeStyle = currentTheme.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, cvs.width, 55);
+    // --- HUD HEADER CON BARRA DELLO STRESS ---
+    ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, cvs.width, 68);
+    ctx.strokeStyle = currentTheme.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, cvs.width, 68);
 
-    ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
-    ctx.fillText(`${currentTheme.name}`, 10, 18);
-    ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 10, 34);
+    ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
+    ctx.fillText(`${currentTheme.name}`, 8, 16);
+    ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 8, 32);
     ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px monospace';
-    ctx.fillText(`REC: ${highScore}`, 10, 48);
+    ctx.fillText(`REC: ${highScore}`, 8, 46);
 
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 16px monospace'; ctx.textAlign = 'center';
-    ctx.fillText(`⏱️ ${timeLeft}s`, cvs.width / 2, 33);
+    ctx.fillStyle = ferieActive ? '#00ffcc' : '#ffffff'; ctx.font = 'bold 15px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(ferieActive ? `🌴 FERIE (${ferieTimer}s)` : `⏱️ ${timeLeft}s`, cvs.width / 2 + 10, 24);
 
     if (combo > 1) {
-        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'right';
-        ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 33);
+        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'right';
+        ctx.fillText(`COMBO x${combo}!`, cvs.width - 8, 16);
     }
+
+    // STRESS BAR
+    let stressWidth = 140;
+    let stressX = cvs.width - stressWidth - 8;
+    let stressY = 32;
+    ctx.fillStyle = '#101028';
+    ctx.fillRect(stressX, stressY, stressWidth, 14);
+    
+    let currentStressPct = Math.min(100, Math.max(0, stress)) / 100;
+    let stressCol = currentStressPct < 0.5 ? '#00ffcc' : (currentStressPct < 0.8 ? '#ffcc00' : '#ff0055');
+    ctx.fillStyle = stressCol;
+    ctx.fillRect(stressX + 1, stressY + 1, (stressWidth - 2) * currentStressPct, 12);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+    ctx.strokeRect(stressX, stressY, stressWidth, 14);
+
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(`STRESS: ${Math.floor(stress)}%`, stressX + stressWidth / 2, stressY + 10);
 
     // --- SCHERMATA PAUSA ---
     if (state === 'PAUSE') {
@@ -851,7 +961,7 @@ function draw() {
         ctx.fillStyle = 'rgba(5, 5, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
         
         ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 22px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('TURNO FINITO! ⏰', cvs.width / 2, 170);
+        ctx.fillText(stress >= 100 ? 'BURNOUT! 💀' : 'TURNO FINITO! ⏰', cvs.width / 2, 170);
 
         ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px monospace';
         ctx.fillText(`PUNTEGGIO: ${score}`, cvs.width / 2, 220);
@@ -904,7 +1014,7 @@ cvs.addEventListener('pointerdown', (e) => {
                 hitAny = true;
             }
         });
-        if (!hitAny && y < 55) {
+        if (!hitAny && y < 68) {
             state = 'PAUSE';
             updateMusicState();
         }
