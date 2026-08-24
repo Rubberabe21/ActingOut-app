@@ -52,15 +52,17 @@
             align-items: center;
         }
 
-        /* COMANDO MENU IN ALTO A DESTRA */
+        /* COMANDO MENU MOLTO PIÙ PICCOLO IN ALTO A DESTRA */
         .top-home-btn {
             position: absolute;
-            top: max(env(safe-area-inset-top), 12px);
-            right: 12px;
+            top: max(env(safe-area-inset-top), 8px);
+            right: 8px;
             width: auto;
-            padding: 6px 12px;
+            padding: 3px 8px;
             z-index: 250;
-            font-size: 11px;
+            font-size: 9px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
             display: none;
         }
 
@@ -147,7 +149,7 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            padding: max(env(safe-area-inset-top), 45px) 16px max(env(safe-area-inset-bottom), 16px) 16px;
+            padding: max(env(safe-area-inset-top), 35px) 16px max(env(safe-area-inset-bottom), 16px) 16px;
             background-color: #060612;
         }
 
@@ -228,10 +230,11 @@
             flex-shrink: 0;
         }
         
+        /* VIDEO INGRANDITO */
         .npc-video {
-            width: 160px;
-            max-width: 50vw;
-            max-height: 120px;
+            width: 260px;
+            max-width: 75vw;
+            max-height: 210px;
             height: auto;
             object-fit: contain;
             mix-blend-mode: screen;
@@ -263,7 +266,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            max-height: 150px;
+            max-height: 140px;
             overflow-y: auto;
             width: 100%;
             padding: 6px;
@@ -308,7 +311,7 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 6px;
-            max-height: 150px;
+            max-height: 140px;
             overflow-y: auto;
             padding: 6px;
             background: #04040a;
@@ -387,7 +390,7 @@
 <body>
 
 <div id="app-wrapper">
-    <button id="home-menu-btn" class="arcade-secondary-btn top-home-btn">🏠 MENU</button>
+    <button id="home-menu-btn" class="arcade-secondary-btn top-home-btn">MENU</button>
 
     <div id="landing-screen">
         <img src="assets/hub/logo.png" alt="Agency Arcade Logo" class="main-logo">
@@ -407,7 +410,7 @@
     <div id="onboarding-screen">
         <div class="center-stage">
             <div class="speech-bubble">
-                <div class="npc-title">💬 GIOVANNONE</div>
+                <div class="npc-title">GIOVANNONE</div>
                 <div id="dialogue-text" class="dialogue-text"></div>
             </div>
 
@@ -461,11 +464,11 @@ const DIALOGUE_STEPS = [
         text: "Che fai?", 
         type: "choice_activity", 
         options: [
-            "Lavoro duramente 💻",
-            "Mangio continuamente snack 🍕",
-            "Fingo di digitare sulla tastiera ⌨️",
-            "Bevo il quinto caffè del giorno ☕",
-            "Accumulo 80 schede aperte nel browser 🌐"
+            "Lavoro duramente",
+            "Mangio continuamente snack",
+            "Fingo di digitare sulla tastiera",
+            "Bevo il quinto caffè del giorno",
+            "Accumulo 80 schede aperte nel browser"
         ], 
         btn: "CONFERMA SCELTA ►" 
     },
@@ -522,7 +525,7 @@ const DIALOGUE_STEPS = [
     { text: "Quando hai finito…", type: "none", btn: "AVANTI ►" },
     { text: "ci vediamo dall'altra parte.", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sempre che tu sia davvero chi dici di essere.", type: "finish", btn: "ENTRA NELLO STUDIO 🚀" }
+    { text: "Sempre che tu sia davvero chi dici di essere.", type: "finish", btn: "ENTRA NELLO STUDIO ►" }
 ];
 
 function getSavedUser() {
@@ -569,7 +572,7 @@ function renderLandingButtons() {
 
         const btnLogout = document.createElement('button');
         btnLogout.className = "arcade-secondary-btn";
-        btnLogout.innerText = "ESCI 🚪";
+        btnLogout.innerText = "ESCI";
         btnLogout.onclick = () => {
             localStorage.removeItem('arcade_current_user');
             renderLandingButtons();
@@ -580,12 +583,12 @@ function renderLandingButtons() {
     } else {
         const btnStart = document.createElement('button');
         btnStart.className = "arcade-main-btn";
-        btnStart.innerText = "INIZIA 🕹️";
+        btnStart.innerText = "INIZIA";
         btnStart.onclick = () => { startOnboarding(); };
 
         const btnLogin = document.createElement('button');
         btnLogin.className = "arcade-secondary-btn";
-        btnLogin.innerText = "ACCEDI / LOGIN 👤";
+        btnLogin.innerText = "ACCEDI / LOGIN";
         btnLogin.onclick = () => { loginModal.style.display = "flex"; };
 
         actionButtonsContainer.appendChild(btnStart);
@@ -678,8 +681,6 @@ function renderStep() {
     inputField.value = "";
 
     stepBtn.innerText = stepData.btn || "AVANTI ►";
-
-    // VIDEO SEMPRE VISIBILE IN QUALSIASI STEP
     npcStageBox.style.display = "flex";
 
     typeWriter(stepData.text, () => {
