@@ -342,7 +342,8 @@ let musicEnabled = localStorage.getItem('invaders_music') !== 'false';
 let sfxEnabled = localStorage.getItem('invaders_sfx') !== 'false';
 
 const bgMusic = document.getElementById('bgMusic');
-bgMusic.volume = 0.5;
+// MODIFICATO: Musica abbassata a 0.15 per dare risalto agli SFX
+bgMusic.volume = 0.15;
 
 function playBgMusic() {
   if (musicEnabled && bgMusic.paused) {
@@ -571,6 +572,7 @@ function getAC() {
   return audioCtx;
 }
 
+// --- EFFETTI SONORI (VOLUME AUMENTATO) ---
 function sfxShoot() {
   if (!sfxEnabled) return;
   const ac = getAC(), t = ac.currentTime;
@@ -579,7 +581,7 @@ function sfxShoot() {
   osc.type = 'square';
   osc.frequency.setValueAtTime(850, t);
   osc.frequency.exponentialRampToValueAtTime(350, t + 0.07);
-  gain.gain.setValueAtTime(0.06, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+  gain.gain.setValueAtTime(0.28, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
   osc.start(t); osc.stop(t + 0.07);
 }
 
@@ -592,7 +594,7 @@ function sfxPowerUp() {
   osc.frequency.setValueAtTime(523, t);
   osc.frequency.setValueAtTime(659, t + 0.08);
   osc.frequency.setValueAtTime(783, t + 0.16);
-  gain.gain.setValueAtTime(0.15, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+  gain.gain.setValueAtTime(0.45, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
   osc.start(t); osc.stop(t + 0.24);
 }
 
@@ -604,7 +606,7 @@ function sfxDebuff() {
   osc.type = 'sawtooth';
   osc.frequency.setValueAtTime(220, t);
   osc.frequency.linearRampToValueAtTime(80, t + 0.2);
-  gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+  gain.gain.setValueAtTime(0.45, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
   osc.start(t); osc.stop(t + 0.2);
 }
 
@@ -617,7 +619,7 @@ function sfxEnemyHit() {
   const src = ac.createBufferSource(); src.buffer = buf;
   const filt = ac.createBiquadFilter(); filt.type = 'bandpass'; filt.frequency.value = 1200;
   const gain = ac.createGain();
-  gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  gain.gain.setValueAtTime(0.35, t); gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
   src.connect(filt); filt.connect(gain); gain.connect(ac.destination);
   src.start(t);
 }
@@ -632,7 +634,7 @@ function sfxEnemyExplode() {
   const filt = ac.createBiquadFilter(); filt.type = 'lowpass';
   filt.frequency.setValueAtTime(900, t); filt.frequency.exponentialRampToValueAtTime(70, t + dur);
   const gain = ac.createGain();
-  gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  gain.gain.setValueAtTime(0.55, t); gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
   src.connect(filt); filt.connect(gain); gain.connect(ac.destination);
   src.start(t);
 }
@@ -644,16 +646,15 @@ function sfxPlayerHit() {
   osc.connect(og); og.connect(ac.destination);
   osc.type = 'sawtooth';
   osc.frequency.setValueAtTime(380, t); osc.frequency.exponentialRampToValueAtTime(50, t + 0.4);
-  og.gain.setValueAtTime(0.15, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+  og.gain.setValueAtTime(0.5, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
   osc.start(t); osc.stop(t + 0.4);
   triggerShake(16, 10);
 }
 
-// --- FIX ANTI-RIMBALZO (DEBOUNCER) TRANSIZIONI MENU PER EVITARE SALTI PAGINA ---
 let lastMenuAdvanceTime = 0;
 function advanceMenuState() {
   const now = Date.now();
-  if (now - lastMenuAdvanceTime < 250) return; // Blocco doppi click entro 250ms
+  if (now - lastMenuAdvanceTime < 250) return;
   lastMenuAdvanceTime = now;
 
   getAC();
@@ -1196,7 +1197,7 @@ class Boss {
     ctx.lineWidth = 1;
     ctx.strokeRect(W / 2 - 120, 28, 240, 12);
 
-    // SPRITE DEL BOSS (PROPORZIONE 1:1 SQUARE)
+    // SPRITE DEL BOSS
     const bossImg = ASSETS[`BOSS_${this.bossIndex}`];
     if (bossImg && bossImg.complete && bossImg.naturalWidth !== 0) {
       ctx.drawImage(bossImg, x - this.w / 2, y - this.h / 2, this.w, this.h);
@@ -1237,7 +1238,6 @@ function getBossNameByWave(w) {
   return "SERVER CRASH 500";
 }
 
-// --- FIX DIVERSITÀ ONDATE: 5 FORMAZIONI TATTICHE DIVERSE ---
 function buildWave(w) {
   let newTier = w <= 10 ? 1 : w <= 20 ? 2 : 3;
   if (w === 1 || newTier !== currentTier) {
@@ -1255,10 +1255,9 @@ function buildWave(w) {
 
   activeBoss = null;
   const queue = [];
-  const patternType = (w - 1) % 5; // 0, 1, 2, 3, 4
+  const patternType = (w - 1) % 5;
 
   if (patternType === 0) {
-    // FORMAZIONE 1: GRIGLIA CLASSICA BILANCIATA
     const rows = 2 + Math.min(w % 10, 3);
     const cols = 5;
     for (let r = 0; r < rows; r++) {
@@ -1269,7 +1268,6 @@ function buildWave(w) {
       }
     }
   } else if (patternType === 1) {
-    // FORMAZIONE 2: INCURSIONE A V (V-SHAPE RUSH)
     const total = 10 + Math.min(w, 6);
     for (let i = 0; i < total; i++) {
       const side = i % 2 === 0 ? 1 : -1;
@@ -1280,7 +1278,6 @@ function buildWave(w) {
       queue.push({ x, y, type, delay: i * 6 });
     }
   } else if (patternType === 2) {
-    // FORMAZIONE 3: ATTACCO SULLE ALI (DOPPIA COLONNA LATÉRALE)
     const count = 6 + Math.min(w, 6);
     for (let i = 0; i < count; i++) {
       let typeL = (i === 0 && w >= 2) ? 'shooter' : 'grunt';
@@ -1289,7 +1286,6 @@ function buildWave(w) {
       queue.push({ x: W - 60, y: -40 - i * 50, type: typeR, delay: i * 10 });
     }
   } else if (patternType === 3) {
-    // FORMAZIONE 4: MURO PESANTE (TANK IN PRIMA LINEA)
     const cols = 5;
     for (let c = 0; c < cols; c++) {
       let type = (c % 2 === 0) ? 'tank' : 'grunt';
@@ -1299,7 +1295,6 @@ function buildWave(w) {
       queue.push({ x: 60 + c * (W - 120) / (cols - 1), y: -100, type: 'shooter', delay: 20 + c * 4 });
     }
   } else if (patternType === 4) {
-    // FORMAZIONE 5: CLUSTER CENTRALE A DIAMANTE
     const centerPoints = [
       { dx: 0, dy: 0, type: 'tank' },
       { dx: -50, dy: -40, type: 'shooter' }, { dx: 50, dy: -40, type: 'shooter' },
@@ -1402,7 +1397,6 @@ function drawHUD() {
   ctx.textAlign = 'left';   ctx.fillText(`${currentBoss.name}`, 10, 24);
   ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS ${score}`, 10, 44);
 
-  // FIX: RIMUOVE "STAGE X" SE C'È UN BOSS O IL SUO WARNING
   if (!activeBoss && bossWarningTimer <= 0) {
     ctx.textAlign = 'center'; ctx.font = 'bold 16px Courier New'; ctx.fillText(`STAGE ${wave}`, W / 2, 26);
   }
@@ -1414,7 +1408,6 @@ function drawHUD() {
     ctx.fillRect(W - 22 - (i * 20), 38, 14, 14);
   }
 
-  // BANNER ANNOUNCER BOSS
   if (bossWarningTimer > 0) {
     bossWarningTimer--;
 
@@ -1529,7 +1522,6 @@ function drawEraLegend() {
 }
 
 function drawScreens() {
-  // PAGINA 1: COPERTINA
   if (state === 'COVER') {
     if (imgCover && imgCover.complete && imgCover.naturalWidth !== 0) {
       ctx.drawImage(imgCover, 0, 0, W, H);
@@ -1553,7 +1545,6 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 2: STORIA
   if (state === 'STORY') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1584,7 +1575,6 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 3: REGOLE
   if (state === 'RULES') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1628,7 +1618,6 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 4: POTENZIAMENTI
   if (state === 'POWERUPS_INFO') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1679,7 +1668,6 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 5: SELEZIONE PERSONAGGI CAROSELLO
   if (state === 'CHAR_SELECT') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
