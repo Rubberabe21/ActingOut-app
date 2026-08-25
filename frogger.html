@@ -147,7 +147,7 @@ canvas {
   cursor: pointer;
 }
 
-/* CLASSICA PULSANTIERA D-PAD T-SHAPE */
+/* PULSANTIERA D-PAD T-SHAPE */
 .control-deck {
   width: 100%;
   max-width: 320px;
@@ -643,31 +643,30 @@ function triggerTimelineEvent(evt) {
   playSound('event_start');
 }
 
-/* CURVA DI DIFFICOLTÀ GRADUATA E AMICHEVOLE ALL'INIZIO */
+/* MODERATORE DI DIFFICOLTÀ: MOLTO LENTO ED AMICHEVOLE ALL'INIZIO */
 function createNewLane(isInitialSetup = false, r = 0) {
   let isSafe = false;
 
   if (isInitialSetup) {
-    // Al livello 1 ci sono molte corsie SAFE (1 ogni 3)
     isSafe = (r === 0 || r === ROWS - 1 || r === ROWS - 2 || r % 3 === 0);
   } else {
     let prevSafeCount = 0;
     for (let i = 0; i < Math.min(2, activeLanes.length); i++) {
       if (activeLanes[i] && activeLanes[i].type === 'SAFE') prevSafeCount++;
     }
-    let safeProb = Math.max(0.20, 0.50 - (level - 1) * 0.05); // 50% di safe al livello 1!
+    let safeProb = Math.max(0.20, 0.65 - (level - 1) * 0.08); // 65% di corsie SAFE al livello 1!
     isSafe = (prevSafeCount === 0 && Math.random() < safeProb) || activeEvent === EVENT_TYPES.AUTOSAVE_WAVE;
   }
 
   let laneType = isSafe ? 'SAFE' : 'ROAD';
   let dir = Math.random() < 0.5 ? 1 : -1;
   
-  // Velocità iniziale molto bassa (0.35 + incremento graduato per livello)
-  let speedFactor = 0.35 + Math.min((level - 1) * 0.12, 1.25);
+  // Velocità iniziale bassissima per rendere il gioco immediato e rilassante ai primi livelli
+  let speedFactor = 0.18 + Math.min((level - 1) * 0.15, 1.45);
   if (activeEvent === EVENT_TYPES.CLIENT_REVIEW) speedFactor *= 0.5;
   if (activeEvent === EVENT_TYPES.GPU_STORM) speedFactor *= 1.3;
 
-  let baseSpeed = (0.50 + Math.random() * 0.35) * speedFactor;
+  let baseSpeed = (0.40 + Math.random() * 0.30) * speedFactor;
   let vTypes = Object.values(PREMIERE_CLIPS);
   let trackLabel = r % 5 === 0 ? "V3" : r % 5 === 1 ? "V2" : r % 5 === 2 ? "V1" : r % 5 === 3 ? "A1" : "A2";
 
@@ -683,8 +682,8 @@ function createNewLane(isInitialSetup = false, r = 0) {
 
   if (laneType === 'ROAD') {
     let x = TRACK_HEADER_W - CELL_SIZE * 3;
-    // Ampi varchi tra le clip nei primi livelli, che si restringono salendo di livello
-    let minGap = CELL_SIZE * Math.max(3.2, 5.5 - (level - 1) * 0.4); 
+    // Ampi varchi di passaggio tra i blocchi ai primi livelli
+    let minGap = CELL_SIZE * Math.max(3.2, 7.0 - (level - 1) * 0.6); 
 
     do {
       x += CELL_SIZE * (Math.random() * 2.0) + minGap;
@@ -726,7 +725,7 @@ function startInfiniteScroll() {
 function resetPlayer() {
   player.gx = Math.floor(COLS / 2);
   player.gy = ROWS - 2;
-  player.invTimer = 0;
+  player.invTimer = 120; // 2 secondi di invulnerabilità all'avvio
   player.guardTimer = 0;
   player.nextMoveAllowedTimer = 0;
   player.speedMult = 1;
@@ -906,7 +905,7 @@ function hitPlayer() {
     }
     player.gx = Math.floor(COLS / 2);
     player.gy = respawnGy;
-    player.invTimer = 120; // 2 secondi di invulnerabilità di grazia al respawn!
+    player.invTimer = 150; // Invulnerabilità di grazia al respawn
     player.glitchTimer = 0;
     player.speedMult = 1;
     player.tempScoreMult = 1;
@@ -1072,7 +1071,7 @@ function drawSinglePlayer() {
   ctx.restore();
 }
 
-/* HUD AMPIATO: VITE E TESTO LUMINOSI, MAI TAGLIATI */
+/* HUD RIVISTO: RENDER DELLE VITE CON SIMBOLO "♥" 100% VISIBILE SU QUALSIASI CANVAS */
 function drawHUD() {
   ctx.fillStyle = '#121218';
   ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
@@ -1082,27 +1081,31 @@ function drawHUD() {
 
   ctx.textBaseline = 'middle';
 
-  // Lato Sinistro
+  // Lato Sinistro: Nome e Punteggio
   ctx.fillStyle = '#00f3ff';
-  ctx.font = 'bold 14px monospace';
+  ctx.font = 'bold 13px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(`${currentTheme.name}`, 14, 20);
+  ctx.fillText(`${currentTheme.name}`, 14, 18);
 
   ctx.fillStyle = '#ffea00';
-  ctx.font = 'bold 14px monospace';
-  ctx.fillText(`PTS: ${score}`, 14, 42);
+  ctx.font = 'bold 13px monospace';
+  ctx.fillText(`PTS: ${score}`, 14, 40);
 
-  // Lato Destro
+  // Lato Destro: Record e Vite
   ctx.textAlign = 'right';
 
   ctx.fillStyle = '#00ffcc';
-  ctx.font = 'bold 13px monospace';
-  ctx.fillText(`REC: ${highScore}`, CANVAS_W - 16, 20);
+  ctx.font = 'bold 12px monospace';
+  ctx.fillText(`REC: ${highScore}`, CANVAS_W - 12, 18);
 
+  // Vite disegnate usando simbolo ♥ in font universale per la massima visibilità
   ctx.fillStyle = '#ff0055';
-  ctx.font = 'bold 14px sans-serif';
-  let heartsStr = '❤️'.repeat(Math.max(0, lives));
-  ctx.fillText(`VITE: ${heartsStr}`, CANVAS_W - 16, 42);
+  ctx.font = 'bold 14px monospace';
+  let hearts = '';
+  for (let i = 0; i < Math.max(0, lives); i++) {
+    hearts += '♥ ';
+  }
+  ctx.fillText(`VITE: ${hearts.trim()}`, CANVAS_W - 12, 40);
 }
 
 function drawMenuBackground() {
