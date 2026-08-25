@@ -283,7 +283,13 @@ canvas {
 </head>
 <body>
 
-<audio id="bgMusic" src="assets/frogger/music_frogger.mp4" loop autoplay playsinline style="display:none;"></audio>
+<!-- MUSICA INIZIALE CON FALLBACK SU FORMATI MP3/MP4 -->
+<audio id="bgMusic" loop autoplay playsinline style="display:none;">
+  <source src="assets/frogger/music_frogger.mp3" type="audio/mpeg">
+  <source src="assets/frogger/music_frogger.mp4" type="audio/mp4">
+  <source src="assets/frogger/musica_frogger.mp3" type="audio/mpeg">
+  <source src="assets/frogger/musica_frogger.mp4" type="audio/mp4">
+</audio>
 
 <div id="game-wrapper">
   <div class="top-header">
@@ -346,24 +352,46 @@ let musicEnabled = localStorage.getItem('deadlineDrive_music') !== 'false';
 let sfxEnabled = localStorage.getItem('deadlineDrive_sfx') !== 'false';
 
 const bgMusic = document.getElementById('bgMusic');
-bgMusic.volume = 0.12;
+if (bgMusic) bgMusic.volume = 0.35;
 
-function playBgMusic() {
-  if (musicEnabled && bgMusic.paused) {
-    bgMusic.play().catch(() => {});
+let audioCtx = null;
+
+// SBLOCCO AUTOMATICO E ROBUSTO DELL'AUDIO
+function unlockAudio() {
+  try {
+    if (!audioCtx) {
+      const A = window.AudioContext || window.webkitAudioContext;
+      if (A) audioCtx = new A();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  } catch (e) {}
+
+  if (musicEnabled && bgMusic) {
+    bgMusic.volume = 0.35;
+    bgMusic.muted = false;
+    if (bgMusic.paused) {
+      bgMusic.play().catch(() => {});
+    }
   }
 }
 
-playBgMusic();
-window.addEventListener('DOMContentLoaded', playBgMusic);
-window.addEventListener('load', playBgMusic);
-['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
-  window.addEventListener(evt, playBgMusic, { once: true, capture: true });
+// ASCOLTATORI GLOBALI PER IL PRIMO TOCCO / INTERAZIONE
+const unlockEvents = ['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'];
+unlockEvents.forEach(evt => {
+  window.addEventListener(evt, unlockAudio, { capture: true, passive: true });
+  document.addEventListener(evt, unlockAudio, { capture: true, passive: true });
 });
 
+function getAC() {
+  unlockAudio();
+  return audioCtx;
+}
+
 function updateMusicState() {
-  if (musicEnabled) playBgMusic();
-  else bgMusic.pause();
+  if (musicEnabled) unlockAudio();
+  else if (bgMusic) bgMusic.pause();
 }
 
 const settingsModal = document.getElementById('settingsModal');
@@ -443,19 +471,7 @@ btnModalPowerups.onclick = () => {
   updateMusicState();
 };
 
-let audioCtx = null;
-function getAC() {
-  try {
-    if (!audioCtx) {
-      const A = window.AudioContext || window.webkitAudioContext;
-      if (A) audioCtx = new A();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-  } catch (e) {}
-  playBgMusic();
-  return audioCtx;
-}
-
+// SINTETIZZATORE SFX POTENZIATO
 function playSound(type) {
   if (!sfxEnabled) return;
   try {
@@ -471,37 +487,37 @@ function playSound(type) {
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(580, ac.currentTime);
       osc.frequency.setValueAtTime(750, ac.currentTime + .06);
-      gain.gain.setValueAtTime(.40, ac.currentTime);
+      gain.gain.setValueAtTime(.50, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .14);
     } else if (type === 'crash') {
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(320, ac.currentTime);
+      osc.frequency.setValueAtTime(380, ac.currentTime);
       osc.frequency.exponentialRampToValueAtTime(35, ac.currentTime + .28);
-      gain.gain.setValueAtTime(.60, ac.currentTime);
+      gain.gain.setValueAtTime(.70, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .28);
     } else if (type === 'pickup') {
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(520, ac.currentTime);
       osc.frequency.setValueAtTime(1040, ac.currentTime + .1);
-      gain.gain.setValueAtTime(.50, ac.currentTime);
+      gain.gain.setValueAtTime(.60, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .22);
     } else if (type === 'malus') {
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(220, ac.currentTime);
       osc.frequency.linearRampToValueAtTime(70, ac.currentTime + .22);
-      gain.gain.setValueAtTime(.50, ac.currentTime);
+      gain.gain.setValueAtTime(.60, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .22);
     } else if (type === 'fail') {
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(260, ac.currentTime);
+      osc.frequency.setValueAtTime(280, ac.currentTime);
       osc.frequency.linearRampToValueAtTime(40, ac.currentTime + .35);
-      gain.gain.setValueAtTime(.65, ac.currentTime);
+      gain.gain.setValueAtTime(.75, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .35);
     } else if (type === 'guard_active') {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(700, ac.currentTime);
       osc.frequency.linearRampToValueAtTime(1400, ac.currentTime + .12);
-      gain.gain.setValueAtTime(.45, ac.currentTime);
+      gain.gain.setValueAtTime(.55, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .12);
     }
   } catch (e) {}
