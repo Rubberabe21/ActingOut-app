@@ -530,6 +530,7 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
+// PIPELINE STANDARD PER VERDE BRILANTE (#3DFF03)
 class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
     constructor(game) {
         super({
@@ -542,16 +543,35 @@ class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 
                 void main() {
                     vec4 texColor = texture2D(uMainSampler, outTexCoord);
-                    
-                    // Key 1: Verde brillante #3DFF03
-                    vec3 keyColor1 = vec3(0.2392, 1.0, 0.0118); 
-                    // Key 2: Verde Pierri #6E9A65
-                    vec3 keyColor2 = vec3(0.4314, 0.6039, 0.3961); 
-                    
-                    float diff1 = distance(texColor.rgb, keyColor1);
-                    float diff2 = distance(texColor.rgb, keyColor2);
-                    
-                    if (diff1 < 0.45 || diff2 < 0.38) {
+                    vec3 keyColor = vec3(0.2392, 1.0, 0.0118); // #3DFF03
+                    float diff = distance(texColor.rgb, keyColor);
+                    if (diff < 0.38) {
+                        discard;
+                    } else {
+                        gl_FragColor = texColor * outTint;
+                    }
+                }
+            `
+        });
+    }
+}
+
+// PIPELINE DEDICATA A PIERRI PER IL SUO VERDE SPECIFICO (#6E9A65)
+class PierriGreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
+    constructor(game) {
+        super({
+            game: game,
+            fragShader: `
+                precision mediump float;
+                uniform sampler2D uMainSampler;
+                varying vec2 outTexCoord;
+                varying vec4 outTint;
+
+                void main() {
+                    vec4 texColor = texture2D(uMainSampler, outTexCoord);
+                    vec3 keyColor = vec3(0.4314, 0.6039, 0.3961); // #6E9A65
+                    float diff = distance(texColor.rgb, keyColor);
+                    if (diff < 0.28) {
                         discard;
                     } else {
                         gl_FragColor = texColor * outTint;
@@ -678,8 +698,13 @@ class MainHub extends Phaser.Scene {
         const vWidth = 360;
         const vHeight = 740;
 
-        if (this.game.renderer.pipelines && !this.game.renderer.pipelines.has('GreenKey')) {
-            this.game.renderer.pipelines.add('GreenKey', new GreenKeyPipeline(this.game));
+        if (this.game.renderer.pipelines) {
+            if (!this.game.renderer.pipelines.has('GreenKey')) {
+                this.game.renderer.pipelines.add('GreenKey', new GreenKeyPipeline(this.game));
+            }
+            if (!this.game.renderer.pipelines.has('PierriGreenKey')) {
+                this.game.renderer.pipelines.add('PierriGreenKey', new PierriGreenKeyPipeline(this.game));
+            }
         }
 
         let bg = this.add.image(0, 0, 'background').setOrigin(0, 0).setDepth(0);
@@ -701,7 +726,7 @@ class MainHub extends Phaser.Scene {
         this.gabri.setMute(true);
 
         this.pierri = this.add.video(440, 580, 'pierri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
-        if (this.pierri.setPipeline) this.pierri.setPipeline('GreenKey');
+        if (this.pierri.setPipeline) this.pierri.setPipeline('PierriGreenKey');
         this.pierri.play(true);
         this.pierri.setMute(true);
 
