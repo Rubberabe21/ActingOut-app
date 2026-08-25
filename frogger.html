@@ -57,7 +57,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: max(env(safe-area-inset-top), 2px) 2px max(env(safe-area-inset-bottom), 2px) 2px;
+  padding: max(env(safe-area-inset-top), 4px) 4px max(env(safe-area-inset-bottom), 6px) 4px;
   background: #060609 !important;
   overflow: hidden;
 }
@@ -130,8 +130,7 @@ body {
   align-items: center;
   overflow: hidden;
   min-height: 0;
-  margin: 0;
-  padding: 0;
+  margin: 2px 0;
 }
 
 canvas {
@@ -140,7 +139,7 @@ canvas {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  aspect-ratio: 468 / 662;
+  aspect-ratio: 468 / 666;
   border: 2px solid #00f3ff !important;
   box-shadow: 0 0 20px rgba(0, 243, 255, 0.35) !important;
   background: #101014;
@@ -148,22 +147,24 @@ canvas {
   cursor: pointer;
 }
 
+/* CLASSICA PULSANTIERA D-PAD T-SHAPE */
 .control-deck {
   width: 100%;
+  max-width: 320px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  padding: 4px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 48px);
+  gap: 6px;
+  padding: 6px;
   background: linear-gradient(180deg, #14141d 0%, #0b0b10 100%);
   border: 2px solid #00f3ff !important;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 0 15px rgba(0, 243, 255, 0.25) !important;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .dir-btn {
-  height: 46px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -182,7 +183,7 @@ canvas {
 }
 
 .dir-btn span {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1;
   margin-bottom: 1px;
 }
@@ -192,6 +193,11 @@ canvas {
   box-shadow: 0 1px 0 #003554, 0 2px 4px rgba(0,0,0,0.4);
   background: linear-gradient(180deg, #0077b6 0%, #005f73 100%);
 }
+
+#btnUp { grid-column: 2; grid-row: 1; }
+#btnLeft { grid-column: 1; grid-row: 2; }
+#btnDown { grid-column: 2; grid-row: 2; }
+#btnRight { grid-column: 3; grid-row: 2; }
 
 .modal-overlay {
   display: none;
@@ -303,8 +309,8 @@ canvas {
 
   <div class="control-deck">
     <button class="dir-btn" id="btnUp"><span>▲</span>SU</button>
-    <button class="dir-btn" id="btnDown"><span>▼</span>GIÙ</button>
     <button class="dir-btn" id="btnLeft"><span>◀</span>SINISTRA</button>
+    <button class="dir-btn" id="btnDown"><span>▼</span>GIÙ</button>
     <button class="dir-btn" id="btnRight"><span>▶</span>DESTRA</button>
   </div>
 
@@ -337,10 +343,9 @@ canvas {
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-// Alta Risoluzione Interna per Nitidezza e Fluidità
-const COLS = 13, ROWS = 17, CELL_SIZE = 36, HUD_HEIGHT = 50, TRACK_HEADER_W = 50;
+const COLS = 13, ROWS = 17, CELL_SIZE = 36, HUD_HEIGHT = 54, TRACK_HEADER_W = 50;
 const CANVAS_W = COLS * CELL_SIZE; // 468px
-const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; // 662px
+const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; // 666px
 
 canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
@@ -553,7 +558,6 @@ const CHARACTER_LIST = ['GIULIA', 'TOBI', 'DAVE', 'LUCA'];
 let selectedCharIndex = 0;
 let currentTheme = CHARACTERS.GIULIA;
 
-// Clip Ampliate per contenere chiaramente le Scritte senza schiacciamenti
 const PREMIERE_CLIPS = {
   BLUE_A_ROLL:   { label: 'A001_C004', bg: '#2b52a1', border: '#5682e8', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.8 },
   PURPLE_B_ROLL: { label: 'B002_DRONE', bg: '#7f22a7', border: '#b842df', textCol: '#ffffff', topBar: '#ff0055', wMult: 3.0 },
@@ -655,7 +659,6 @@ function createNewLane(isInitialSetup = false, r = 0) {
   let laneType = isSafe ? 'SAFE' : 'ROAD';
   let dir = Math.random() < 0.5 ? 1 : -1;
   
-  // Velocità fluide e progressive (evita scatti sotto il pixel/frame)
   let speedFactor = 0.85 + Math.min(level * 0.15, 1.2);
   if (activeEvent === EVENT_TYPES.CLIENT_REVIEW) speedFactor *= 0.5;
   if (activeEvent === EVENT_TYPES.GPU_STORM) speedFactor *= 1.4;
@@ -931,7 +934,6 @@ function drawGameWorld() {
     }
   });
 
-  // Disegno Clip Fluidi con Testo Leggibile e Mascheramento Rigido
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'ROAD') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
@@ -947,20 +949,16 @@ function drawGameWorld() {
         ctx.rect(x + 1, y + 1, blockW - 2, blockH);
         ctx.clip();
 
-        // Sfondo Clip
         ctx.fillStyle = obj.type.bg;
         ctx.fillRect(x + 1, y + 1, blockW - 2, blockH);
 
-        // Header Top Bar
         ctx.fillStyle = obj.type.topBar || '#00ff66';
         ctx.fillRect(x + 1, y + 1, blockW - 2, 3);
 
-        // Bordo
         ctx.strokeStyle = activeEvent === EVENT_TYPES.GPU_STORM ? '#ffea00' : obj.type.border;
         ctx.lineWidth = 1.5;
         ctx.strokeRect(x + 1, y + 1, blockW - 2, blockH);
 
-        // Badge FX
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(x + 4, y + 6, 16, 14);
         ctx.fillStyle = '#00f3ff';
@@ -969,7 +967,6 @@ function drawGameWorld() {
         ctx.textBaseline = 'middle';
         ctx.fillText('FX', x + 12, y + 13);
 
-        // Testo Etichetta Nitido, Chiaro e Proporzionato
         ctx.fillStyle = obj.type.textCol || '#ffffff';
         ctx.font = '900 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.textAlign = 'left';
@@ -1069,6 +1066,7 @@ function drawSinglePlayer() {
   ctx.restore();
 }
 
+/* HUD REVISIONATO: VITE E TESTO PERFETTAMENTE CENTRATI E MAI TAGLIATI */
 function drawHUD() {
   ctx.fillStyle = '#121218';
   ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
@@ -1076,21 +1074,29 @@ function drawHUD() {
   ctx.lineWidth = 1.5;
   ctx.strokeRect(0, 0, CANVAS_W, HUD_HEIGHT);
 
+  ctx.textBaseline = 'middle'; // Garantisce un allineamento verticale perfetto!
+
+  // Lato Sinistro: Nome e Punteggio
   ctx.fillStyle = '#00f3ff';
-  ctx.font = 'bold 12px monospace';
+  ctx.font = 'bold 13px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(`${currentTheme.name}`, 10, 20);
+  ctx.fillText(`${currentTheme.name}`, 12, 18);
 
   ctx.fillStyle = '#ffea00';
-  ctx.fillText(`PTS: ${score}`, 10, 38);
+  ctx.font = 'bold 13px monospace';
+  ctx.fillText(`PTS: ${score}`, 12, 38);
+
+  // Lato Destro: Record e Vite
+  ctx.textAlign = 'right';
 
   ctx.fillStyle = '#00ffcc';
-  ctx.font = 'bold 11px monospace';
-  ctx.textAlign = 'right';
-  ctx.fillText(`REC: ${highScore}`, CANVAS_W - 10, 20);
+  ctx.font = 'bold 12px monospace';
+  ctx.fillText(`REC: ${highScore}`, CANVAS_W - 12, 18);
 
   ctx.fillStyle = '#ff0055';
-  ctx.fillText(`VITE: ${'❤️'.repeat(lives)}`, CANVAS_W - 10, 38);
+  ctx.font = 'bold 12px sans-serif'; // Sans-serif garantisce il rendering perfetto degli emoji
+  let heartsStr = '❤️'.repeat(Math.max(0, lives));
+  ctx.fillText(`VITE: ${heartsStr}`, CANVAS_W - 12, 38);
 }
 
 function drawMenuBackground() {
