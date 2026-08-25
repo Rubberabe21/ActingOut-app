@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Pixel Punch - Revision Killer</title>
+<meta name="theme-color" content="#060212">
+<title>Pixel Punch - Revision Killer - Agency Arcade</title>
 <style>
   * { 
     margin: 0; 
@@ -12,112 +13,121 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+    outline: none !important;
     touch-action: manipulation;
     font-family: 'Courier New', Courier, monospace;
   }
-  html, body {
+  html {
     width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #060212 !important;
     overflow: hidden;
-    background-color: #030305;
-    color: #fff;
+  }
+  body {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #060212 !important;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
     display: flex;
     justify-content: center;
     align-items: center;
   }
   #wrapper {
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100vw;
-    height: 100dvh;
+    height: 100svh;
     max-width: 440px;
-    max-height: 860px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 6px) 8px;
-    background: #090918;
-    border: 3px solid #ff0055;
-    box-shadow: 0 0 30px rgba(255, 0, 85, 0.35), inset 0 0 20px rgba(0, 255, 204, 0.15);
-    border-radius: 16px;
+    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 8px) 8px;
+    background: #060212 !important;
+    overflow: hidden;
   }
 
-  /* TOP BAR CON TASTO OPZIONI */
   .top-header {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 2px 4px;
+    padding: 4px 6px;
     margin-bottom: 2px;
     flex-shrink: 0;
   }
   .header-title {
-    color: #ff0055;
-    font-size: 11px;
+    color: #ff0055 !important;
+    font-size: 13px;
     font-weight: bold;
-    text-shadow: 0 0 6px #ff0055;
+    text-shadow: 0 0 6px #ff0055 !important;
     letter-spacing: 1px;
+    flex: 1;
+  }
+  .header-btns-right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
   }
   .opt-btn {
     background: #1a0836;
-    border: 1.5px solid #ffea00;
-    color: #ffea00;
-    padding: 3px 6px;
+    border: 1.5px solid #ffea00 !important;
+    color: #ffea00 !important;
+    padding: 5px 10px;
     font-family: 'Courier New', monospace;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
-    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
+    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
   }
   .opt-btn:active { transform: scale(0.92); }
 
+  #btnExitTop {
+    border-color: #ff007f !important;
+    color: #ff007f !important;
+    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3) !important;
+  }
+
   #canvas-container {
     width: 100%;
-    flex: 1;
+    flex: 1 1 auto;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
     min-height: 0;
+    margin: 2px 0;
   }
   canvas {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
     aspect-ratio: 380 / 540;
-    border: 2px solid #00ffcc;
-    box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.2);
+    border: 2px solid #00ffcc !important;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3) !important;
     border-radius: 10px;
     background: #060612;
     cursor: pointer;
   }
 
-  .exit-btn {
-    width: 100%;
-    margin-top: 4px;
-    padding: 8px;
-    background: #100826;
-    border: 1.5px solid #ff0055;
-    color: #ff0055;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    font-size: 10px;
-    letter-spacing: 1px;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
-    flex-shrink: 0;
-  }
-  .exit-btn:active { transform: scale(0.96); }
-
-  /* OVERLAY MODALE OPZIONI */
   .modal-overlay {
     display: none;
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(5, 2, 10, 0.94);
+    background: rgba(6, 2, 18, 0.95);
     z-index: 200;
     justify-content: center;
     align-items: center;
@@ -125,21 +135,21 @@
   }
   .modal-box {
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
     background: #0e051b;
-    border: 3px solid #ff0055;
-    box-shadow: 0 0 25px rgba(255, 0, 85, 0.5);
+    border: 3px solid #ff0055 !important;
+    box-shadow: 0 0 25px rgba(255, 0, 85, 0.5) !important;
     border-radius: 14px;
-    padding: 16px;
+    padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
     color: #ffffff;
     text-align: center;
   }
   .modal-title {
     color: #ffea00;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 900;
     text-shadow: 0 0 8px #ffea00;
   }
@@ -156,7 +166,7 @@
   .option-label {
     font-size: 11px;
     font-weight: bold;
-    color: #00ffcc;
+    color: #00ffcc !important;
   }
   .toggle-btn {
     width: 100%;
@@ -165,7 +175,7 @@
     border: 2px solid #ff0055;
     color: #ffffff;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 13px;
     border-radius: 6px;
     cursor: pointer;
   }
@@ -193,19 +203,18 @@
 <audio id="bgMusic" src="assets/PixelPunch/music_punch.mp3" loop autoplay playsinline style="display:none;"></audio>
 
 <div id="wrapper">
-  <!-- TOP BAR CON PULSANTE OPZIONI -->
   <div class="top-header">
-    <span class="header-title">PIXEL PUNCH - REVISION KILLER</span>
-    <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+    <span class="header-title">PIXEL PUNCH</span>
+    <div class="header-btns-right">
+      <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
+      <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+    </div>
   </div>
 
   <div id="canvas-container">
     <canvas id="game"></canvas>
   </div>
 
-  <button class="exit-btn" onclick="exitGame()">◄ TORNA ALL'HUB ARCADE</button>
-
-  <!-- MODALE OPZIONI -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
       <div class="modal-title">⚙️ OPZIONI GIOCO</div>
@@ -243,7 +252,7 @@ function drawRoundRect(c, x, y, w, h, r) {
   c.closePath();
 }
 
-// --- CONFIGURAZIONE AUDIO AUTOPLAY ---
+// AUDIO AUTOPLAY CONFIGURATION
 let musicEnabled = localStorage.getItem('pixelPunch_music') !== 'false';
 let sfxEnabled = localStorage.getItem('pixelPunch_sfx') !== 'false';
 
@@ -252,14 +261,15 @@ bgMusic.volume = 0.4;
 
 function playBgMusic() {
   if (musicEnabled && bgMusic.paused) {
-    bgMusic.play().catch(() => {});
+    let p = bgMusic.play();
+    if (p !== undefined) p.catch(() => {});
   }
 }
 
 playBgMusic();
 window.addEventListener('DOMContentLoaded', playBgMusic);
 window.addEventListener('load', playBgMusic);
-['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
   window.addEventListener(evt, playBgMusic, { once: true, capture: true });
 });
 
@@ -274,6 +284,7 @@ function updateMusicState() {
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
+const btnExitTop = document.getElementById('btnExitTop');
 const btnToggleMusic = document.getElementById('btnToggleMusic');
 const btnToggleSfx = document.getElementById('btnToggleSfx');
 
@@ -302,6 +313,7 @@ btnToggleSfx.onclick = () => {
 btnOpenSettings.onclick = () => {
   if (state === 'PLAYING') {
     state = 'PAUSE';
+    updateMusicState();
   }
   settingsModal.style.display = 'flex';
 };
@@ -315,57 +327,80 @@ btnCloseSettings.onclick = () => {
   updateMusicState();
 };
 
-// Caricamento Immagini Personaggi con Gestore Caricamento
-const imgIris = new Image(); 
-imgIris.src = 'assets/PixelPunch/Iris.png';
+btnExitTop.onclick = () => {
+  getAC();
+  exitGame();
+};
 
-const imgCristina = new Image(); 
-imgCristina.src = 'assets/PixelPunch/tosatto.png';
+// PRELOAD ASSETS
+const ASSETS = {
+  COVER: new Image(),
+  IRIS: new Image(),
+  CRISTINA: new Image(),
+  RACHELE: new Image(),
+  BOMBA: new Image(),
+  FUOCO: new Image(),
+  SCARPA: new Image(),
+  CAFFE: new Image()
+};
 
-const imgRachele = new Image(); 
-imgRachele.src = 'assets/PixelPunch/rache.png';
+ASSETS.COVER.src = 'assets/PixelPunch/copertina.png';
+ASSETS.IRIS.src = 'assets/PixelPunch/Iris.png';
+ASSETS.CRISTINA.src = 'assets/PixelPunch/tosatto.png';
+ASSETS.RACHELE.src = 'assets/PixelPunch/rache.png';
 
+ASSETS.BOMBA.src = 'assets/pacman/bomba.png';
+ASSETS.FUOCO.src = 'assets/pacman/fuoco.png';
+ASSETS.SCARPA.src = 'assets/pacman/scarpa.png';
+ASSETS.CAFFE.src = 'assets/pacman/caffe.png';
+
+// PRODUCER CHARACTERS
 const CHARACTERS = {
     IRIS: {
         id: 'IRIS',
         name: "IRIS",
         subtitle: "Iris, la maestra dell'AI",
-        perkDesc: "BONUS: Auto-Fix AI & Ferie 7s",
+        perkBonusTitle: "BONUS: Auto-Fix AI",
+        perkBonusDesc: "Auto-Risoluzione & Ferie 7s",
         primary: "#00ffcc",
         bg: "#06061a",
         padBg: "#120f2e",
-        img: imgIris,
+        img: ASSETS.IRIS,
         ferieSec: 7
     },
     CRISTINA: {
         id: 'CRISTINA',
         name: "CRISTINA",
         subtitle: "Cristina, la producer sagace",
-        perkDesc: "BONUS: Caffè x2 & Ferie 10s",
+        perkBonusTitle: "BONUS: Caffè x2 Extra",
+        perkBonusDesc: "Punti Doppi & Ferie 10s",
         primary: "#ffd700",
         bg: "#120e00",
         padBg: "#261a00",
-        img: imgCristina,
+        img: ASSETS.CRISTINA,
         ferieSec: 10
     },
     RACHELE: {
         id: 'RACHELE',
         name: "RACHELE",
         subtitle: "Rachele, l'inarrestabile",
-        perkDesc: "BONUS: Super Ferie (15s) & Combo Rush",
+        perkBonusTitle: "BONUS: Super Ferie & Rush",
+        perkBonusDesc: "15s Relax & Combo Boost",
         primary: "#ff33aa",
         bg: "#140018",
         padBg: "#28002b",
-        img: imgRachele,
+        img: ASSETS.RACHELE,
         ferieSec: 15
     }
 };
 
+const charList = ['IRIS', 'CRISTINA', 'RACHELE'];
+let charSelectIndex = 0;
 let currentTheme = CHARACTERS.IRIS;
 let highScore = parseInt(localStorage.getItem('pixelPunch_highScore')) || 0;
 let isNewRecord = false;
 
-// Audio sintetizzato SFX
+// SYNTHESIZED SFX
 let audioCtx = null;
 function getAC() {
     try {
@@ -424,12 +459,13 @@ function playSound(type) {
     } catch(e) {}
 }
 
-// MECCANICHE E STATI GIOCO
-let state = 'TUTORIAL'; // 'TUTORIAL', 'CHAR_SELECT', 'PLAYING', 'PAUSE', 'GAMEOVER'
+// GAME MECHANICS & STATES
+let state = 'COVER'; 
 let score = 0;
 let combo = 0;
-let stress = 0; // 0 to 100%
+let stress = 0;
 let elapsedMatchTime = 0;
+let frame = 0;
 
 let ferieActive = false;
 let ferieTimer = 0;
@@ -547,37 +583,37 @@ function spawnTicket() {
         return;
     }
 
-    if (rand < 0.10) { // TICKET FERIE (SPECIAL 🌴)
+    if (rand < 0.10) {
         target.type = 'FERIE';
         target.hp = 1;
         target.line1 = "FERIE 🌴";
         target.line2 = "RELAX!";
-    } else if (rand < 0.22) { // CAFFÈ ESPRESSO
+    } else if (rand < 0.22) {
         target.type = 'COFFEE';
         target.hp = 1;
         target.line1 = "CAFFÈ";
         target.line2 = "BONUS";
-    } else if (rand < 0.32) { // GOLDEN VIP FILE
+    } else if (rand < 0.32) {
         target.type = 'GOLDEN';
         target.hp = 1;
         target.line1 = "CLIENTE VIP";
         target.line2 = "SPECIALE";
-    } else if (rand < 0.46) { // FEEDBACK APPROVATO (TRAPPOLA)
+    } else if (rand < 0.46) {
         target.type = 'TRAP';
         target.hp = 1;
         target.line1 = "FEEDBACK";
         target.line2 = "APPROVATO";
-    } else if (rand < 0.55) { // FILE CORROTTO GLITCH (TRAPPOLA SEVERA)
+    } else if (rand < 0.55) {
         target.type = 'GLITCH';
         target.hp = 1;
         target.line1 = "FILE";
         target.line2 = "CORROTTO";
-    } else if (rand < 0.72) { // DOPPIA REVISIONE (2 TAP)
+    } else if (rand < 0.72) {
         target.type = 'DOUBLE';
         target.hp = 2;
         target.line1 = "REVISIONE";
         target.line2 = "DOPPIA (2x)";
-    } else { // REVISIONE STANDARD
+    } else {
         target.type = 'BAD';
         target.hp = 1;
         let b = BAD_NOTIFS[Math.floor(Math.random() * BAD_NOTIFS.length)];
@@ -658,7 +694,7 @@ function hitPad(pad) {
             addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "1 ANCORA!", "#ffaa00");
         }
     }
-    else { // BAD
+    else {
         pad.active = false;
         combo++;
         let comboBonus = (currentTheme.id === 'RACHELE') ? (combo * 25) : (combo > 3 ? 50 : 0);
@@ -724,95 +760,151 @@ function draw() {
     ctx.fillStyle = currentTheme.bg;
     ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-    // --- SCHERMATA 1: REGOLE E TUTORIAL INGRANDITO E CHIARO ---
-    if (state === 'TUTORIAL') {
-        ctx.fillStyle = '#ff0055';
-        ctx.font = 'bold 20px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('PIXEL PUNCH: REGOLE 🥊', cvs.width / 2, 42);
+    const W = cvs.width, H = cvs.height;
 
-        // Card 1: Stress & Burnout
-        drawRoundRect(ctx, 15, 60, 350, 105, 10);
-        ctx.fillStyle = '#101228'; ctx.fill();
-        ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2.5; ctx.stroke();
-        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('1. EVITA IL BURNOUT! 💀', 28, 82);
-        ctx.fillStyle = '#ffffff'; ctx.font = '11px monospace';
-        ctx.fillText('• NON c\'è un timer limite!', 28, 102);
-        ctx.fillText('• I ticket scaduti fanno salire lo STRESS.', 28, 120);
-        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 11px monospace';
-        ctx.fillText('• Se la barra arriva al 100% hai PERSO!', 28, 138);
+    // --- PAGINA 1: COPERTINA ---
+    if (state === 'COVER') {
+        if (ASSETS.COVER && ASSETS.COVER.complete && ASSETS.COVER.naturalWidth !== 0) {
+            ctx.drawImage(ASSETS.COVER, 0, 0, W, H);
+        } else {
+            ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = '#ff0055'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('PIXEL PUNCH', W / 2, 200);
+            ctx.fillStyle = '#ffea00'; ctx.font = 'bold 16px Courier New';
+            ctx.fillText('REVISION KILLER', W / 2, 240);
+        }
 
-        // Card 2: Ticket & Ferie
-        drawRoundRect(ctx, 15, 180, 350, 125, 10);
-        ctx.fillStyle = '#101228'; ctx.fill();
-        ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.stroke();
-        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'left';
-        ctx.fillText('2. TICKET & FERIE 🌴', 28, 202);
-        ctx.fillStyle = '#ffffff'; ctx.font = '11px monospace';
-        ctx.fillText('• 🔴 Rossi (+100) & 🟣 Viola (2 Tap: +250)', 28, 222);
-        ctx.fillText('• 🌴 Ticket FERIE: Cliccalo per 7-15s di RELAX!', 28, 240);
-        ctx.fillText('• ☕ Caffè & ⭐ VIP: Riducono lo Stress!', 28, 258);
-        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace';
-        ctx.fillText('• 🟢 Verde & 🖤 Nero: TRAPPOLE! Non toccare!', 28, 276);
-
-        // Record
-        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(`RECORD ATTUALE: ${highScore} PTS`, cvs.width / 2, 335);
-
-        // Tasto Avanti
-        drawRoundRect(ctx, 20, 365, 340, 50, 10);
-        ctx.fillStyle = '#ff0055'; ctx.fill();
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px monospace';
-        ctx.fillText('AVANTI: SCEGLI CREATIVO ►', cvs.width / 2, 396);
+        if (Math.floor(frame / 45) % 2 === 0) {
+            ctx.fillStyle = '#00ffcc'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('TOCCA PER INIZIARE ►', W / 2, H - 35);
+        }
         return;
     }
 
-    // --- SCHERMATA 2: SELEZIONE PERSONAGGIO ---
+    // --- PAGINA 2: STORIA AVVINCENTE DELLE PRODUCER ---
+    if (state === 'STORY') {
+        ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
+        
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('LA STORIA', W / 2, 48);
+
+        ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(10, 15, W - 20, H - 30, 12); ctx.fill();
+        ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.stroke();
+
+        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 16px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('Iris, Cristina e Rachele:', W / 2, 85);
+        ctx.fillText('Le inarrestabili Producer!', W / 2, 107);
+        
+        ctx.fillStyle = '#ffffff'; ctx.font = '13px Courier New';
+        ctx.fillText('Tra clienti esigenti che chiedono', W / 2, 142);
+        ctx.fillText('"il logo più grande", mail urgenti,', W / 2, 162);
+        ctx.fillText('e modifiche dell\'ultimo secondo,', W / 2, 182);
+        ctx.fillText('lo stress nello studio sta per', W / 2, 202);
+        ctx.fillText('esplodere in un Burnout totale!', W / 2, 222);
+
+        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 15px Courier New';
+        ctx.fillText('Metti K.O. le revisioni,', W / 2, 260);
+        ctx.fillText('gestisci il flusso dei ticket', W / 2, 282);
+        ctx.fillText('e conquista le meritate FERIE!', W / 2, 304);
+
+        if (Math.floor(frame / 40) % 2 === 0) {
+            ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('CONTINUA ►', W / 2, 388);
+        }
+        return;
+    }
+
+    // --- PAGINA 3: REGOLE E TUTORIAL MOLTO CHIARO CON ESEMPI ---
+    if (state === 'RULES') {
+        ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
+
+        ctx.fillStyle = '#00ffcc'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('REGOLE DI GIOCO 🥊', W / 2, 45);
+
+        ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 15, W - 20, H - 30, 12); ctx.fill();
+        ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; ctx.stroke();
+
+        ctx.textAlign = 'center';
+
+        // 1. OBIETTIVO
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
+        ctx.fillText('1. OBIETTIVO: EVITA IL BURNOUT!', W / 2, 76);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('• Risolvi i ticket prima che scadano.', W / 2, 95);
+        ctx.fillText('• Ogni ticket scaduto fa salire lo STRESS.', W / 2, 112);
+        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('• Al 100% di Stress hai PERSO!', W / 2, 129);
+
+        // 2. TICKET BUONI
+        ctx.fillStyle = '#00ffcc'; ctx.font = '900 15px Courier New';
+        ctx.fillText('2. TICKET BUONI (DA PREMERE)', W / 2, 160);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('• 🔴 ROSSI: 1 Tap (+100 PTS, es. "LOGO GRANDE")', W / 2, 178);
+        ctx.fillText('• 🟣 VIOLA: 2 Tap veloci (+250 PTS)', W / 2, 195);
+        ctx.fillText('• ☕ CAFFÈ / 🌟 VIP: +300/500 PTS e -Stress', W / 2, 212);
+        ctx.fillText('• 🌴 FERIE: Blocca il gioco e dà RELAX!', W / 2, 229);
+
+        // 3. TRAPPOLE
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
+        ctx.fillText('3. ATTENTO ALLE TRAPPOLE! ⚠️', W / 2, 260);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('• 🟢 VERDE ("APPROVATO") & 🖤 NERO ("CORROTTO")', W / 2, 278);
+        ctx.fillText('• NON toccarli! Tolgono punti e +Stress!', W / 2, 295);
+
+        // 4. CONTROLLI GUIDA
+        ctx.fillStyle = '#ffd700'; ctx.font = '900 14px Courier New';
+        ctx.fillText('4. CONTROLLI GUIDA', W / 2, 325);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('• Touch (1-9) oppure Tastiera (QWE / 1-9)', W / 2, 342);
+
+        if (Math.floor(Date.now() / 400) % 2 === 0) {
+            ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New';
+            ctx.fillText('CONTINUA ►', W / 2, 388);
+        }
+        return;
+    }
+
+    // --- PAGINA 4: SELEZIONE PERSONAGGIO ---
     if (state === 'CHAR_SELECT') {
-        ctx.fillStyle = '#ffff00';
-        ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('Scegli il tuo creativo in ACTING OUT', cvs.width / 2, 35);
+        ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
 
-        const chars = [
-            { key: 'IRIS', y: 55, col: '#00ffcc' },
-            { key: 'CRISTINA', y: 195, col: '#ffd700' },
-            { key: 'RACHELE', y: 335, col: '#ff33aa' }
-        ];
+        ctx.fillStyle = '#ffff00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('SCEGLI LA TUA PRODUCER 🥊', W / 2, 42);
 
-        chars.forEach(b => {
-            let c = CHARACTERS[b.key];
-            drawRoundRect(ctx, 15, b.y, 350, 125, 12);
-            ctx.fillStyle = '#101226'; ctx.fill();
-            ctx.strokeStyle = b.col; ctx.lineWidth = 2.5; ctx.stroke();
+        let key = charList[charSelectIndex];
+        let c = CHARACTERS[key];
 
-            ctx.fillStyle = b.col; ctx.font = 'bold 18px monospace'; ctx.textAlign = 'left';
-            ctx.fillText(c.name, 30, b.y + 32);
+        ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 15, W - 20, H - 30, 14); ctx.fill();
+        ctx.strokeStyle = c.primary; ctx.lineWidth = 3; ctx.stroke();
 
-            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px monospace';
-            ctx.fillText(c.subtitle, 30, b.y + 54);
-
-            ctx.fillStyle = '#ffff00'; ctx.font = '9px monospace';
-            ctx.fillText(c.perkDesc, 30, b.y + 76);
-
-            ctx.fillStyle = b.col; ctx.font = 'bold 11px monospace';
-            ctx.fillText('SELEZIONA ►', 30, b.y + 102);
-
-            // RENDER RITRATTO ROBUSTO
+        if (c.img && c.img.complete && c.img.naturalWidth > 0) {
             ctx.save();
-            drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
-            ctx.clip();
-            if (c.img && c.img.complete && c.img.naturalWidth > 0) {
-                ctx.drawImage(c.img, 240, b.y + 12, 105, 100);
-            } else {
-                ctx.fillStyle = '#1a1a3a'; ctx.fill();
-                ctx.fillStyle = b.col; ctx.font = 'bold 26px monospace'; ctx.textAlign = 'center';
-                ctx.fillText(c.name[0], 292, b.y + 68);
-            }
+            ctx.beginPath(); ctx.roundRect(W / 2 - 70, 58, 140, 125, 12); ctx.clip();
+            ctx.drawImage(c.img, W / 2 - 70, 58, 140, 125);
             ctx.restore();
-            drawRoundRect(ctx, 240, b.y + 12, 105, 100, 10);
-            ctx.strokeStyle = b.col; ctx.lineWidth = 1.5; ctx.stroke();
-        });
+            ctx.beginPath(); ctx.roundRect(W / 2 - 70, 58, 140, 125, 12);
+            ctx.strokeStyle = c.primary; ctx.lineWidth = 2.5; ctx.stroke();
+        }
+
+        ctx.fillStyle = c.primary; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(c.name, W / 2, 210);
+
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
+        ctx.fillText(c.subtitle, W / 2, 232);
+
+        ctx.fillStyle = '#ffff00'; ctx.font = '900 15px Courier New';
+        ctx.fillText(c.perkBonusTitle, W / 2, 268);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
+        ctx.fillText(c.perkBonusDesc, W / 2, 288);
+
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 36px Courier New';
+        ctx.fillText('◄', 28, 175);
+        ctx.fillText('►', W - 28, 175);
+
+        if (Math.floor(Date.now() / 400) % 2 === 0) {
+            ctx.fillStyle = c.primary; ctx.font = '900 18px Courier New';
+            ctx.fillText('INIZIA PARTITA ►', W / 2, 388);
+        }
         return;
     }
 
@@ -828,7 +920,7 @@ function draw() {
         ctx.lineWidth = 2; ctx.stroke();
 
         ctx.fillStyle = '#7777aa';
-        ctx.font = 'bold 10px monospace'; ctx.textAlign = 'left';
+        ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'left';
         ctx.fillText(p.keyLabel, padX + 8, padY + 16);
 
         if (p.active) {
@@ -853,7 +945,7 @@ function draw() {
             ctx.fillRect(padX + 5, padY + p.h - 10, (p.w - 10) * (1 - timerPct), 4);
 
             ctx.fillStyle = txtCol;
-            ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+            ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
             ctx.fillText(p.line1, padX + p.w / 2, padY + 68);
             ctx.fillText(p.line2, padX + p.w / 2, padY + 86);
         }
@@ -862,7 +954,7 @@ function draw() {
     particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); });
     floatingTexts.forEach(ft => {
         ctx.save(); ctx.globalAlpha = Math.max(0, ft.alpha); ctx.fillStyle = ft.color;
-        ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+        ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'center';
         ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
     });
 
@@ -871,28 +963,28 @@ function draw() {
         drawRoundRect(ctx, 30, 240, 320, 60, 12);
         ctx.fillStyle = 'rgba(0, 255, 204, 0.92)'; ctx.fill();
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#000000'; ctx.font = 'bold 15px monospace'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#000000'; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('🌴 IN FERIE RELAX... 🌴', cvs.width / 2, 266);
-        ctx.font = 'bold 12px monospace';
+        ctx.font = 'bold 12px Courier New';
         ctx.fillText(`PAUSA REVISIONI (${ferieTimer}s)`, cvs.width / 2, 286);
     }
 
-    // --- HUD HEADER SUPER VISIBILE CON BARRA STRESS PROMINENTE ---
+    // --- HUD HEADER CON BARRA STRESS ---
     ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, cvs.width, 74);
     ctx.strokeStyle = currentTheme.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, cvs.width, 74);
 
-    ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
+    ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'left';
     ctx.fillText(`${currentTheme.name}`, 10, 18);
-    ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 10, 34);
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px monospace';
+    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New';
+    ctx.fillText(`PTS: ${score}`, 10, 34);
+    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Courier New';
     ctx.fillText(`REC: ${highScore}`, 10, 48);
 
     if (combo > 1) {
-        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'right';
+        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'right';
         ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 18);
     }
 
-    // BARRA STRESS GRANDE E VISIBILE
     let stressWidth = 360;
     let stressX = 10;
     let stressY = 52;
@@ -911,15 +1003,15 @@ function draw() {
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
     ctx.strokeRect(stressX, stressY, stressWidth, 16);
 
-    ctx.fillStyle = '#000000'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#000000'; ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'center';
     ctx.fillText(`⚡ LIVELLO STRESS: ${Math.floor(stress)}%`, cvs.width / 2, stressY + 12);
 
     // --- SCHERMATA PAUSA ---
     if (state === 'PAUSE') {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
-        ctx.fillStyle = '#ffea00'; ctx.font = 'bold 26px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('IN PAUSA', cvs.width / 2, cvs.height / 2 - 10);
-        ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 11px monospace';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('IN PAUSA', cvs.width / 2, cvs.height / 2 - 15);
+        ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 13px Courier New';
         ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', cvs.width / 2, cvs.height / 2 + 20);
     }
 
@@ -927,49 +1019,63 @@ function draw() {
     if (state === 'GAMEOVER') {
         ctx.fillStyle = 'rgba(5, 5, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
         
-        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 22px monospace'; ctx.textAlign = 'center';
-        ctx.fillText('BURNOUT! 💀', cvs.width / 2, 170);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('BURNOUT! 💀', cvs.width / 2, cvs.height / 2 - 35);
 
-        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px monospace';
-        ctx.fillText(`PUNTEGGIO: ${score}`, cvs.width / 2, 220);
+        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px Courier New';
+        ctx.fillText(`PUNTEGGIO: ${score}`, cvs.width / 2, cvs.height / 2 + 10);
 
         if (isNewRecord) {
-            ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 16px monospace';
-            ctx.fillText('👑 NUOVO RECORD! 👑', cvs.width / 2, 260);
+            ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 16px Courier New';
+            ctx.fillText('👑 NUOVO RECORD! 👑', cvs.width / 2, cvs.height / 2 + 40);
         } else {
-            ctx.fillStyle = '#8888aa'; ctx.font = '12px monospace';
-            ctx.fillText(`RECORD ATTUALE: ${highScore}`, cvs.width / 2, 260);
+            ctx.fillStyle = '#8888aa'; ctx.font = '14px Courier New';
+            ctx.fillText(`RECORD ATTUALE: ${highScore}`, cvs.width / 2, cvs.height / 2 + 40);
         }
 
-        ctx.fillStyle = '#ffffff'; ctx.font = '11px monospace';
-        ctx.fillText('Punti registrati nel tuo Profilo!', cvs.width / 2, 295);
+        ctx.fillStyle = Math.floor(Date.now() / 300) % 2 === 0 ? '#fff' : currentTheme.primary;
+        ctx.font = '900 16px Courier New';
+        ctx.fillText('TOCCA PER RIPROVARE', cvs.width / 2, cvs.height / 2 + 90);
+    }
+}
 
-        ctx.fillStyle = Math.floor(Date.now() / 400) % 2 === 0 ? '#ffffff' : currentTheme.primary;
-        ctx.font = 'bold 13px monospace';
-        ctx.fillText('► TOCCA PER GIOCARE ANCORA ◄', cvs.width / 2, 370);
+function advanceMenuState() {
+    getAC();
+    if (state === 'COVER') {
+        state = 'STORY';
+    } else if (state === 'STORY') {
+        state = 'RULES';
+    } else if (state === 'RULES') {
+        state = 'CHAR_SELECT';
+    } else if (state === 'CHAR_SELECT') {
+        selectCharacter(charList[charSelectIndex || 0]);
+    } else if (state === 'GAMEOVER') {
+        state = 'CHAR_SELECT';
     }
 }
 
 // Touch / Pointer Event Handler
 cvs.addEventListener('pointerdown', (e) => {
-    if (e.cancelable) e.preventDefault();
     getAC();
     let rect = cvs.getBoundingClientRect();
     let x = (e.clientX - rect.left) * (cvs.width / rect.width);
     let y = (e.clientY - rect.top) * (cvs.height / rect.height);
 
-    if (state === 'TUTORIAL') {
-        if (y >= 365 && y <= 415) {
-            state = 'CHAR_SELECT';
-            playSound('coffee');
-        }
+    if (['COVER', 'STORY', 'RULES'].includes(state)) {
+        advanceMenuState();
         return;
     }
 
     if (state === 'CHAR_SELECT') {
-        if (y >= 55 && y <= 180) selectCharacter('IRIS');
-        else if (y >= 195 && y <= 320) selectCharacter('CRISTINA');
-        else if (y >= 335 && y <= 460) selectCharacter('RACHELE');
+        if (x < 60) {
+            charSelectIndex = (charSelectIndex - 1 + 3) % 3;
+            return;
+        }
+        if (x > cvs.width - 60) {
+            charSelectIndex = (charSelectIndex + 1) % 3;
+            return;
+        }
+        advanceMenuState();
         return;
     }
 
@@ -998,7 +1104,7 @@ cvs.addEventListener('pointerdown', (e) => {
         state = 'CHAR_SELECT';
         return;
     }
-}, { passive: false });
+});
 
 // Tastiera PC
 const KEY_MAP = {
@@ -1017,18 +1123,15 @@ const KEY_MAP = {
 
 window.addEventListener('keydown', (e) => {
     getAC();
-    if (state === 'TUTORIAL') {
-        if (e.code === 'Space' || e.code === 'Enter') {
-            state = 'CHAR_SELECT';
-            playSound('coffee');
-        }
+    if (['COVER', 'STORY', 'RULES'].includes(state)) {
+        if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
         return;
     }
 
     if (state === 'CHAR_SELECT') {
-        if (e.key === '1') selectCharacter('IRIS');
-        if (e.key === '2') selectCharacter('CRISTINA');
-        if (e.key === '3') selectCharacter('RACHELE');
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') charSelectIndex = (charSelectIndex - 1 + 3) % 3;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') charSelectIndex = (charSelectIndex + 1) % 3;
+        if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
         return;
     }
 
@@ -1082,6 +1185,7 @@ function exitGame() {
 }
 
 function loop() {
+    frame++;
     update();
     draw();
     requestAnimationFrame(loop);
