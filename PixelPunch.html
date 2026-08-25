@@ -3,299 +3,237 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0f">
-<title>Deadline Drive - Premiere Pro Timeline Rush</title>
-
+<meta name="theme-color" content="#060212">
+<title>Pixel Punch - Revision Killer - Agency Arcade</title>
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent !important;
-  -webkit-focus-ring-color: transparent !important;
-  outline: none !important;
-  touch-action: manipulation;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Courier New', monospace;
-}
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+    outline: none !important;
+    touch-action: manipulation;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #060212 !important;
+    overflow: hidden;
+  }
+  body {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #060212 !important;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #wrapper {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 100svh;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 8px) 8px;
+    background: #060212 !important;
+    overflow: hidden;
+  }
 
-html {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: #060609 !important;
-  overflow: hidden;
-}
-
-body {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: #060609 !important;
-  overflow: hidden;
-  overscroll-behavior: none;
-  touch-action: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#game-wrapper {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100vw;
-  height: 100svh;
-  max-width: 440px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 10px) 8px;
-  background: #060609 !important;
-  overflow: hidden;
-}
-
-.top-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 6px;
-  margin-bottom: 2px;
-  flex-shrink: 0;
-  background: linear-gradient(90deg, #111118 0%, #1a1a26 100%);
-  border-radius: 8px;
-  border: 1px solid #00f3ff55;
-  box-shadow: 0 0 10px rgba(0, 243, 255, 0.15);
-}
-
-.header-title {
-  color: #00f3ff !important;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .5px;
-  font-family: 'Courier New', monospace;
-  white-space: nowrap;
-  flex: 1;
-  text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
-}
-
-.header-btns-right {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.opt-btn {
-  background: #181824;
-  border: 1.5px solid #ffea00 !important;
-  color: #ffea00 !important;
-  padding: 4px 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 9px;
-  font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
-  box-shadow: 0 0 6px rgba(255, 234, 0, 0.3) !important;
-  transition: transform 0.1s ease;
-}
-
-.opt-btn:active { transform: scale(0.92); }
-
-#btnMenuTop {
-  border-color: #00f3ff !important;
-  color: #00f3ff !important;
-  box-shadow: 0 0 6px rgba(0, 243, 255, 0.3) !important;
-}
-
-#btnExitTop {
-  border-color: #ff0055 !important;
-  color: #ff0055 !important;
-  box-shadow: 0 0 6px rgba(255, 0, 85, 0.3) !important;
-}
-
-#canvas-container {
-  position: relative;
-  width: 100%;
-  flex: 1 1 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  min-height: 0;
-  margin: 2px 0;
-}
-
-canvas {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  aspect-ratio: 338 / 486;
-  border: 2px solid #00f3ff !important;
-  box-shadow: 0 0 20px rgba(0, 243, 255, 0.35) !important;
-  background: #101014;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-/* Pulsantiera Orizzontale per la Direzione (SU, GIÙ, SINISTRA, DESTRA) */
-.control-deck {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 8px;
-  background: linear-gradient(180deg, #14141d 0%, #0b0b10 100%);
-  border: 2px solid #00f3ff !important;
-  border-radius: 14px;
-  box-shadow: 0 0 15px rgba(0, 243, 255, 0.25) !important;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.dir-btn {
-  height: 54px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(180deg, #00b4d8 0%, #0077b6 100%);
-  border: 2px solid #90e0ef;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 900;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #003554, 0 4px 10px rgba(0, 0, 0, 0.5);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-  font-family: 'Courier New', monospace;
-  transition: transform 0.05s ease, background 0.1s ease;
-}
-
-.dir-btn span {
-  font-size: 18px;
-  line-height: 1;
-  margin-bottom: 2px;
-}
-
-.dir-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #003554, 0 2px 4px rgba(0,0,0,0.4);
-  background: linear-gradient(180deg, #0077b6 0%, #005f73 100%);
-}
-
-.modal-overlay {
-  display: none;
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(6, 6, 10, 0.95);
-  z-index: 200;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-}
-
-.modal-box {
-  width: 100%;
-  max-width: 320px;
-  background: #14141e;
-  border: 2px solid #00f3ff !important;
-  box-shadow: 0 0 25px rgba(0, 243, 255, 0.4) !important;
-  border-radius: 14px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  color: #ffffff;
-  text-align: center;
-}
-
-.modal-title {
-  color: #ffea00;
-  font-size: 15px;
-  font-weight: 900;
-  font-family: 'Courier New', monospace;
-  letter-spacing: 1px;
-  text-shadow: 0 0 8px rgba(255, 234, 0, 0.5);
-}
-
-.option-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  background: #0a0a10;
-  padding: 8px;
-  border: 1px solid #00f3ff44;
-  border-radius: 8px;
-}
-
-.option-label {
-  font-size: 10px;
-  font-weight: bold;
-  color: #00f3ff !important;
-  font-family: 'Courier New', monospace;
-}
-
-.toggle-btn {
-  width: 100%;
-  padding: 7px;
-  background: #1e1e2a;
-  border: 1.5px solid #ff0055;
-  color: #ffffff;
-  font-weight: bold;
-  font-size: 11px;
-  font-family: 'Courier New', monospace;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.toggle-btn.active {
-  border-color: #00ff66;
-  color: #00ff66;
-  background: #0a2414;
-  box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
-}
-
-.close-modal-btn {
-  padding: 9px;
-  background: linear-gradient(90deg, #00f3ff 0%, #00a8ff 100%);
-  border: none;
-  color: #000;
-  font-weight: 900;
-  font-size: 11px;
-  font-family: 'Courier New', monospace;
-  border-radius: 6px;
-  cursor: pointer;
-  box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
-}
-
-@media (max-height: 670px) {
-  .dir-btn {
-    height: 44px;
+  /* TOP HEADER BAR */
+  .top-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 6px;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+  }
+  .header-title {
+    color: #ffcc00 !important;
+    font-size: 12px;
+    font-weight: 900;
+    text-shadow: 2px 2px 0px #ff0044;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+  .header-btns-right {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .opt-btn {
+    background: #10101c;
+    border: 1.5px solid #ffcc00 !important;
+    color: #ffcc00 !important;
+    padding: 4px 7px;
+    font-family: 'Courier New', monospace;
     font-size: 10px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px #000000;
   }
-  .dir-btn span {
+  .opt-btn:active { transform: translate(1px, 1px); }
+
+  #btnMenuTop {
+    border-color: #00f0ff !important;
+    color: #00f0ff !important;
+  }
+
+  #btnExitTop {
+    border-color: #ff0055 !important;
+    color: #ff0055 !important;
+  }
+
+  #canvas-container {
+    width: 100%;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 0;
+    margin: 2px 0;
+  }
+  canvas {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    aspect-ratio: 380 / 540;
+    border: 4px solid #333344 !important;
+    box-shadow: 0 0 20px #000000, inset 0 0 10px #000000;
+    border-radius: 8px;
+    background: #08080c;
+    cursor: pointer;
+  }
+
+  /* MODALI OPZIONI E INFO */
+  .modal-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(4, 4, 8, 0.96);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+  }
+  .modal-box {
+    width: 100%;
+    max-width: 320px;
+    background: #0c0c18;
+    border: 4px solid #ff0055 !important;
+    box-shadow: 4px 4px 0px #000000;
+    border-radius: 8px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: #ffffff;
+    text-align: center;
+  }
+  .modal-title {
+    color: #ffcc00;
     font-size: 15px;
+    font-weight: 900;
+    text-shadow: 2px 2px 0px #000;
   }
-}
+  .option-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #141424;
+    padding: 10px;
+    border: 2px solid #00e5ff;
+    border-radius: 6px;
+  }
+  .option-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #00e5ff !important;
+  }
+  .toggle-btn {
+    width: 100%;
+    padding: 8px;
+    background: #201438;
+    border: 2px solid #ff0055;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .toggle-btn.active {
+    border-color: #00ff44;
+    color: #00ff44;
+    background: #082810;
+  }
+  .close-modal-btn {
+    padding: 10px;
+    background: #ff0055;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0px #000;
+  }
+
+  /* CARDS INFO DENTRO I SUB-MODALI */
+  .info-card {
+    background: #141424;
+    border: 2px solid #00e5ff;
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #ffffff;
+  }
+  .info-card h4 {
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .info-card p {
+    margin-bottom: 3px;
+  }
+  .info-card p:last-child {
+    margin-bottom: 0;
+  }
 </style>
 </head>
 <body>
 
-<!-- MUSICA INIZIALE DA ASSETS/FROGGER/MUSICA_FROGGER.MP4 -->
-<audio id="bgMusic" src="assets/frogger/musica_frogger.mp4" loop autoplay playsinline style="display:none;"></audio>
+<audio id="bgMusic" src="assets/PixelPunch/music_punch.mp3" loop autoplay playsinline style="display:none;"></audio>
 
-<div id="game-wrapper">
+<div id="wrapper">
   <div class="top-header">
-    <span class="header-title">DEADLINE DRIVE</span>
+    <span class="header-title">PIXEL PUNCH '84</span>
     <div class="header-btns-right">
       <button class="opt-btn" id="btnMenuTop">🏠 MENU</button>
       <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
@@ -307,17 +245,10 @@ canvas {
     <canvas id="game"></canvas>
   </div>
 
-  <!-- Pulsantiera Orizzontale: SU, GIÙ, SINISTRA, DESTRA -->
-  <div class="control-deck">
-    <button class="dir-btn" id="btnUp"><span>▲</span>SU</button>
-    <button class="dir-btn" id="btnDown"><span>▼</span>GIÙ</button>
-    <button class="dir-btn" id="btnLeft"><span>◀</span>SINISTRA</button>
-    <button class="dir-btn" id="btnRight"><span>▶</span>DESTRA</button>
-  </div>
-
+  <!-- MODALE OPZIONI PRINCIPALE -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
-      <div class="modal-title">⚙️ TIMELINE SETTINGS</div>
+      <div class="modal-title">⚙️ OPZIONI CABINET</div>
 
       <div class="option-item">
         <span class="option-label">MUSICA DI SOTTOFONDO</span>
@@ -330,61 +261,162 @@ canvas {
       </div>
 
       <div class="option-item">
-        <span class="option-label">CONSULTA INFO GIOCO</span>
-        <button class="toggle-btn" id="btnModalRules" style="margin-bottom:4px; border-color:#ffea00; color:#ffea00; background:#222210;">📋 REGOLE GIOCO</button>
-        <button class="toggle-btn" id="btnModalPowerups" style="border-color:#00ff66; color:#00ff66; background:#0a2414;">⚡ BONUS & MALUS</button>
+        <span class="option-label">GUIDA & SCHEDE INFO</span>
+        <button class="toggle-btn" id="btnOpenRules" style="margin-bottom: 4px; background:#1a0836; border-color:#00e5ff; color:#00e5ff;">📖 REGOLE DI GIOCO</button>
+        <button class="toggle-btn" id="btnOpenPerks" style="background:#1a0836; border-color:#ffea00; color:#ffea00;">⚡ BONUS & MALUS PRODUCER</button>
       </div>
 
       <button class="close-modal-btn" id="btnCloseSettings">SALVA E CHIUDI ►</button>
     </div>
   </div>
+
+  <!-- MODALE REGOLE DI GIOCO -->
+  <div class="modal-overlay" id="rulesModal">
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title">📖 REGOLE DI GIOCO</div>
+
+      <div class="info-card" style="border-color:#ff0055;">
+        <h4 style="color:#ff0055;">1. EVITA IL BURNOUT! 💀</h4>
+        <p>• Colpisci i ticket prima che scadano.</p>
+        <p>• Ogni errore o ritardo alza lo STRESS.</p>
+        <p style="color:#ffea00; font-weight:bold;">• Al 100% di Stress il server va in CRASH!</p>
+      </div>
+
+      <div class="info-card" style="border-color:#00e5ff;">
+        <h4 style="color:#00e5ff;">2. TIPOLOGIE DI TICKET 🕹️</h4>
+        <p>• <span style="color:#ff0055; font-weight:bold;">🔴 ROSSI</span> (1 Tap): +100 PTS</p>
+        <p>• <span style="color:#aa00ff; font-weight:bold;">🟣 VIOLA</span> (2 Tap): +250 PTS</p>
+        <p>• <span style="color:#ffea00; font-weight:bold;">☕ CAFFÈ</span> / <span style="color:#ffea00; font-weight:bold;">🌟 VIP</span>: +300/500 PTS e -STRESS</p>
+        <p>• <span style="color:#00e5ff; font-weight:bold;">🌴 FERIE</span>: Pausa e -20% STRESS</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ff0055;">
+        <h4 style="color:#ff0055;">3. TRAPPOLE DA EVITARE! ⚠️</h4>
+        <p>• <span style="color:#00ff44; font-weight:bold;">🟢 VERDE</span> (APPROVATO) & <span style="color:#ff0055; font-weight:bold;">🖤 NERO</span> (CORROTTO)</p>
+        <p style="color:#ff0055; font-weight:bold;">NON TOCARLI: Aumentano lo Stress del 12%!</p>
+      </div>
+
+      <button class="close-modal-btn" id="btnCloseRules">◄ TORNA ALLE OPZIONI</button>
+    </div>
+  </div>
+
+  <!-- MODALE BONUS & MALUS PRODUCER -->
+  <div class="modal-overlay" id="perksModal">
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title">⚡ BONUS & MALUS PRODUCER</div>
+
+      <div class="info-card" style="border-color:#00e5ff;">
+        <h4 style="color:#00e5ff;">🎨 IRIS - AI Specialist</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> AUTO-FIX AI</p>
+        <p>• Risoluzione automatica ticket casuali.</p>
+        <p>• Pausa Ferie: 7 Secondi</p>
+        <p>• Moltiplicatore Punti: x1.0</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ffea00;">
+        <h4 style="color:#ffea00;">🎨 CRISTINA - Senior Exec</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> DOUBLE ESPRESSO</p>
+        <p>• Punti Caffè raddoppiati (600 PTS).</p>
+        <p>• Nessuna penalità sui ticket Approvati.</p>
+        <p>• Pausa Ferie: 10s | Moltiplicatore: x1.15</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ff0055;">
+        <h4 style="color:#ff0055;">🎨 RACHELE - Lead Producer</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> VACATION RUSH</p>
+        <p>• Combo Boost ad ogni colpo a segno.</p>
+        <p>• Super Pausa Ferie: 15 Secondi</p>
+        <p>• Moltiplicatore Punti: x1.25</p>
+      </div>
+
+      <button class="close-modal-btn" id="btnClosePerks">◄ TORNA ALLE OPZIONI</button>
+    </div>
+  </div>
 </div>
 
 <script>
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+const cvs = document.getElementById('game');
+const ctx = cvs.getContext('2d');
+cvs.width = 380; 
+cvs.height = 540;
 
-const COLS = 13, ROWS = 17, CELL_SIZE = 26, HUD_HEIGHT = 44, TRACK_HEADER_W = 38;
-const CANVAS_W = COLS * CELL_SIZE;
-const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT;
+function draw80sBox(c, x, y, w, h, borderColor, bgCol, borderWidth = 3) {
+  c.fillStyle = bgCol;
+  c.fillRect(x, y, w, h);
+  c.lineWidth = borderWidth;
+  c.strokeStyle = borderColor;
+  c.strokeRect(x, y, w, h);
+  
+  c.fillStyle = 'rgba(255, 255, 255, 0.12)';
+  c.fillRect(x, y, w, 2);
+  c.fillRect(x, y, 2, h);
+  c.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  c.fillRect(x, y + h - 2, w, 2);
+  c.fillRect(x + w - 2, y, 2, h);
+}
 
-canvas.width = CANVAS_W;
-canvas.height = CANVAS_H;
+function drawImageCover(c, img, dx, dy, dWidth, dHeight) {
+  if (!img || !img.complete || img.naturalWidth === 0) return;
+  let imgRatio = img.naturalWidth / img.naturalHeight;
+  let destRatio = dWidth / dHeight;
+  let sx, sy, sWidth, sHeight;
+  if (imgRatio > destRatio) {
+    sHeight = img.naturalHeight;
+    sWidth = sHeight * destRatio;
+    sx = (img.naturalWidth - sWidth) / 2;
+    sy = 0;
+  } else {
+    sWidth = img.naturalWidth;
+    sHeight = sWidth / destRatio;
+    sx = 0;
+    sy = (img.naturalHeight - sHeight) / 2;
+  }
+  c.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+}
 
-let musicEnabled = localStorage.getItem('deadlineDrive_music') !== 'false';
-let sfxEnabled = localStorage.getItem('deadlineDrive_sfx') !== 'false';
+let musicEnabled = localStorage.getItem('pixelPunch_music') !== 'false';
+let sfxEnabled = localStorage.getItem('pixelPunch_sfx') !== 'false';
 
-// Musica di sottofondo mantenuta bassa (0.12) per far risaltare i suoni di gioco
 const bgMusic = document.getElementById('bgMusic');
-bgMusic.volume = 0.12;
+bgMusic.volume = 0.4;
 
 function playBgMusic() {
   if (musicEnabled && bgMusic.paused) {
-    bgMusic.play().catch(() => {});
+    let p = bgMusic.play();
+    if (p !== undefined) p.catch(() => {});
   }
 }
 
 playBgMusic();
 window.addEventListener('DOMContentLoaded', playBgMusic);
 window.addEventListener('load', playBgMusic);
-['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
   window.addEventListener(evt, playBgMusic, { once: true, capture: true });
 });
 
 function updateMusicState() {
-  if (musicEnabled) playBgMusic();
-  else bgMusic.pause();
+  if (musicEnabled) {
+    playBgMusic();
+  } else {
+    bgMusic.pause();
+  }
 }
 
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
-const btnMenuTop = document.getElementById('btnMenuTop');
 const btnExitTop = document.getElementById('btnExitTop');
+const btnMenuTop = document.getElementById('btnMenuTop');
 const btnToggleMusic = document.getElementById('btnToggleMusic');
 const btnToggleSfx = document.getElementById('btnToggleSfx');
-const btnModalRules = document.getElementById('btnModalRules');
-const btnModalPowerups = document.getElementById('btnModalPowerups');
+
+const btnOpenRules = document.getElementById('btnOpenRules');
+const btnCloseRules = document.getElementById('btnCloseRules');
+const rulesModal = document.getElementById('rulesModal');
+
+const btnOpenPerks = document.getElementById('btnOpenPerks');
+const btnClosePerks = document.getElementById('btnClosePerks');
+const perksModal = document.getElementById('perksModal');
 
 function renderOptionButtons() {
   btnToggleMusic.className = `toggle-btn ${musicEnabled ? 'active' : ''}`;
@@ -397,20 +429,20 @@ renderOptionButtons();
 
 btnToggleMusic.onclick = () => {
   musicEnabled = !musicEnabled;
-  localStorage.setItem('deadlineDrive_music', musicEnabled);
+  localStorage.setItem('pixelPunch_music', musicEnabled);
   renderOptionButtons();
   updateMusicState();
 };
 
 btnToggleSfx.onclick = () => {
   sfxEnabled = !sfxEnabled;
-  localStorage.setItem('deadlineDrive_sfx', sfxEnabled);
+  localStorage.setItem('pixelPunch_sfx', sfxEnabled);
   renderOptionButtons();
 };
 
 btnOpenSettings.onclick = () => {
-  if (gameState === 'playing') {
-    gameState = 'PAUSE';
+  if (state === 'PLAYING') {
+    state = 'PAUSE';
     updateMusicState();
   }
   settingsModal.style.display = 'flex';
@@ -419,1180 +451,1021 @@ btnOpenSettings.onclick = () => {
 btnCloseSettings.onclick = () => {
   settingsModal.style.display = 'none';
   getAC();
-  if (gameState === 'PAUSE') {
-    gameState = 'playing';
+  if (state === 'PAUSE') {
+    state = 'PLAYING';
   }
   updateMusicState();
+};
+
+btnOpenRules.onclick = () => {
+  settingsModal.style.display = 'none';
+  rulesModal.style.display = 'flex';
+};
+
+btnCloseRules.onclick = () => {
+  rulesModal.style.display = 'none';
+  settingsModal.style.display = 'flex';
+};
+
+btnOpenPerks.onclick = () => {
+  settingsModal.style.display = 'none';
+  perksModal.style.display = 'flex';
+};
+
+btnClosePerks.onclick = () => {
+  perksModal.style.display = 'none';
+  settingsModal.style.display = 'flex';
 };
 
 btnMenuTop.onclick = () => {
   getAC();
-  saveScore();
-  gameState = 'COVER';
-  if (settingsModal.style.display === 'flex') {
-    settingsModal.style.display = 'none';
-  }
+  if (gameTimerInterval) clearInterval(gameTimerInterval);
+  gridPads.forEach(p => p.active = false);
+  ferieActive = false;
+  state = 'COVER';
   updateMusicState();
 };
 
 btnExitTop.onclick = () => {
+  getAC();
   exitGame();
 };
 
-btnModalRules.onclick = () => {
-  settingsModal.style.display = 'none';
-  getAC();
-  gameState = 'RULES';
-  updateMusicState();
+const ASSETS = {
+  COVER: new Image(),
+  IRIS: new Image(),
+  CRISTINA: new Image(),
+  RACHELE: new Image(),
+  BOMBA: new Image(),
+  FUOCO: new Image(),
+  SCARPA: new Image(),
+  CAFFE: new Image()
 };
 
-btnModalPowerups.onclick = () => {
-  settingsModal.style.display = 'none';
-  getAC();
-  gameState = 'POWERUPS_INFO';
-  updateMusicState();
+ASSETS.COVER.src = 'assets/PixelPunch/copertina.png';
+ASSETS.IRIS.src = 'assets/PixelPunch/Iris.png';
+ASSETS.CRISTINA.src = 'assets/PixelPunch/tosatto.png';
+ASSETS.RACHELE.src = 'assets/PixelPunch/rache.png';
+
+ASSETS.BOMBA.src = 'assets/pacman/bomba.png';
+ASSETS.FUOCO.src = 'assets/pacman/fuoco.png';
+ASSETS.SCARPA.src = 'assets/pacman/scarpa.png';
+ASSETS.CAFFE.src = 'assets/pacman/caffe.png';
+
+const CHARACTERS = {
+    IRIS: {
+        id: 'IRIS',
+        name: "IRIS",
+        subtitle: "AI Producer Specialist",
+        perkBonusTitle: "PERK: AUTO-FIX AI",
+        perkBonusDesc: "Fix automatico & Ferie 7s",
+        primary: "#00e5ff",
+        bg: "#060814",
+        padBg: "#101026",
+        img: ASSETS.IRIS,
+        ferieSec: 7,
+        scoreMult: 1.0
+    },
+    CRISTINA: {
+        id: 'CRISTINA',
+        name: "CRISTINA",
+        subtitle: "Senior Producer Exec",
+        perkBonusTitle: "PERK: DOUBLE ESPRESSO",
+        perkBonusDesc: "Punti Caffè x2 & Ferie 10s",
+        primary: "#ffcc00",
+        bg: "#100c02",
+        padBg: "#221a04",
+        img: ASSETS.CRISTINA,
+        ferieSec: 10,
+        scoreMult: 1.15
+    },
+    RACHELE: {
+        id: 'RACHELE',
+        name: "RACHELE",
+        subtitle: "Lead Field Producer",
+        perkBonusTitle: "PERK: VACATION RUSH",
+        perkBonusDesc: "15s Super Relax & Combo Boost",
+        primary: "#ff0055",
+        bg: "#140410",
+        padBg: "#280820",
+        img: ASSETS.RACHELE,
+        ferieSec: 15,
+        scoreMult: 1.25
+    }
 };
+
+const charList = ['IRIS', 'CRISTINA', 'RACHELE'];
+let charSelectIndex = 0;
+let currentTheme = CHARACTERS.IRIS;
+let highScore = parseInt(localStorage.getItem('pixelPunch_highScore')) || 0;
+let isNewRecord = false;
 
 let audioCtx = null;
 function getAC() {
-  try {
-    if (!audioCtx) {
-      const A = window.AudioContext || window.webkitAudioContext;
-      if (A) audioCtx = new A();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-  } catch (e) {}
-  playBgMusic();
-  return audioCtx;
+    try {
+        if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) audioCtx = new AudioContextClass();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+    } catch(e) {}
+    playBgMusic();
+    return audioCtx;
 }
 
-// SUONI DI GIOCO AD ALTO VOLUME (SFX > MUSICA)
 function playSound(type) {
-  if (!sfxEnabled) return;
-  try {
-    const ac = getAC();
-    if (!ac) return;
-
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-    osc.connect(gain);
-    gain.connect(ac.destination);
-
-    if (type === 'cross') {
-      // Passo / Movimento
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(580, ac.currentTime);
-      osc.frequency.setValueAtTime(750, ac.currentTime + .06);
-      gain.gain.setValueAtTime(.40, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .14);
-    } else if (type === 'crash') {
-      // Impatto / Collisione
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(320, ac.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(35, ac.currentTime + .28);
-      gain.gain.setValueAtTime(.60, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .28);
-    } else if (type === 'pickup') {
-      // Bonus preso
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(520, ac.currentTime);
-      osc.frequency.setValueAtTime(1040, ac.currentTime + .1);
-      gain.gain.setValueAtTime(.50, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .22);
-    } else if (type === 'malus') {
-      // Malus preso
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(220, ac.currentTime);
-      osc.frequency.linearRampToValueAtTime(70, ac.currentTime + .22);
-      gain.gain.setValueAtTime(.50, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .22);
-    } else if (type === 'fail') {
-      // Game Over
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(260, ac.currentTime);
-      osc.frequency.linearRampToValueAtTime(40, ac.currentTime + .35);
-      gain.gain.setValueAtTime(.65, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .35);
-    } else if (type === 'guard_active') {
-      // Scudo Attivato
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(700, ac.currentTime);
-      osc.frequency.linearRampToValueAtTime(1400, ac.currentTime + .12);
-      gain.gain.setValueAtTime(.45, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .12);
-    }
-  } catch (e) {}
+    if (!sfxEnabled) return;
+    try {
+        const ac = getAC();
+        if (!ac) return;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain); gain.connect(ac.destination);
+        
+        if (type === 'hit') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(320, ac.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.3, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.08);
+        } else if (type === 'hit_double') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(580, ac.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(220, ac.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.35, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.12);
+        } else if (type === 'coffee') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, ac.currentTime);
+            osc.frequency.setValueAtTime(554, ac.currentTime + 0.06);
+            osc.frequency.setValueAtTime(659, ac.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.3, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.2);
+        } else if (type === 'golden') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(523, ac.currentTime);
+            osc.frequency.setValueAtTime(659, ac.currentTime + 0.08);
+            osc.frequency.setValueAtTime(783, ac.currentTime + 0.16);
+            osc.frequency.setValueAtTime(1046, ac.currentTime + 0.24);
+            gain.gain.setValueAtTime(0.35, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.32);
+        } else if (type === 'fail') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(180, ac.currentTime);
+            osc.frequency.linearRampToValueAtTime(40, ac.currentTime + 0.25);
+            gain.gain.setValueAtTime(0.35, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.25);
+        }
+    } catch(e) {}
 }
 
-const imgGiulia = new Image(); imgGiulia.src = 'assets/frogger/giulia.png';
-const imgTobi = new Image();   imgTobi.src = 'assets/frogger/tobi.png';
-const imgDave = new Image();   imgDave.src = 'assets/frogger/dave.png';
-const imgLuca = new Image();   imgLuca.src = 'assets/frogger/luca.png';
-
-const CHARACTERS = {
-  GIULIA: {
-    id: 'GIULIA', name: "GIULIA", subtitle: "Lead Video Editor",
-    perkBonus: "BONUS: Precisione (+25% Punti)", perkMalus: "MALUS: Sensibile al Glitch",
-    primary: "#00f3ff", img: imgGiulia, speed: 2.8, scoreMult: 1.25
-  },
-  TOBI: {
-    id: 'TOBI', name: "TOBI", subtitle: "Assistant Video Editor",
-    perkBonus: "BONUS: Agilità (+20% Velocità)", perkMalus: "MALUS: Punteggio Base (-10%)",
-    primary: "#ffd700", img: imgTobi, speed: 3.4, scoreMult: 0.9
-  },
-  DAVE: {
-    id: 'DAVE', name: "DAVE", subtitle: "Focused Director",
-    perkBonus: "BONUS: Autorità (+30% Punteggio)", perkMalus: "MALUS: Passo Pesante (-20% Velocità)",
-    primary: "#ff0055", img: imgDave, speed: 2.0, scoreMult: 1.3
-  },
-  LUCA: {
-    id: 'LUCA', name: "LUCA", subtitle: "VFX Artist Whiz",
-    perkBonus: "BONUS: VFX Master (+15% Punti)", perkMalus: "MALUS: Sensibilità Media",
-    primary: "#ffaa00", img: imgLuca, speed: 3.2, scoreMult: 1.15
-  }
-};
-
-const CHARACTER_LIST = ['GIULIA', 'TOBI', 'DAVE', 'LUCA'];
-let selectedCharIndex = 0;
-let currentTheme = CHARACTERS.GIULIA;
-
-const PREMIERE_CLIPS = {
-  BLUE_A_ROLL:  { label: 'A001_C004.MOV', bg: '#2b52a1', border: '#5682e8', textCol: '#d0e0ff', topBar: '#00ff66', wMult: 2.2 },
-  PURPLE_B_ROLL:{ label: 'B002_DRONE.MP4', bg: '#7f22a7', border: '#b842df', textCol: '#f2c8ff', topBar: '#ff0055', wMult: 2.5 },
-  ROSE_LUMETRI: { label: 'LUMETRI COLOR', bg: '#a11b43', border: '#e64273', textCol: '#ffd4e2', topBar: '#ffee00', wMult: 2 },
-  GOLD_VOICEOVER:{ label: 'VO_MASTER_V2', bg: '#8f7d18', border: '#dbc330', textCol: '#fdf8c2', topBar: '#00ff66', isAudio: true, wMult: 2 },
-  GREEN_SFX:    { label: 'SFX_WHOOSH.WAV', bg: '#2d7a3a', border: '#4ec462', textCol: '#d2f8da', topBar: '#00ff66', isAudio: true, wMult: 1.8 },
-  TEAL_MUSIC:   { label: 'BEAT_TRACK_FLAC', bg: '#147b85', border: '#23b3be', textCol: '#c2f8fc', topBar: '#00ff66', isAudio: true, wMult: 2.8 },
-  NESTED_SEQ:   { label: 'NEST_INTRO_SEQ', bg: '#5b1e8a', border: '#8b3adb', textCol: '#e8cbff', topBar: '#ffee00', wMult: 3 },
-  OFFLINE_RED:  { label: 'MEDIA OFFLINE! 🔴', bg: '#8b0000', border: '#ff3333', textCol: '#fff', topBar: '#ff0000', wMult: 3.2 }
-};
-
-const PICKUP_TYPES = {
-  AUTO_SAVE:   { label: '💾 SAVE', pts: 300, isMalus: false },
-  PROXY_ON:    { label: '🎬 PROXY 2X', pts: 400, isMalus: false, scoreBoost: 2 },
-  CACHE_BOOST: { label: '⚡ CACHE', pts: 150, isMalus: false, speedBoost: 1.3 },
-  GUARD:       { label: '🛡️ RENDER', pts: 250, isMalus: false, shieldDuration: 180 },
-  DROP_FRAME:  { label: '🐌 DROP', pts: -100, isMalus: true, slowFactor: 0.6 },
-  DISK_FULL:   { label: '⚠️ FULL DISK', pts: -200, isMalus: true, invertControls: true }
-};
-
-let gameState = 'COVER';
+let state = 'COVER'; 
 let score = 0;
-let highScore = parseInt(localStorage.getItem('deadlineDrive_highScore')) || 0;
-let lives = 3;
-let level = 1;
+let combo = 0;
+let stress = 0;
+let elapsedMatchTime = 0;
 let frame = 0;
-let visualScrollOffset = 0;
-let activeLanes = [];
+let shakeTime = 0;
+let shakeMag = 0;
+
+function triggerShake(time = 10, mag = 5) {
+    shakeTime = time;
+    shakeMag = mag;
+}
+
+let ferieActive = false;
+let ferieTimer = 0;
+
 let particles = [];
+let floatingTexts = [];
+let impactBursts = [];
 
-let player = {
-  gx: Math.floor(COLS / 2),
-  gy: ROWS - 2,
-  w: 16, h: 16,
-  facingLeft: false,
-  invTimer: 0,
-  guardTimer: 0,
-  nextMoveAllowedTimer: 0,
-  speedMult: 1,
-  tempScoreMult: 1,
-  glitchTimer: 0
-};
+const BAD_NOTIFS = [
+    { line1: "LOGO PIÙ", line2: "GRANDE!" },
+    { line1: "LAVORO PER", line2: "IERI!" },
+    { line1: "CAMBIA", line2: "COLORE!" },
+    { line1: "ASAP", line2: "URGENTE!" },
+    { line1: "PROVA CON", line2: "VERDE!" },
+    { line1: "FONTS PIÙ", line2: "LEGGIBILI!" }
+];
 
-let moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
-let lastMenuAdvanceTime = 0;
+const gridPads = [
+    { id: 0, x: 15,  y: 85,  w: 110, h: 135, keyLabel: "1 / Q" },
+    { id: 1, x: 135, y: 85,  w: 110, h: 135, keyLabel: "2 / W" },
+    { id: 2, x: 255, y: 85,  w: 110, h: 135, keyLabel: "3 / E" },
 
-function advanceMenuState() {
-  const now = Date.now();
-  if (now - lastMenuAdvanceTime < 250) return;
-  lastMenuAdvanceTime = now;
+    { id: 3, x: 15,  y: 230, w: 110, h: 135, keyLabel: "4 / A" },
+    { id: 4, x: 135, y: 230, w: 110, h: 135, keyLabel: "5 / S" },
+    { id: 5, x: 255, y: 230, w: 110, h: 135, keyLabel: "6 / D" },
 
-  getAC();
-  playSound('cross');
-  if (gameState === 'COVER') {
-    gameState = 'STORY';
-  } else if (gameState === 'STORY') {
-    gameState = 'RULES';
-  } else if (gameState === 'RULES') {
-    gameState = 'POWERUPS_INFO';
-  } else if (gameState === 'POWERUPS_INFO') {
-    gameState = 'CHAR_SELECT';
-  } else if (gameState === 'CHAR_SELECT') {
-    startGame();
-  } else if (gameState === 'gameover') {
-    gameState = 'CHAR_SELECT';
-  }
+    { id: 6, x: 15,  y: 375, w: 110, h: 135, keyLabel: "7 / Z" },
+    { id: 7, x: 135, y: 375, w: 110, h: 135, keyLabel: "8 / X" },
+    { id: 8, x: 255, y: 375, w: 110, h: 135, keyLabel: "9 / C" }
+].map(p => ({
+    ...p,
+    active: false,
+    type: 'BAD',
+    hp: 1,
+    line1: '',
+    line2: '',
+    timer: 0,
+    maxTimer: 100,
+    pressAnim: 0
+}));
+
+let lastSpawnTime = 0;
+let gameTimerInterval = null;
+
+function selectCharacter(charKey) {
+    currentTheme = CHARACTERS[charKey];
+    cvs.style.borderColor = currentTheme.primary;
+    cvs.style.boxShadow = `0 0 20px ${currentTheme.primary}`;
+    startMatch();
 }
 
-function createNewLane(isInitialSetup = false, r = 0) {
-  let isSafe = false;
-  let safeChance = Math.max(0.2, 0.45 - level * 0.08);
+function startMatch() {
+    state = 'PLAYING';
+    score = 0;
+    stress = 0;
+    combo = 0;
+    elapsedMatchTime = 0;
+    
+    ferieActive = false;
+    ferieTimer = 0;
 
-  if (isInitialSetup) {
-    isSafe = (r === 0 || r === ROWS - 1 || r === ROWS - 2 || r === ROWS - 3 || (r % 3 === 0 && level === 1));
-  } else {
-    let topLane = activeLanes[0];
-    isSafe = (topLane && topLane.type === 'SAFE') ? false : Math.random() < safeChance;
-  }
+    isNewRecord = false;
+    gridPads.forEach(p => p.active = false);
 
-  let laneType = isSafe ? 'SAFE' : 'ROAD';
-  let dir = Math.random() < 0.5 ? 1 : -1;
-  let speedFactor = 0.38 + Math.min(level * 0.16, 1.2);
-  let baseSpeed = (0.45 + Math.random() * 0.35) * speedFactor;
+    if (gameTimerInterval) clearInterval(gameTimerInterval);
+    gameTimerInterval = setInterval(() => {
+        if (state === 'PLAYING') {
+            elapsedMatchTime++;
 
-  let vTypes = Object.values(PREMIERE_CLIPS);
-  let trackLabel = r % 5 === 0 ? "V3" : r % 5 === 1 ? "V2" : r % 5 === 2 ? "V1" : r % 5 === 3 ? "A1" : "A2";
+            if (ferieActive) {
+                ferieTimer--;
+                stress = Math.max(0, stress - 1.8);
+                if (ferieTimer <= 0) {
+                    ferieActive = false;
+                }
+            } else {
+                stress = Math.min(100, stress + 0.35 + (elapsedMatchTime * 0.012));
+            }
 
-  let laneObj = {
-    type: laneType,
-    trackLabel: isSafe ? "SAFE" : trackLabel,
-    bg: isSafe ? '#1c2230' : '#141416',
-    dir,
-    speed: baseSpeed,
-    objects: [],
-    pickups: []
-  };
-
-  if (laneType === 'ROAD') {
-    let x = TRACK_HEADER_W - CELL_SIZE * 3;
-    let minGap = Math.max(4, 10 - level * 1.5);
-
-    do {
-      x += CELL_SIZE * (Math.random() * 2.5 + minGap);
-      if (x < CANVAS_W + CELL_SIZE * 3) {
-        let vType = vTypes[Math.floor(Math.random() * vTypes.length)];
-        laneObj.objects.push({
-          x,
-          type: vType,
-          w: vType.wMult * CELL_SIZE
-        });
-      }
-    } while (x < CANVAS_W + CELL_SIZE * 3);
-  } else if (Math.random() < 0.35) {
-    let keys = Object.keys(PICKUP_TYPES);
-    let key = keys[Math.floor(Math.random() * keys.length)];
-    laneObj.pickups.push({
-      gx: Math.floor(Math.random() * (COLS - 3)) + 2,
-      type: PICKUP_TYPES[key]
-    });
-  }
-
-  return laneObj;
-}
-
-function startInfiniteScroll() {
-  activeLanes = [];
-  visualScrollOffset = 0;
-  for (let r = 0; r < ROWS; r++) {
-    activeLanes.push(createNewLane(true, r));
-  }
-  resetPlayer();
-}
-
-function resetPlayer() {
-  player.gx = Math.floor(COLS / 2);
-  player.gy = ROWS - 2;
-  player.invTimer = 0;
-  player.guardTimer = 0;
-  player.nextMoveAllowedTimer = 0;
-  player.speedMult = 1;
-  player.tempScoreMult = 1;
-  player.glitchTimer = 0;
-}
-
-function startGame() {
-  currentTheme = CHARACTERS[CHARACTER_LIST[selectedCharIndex]];
-  score = 0;
-  lives = 3;
-  level = 1;
-  startInfiniteScroll();
-  gameState = 'playing';
-  playSound('pickup');
-}
-
-function updatePlayer() {
-  if (player.nextMoveAllowedTimer > 0) player.nextMoveAllowedTimer--;
-  if (player.glitchTimer > 0) player.glitchTimer--;
-
-  if (player.nextMoveAllowedTimer <= 0) {
-    let dx = 0, dy = 0;
-    let inLeft = keyPressed('ArrowLeft') || keyPressed('KeyA') || moveLeft;
-    let inRight = keyPressed('ArrowRight') || keyPressed('KeyD') || moveRight;
-    let inUp = keyPressed('ArrowUp') || keyPressed('KeyW') || moveUp;
-    let inDown = keyPressed('ArrowDown') || keyPressed('KeyS') || moveDown;
-
-    if (player.glitchTimer > 0) {
-      let tL = inLeft, tR = inRight, tU = inUp, tD = inDown;
-      inLeft = tR; inRight = tL; inUp = tD; inDown = tU;
-    }
-
-    if (inLeft) { dx--; player.facingLeft = true; }
-    else if (inRight) { dx++; player.facingLeft = false; }
-
-    if (inUp) dy--;
-    else if (inDown) dy++;
-
-    if (dx || dy) {
-      let ngx = player.gx + dx;
-      let ngy = player.gy + dy;
-
-      if (ngx >= 2 && ngx < COLS && ngy >= 0 && ngy < ROWS) {
-        player.gx = ngx;
-        player.gy = ngy;
-
-        if (dy < 0 && player.gy < 6) scrollWorldDown();
-        else if (dy < 0) score += Math.floor(10 * level * currentTheme.scoreMult * player.tempScoreMult);
-
-        playSound('cross');
-        let effSpeed = currentTheme.speed * player.speedMult;
-        player.nextMoveAllowedTimer = Math.max(5, Math.floor(14 / effSpeed));
-      }
-    }
-  }
-
-  if (player.invTimer > 0) player.invTimer--;
-  if (player.guardTimer > 0) player.guardTimer--;
-
-  checkPickups();
-  checkCollisions();
-}
-
-function scrollWorldDown() {
-  activeLanes.pop();
-  activeLanes.unshift(createNewLane(false));
-  player.gy++;
-  visualScrollOffset -= CELL_SIZE;
-  score += Math.floor(15 * level * currentTheme.scoreMult * player.tempScoreMult);
-
-  if (score > level * 1200) level++;
-}
-
-function updateVehicles() {
-  visualScrollOffset += (0 - visualScrollOffset) * 0.25;
-  if (Math.abs(visualScrollOffset) < 0.1) visualScrollOffset = 0;
-
-  activeLanes.forEach(lane => {
-    if (lane.type === 'ROAD') {
-      lane.objects.forEach(obj => {
-        obj.x += lane.speed * lane.dir;
-        if (lane.dir > 0 && obj.x > CANVAS_W + obj.w) obj.x = TRACK_HEADER_W - obj.w;
-        else if (lane.dir < 0 && obj.x < TRACK_HEADER_W - obj.w) obj.x = CANVAS_W + obj.w;
-      });
-    }
-  });
-
-  for (let i = particles.length - 1; i >= 0; i--) {
-    let p = particles[i];
-    p.x += p.vx; p.y += p.vy; p.life--;
-    if (p.life <= 0) particles.splice(i, 1);
-  }
-}
-
-function addParticles(x, y, color, count = 8) {
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x, y,
-      vx: (Math.random() - .5) * 6,
-      vy: (Math.random() - .5) * 6,
-      life: 16, color
-    });
-  }
-}
-
-function checkPickups() {
-  let currentLane = activeLanes[player.gy];
-  if (!currentLane || !currentLane.pickups.length) return;
-
-  for (let i = currentLane.pickups.length - 1; i >= 0; i--) {
-    let p = currentLane.pickups[i];
-    if (p.gx === player.gx) {
-      score += Math.floor(p.type.pts * currentTheme.scoreMult);
-      if (p.type.isMalus) {
-        playSound('malus');
-        if (p.type.slowFactor) player.speedMult = p.type.slowFactor;
-        if (p.type.invertControls) player.glitchTimer = 180;
-      } else {
-        playSound('pickup');
-        if (p.type.speedBoost) player.speedMult = p.type.speedBoost;
-        if (p.type.scoreBoost) player.tempScoreMult = p.type.scoreBoost;
-        if (p.type.shieldDuration) {
-          player.guardTimer = p.type.shieldDuration;
-          playSound('guard_active');
+            if (stress >= 100) {
+                state = 'GAMEOVER';
+                playSound('fail');
+                triggerShake(20, 10);
+                saveScore();
+                clearInterval(gameTimerInterval);
+            }
         }
-      }
-      addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, p.type.isMalus ? '#ff0055' : '#00f3ff', 10);
-      currentLane.pickups.splice(i, 1);
+    }, 1000);
+}
+
+function spawnTicket() {
+    if (ferieActive) return;
+
+    let inactive = gridPads.filter(p => !p.active);
+    if (inactive.length === 0) return;
+
+    let activeCount = gridPads.filter(p => p.active).length;
+    let maxAllowed = 1;
+    if (elapsedMatchTime > 12) maxAllowed = 2;
+    if (elapsedMatchTime > 30) maxAllowed = 3;
+    if (elapsedMatchTime > 55) maxAllowed = 4;
+
+    if (activeCount >= maxAllowed) return;
+
+    let target = inactive[Math.floor(Math.random() * inactive.length)];
+    target.active = true;
+
+    let rand = Math.random();
+    let duration = Math.max(55, 145 - Math.floor(elapsedMatchTime * 1.5));
+
+    if (currentTheme.id === 'IRIS' && rand < 0.20 && rand >= 0.05) {
+        score += 100;
+        stress = Math.max(0, stress - 2);
+        addParticles(target.x + target.w/2, target.y + target.h/2, currentTheme.primary, 12);
+        addFloatText(target.x + target.w/2, target.y + target.h/2, "AI AUTO-FIX!", currentTheme.primary);
+        addImpactBurst(target.x + target.w/2, target.y + target.h/2, "AUTO-FIX!", currentTheme.primary);
+        target.active = false;
+        return;
     }
-  }
-}
 
-function checkCollisions() {
-  if (gameState !== 'playing' || player.invTimer > 0 || player.guardTimer > 0) return;
-  let playerX = player.gx * CELL_SIZE + CELL_SIZE / 2;
-  let lane = activeLanes[player.gy];
-
-  if (lane && lane.type === 'ROAD') {
-    lane.objects.forEach(obj => {
-      let oLeft = obj.x, oRight = obj.x + obj.w;
-      let pLeft = playerX - player.w / 2, pRight = playerX + player.w / 2;
-      if (pLeft < oRight && pRight > oLeft) hitPlayer();
-    });
-  }
-}
-
-function hitPlayer() {
-  lives--;
-  playSound('crash');
-  addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, '#ff0055', 20);
-
-  if (lives <= 0) {
-    gameState = 'gameover';
-    playSound('fail');
-    saveScore();
-  } else {
-    let respawnGy = ROWS - 2;
-    for (let r = player.gy; r < ROWS; r++) {
-      if (activeLanes[r] && activeLanes[r].type === 'SAFE') {
-        respawnGy = r;
-        break;
-      }
-    }
-    player.gx = Math.floor(COLS / 2);
-    player.gy = respawnGy;
-    player.invTimer = 90;
-    player.glitchTimer = 0;
-    player.speedMult = 1;
-    player.tempScoreMult = 1;
-  }
-}
-
-/* =======================================================
-   DISEGNO GIOCO & RIGIDO CONTROLLO TESTI DENTRO LE CLIP
-   ======================================================= */
-
-function drawGameWorld() {
-  ctx.fillStyle = '#181818';
-  ctx.fillRect(0, HUD_HEIGHT, CANVAS_W, CANVAS_H - HUD_HEIGHT);
-
-  activeLanes.forEach((lane, r) => {
-    let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
-    ctx.fillStyle = lane.bg;
-    ctx.fillRect(0, y, CANVAS_W, CELL_SIZE);
-    ctx.strokeStyle = '#222226';
-    ctx.strokeRect(0, y, CANVAS_W, CELL_SIZE);
-  });
-
-  activeLanes.forEach((lane, r) => {
-    if (lane.type === 'SAFE') {
-      let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
-      lane.pickups.forEach(p => {
-        let px = p.gx * CELL_SIZE + CELL_SIZE / 2;
-        let py = y + CELL_SIZE / 2;
-        ctx.fillStyle = p.type.isMalus ? '#ff0055' : '#ffff00';
-        ctx.font = '11px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(p.type.label.split(' ')[0], px, py);
-      });
-    }
-  });
-
-  activeLanes.forEach((lane, r) => {
-    if (lane.type === 'ROAD') {
-      let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
-      lane.objects.forEach(obj => {
-        let x = obj.x;
-        let blockW = obj.w;
-        let blockH = CELL_SIZE - 2;
-
-        if (x + blockW < TRACK_HEADER_W) return;
-
-        ctx.save();
-        
-        ctx.beginPath();
-        ctx.rect(x + 1, y + 1, blockW - 2, blockH);
-        ctx.clip();
-
-        ctx.fillStyle = obj.type.bg;
-        ctx.fillRect(x + 1, y + 1, blockW - 2, blockH);
-
-        ctx.fillStyle = obj.type.topBar || '#00ff66';
-        ctx.fillRect(x + 1, y + 1, blockW - 2, 2);
-
-        ctx.strokeStyle = obj.type.border;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x + 1, y + 1, blockW - 2, blockH);
-
-        ctx.fillStyle = 'rgba(0,0,0,0.4)';
-        ctx.fillRect(x + 3, y + 4, 12, 10);
-        ctx.fillStyle = '#00f3ff';
-        ctx.font = 'bold 8px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('FX', x + 9, y + 9);
-
-        ctx.fillStyle = obj.type.textCol;
-        ctx.font = 'bold 9px -apple-system, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        let maxTextW = Math.max(10, blockW - 22);
-        ctx.fillText(obj.type.label, x + blockW / 2 + 6, y + blockH / 2 + 1, maxTextW);
-
-        ctx.restore();
-      });
-    }
-  });
-
-  activeLanes.forEach((lane, r) => {
-    let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
-    ctx.fillStyle = '#1c1c24';
-    ctx.fillRect(0, y, TRACK_HEADER_W, CELL_SIZE);
-    ctx.strokeStyle = '#2a2a38';
-    ctx.strokeRect(0, y, TRACK_HEADER_W, CELL_SIZE);
-    ctx.fillStyle = '#8a8a95';
-    ctx.font = 'bold 9px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(lane.trackLabel, TRACK_HEADER_W / 2, y + CELL_SIZE / 2);
-  });
-
-  particles.forEach(p => {
-    ctx.fillStyle = p.color;
-    ctx.fillRect(p.x, p.y, 4, 4);
-  });
-
-  let playheadX = player.gx * CELL_SIZE + CELL_SIZE / 2;
-  ctx.strokeStyle = 'rgba(0,243,255,0.45)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(playheadX, HUD_HEIGHT);
-  ctx.lineTo(playheadX, CANVAS_H);
-  ctx.stroke();
-
-  drawSinglePlayer();
-}
-
-function drawSinglePlayer() {
-  let playerY = player.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2 + visualScrollOffset;
-  let playerX = player.gx * CELL_SIZE + CELL_SIZE / 2;
-
-  if (player.invTimer > 0 && Math.floor(player.invTimer / 4) % 2 === 0) return;
-
-  ctx.save();
-  ctx.translate(playerX, playerY);
-  if (player.facingLeft) ctx.scale(-1, 1);
-
-  ctx.shadowColor = '#00f3ff';
-  ctx.shadowBlur = 10;
-  ctx.fillStyle = '#00f3ff';
-  ctx.beginPath();
-  ctx.moveTo(0, -12); ctx.lineTo(10, 0); ctx.lineTo(0, 12); ctx.lineTo(-10, 0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  if (player.glitchTimer > 0) {
-    ctx.fillStyle = '#ff0055';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText('⚠', 0, -16);
-  }
-
-  if (player.guardTimer > 0) {
-    ctx.shadowColor = '#00ff66';
-    ctx.strokeStyle = '#00ff66';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function drawHUD() {
-  ctx.fillStyle = '#121218';
-  ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
-  ctx.strokeStyle = '#00f3ff44';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(0, 0, CANVAS_W, HUD_HEIGHT);
-
-  ctx.fillStyle = '#00f3ff';
-  ctx.font = 'bold 11px monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText(`${currentTheme.name}`, 8, 16);
-
-  ctx.fillStyle = '#ffea00';
-  ctx.fillText(`PTS: ${score}`, 8, 32);
-
-  ctx.fillStyle = '#00ffcc';
-  ctx.font = 'bold 10px monospace';
-  ctx.textAlign = 'right';
-  ctx.fillText(`REC: ${highScore}`, CANVAS_W - 8, 16);
-
-  ctx.fillStyle = '#ff0055';
-  ctx.fillText(`VITE: ${'❤️'.repeat(lives)}`, CANVAS_W - 8, 34);
-}
-
-/* =======================================================
-   STILE GRAFICO DEGLI SCHERMI MENU (CYBER DECK ARCADE)
-   ======================================================= */
-
-function drawMenuBackground() {
-  ctx.fillStyle = '#08080d';
-  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-
-  ctx.strokeStyle = 'rgba(0, 243, 255, 0.06)';
-  ctx.lineWidth = 1;
-  let gridStep = 20;
-  let offsetY = (frame * 0.5) % gridStep;
-
-  for (let x = 0; x <= CANVAS_W; x += gridStep) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0); ctx.lineTo(x, CANVAS_H);
-    ctx.stroke();
-  }
-  for (let y = offsetY; y <= CANVAS_H; y += gridStep) {
-    ctx.beginPath();
-    ctx.moveTo(0, y); ctx.lineTo(CANVAS_W, y);
-    ctx.stroke();
-  }
-
-  ctx.fillStyle = 'rgba(0, 243, 255, 0.15)';
-  ctx.font = '9px monospace';
-  ctx.textAlign = 'left';
-  let tcSec = Math.floor(frame / 60) % 60;
-  let tcFrame = frame % 60;
-  ctx.fillText(`TC: 00:14:${tcSec < 10 ? '0' + tcSec : tcSec}:${tcFrame < 10 ? '0' + tcFrame : tcFrame}`, 10, 20);
-  ctx.fillText(`SEQ: TIMELINE_RUSH_2026`, 10, 32);
-  ctx.textAlign = 'right';
-  ctx.fillText(`PROXIES: ACTIVE`, CANVAS_W - 10, 20);
-  ctx.fillText(`GPU_ACCEL: ON`, CANVAS_W - 10, 32);
-}
-
-function drawCyberPanel(x, y, w, h, borderColor = '#00f3ff', bgColor = 'rgba(16, 16, 26, 0.92)') {
-  ctx.save();
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(x, y, w, h);
-
-  ctx.strokeStyle = borderColor;
-  ctx.lineWidth = 2;
-  ctx.shadowColor = borderColor;
-  ctx.shadowBlur = 10;
-  ctx.strokeRect(x, y, w, h);
-  ctx.shadowBlur = 0;
-
-  let cLen = 8;
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(x, y + cLen); ctx.lineTo(x, y); ctx.lineTo(x + cLen, y); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(x + w, y + h - cLen); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w - cLen, y + h); ctx.stroke();
-
-  ctx.restore();
-}
-
-function drawScreens() {
-  drawMenuBackground();
-
-  // 1. COPERTINA (COVER SCREEN)
-  if (gameState === 'COVER') {
-    let boxW = 300, boxH = 340;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 60;
-
-    drawCyberPanel(boxX, boxY, boxW, boxH, '#00f3ff');
-
-    ctx.fillStyle = 'rgba(0, 243, 255, 0.2)';
-    ctx.fillRect(boxX + 20, boxY + 20, boxW - 40, 24);
-    ctx.strokeStyle = '#00f3ff';
-    ctx.strokeRect(boxX + 20, boxY + 20, boxW - 40, 24);
-
-    ctx.fillStyle = '#00f3ff';
-    ctx.font = '900 11px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('⚡ PREMIERE PRO ARCADE ⚡', CANVAS_W / 2, boxY + 36);
-
-    ctx.fillStyle = '#ffea00';
-    ctx.font = '900 22px "Courier New", monospace';
-    ctx.shadowColor = '#ffea00';
-    ctx.shadowBlur = 12;
-    ctx.fillText('DEADLINE DRIVE', CANVAS_W / 2, boxY + 95);
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = '#ff0055';
-    ctx.font = '900 12px monospace';
-    ctx.fillText('TIMELINE RUSH 2026', CANVAS_W / 2, boxY + 120);
-
-    ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(boxX + 25, boxY + 145, boxW - 50, 95);
-    ctx.strokeStyle = '#ff0055';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(boxX + 25, boxY + 145, boxW - 50, 95);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '11px sans-serif';
-    ctx.fillText('Risali le tracce video prima', CANVAS_W / 2, boxY + 172);
-    ctx.fillText('che scada l\'Export finale!', CANVAS_W / 2, boxY + 192);
-
-    ctx.fillStyle = '#00ff66';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText(`HIGH SCORE: ${highScore} PTS`, CANVAS_W / 2, boxY + 220);
-
-    let btnPulse = Math.sin(frame * 0.1) * 3;
-    ctx.fillStyle = 'rgba(0, 243, 255, 0.9)';
-    ctx.fillRect(boxX + 30, boxY + 265 - btnPulse / 2, boxW - 60, 42 + btnPulse);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(boxX + 30, boxY + 265 - btnPulse / 2, boxW - 60, 42 + btnPulse);
-
-    ctx.fillStyle = '#000000';
-    ctx.font = '900 13px monospace';
-    ctx.fillText('TOCCA O PREMI PER INIZIARE ►', CANVAS_W / 2, boxY + 291);
-    return;
-  }
-
-  // 2. LA STORIA (STORY SCREEN)
-  if (gameState === 'STORY') {
-    let boxW = 308, boxH = 370;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 45;
-
-    drawCyberPanel(boxX, boxY, boxW, boxH, '#ffea00');
-
-    ctx.fillStyle = '#ffea00';
-    ctx.font = '900 16px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('🎬 MISSIONE: LA STORIA', CANVAS_W / 2, boxY + 32);
-
-    ctx.fillStyle = '#101018';
-    ctx.fillRect(boxX + 15, boxY + 50, boxW - 30, 230);
-    ctx.strokeStyle = '#ffea0044';
-    ctx.strokeRect(boxX + 15, boxY + 50, boxW - 30, 230);
-
-    ctx.textAlign = 'left';
-    ctx.font = '11px sans-serif';
-    
-    ctx.fillStyle = '#00f3ff';
-    ctx.fillText('CLIENTE: IMPOSSIBILE', boxX + 25, boxY + 75);
-    ctx.fillText('DEADLINE: 00:03 MINUTI', boxX + 25, boxY + 93);
-    
-    ctx.fillStyle = '#ff0055';
-    ctx.fillText('STATO TIMELINE: PANICO TOTALE!', boxX + 25, boxY + 115);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText('• La sequenza di montaggio è sommersa', boxX + 25, boxY + 145);
-    ctx.fillText('  da clip corrotte, Lumetri Color fuori', boxX + 25, boxY + 163);
-    ctx.fillText('  controllo e tracce audio sfasate!', boxX + 25, boxY + 181);
-
-    ctx.fillStyle = '#00ff66';
-    ctx.fillText('• Risali le tracce V1, V2 e V3.', boxX + 25, boxY + 215);
-    ctx.fillText('  Colleziona Auto-Save e Proxy 2X!', boxX + 25, boxY + 233);
-    ctx.fillText('  Porta in salvo il progetto finale!', boxX + 25, boxY + 251);
-
-    ctx.fillStyle = '#ffea00';
-    ctx.fillRect(boxX + 30, boxY + 300, boxW - 60, 40);
-    ctx.fillStyle = '#000';
-    ctx.font = '900 12px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('AVANTI: REGOLE DI GIOCO ►', CANVAS_W / 2, boxY + 324);
-    return;
-  }
-
-  // 3. REGOLE (RULES SCREEN)
-  if (gameState === 'RULES') {
-    let boxW = 310, boxH = 380;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 40;
-
-    drawCyberPanel(boxX, boxY, boxW, boxH, '#ff0055');
-
-    ctx.fillStyle = '#ff0055';
-    ctx.font = '900 15px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('📋 TIMELINE PROTOCOLS', CANVAS_W / 2, boxY + 28);
-
-    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 15, boxY + 45, boxW - 30, 85);
-    ctx.strokeStyle = '#00f3ff'; ctx.strokeRect(boxX + 15, boxY + 45, boxW - 30, 85);
-
-    ctx.fillStyle = '#00f3ff'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
-    ctx.fillText('1. EVITA GLI OSTACOLI CLIP 🚫', boxX + 25, boxY + 65);
-    ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif';
-    ctx.fillText('Schiva Media Offline 🔴, GPU Crash, Lumetri', boxX + 25, boxY + 84);
-    ctx.fillText('Color e clip sfasate lungo la Timeline!', boxX + 25, boxY + 100);
-
-    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 15, boxY + 140, boxW - 30, 90);
-    ctx.strokeStyle = '#00ff66'; ctx.strokeRect(boxX + 15, boxY + 140, boxW - 30, 90);
-
-    ctx.fillStyle = '#00ff66'; ctx.font = 'bold 11px monospace';
-    ctx.fillText('2. POWERUPS & BONUS 💾', boxX + 25, boxY + 160);
-    ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif';
-    ctx.fillText('💾 Auto-Save (+300) | 🎬 Proxy (Punti 2X)', boxX + 25, boxY + 179);
-    ctx.fillText('⚡ Cache Boost (+Velocità) | 🛡️ Render Shield', boxX + 25, boxY + 197);
-
-    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 15, boxY + 240, boxW - 30, 65);
-    ctx.strokeStyle = '#ff0055'; ctx.strokeRect(boxX + 15, boxY + 240, boxW - 30, 65);
-
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px monospace';
-    ctx.fillText('3. MALUS TRAPPOLA ⚠️', boxX + 25, boxY + 258);
-    ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif';
-    ctx.fillText('🐌 Drop Frame (Rallenta) | ⚠️ Full Disk (Inverte)', boxX + 25, boxY + 276);
-
-    ctx.fillStyle = '#ff0055';
-    ctx.fillRect(boxX + 30, boxY + 320, boxW - 60, 40);
-    ctx.fillStyle = '#fff'; ctx.font = '900 12px monospace'; ctx.textAlign = 'center';
-    ctx.fillText('SCHEDA BONUS & MALUS ►', CANVAS_W / 2, boxY + 344);
-    return;
-  }
-
-  // 4. SCHERMATA DETTAGLIO BONUS & MALUS
-  if (gameState === 'POWERUPS_INFO') {
-    let boxW = 310, boxH = 380;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 40;
-
-    drawCyberPanel(boxX, boxY, boxW, boxH, '#00ff66');
-
-    ctx.fillStyle = '#00ff66';
-    ctx.font = '900 15px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('⚡ BONUS & MALUS DETTAGLIO', CANVAS_W / 2, boxY + 28);
-
-    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 15, boxY + 45, boxW - 30, 260);
-    ctx.strokeStyle = '#00ff6644'; ctx.strokeRect(boxX + 15, boxY + 45, boxW - 30, 260);
-
-    ctx.textAlign = 'left';
-    ctx.font = 'bold 10px monospace';
-
-    ctx.fillStyle = '#00ff66';
-    ctx.fillText('--- POTENZIAMENTI BONUS ---', boxX + 25, boxY + 65);
-    ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif';
-    ctx.fillText('• 💾 AUTO-SAVE: +300 Punti istantanei', boxX + 25, boxY + 82);
-    ctx.fillText('• 🎬 PROXY 2X: Moltiplica x2 i punti', boxX + 25, boxY + 99);
-    ctx.fillText('• ⚡ CACHE BOOST: +150 Punti & Velocità', boxX + 25, boxY + 116);
-    ctx.fillText('• 🛡️ RENDER SHIELD: Scudo Invulnerabile', boxX + 25, boxY + 133);
-
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 10px monospace';
-    ctx.fillText('--- MALUS TRAPPOLA ---', boxX + 25, boxY + 165);
-    ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif';
-    ctx.fillText('• 🐌 DROP FRAME: -100 Punti & Rallenta', boxX + 25, boxY + 182);
-    ctx.fillText('• ⚠️ FULL DISK: -200 Punti & Inverte Guida', boxX + 25, boxY + 199);
-
-    ctx.fillStyle = '#ffea00'; ctx.font = 'bold 10px monospace';
-    ctx.fillText('CONSIGLIO: Mantieni i riflessi pronti!', boxX + 25, boxY + 235);
-
-    ctx.fillStyle = '#00ff66';
-    ctx.fillRect(boxX + 30, boxY + 320, boxW - 60, 40);
-    ctx.fillStyle = '#000'; ctx.font = '900 12px monospace'; ctx.textAlign = 'center';
-    ctx.fillText('SCEGLI VIDEOMAKER ►', CANVAS_W / 2, boxY + 344);
-    return;
-  }
-
-  // 5. SELEZIONE PERSONAGGIO (CHAR SELECT)
-  if (gameState === 'CHAR_SELECT') {
-    let boxW = 314, boxH = 400;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 30;
-
-    let c = CHARACTERS[CHARACTER_LIST[selectedCharIndex]];
-
-    drawCyberPanel(boxX, boxY, boxW, boxH, c.primary);
-
-    ctx.fillStyle = c.primary;
-    ctx.font = '900 14px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('🎬 SELEZIONA VIDEOMAKER', CANVAS_W / 2, boxY + 26);
-
-    let imgW = 140, imgH = 140;
-    let imgX = (CANVAS_W - imgW) / 2, imgY = boxY + 40;
-
-    ctx.fillStyle = '#0a0a10';
-    ctx.fillRect(imgX, imgY, imgW, imgH);
-
-    if (c.img && c.img.complete && c.img.naturalWidth > 0) {
-      ctx.drawImage(c.img, imgX, imgY, imgW, imgH);
+    if (rand < 0.10) {
+        target.type = 'FERIE';
+        target.hp = 1;
+        target.line1 = "FERIE 🌴";
+        target.line2 = "RELAX!";
+    } else if (rand < 0.22) {
+        target.type = 'COFFEE';
+        target.hp = 1;
+        target.line1 = "CAFFÈ";
+        target.line2 = "BONUS";
+    } else if (rand < 0.32) {
+        target.type = 'GOLDEN';
+        target.hp = 1;
+        target.line1 = "CLIENTE VIP";
+        target.line2 = "SPECIALE";
+    } else if (rand < 0.46) {
+        target.type = 'TRAP';
+        target.hp = 1;
+        target.line1 = "FEEDBACK";
+        target.line2 = "APPROVATO";
+    } else if (rand < 0.55) {
+        target.type = 'GLITCH';
+        target.hp = 1;
+        target.line1 = "FILE";
+        target.line2 = "CORROTTO";
+    } else if (rand < 0.72) {
+        target.type = 'DOUBLE';
+        target.hp = 2;
+        target.line1 = "REVISIONE";
+        target.line2 = "DOPPIA (2x)";
     } else {
-      ctx.fillStyle = c.primary;
-      ctx.font = '900 48px monospace';
-      ctx.fillText(c.name[0], CANVAS_W / 2, imgY + 85);
+        target.type = 'BAD';
+        target.hp = 1;
+        let b = BAD_NOTIFS[Math.floor(Math.random() * BAD_NOTIFS.length)];
+        target.line1 = b.line1;
+        target.line2 = b.line2;
     }
 
-    ctx.strokeStyle = c.primary;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(imgX, imgY, imgW, imgH);
-
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(imgX + 4, imgY + 4, 50, 14);
-    ctx.fillStyle = '#00ff66';
-    ctx.font = 'bold 8px monospace';
-    ctx.fillText('● REC 4K', imgX + 28, imgY + 14);
-
-    ctx.fillStyle = c.primary;
-    ctx.font = '900 20px -apple-system, sans-serif';
-    ctx.fillText(c.name, CANVAS_W / 2, boxY + 204);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.fillText(c.subtitle, CANVAS_W / 2, boxY + 224);
-
-    ctx.fillStyle = '#0a0a10';
-    ctx.fillRect(boxX + 20, boxY + 240, boxW - 40, 65);
-    ctx.strokeStyle = '#2a2a38';
-    ctx.strokeRect(boxX + 20, boxY + 240, boxW - 40, 65);
-
-    ctx.fillStyle = '#ffea00';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText(c.perkBonus, CANVAS_W / 2, boxY + 263);
-
-    ctx.fillStyle = '#ff0055';
-    ctx.fillText(c.perkMalus, CANVAS_W / 2, boxY + 285);
-
-    ctx.fillStyle = '#00f3ff';
-    ctx.font = '900 16px monospace';
-    ctx.fillText('◄   CAMBIA PERSONAGGIO   ►', CANVAS_W / 2, boxY + 330);
-
-    ctx.fillStyle = c.primary;
-    ctx.fillRect(boxX + 30, boxY + 348, boxW - 60, 38);
-    ctx.fillStyle = '#000000';
-    ctx.font = '900 12px monospace';
-    ctx.fillText('PREMI OK PER CONFERMARE ►', CANVAS_W / 2, boxY + 371);
-    return;
-  }
-
-  // 6. PAUSA (PAUSE SCREEN)
-  if (gameState === 'PAUSE') {
-    let boxW = 280, boxH = 180;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = (CANVAS_H - boxH) / 2;
-
-    drawCyberPanel(boxX, boxY, boxW, boxH, '#ffea00');
-
-    ctx.fillStyle = '#ffea00';
-    ctx.font = '900 22px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('⏸️ IN PAUSA', CANVAS_W / 2, boxY + 60);
-
-    ctx.fillStyle = '#00f3ff';
-    ctx.font = 'bold 11px monospace';
-    ctx.fillText('TIMELINE SOSPESA', CANVAS_W / 2, boxY + 95);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '10px monospace';
-    ctx.fillText('TOCCA PER RIPRENDERE IL MONTAGGIO', CANVAS_W / 2, boxY + 130);
-    return;
-  }
-
-  // 7. GAME OVER (GAME OVER SCREEN)
-  if (gameState === 'gameover') {
-    let boxW = 300, boxH = 310;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = (CANVAS_H - boxH) / 2 - 20;
-
-    drawCyberPanel(boxX, boxY, boxW, boxH, '#ff0055');
-
-    ctx.fillStyle = '#ff0055';
-    ctx.font = '900 20px monospace';
-    ctx.textAlign = 'center';
-    ctx.shadowColor = '#ff0055';
-    ctx.shadowBlur = 10;
-    ctx.fillText('DEADLINE MISSED! 💀', CANVAS_W / 2, boxY + 50);
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '12px monospace';
-    ctx.fillText('CRASH DEL SISTEMA DI EXPORT', CANVAS_W / 2, boxY + 80);
-
-    ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(boxX + 20, boxY + 105, boxW - 40, 100);
-    ctx.strokeStyle = '#ffea00';
-    ctx.strokeRect(boxX + 20, boxY + 105, boxW - 40, 100);
-
-    ctx.fillStyle = '#ffea00';
-    ctx.font = '900 16px monospace';
-    ctx.fillText(`PUNTEGGIO: ${score}`, CANVAS_W / 2, boxY + 145);
-
-    ctx.fillStyle = '#00f3ff';
-    ctx.font = 'bold 11px monospace';
-    ctx.fillText(`RECORD ATTUALE: ${highScore}`, CANVAS_W / 2, boxY + 175);
-
-    ctx.fillStyle = Math.floor(frame / 30) % 2 === 0 ? '#ff0055' : '#ffea00';
-    ctx.fillRect(boxX + 25, boxY + 230, boxW - 50, 42);
-    ctx.fillStyle = '#000';
-    ctx.font = '900 12px monospace';
-    ctx.fillText('► TOCCA PER RIPROVARE ◄', CANVAS_W / 2, boxY + 256);
-  }
+    target.timer = duration;
+    target.maxTimer = duration;
 }
 
-canvas.addEventListener('pointerdown', e => {
-  getAC();
-  let rect = canvas.getBoundingClientRect();
-  let x = (e.clientX - rect.left) * (CANVAS_W / rect.width);
-  let y = (e.clientY - rect.top) * (CANVAS_H / rect.height);
+function hitPad(pad) {
+    pad.pressAnim = 6;
+    let cx = pad.x + pad.w / 2;
+    let cy = pad.y + pad.h / 2;
 
-  if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(gameState)) {
-    advanceMenuState();
-    return;
-  }
-
-  if (gameState === 'CHAR_SELECT') {
-    if (x < 70) {
-      selectedCharIndex = (selectedCharIndex - 1 + CHARACTER_LIST.length) % CHARACTER_LIST.length;
-      playSound('cross');
-      return;
-    }
-    if (x > CANVAS_W - 70) {
-      selectedCharIndex = (selectedCharIndex + 1) % CHARACTER_LIST.length;
-      playSound('cross');
-      return;
-    }
-    advanceMenuState();
-    return;
-  }
-
-  if (gameState === 'playing') {
-    if (y < HUD_HEIGHT) {
-      gameState = 'PAUSE';
-      updateMusicState();
-    }
-    return;
-  }
-
-  if (gameState === 'PAUSE') {
-    gameState = 'playing';
-    updateMusicState();
-    return;
-  }
-
-  if (gameState === 'gameover') {
-    gameState = 'CHAR_SELECT';
-  }
-});
-
-function bindDirBtn(id, setFlag) {
-  let el = document.getElementById(id);
-  if (!el) return;
-
-  const press = (e) => {
-    if (e.cancelable) e.preventDefault();
-    getAC();
-    if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO', 'CHAR_SELECT', 'gameover'].includes(gameState)) {
-      if (id === 'btnLeft') {
-        selectedCharIndex = (selectedCharIndex - 1 + CHARACTER_LIST.length) % CHARACTER_LIST.length;
-        playSound('cross');
-      } else if (id === 'btnRight') {
-        selectedCharIndex = (selectedCharIndex + 1) % CHARACTER_LIST.length;
-        playSound('cross');
-      } else {
-        advanceMenuState();
-      }
-      return;
-    }
-    setFlag(true);
-  };
-
-  const release = (e) => {
-    if (e.cancelable) e.preventDefault();
-    setFlag(false);
-  };
-
-  el.addEventListener('pointerdown', press);
-  el.addEventListener('pointerup', release);
-  el.addEventListener('pointercancel', release);
-  el.addEventListener('pointerleave', release);
-}
-
-bindDirBtn('btnUp', d => moveUp = d);
-bindDirBtn('btnDown', d => moveDown = d);
-bindDirBtn('btnLeft', d => moveLeft = d);
-bindDirBtn('btnRight', d => moveRight = d);
-
-const keys = {};
-window.addEventListener('keydown', e => {
-  keys[e.code] = true;
-  getAC();
-
-  if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(gameState)) {
-    if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
-  } else if (gameState === 'CHAR_SELECT') {
-    if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
-      selectedCharIndex = (selectedCharIndex - 1 + CHARACTER_LIST.length) % CHARACTER_LIST.length;
-      playSound('cross');
-    }
-    if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-      selectedCharIndex = (selectedCharIndex + 1) % CHARACTER_LIST.length;
-      playSound('cross');
-    }
-    if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
-  } else if (gameState === 'gameover' && (e.code === 'Space' || e.code === 'Enter')) {
-    gameState = 'CHAR_SELECT';
-  } else if ((e.code === 'KeyP' || e.code === 'Escape') && (gameState === 'playing' || gameState === 'PAUSE')) {
-    gameState = gameState === 'playing' ? 'PAUSE' : 'playing';
-    updateMusicState();
-  }
-});
-
-window.addEventListener('keyup', e => {
-  keys[e.code] = false;
-});
-
-function keyPressed(code) {
-  return !!keys[code];
-}
-
-function saveScore() {
-  try {
-    if (score > highScore) {
-      highScore = score;
-      localStorage.setItem('deadlineDrive_highScore', highScore.toString());
+    if (!pad.active) {
+        triggerShake(3, 2);
+        return;
     }
 
-    if (score <= 0) return;
-    let rawUser = localStorage.getItem('arcade_current_user');
-    if (!rawUser) return;
-
-    let curUser = JSON.parse(rawUser);
-    if (curUser && curUser.stats) {
-      curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
-      curUser.stats.deadlineDrive = (curUser.stats.deadlineDrive || 0) + score;
-      localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
-
-      if (curUser.username && !curUser.username.startsWith("GUEST_")) {
-        let rawUsers = localStorage.getItem('arcade_users');
-        let users = rawUsers ? JSON.parse(rawUsers) : {};
-        if (users[curUser.username]) {
-          users[curUser.username].stats = curUser.stats;
-          localStorage.setItem('arcade_users', JSON.stringify(users));
+    if (pad.type === 'FERIE') {
+        pad.active = false;
+        ferieActive = true;
+        ferieTimer = currentTheme.ferieSec;
+        stress = Math.max(0, stress - 20);
+        playSound('golden');
+        triggerShake(12, 6);
+        
+        gridPads.forEach(p => p.active = false);
+        addParticles(cx, cy, '#00e5ff', 22);
+        addFloatText(cx, cy, `🌴 VACATION! (${currentTheme.ferieSec}s)`, "#00e5ff");
+        addImpactBurst(cx, cy, "RELAX!", "#00e5ff");
+    }
+    else if (pad.type === 'TRAP') {
+        pad.active = false;
+        combo = 0;
+        let pen = (currentTheme.id === 'CRISTINA') ? 0 : 50;
+        score = Math.max(0, score - pen);
+        if (currentTheme.id !== 'CRISTINA') stress = Math.min(100, stress + 8);
+        playSound('fail');
+        triggerShake(10, 6);
+        addParticles(cx, cy, '#00ff44', 12);
+        addFloatText(cx, cy, (pen === 0 ? "NO PENALTY!" : "-50 PTS"), "#00ff44");
+        addImpactBurst(cx, cy, "TRAP!", "#00ff44");
+    } 
+    else if (pad.type === 'GLITCH') {
+        pad.active = false;
+        combo = 0;
+        score = Math.max(0, score - 100);
+        stress = Math.min(100, stress + 12);
+        playSound('fail');
+        triggerShake(14, 8);
+        addParticles(cx, cy, '#ff0055', 16);
+        addFloatText(cx, cy, "GLITCH! +12% STRESS", "#ff0055");
+        addImpactBurst(cx, cy, "ERROR!", "#ff0055");
+    }
+    else if (pad.type === 'COFFEE') {
+        pad.active = false;
+        combo++;
+        let pts = (currentTheme.id === 'CRISTINA') ? 600 : 300;
+        score += pts;
+        stress = Math.max(0, stress - (currentTheme.id === 'CRISTINA' ? 12 : 8));
+        playSound('coffee');
+        triggerShake(6, 4);
+        addParticles(cx, cy, '#ffcc00', 14);
+        addFloatText(cx, cy, `+${pts} CAFFÈ!`, "#ffcc00");
+        addImpactBurst(cx, cy, "BOOST!", "#ffcc00");
+    } 
+    else if (pad.type === 'GOLDEN') {
+        pad.active = false;
+        combo++;
+        score += 500;
+        stress = Math.max(0, stress - 15);
+        playSound('golden');
+        triggerShake(12, 7);
+        addParticles(cx, cy, '#ffcc00', 20);
+        addFloatText(cx, cy, "+500 PTS VIP!", "#ffcc00");
+        addImpactBurst(cx, cy, "VIP K.O.!", "#ffcc00");
+    }
+    else if (pad.type === 'DOUBLE') {
+        pad.hp--;
+        playSound('hit_double');
+        triggerShake(6, 4);
+        if (pad.hp <= 0) {
+            pad.active = false;
+            combo++;
+            let pts = 250;
+            score += pts;
+            stress = Math.max(0, stress - 4);
+            addParticles(cx, cy, '#aa00ff', 16);
+            addFloatText(cx, cy, `+${pts} RISOLTA!`, "#aa00ff");
+            addImpactBurst(cx, cy, "SMASH!", "#aa00ff");
+        } else {
+            addParticles(cx, cy, '#ff8800', 8);
+            addFloatText(cx, cy, "1 ANCORA!", "#ff8800");
+            addImpactBurst(cx, cy, "HIT!", "#ff8800");
         }
-      }
     }
-  } catch (e) {}
+    else { // BAD
+        pad.active = false;
+        combo++;
+        let comboBonus = (currentTheme.id === 'RACHELE') ? (combo * 25) : (combo > 3 ? 50 : 0);
+        let pts = 100 + comboBonus;
+        score += pts;
+        stress = Math.max(0, stress - 2);
+        playSound('hit');
+        triggerShake(7, 5);
+        addParticles(cx, cy, currentTheme.primary, 14);
+        addFloatText(cx, cy, `+${pts}`, "#ffcc00");
+        addImpactBurst(cx, cy, combo > 3 ? "CRITICAL!" : "PUNCH!", currentTheme.primary);
+    }
 }
 
-function exitGame() {
-  saveScore();
-  bgMusic.pause();
-  window.location.href = 'index.html';
+function addParticles(x, y, color, count = 12) {
+    for (let i = 0; i < count; i++) {
+        let angle = Math.random() * Math.PI * 2;
+        let spd = 2 + Math.random() * 6;
+        particles.push({
+            x, y,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            life: 18 + Math.random() * 10,
+            maxLife: 28,
+            color,
+            size: 3 + Math.random() * 3
+        });
+    }
+}
+
+function addFloatText(x, y, text, color) {
+    floatingTexts.push({ x, y, text, color, alpha: 1, vy: -2.0 });
+}
+
+function addImpactBurst(x, y, label, color) {
+    impactBursts.push({
+        x, y,
+        label,
+        color,
+        radius: 8,
+        maxRadius: 40,
+        alpha: 1
+    });
 }
 
 function update() {
-  frame++;
-  if (gameState === 'playing') {
-    updateVehicles();
-    updatePlayer();
-  }
+    if (shakeTime > 0) shakeTime--;
+
+    particles.forEach(p => { 
+        p.x += p.vx; 
+        p.y += p.vy; 
+        p.life--; 
+    });
+    particles = particles.filter(p => p.life > 0);
+
+    floatingTexts.forEach(ft => { ft.y += ft.vy; ft.alpha -= 0.028; });
+    floatingTexts = floatingTexts.filter(ft => ft.alpha > 0);
+
+    impactBursts.forEach(ib => {
+        ib.radius += 3.8;
+        ib.alpha -= 0.045;
+    });
+    impactBursts = impactBursts.filter(ib => ib.alpha > 0);
+
+    gridPads.forEach(p => { if (p.pressAnim > 0) p.pressAnim--; });
+
+    if (state !== 'PLAYING') return;
+
+    let spawnDelay = Math.max(400, 1150 - Math.floor(elapsedMatchTime * 12));
+    if (Date.now() - lastSpawnTime > spawnDelay) {
+        spawnTicket();
+        lastSpawnTime = Date.now();
+    }
+
+    gridPads.forEach(p => {
+        if (p.active) {
+            p.timer--;
+            if (p.timer <= 0) {
+                p.active = false;
+                if (p.type === 'BAD' || p.type === 'DOUBLE') {
+                    combo = 0;
+                    stress = Math.min(100, stress + 7);
+                    triggerShake(8, 4);
+                }
+            }
+        }
+    });
 }
 
 function draw() {
-  ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-  if (gameState === 'playing') {
-    drawGameWorld();
-    drawHUD();
-  } else {
-    drawScreens();
-  }
+    ctx.save();
+    if (shakeTime > 0) {
+        let sx = (Math.random() - 0.5) * shakeMag;
+        let sy = (Math.random() - 0.5) * shakeMag;
+        ctx.translate(sx, sy);
+    }
+
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+    ctx.fillStyle = currentTheme.bg;
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.lineWidth = 1;
+    for (let gx = 0; gx < cvs.width; gx += 16) {
+        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, cvs.height); ctx.stroke();
+    }
+    for (let gy = 0; gy < cvs.height; gy += 16) {
+        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cvs.width, gy); ctx.stroke();
+    }
+
+    const W = cvs.width, H = cvs.height;
+
+    // --- PAGINA 1: COPERTINA ---
+    if (state === 'COVER') {
+        if (ASSETS.COVER && ASSETS.COVER.complete && ASSETS.COVER.naturalWidth !== 0) {
+            ctx.drawImage(ASSETS.COVER, 0, 0, W, H);
+        } else {
+            ctx.fillStyle = '#080810'; ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('PIXEL PUNCH', W / 2, 190);
+            ctx.fillStyle = '#ff0055'; ctx.font = '900 16px Courier New';
+            ctx.fillText('REVISION KILLER \'84', W / 2, 225);
+        }
+
+        draw80sBox(ctx, 35, H - 70, W - 70, 42, '#ffcc00', '#101020', 3);
+        if (Math.floor(frame / 35) % 2 === 0) {
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('★ PRESS START TO PLAY ★', W / 2, H - 44);
+        }
+        ctx.restore();
+        return;
+    }
+
+    // --- PAGINA 2: STORIA AVVINCENTE DELLE PRODUCER ---
+    if (state === 'STORY') {
+        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
+        
+        draw80sBox(ctx, 12, 15, W - 24, H - 30, '#00e5ff', '#0c0c1a', 3);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('★ MISSION BRIEFING ★', W / 2, 45);
+
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('IRIS, CRISTINA & RACHELE:', W / 2, 80);
+        ctx.fillText('LE INARRESTABILI PRODUCER', W / 2, 100);
+        
+        draw80sBox(ctx, 22, 120, W - 44, 150, '#00e5ff', '#0a1224', 2);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('Studio grafico sotto attacco!', W / 2, 142);
+        ctx.fillText('Clienti inviano mail continue:', W / 2, 164);
+        ctx.fillText('"Logo più grande!", "Consegna ieri!"', W / 2, 186);
+        ctx.fillText('"Fallo verde!", "Lavoro ASAP!"', W / 2, 208);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 12px Courier New';
+        ctx.fillText('Lo stress sta per raggiungere', W / 2, 234);
+        ctx.fillText('il 100% di BURNOUT FATALE!', W / 2, 252);
+
+        draw80sBox(ctx, 22, 285, W - 44, 120, '#ff0055', '#1a0814', 2);
+        ctx.fillStyle = '#00e5ff'; ctx.font = '900 14px Courier New';
+        ctx.fillText('IL TUO COMPITO:', W / 2, 308);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('Distruggi tutti i ticket pendenti,', W / 2, 332);
+        ctx.fillText('schiva le trappole dei clienti', W / 2, 352);
+        ctx.fillText('e salva la consegna prima del crash!', W / 2, 372);
+
+        draw80sBox(ctx, 35, H - 70, W - 70, 42, '#ffcc00', '#101020', 3);
+        if (Math.floor(frame / 35) % 2 === 0) {
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, H - 44);
+        }
+        ctx.restore();
+        return;
+    }
+
+    // --- PAGINA 3: REGOLE E TUTORIAL MOLTO CHIARO ---
+    if (state === 'RULES') {
+        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
+
+        draw80sBox(ctx, 12, 15, W - 24, H - 30, '#ffcc00', '#0c0c1a', 3);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('★ HOW TO PLAY ★', W / 2, 45);
+
+        // 1. OBIETTIVO
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('1. EVITA IL BURNOUT! 💀', W / 2, 78);
+        draw80sBox(ctx, 22, 85, W - 44, 75, '#ff0055', '#160a18', 2);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('• Colpisci i ticket prima che scadano.', W / 2, 107);
+        ctx.fillText('• Ogni errore o ritardo alza lo STRESS.', W / 2, 127);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 12px Courier New';
+        ctx.fillText('• Al 100% di Stress il server va in CRASH!', W / 2, 147);
+
+        // 2. TICKET BUONI
+        ctx.fillStyle = '#00e5ff'; ctx.font = '900 15px Courier New';
+        ctx.fillText('2. TIPOLOGIE DI TICKET 🕹️', W / 2, 182);
+        draw80sBox(ctx, 22, 192, W - 44, 110, '#00e5ff', '#0a1628', 2);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New';
+        ctx.fillText('• 🔴 ROSSI (1 Tap): +100 PTS (es. "ASAP")', W / 2, 214);
+        ctx.fillText('• 🟣 VIOLA (2 Tap): +250 PTS (es. "DOPPIA")', W / 2, 234);
+        ctx.fillText('• ☕ CAFFÈ / 🌟 VIP: +300/500 PTS e -STRESS', W / 2, 254);
+        ctx.fillText('• 🌴 FERIE: Pausa totale e -20% STRESS', W / 2, 274);
+
+        // 3. TRAPPOLE
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
+        ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 322);
+        draw80sBox(ctx, 22, 332, W - 44, 75, '#ff0055', '#1a0810', 2);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New';
+        ctx.fillText('• 🟢 VERDE (APPROVATO) & 🖤 NERO (CORROTTO)', W / 2, 354);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 11px Courier New';
+        ctx.fillText('NON TOCARLI: Aumentano lo Stress del 12%!', W / 2, 374);
+
+        // Prompt
+        draw80sBox(ctx, 35, H - 70, W - 70, 42, '#ffcc00', '#101020', 3);
+        if (Math.floor(frame / 35) % 2 === 0) {
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, H - 44);
+        }
+        ctx.restore();
+        return;
+    }
+
+    // --- PAGINA 4: SELEZIONE PERSONAGGIO ---
+    if (state === 'CHAR_SELECT') {
+        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
+
+        let key = charList[charSelectIndex];
+        let c = CHARACTERS[key];
+
+        draw80sBox(ctx, 12, 15, W - 24, H - 30, c.primary, '#0c0c1a', 4);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('★ SELECT PLAYER ★', W / 2, 45);
+
+        // FOTO PRODUCER CON COVER SENZA DISTORSIONE
+        let frameX = W / 2 - 70;
+        let frameY = 62;
+        let frameW = 140;
+        let frameH = 140;
+
+        draw80sBox(ctx, frameX, frameY, frameW, frameH, c.primary, '#101020', 3);
+
+        if (c.img && c.img.complete && c.img.naturalWidth > 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(frameX + 3, frameY + 3, frameW - 6, frameH - 6);
+            ctx.clip();
+            drawImageCover(ctx, c.img, frameX + 3, frameY + 3, frameW - 6, frameH - 6);
+            ctx.restore();
+        }
+
+        ctx.fillStyle = c.primary; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(c.name, W / 2, 232);
+
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New';
+        ctx.fillText(c.subtitle, W / 2, 255);
+
+        draw80sBox(ctx, 22, 280, W - 44, 120, '#333355', '#141428', 2);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 16px Courier New';
+        ctx.fillText(c.perkBonusTitle, W / 2, 310);
+        
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
+        ctx.fillText(c.perkBonusDesc, W / 2, 335);
+
+        ctx.fillStyle = '#00e5ff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText(`Ferie Speciali: ${c.ferieSec}s Relax`, W / 2, 365);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText(`Moltiplicatore Punti: x${c.scoreMult || 1.0}`, W / 2, 385);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 36px Courier New';
+        ctx.fillText('◄', 32, 132);
+        ctx.fillText('►', W - 32, 132);
+
+        draw80sBox(ctx, 35, H - 70, W - 70, 42, c.primary, '#101020', 3);
+        if (Math.floor(frame / 35) % 2 === 0) {
+            ctx.fillStyle = c.primary; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('INIZIA PARTITA ►', W / 2, H - 44);
+        }
+        ctx.restore();
+        return;
+    }
+
+    // --- GRIGLIA GIOCO 3x3 (PHYSICAL 80S ARCADE BUTTONS) ---
+    gridPads.forEach(p => {
+        let padX = p.x;
+        let padY = p.y + (p.pressAnim > 0 ? 4 : 0);
+
+        draw80sBox(ctx, padX, padY, p.w, p.h, p.active ? '#ffffff' : '#28283c', currentTheme.padBg, 3);
+
+        ctx.fillStyle = '#7777aa';
+        ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'left';
+        ctx.fillText(p.keyLabel, padX + 8, padY + 16);
+
+        if (p.active) {
+            let bgCol = '#ff0055';
+            let txtCol = '#ffffff';
+
+            if (p.type === 'FERIE') { bgCol = '#00e5ff'; txtCol = '#000000'; }
+            else if (p.type === 'TRAP') { bgCol = '#00ff44'; txtCol = '#000000'; }
+            else if (p.type === 'GLITCH') { bgCol = '#200008'; txtCol = '#ff0055'; }
+            else if (p.type === 'COFFEE') { bgCol = '#ffcc00'; txtCol = '#000000'; }
+            else if (p.type === 'GOLDEN') { bgCol = '#ffaa00'; txtCol = '#000000'; }
+            else if (p.type === 'DOUBLE') { bgCol = '#aa00ff'; txtCol = '#ffffff'; }
+
+            draw80sBox(ctx, padX + 5, padY + 22, p.w - 10, p.h - 28, '#ffffff', bgCol, 2);
+
+            let timerPct = p.timer / p.maxTimer;
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(padX + 5, padY + p.h - 10, (p.w - 10) * (1 - timerPct), 4);
+
+            ctx.fillStyle = txtCol;
+            ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText(p.line1, padX + p.w / 2, padY + 68);
+            ctx.fillText(p.line2, padX + p.w / 2, padY + 86);
+        }
+    });
+
+    particles.forEach(p => { 
+        ctx.fillStyle = p.color; 
+        ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size); 
+    });
+
+    impactBursts.forEach(ib => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ib.alpha);
+        ctx.strokeStyle = ib.color;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(ib.x - ib.radius, ib.y - ib.radius, ib.radius * 2, ib.radius * 2);
+
+        ctx.fillStyle = ib.color;
+        ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(ib.label, ib.x, ib.y - ib.radius - 4);
+        ctx.restore();
+    });
+
+    floatingTexts.forEach(ft => {
+        ctx.save(); ctx.globalAlpha = Math.max(0, ft.alpha); ctx.fillStyle = ft.color;
+        ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
+    });
+
+    if (ferieActive) {
+        draw80sBox(ctx, 30, 230, 320, 65, '#ffffff', '#00e5ff', 3);
+        ctx.fillStyle = '#000000'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('🌴 VACATION RELAX! 🌴', cvs.width / 2, 258);
+        ctx.font = 'bold 12px Courier New';
+        ctx.fillText(`PAUSA REVISIONI (${ferieTimer}s)`, cvs.width / 2, 280);
+    }
+
+    draw80sBox(ctx, 0, 0, cvs.width, 74, currentTheme.primary, '#080816', 3);
+
+    ctx.fillStyle = currentTheme.primary; ctx.font = '900 13px Courier New'; ctx.textAlign = 'left';
+    ctx.fillText(`1P: ${currentTheme.name}`, 10, 18);
+    ctx.fillStyle = '#ffcc00'; ctx.font = '900 13px Courier New';
+    ctx.fillText(`SCORE: ${score}`, 10, 34);
+    ctx.fillStyle = '#00e5ff'; ctx.font = 'bold 10px Courier New';
+    ctx.fillText(`HIGH: ${highScore}`, 10, 48);
+
+    if (combo > 1) {
+        ctx.fillStyle = '#00e5ff'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'right';
+        ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 18);
+    }
+
+    let stressWidth = 360;
+    let stressX = 10;
+    let stressY = 52;
+    ctx.fillStyle = '#04040a';
+    ctx.fillRect(stressX, stressY, stressWidth, 16);
+    
+    let currentStressPct = Math.min(100, Math.max(0, stress)) / 100;
+    
+    let totalSegments = 20;
+    let filledSegments = Math.floor(totalSegments * currentStressPct);
+    let segWidth = (stressWidth - 4) / totalSegments;
+
+    for (let s = 0; s < totalSegments; s++) {
+        if (s < filledSegments) {
+            ctx.fillStyle = s > 15 ? '#ff0055' : (s > 8 ? '#ffcc00' : '#00ff44');
+            if (currentStressPct >= 0.75 && Math.floor(frame / 12) % 2 === 0) ctx.fillStyle = '#ffffff';
+            ctx.fillRect(stressX + 2 + (s * segWidth), stressY + 2, segWidth - 2, 12);
+        } else {
+            ctx.fillStyle = '#141424';
+            ctx.fillRect(stressX + 2 + (s * segWidth), stressY + 2, segWidth - 2, 12);
+        }
+    }
+    
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+    ctx.strokeRect(stressX, stressY, stressWidth, 16);
+
+    ctx.fillStyle = '#ffffff'; ctx.font = '900 10px Courier New'; ctx.textAlign = 'center';
+    let stressStatusLabel = currentStressPct >= 0.75 ? '⚠️ WARNING: OVERHEAT!' : `STRESS GAUGE: ${Math.floor(stress)}%`;
+    ctx.fillText(stressStatusLabel, cvs.width / 2, stressY + 12);
+
+    if (state === 'PAUSE') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+        draw80sBox(ctx, 40, cvs.height / 2 - 40, cvs.width - 80, 80, '#ffcc00', '#0c0c18', 3);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('PAUSE', cvs.width / 2, cvs.height / 2 - 10);
+        ctx.fillStyle = '#00e5ff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('TOCCA PER RIPRENDERE', cvs.width / 2, cvs.height / 2 + 15);
+    }
+
+    if (state === 'GAMEOVER') {
+        ctx.fillStyle = 'rgba(4, 4, 12, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+        
+        draw80sBox(ctx, 20, cvs.height / 2 - 110, cvs.width - 40, 220, '#ff0055', '#0c0c18', 4);
+
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', cvs.width / 2, cvs.height / 2 - 70);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 18px Courier New';
+        ctx.fillText(`SCORE: ${score}`, cvs.width / 2, cvs.height / 2 - 25);
+
+        if (isNewRecord) {
+            ctx.fillStyle = '#00ff44'; ctx.font = '900 16px Courier New';
+            ctx.fillText('★ NEW HIGH SCORE! ★', cvs.width / 2, cvs.height / 2 + 10);
+        } else {
+            ctx.fillStyle = '#8888aa'; ctx.font = 'bold 13px Courier New';
+            ctx.fillText(`BEST RECORD: ${highScore}`, cvs.width / 2, cvs.height / 2 + 10);
+        }
+
+        if (Math.floor(frame / 30) % 2 === 0) {
+            ctx.fillStyle = '#ffffff'; ctx.font = '900 15px Courier New';
+            ctx.fillText('PRESS TO CONTINUE', cvs.width / 2, cvs.height / 2 + 65);
+        }
+    }
+
+    ctx.restore();
 }
 
-function gameLoop() {
-  update();
-  draw();
-  requestAnimationFrame(gameLoop);
+function advanceMenuState() {
+    getAC();
+    if (state === 'COVER') {
+        state = 'STORY';
+    } else if (state === 'STORY') {
+        state = 'RULES';
+    } else if (state === 'RULES') {
+        state = 'CHAR_SELECT';
+    } else if (state === 'CHAR_SELECT') {
+        selectCharacter(charList[charSelectIndex || 0]);
+    } else if (state === 'GAMEOVER') {
+        state = 'CHAR_SELECT';
+    }
 }
 
-requestAnimationFrame(gameLoop);
+cvs.addEventListener('pointerdown', (e) => {
+    getAC();
+    let rect = cvs.getBoundingClientRect();
+    let x = (e.clientX - rect.left) * (cvs.width / rect.width);
+    let y = (e.clientY - rect.top) * (cvs.height / rect.height);
+
+    if (['COVER', 'STORY', 'RULES'].includes(state)) {
+        advanceMenuState();
+        return;
+    }
+
+    if (state === 'CHAR_SELECT') {
+        if (x < 60) {
+            charSelectIndex = (charSelectIndex - 1 + 3) % 3;
+            return;
+        }
+        if (x > cvs.width - 60) {
+            charSelectIndex = (charSelectIndex + 1) % 3;
+            return;
+        }
+        advanceMenuState();
+        return;
+    }
+
+    if (state === 'PLAYING') {
+        let hitAny = false;
+        gridPads.forEach(p => {
+            if (x >= p.x && x <= p.x + p.w && y >= p.y && y <= p.y + p.h) {
+                hitPad(p);
+                hitAny = true;
+            }
+        });
+        if (!hitAny && y < 74) {
+            state = 'PAUSE';
+            updateMusicState();
+        }
+        return;
+    }
+
+    if (state === 'PAUSE') {
+        state = 'PLAYING';
+        updateMusicState();
+        return;
+    }
+
+    if (state === 'GAMEOVER') {
+        state = 'CHAR_SELECT';
+        return;
+    }
+});
+
+const KEY_MAP = {
+    '1': 0, 'q': 0, 'Q': 0, 'Numpad7': 0,
+    '2': 1, 'w': 1, 'W': 1, 'Numpad8': 1,
+    '3': 2, 'e': 2, 'E': 2, 'Numpad9': 2,
+
+    '4': 3, 'a': 3, 'A': 3, 'Numpad4': 3,
+    '5': 4, 's': 4, 'S': 4, 'Numpad5': 4,
+    '6': 5, 'd': 5, 'D': 5, 'Numpad6': 5,
+
+    '7': 6, 'z': 6, 'Z': 6, 'Numpad1': 6,
+    '8': 7, 'x': 7, 'X': 7, 'Numpad2': 7,
+    '9': 8, 'c': 8, 'C': 8, 'Numpad3': 8
+};
+
+window.addEventListener('keydown', (e) => {
+    getAC();
+    if (['COVER', 'STORY', 'RULES'].includes(state)) {
+        if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
+        return;
+    }
+
+    if (state === 'CHAR_SELECT') {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') charSelectIndex = (charSelectIndex - 1 + 3) % 3;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') charSelectIndex = (charSelectIndex + 1) % 3;
+        if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
+        return;
+    }
+
+    if (state === 'GAMEOVER') {
+        if (e.code === 'Space' || e.code === 'Enter') state = 'CHAR_SELECT';
+        return;
+    }
+
+    let padIndex = KEY_MAP[e.key] !== undefined ? KEY_MAP[e.key] : KEY_MAP[e.code];
+    if (padIndex !== undefined && gridPads[padIndex] && state === 'PLAYING') {
+        hitPad(gridPads[padIndex]);
+    }
+});
+
+function saveScore() {
+    try {
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('pixelPunch_highScore', highScore.toString());
+            isNewRecord = true;
+        } else {
+            isNewRecord = false;
+        }
+
+        if (score <= 0) return;
+        let rawUser = localStorage.getItem('arcade_current_user');
+        if (!rawUser) return;
+        let u = JSON.parse(rawUser);
+        if (u && u.stats) {
+            u.stats.pixelPunch = (u.stats.pixelPunch || 0) + score;
+            u.stats.gamesPlayed = (u.stats.gamesPlayed || 0) + 1;
+            localStorage.setItem('arcade_current_user', JSON.stringify(u));
+
+            if (u.username && !u.username.startsWith("GUEST_")) {
+                let rawUsers = localStorage.getItem('arcade_users');
+                let users = rawUsers ? JSON.parse(rawUsers) : {};
+                if (users[u.username]) {
+                    users[u.username].stats = u.stats;
+                    localStorage.setItem('arcade_users', JSON.stringify(users));
+                }
+            }
+        }
+    } catch(e) {}
+}
+
+function exitGame() {
+    if (gameTimerInterval) clearInterval(gameTimerInterval);
+    saveScore();
+    bgMusic.pause();
+    window.location.href = 'index.html';
+}
+
+function loop() {
+    frame++;
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+loop();
 </script>
-
 </body>
 </html>
