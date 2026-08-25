@@ -139,7 +139,7 @@ canvas {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  aspect-ratio: 468 / 666;
+  aspect-ratio: 468 / 672;
   border: 2px solid #00f3ff !important;
   box-shadow: 0 0 20px rgba(0, 243, 255, 0.35) !important;
   background: #101014;
@@ -343,9 +343,9 @@ canvas {
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-const COLS = 13, ROWS = 17, CELL_SIZE = 36, HUD_HEIGHT = 54, TRACK_HEADER_W = 50;
+const COLS = 13, ROWS = 17, CELL_SIZE = 36, HUD_HEIGHT = 60, TRACK_HEADER_W = 50;
 const CANVAS_W = COLS * CELL_SIZE; // 468px
-const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; // 666px
+const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; // 672px
 
 canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
@@ -643,27 +643,31 @@ function triggerTimelineEvent(evt) {
   playSound('event_start');
 }
 
+/* CURVA DI DIFFICOLTÀ GRADUATA E AMICHEVOLE ALL'INIZIO */
 function createNewLane(isInitialSetup = false, r = 0) {
   let isSafe = false;
 
   if (isInitialSetup) {
-    isSafe = (r === 0 || r === ROWS - 1 || r === ROWS - 2 || r % 4 === 0);
+    // Al livello 1 ci sono molte corsie SAFE (1 ogni 3)
+    isSafe = (r === 0 || r === ROWS - 1 || r === ROWS - 2 || r % 3 === 0);
   } else {
     let prevSafeCount = 0;
-    for (let i = 0; i < Math.min(3, activeLanes.length); i++) {
+    for (let i = 0; i < Math.min(2, activeLanes.length); i++) {
       if (activeLanes[i] && activeLanes[i].type === 'SAFE') prevSafeCount++;
     }
-    isSafe = prevSafeCount === 0 && (Math.random() < 0.35 || activeEvent === EVENT_TYPES.AUTOSAVE_WAVE);
+    let safeProb = Math.max(0.20, 0.50 - (level - 1) * 0.05); // 50% di safe al livello 1!
+    isSafe = (prevSafeCount === 0 && Math.random() < safeProb) || activeEvent === EVENT_TYPES.AUTOSAVE_WAVE;
   }
 
   let laneType = isSafe ? 'SAFE' : 'ROAD';
   let dir = Math.random() < 0.5 ? 1 : -1;
   
-  let speedFactor = 0.85 + Math.min(level * 0.15, 1.2);
+  // Velocità iniziale molto bassa (0.35 + incremento graduato per livello)
+  let speedFactor = 0.35 + Math.min((level - 1) * 0.12, 1.25);
   if (activeEvent === EVENT_TYPES.CLIENT_REVIEW) speedFactor *= 0.5;
-  if (activeEvent === EVENT_TYPES.GPU_STORM) speedFactor *= 1.4;
+  if (activeEvent === EVENT_TYPES.GPU_STORM) speedFactor *= 1.3;
 
-  let baseSpeed = (0.90 + Math.random() * 0.60) * speedFactor;
+  let baseSpeed = (0.50 + Math.random() * 0.35) * speedFactor;
   let vTypes = Object.values(PREMIERE_CLIPS);
   let trackLabel = r % 5 === 0 ? "V3" : r % 5 === 1 ? "V2" : r % 5 === 2 ? "V1" : r % 5 === 3 ? "A1" : "A2";
 
@@ -679,16 +683,18 @@ function createNewLane(isInitialSetup = false, r = 0) {
 
   if (laneType === 'ROAD') {
     let x = TRACK_HEADER_W - CELL_SIZE * 3;
-    let minGap = CELL_SIZE * 3.8; 
+    // Ampi varchi tra le clip nei primi livelli, che si restringono salendo di livello
+    let minGap = CELL_SIZE * Math.max(3.2, 5.5 - (level - 1) * 0.4); 
 
     do {
-      x += CELL_SIZE * (Math.random() * 2.2) + minGap;
+      x += CELL_SIZE * (Math.random() * 2.0) + minGap;
       if (x < CANVAS_W + CELL_SIZE * 3) {
         let vType = vTypes[Math.floor(Math.random() * vTypes.length)];
+        let widthFactor = Math.max(1.5, vType.wMult - Math.max(0, 1.0 - (level - 1) * 0.2));
         laneObj.objects.push({
           x,
           type: vType,
-          w: vType.wMult * CELL_SIZE
+          w: widthFactor * CELL_SIZE
         });
       }
     } while (x < CANVAS_W + CELL_SIZE * 3);
@@ -773,7 +779,7 @@ function updatePlayer() {
 
         playSound('cross');
         let effSpeed = currentTheme.speed * player.speedMult;
-        player.nextMoveAllowedTimer = Math.max(4, Math.floor(13 / effSpeed));
+        player.nextMoveAllowedTimer = Math.max(3, Math.floor(11 / effSpeed));
       }
     }
   }
@@ -900,7 +906,7 @@ function hitPlayer() {
     }
     player.gx = Math.floor(COLS / 2);
     player.gy = respawnGy;
-    player.invTimer = 100;
+    player.invTimer = 120; // 2 secondi di invulnerabilità di grazia al respawn!
     player.glitchTimer = 0;
     player.speedMult = 1;
     player.tempScoreMult = 1;
@@ -1066,7 +1072,7 @@ function drawSinglePlayer() {
   ctx.restore();
 }
 
-/* HUD REVISIONATO: VITE E TESTO PERFETTAMENTE CENTRATI E MAI TAGLIATI */
+/* HUD AMPIATO: VITE E TESTO LUMINOSI, MAI TAGLIATI */
 function drawHUD() {
   ctx.fillStyle = '#121218';
   ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
@@ -1074,29 +1080,29 @@ function drawHUD() {
   ctx.lineWidth = 1.5;
   ctx.strokeRect(0, 0, CANVAS_W, HUD_HEIGHT);
 
-  ctx.textBaseline = 'middle'; // Garantisce un allineamento verticale perfetto!
+  ctx.textBaseline = 'middle';
 
-  // Lato Sinistro: Nome e Punteggio
+  // Lato Sinistro
   ctx.fillStyle = '#00f3ff';
-  ctx.font = 'bold 13px monospace';
+  ctx.font = 'bold 14px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(`${currentTheme.name}`, 12, 18);
+  ctx.fillText(`${currentTheme.name}`, 14, 20);
 
   ctx.fillStyle = '#ffea00';
-  ctx.font = 'bold 13px monospace';
-  ctx.fillText(`PTS: ${score}`, 12, 38);
+  ctx.font = 'bold 14px monospace';
+  ctx.fillText(`PTS: ${score}`, 14, 42);
 
-  // Lato Destro: Record e Vite
+  // Lato Destro
   ctx.textAlign = 'right';
 
   ctx.fillStyle = '#00ffcc';
-  ctx.font = 'bold 12px monospace';
-  ctx.fillText(`REC: ${highScore}`, CANVAS_W - 12, 18);
+  ctx.font = 'bold 13px monospace';
+  ctx.fillText(`REC: ${highScore}`, CANVAS_W - 16, 20);
 
   ctx.fillStyle = '#ff0055';
-  ctx.font = 'bold 12px sans-serif'; // Sans-serif garantisce il rendering perfetto degli emoji
+  ctx.font = 'bold 14px sans-serif';
   let heartsStr = '❤️'.repeat(Math.max(0, lives));
-  ctx.fillText(`VITE: ${heartsStr}`, CANVAS_W - 12, 38);
+  ctx.fillText(`VITE: ${heartsStr}`, CANVAS_W - 16, 42);
 }
 
 function drawMenuBackground() {
