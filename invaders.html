@@ -465,7 +465,7 @@ const astTommi = new Image(); astTommi.src = 'assets/invaders/tommi-ast.png';
 const astGiampa = new Image(); astGiampa.src = 'assets/invaders/giampa-ast.png';
 const astBretto = new Image(); astBretto.src = 'assets/invaders/bretto-ast.png';
 
-// --- RI-BILANCIAMENTO CAPI D'AGENZIA ---
+// --- PERSONAGGI E PERK ---
 const CHARACTERS = {
   TOMMI: {
     id: 'TOMMI',
@@ -649,7 +649,13 @@ function sfxPlayerHit() {
   triggerShake(16, 10);
 }
 
+// --- FIX ANTI-RIMBALZO (DEBOUNCER) TRANSIZIONI MENU PER EVITARE SALTI PAGINA ---
+let lastMenuAdvanceTime = 0;
 function advanceMenuState() {
+  const now = Date.now();
+  if (now - lastMenuAdvanceTime < 250) return; // Blocco doppi click entro 250ms
+  lastMenuAdvanceTime = now;
+
   getAC();
   if (state === 'COVER') {
     state = 'STORY';
@@ -1170,7 +1176,7 @@ class Boss {
     let x = this.x, y = this.y;
     ctx.save();
     
-    // BARRA DELLA VITA FISSA IN ALTO
+    // BARRA DELLA VITA E NOME FISSI IN ALTO
     ctx.fillStyle = 'rgba(10, 6, 26, 0.9)';
     ctx.fillRect(W / 2 - 140, 8, 280, 40);
     ctx.strokeStyle = '#ffffff';
@@ -1190,7 +1196,7 @@ class Boss {
     ctx.lineWidth = 1;
     ctx.strokeRect(W / 2 - 120, 28, 240, 12);
 
-    // SPRITE DEL BOSS
+    // SPRITE DEL BOSS (PROPORZIONE 1:1 SQUARE)
     const bossImg = ASSETS[`BOSS_${this.bossIndex}`];
     if (bossImg && bossImg.complete && bossImg.naturalWidth !== 0) {
       ctx.drawImage(bossImg, x - this.w / 2, y - this.h / 2, this.w, this.h);
@@ -1231,6 +1237,7 @@ function getBossNameByWave(w) {
   return "SERVER CRASH 500";
 }
 
+// --- FIX DIVERSITÀ ONDATE: 5 FORMAZIONI TATTICHE DIVERSE ---
 function buildWave(w) {
   let newTier = w <= 10 ? 1 : w <= 20 ? 2 : 3;
   if (w === 1 || newTier !== currentTier) {
@@ -1248,16 +1255,63 @@ function buildWave(w) {
 
   activeBoss = null;
   const queue = [];
-  const rows = 2 + Math.min(w, 4);
-  for (let row = 0; row < rows; row++) {
-    const cols = 4 + (row % 2);
-    for (let col = 0; col < cols; col++) {
-      let type = 'grunt';
-      if (w >= 2 && row === 0) type = 'shooter';
-      if (w >= 3 && row === 0 && col === Math.floor(cols / 2)) type = 'tank';
-      queue.push({ x: 60 + col * (W - 120) / (cols - 1), y: -40 - row * 60, type, delay: row * 18 + col * 4 });
+  const patternType = (w - 1) % 5; // 0, 1, 2, 3, 4
+
+  if (patternType === 0) {
+    // FORMAZIONE 1: GRIGLIA CLASSICA BILANCIATA
+    const rows = 2 + Math.min(w % 10, 3);
+    const cols = 5;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        let type = (r === 0 && w >= 2) ? 'shooter' : 'grunt';
+        if (r === 0 && c === 2 && w >= 3) type = 'tank';
+        queue.push({ x: 60 + c * (W - 120) / (cols - 1), y: -40 - r * 55, type, delay: r * 16 + c * 3 });
+      }
     }
+  } else if (patternType === 1) {
+    // FORMAZIONE 2: INCURSIONE A V (V-SHAPE RUSH)
+    const total = 10 + Math.min(w, 6);
+    for (let i = 0; i < total; i++) {
+      const side = i % 2 === 0 ? 1 : -1;
+      const step = Math.floor(i / 2);
+      const x = W / 2 + side * step * 38;
+      const y = -40 - step * 45;
+      let type = (step === 0) ? (w >= 3 ? 'tank' : 'shooter') : (step % 2 === 1 ? 'shooter' : 'grunt');
+      queue.push({ x, y, type, delay: i * 6 });
+    }
+  } else if (patternType === 2) {
+    // FORMAZIONE 3: ATTACCO SULLE ALI (DOPPIA COLONNA LATÉRALE)
+    const count = 6 + Math.min(w, 6);
+    for (let i = 0; i < count; i++) {
+      let typeL = (i === 0 && w >= 2) ? 'shooter' : 'grunt';
+      let typeR = (i === 0 && w >= 3) ? 'tank' : 'grunt';
+      queue.push({ x: 60, y: -40 - i * 50, type: typeL, delay: i * 10 });
+      queue.push({ x: W - 60, y: -40 - i * 50, type: typeR, delay: i * 10 });
+    }
+  } else if (patternType === 3) {
+    // FORMAZIONE 4: MURO PESANTE (TANK IN PRIMA LINEA)
+    const cols = 5;
+    for (let c = 0; c < cols; c++) {
+      let type = (c % 2 === 0) ? 'tank' : 'grunt';
+      queue.push({ x: 60 + c * (W - 120) / (cols - 1), y: -40, type, delay: c * 4 });
+    }
+    for (let c = 0; c < cols; c++) {
+      queue.push({ x: 60 + c * (W - 120) / (cols - 1), y: -100, type: 'shooter', delay: 20 + c * 4 });
+    }
+  } else if (patternType === 4) {
+    // FORMAZIONE 5: CLUSTER CENTRALE A DIAMANTE
+    const centerPoints = [
+      { dx: 0, dy: 0, type: 'tank' },
+      { dx: -50, dy: -40, type: 'shooter' }, { dx: 50, dy: -40, type: 'shooter' },
+      { dx: -100, dy: -80, type: 'grunt' },  { dx: 100, dy: -80, type: 'grunt' },
+      { dx: -50, dy: -120, type: 'grunt' },  { dx: 50, dy: -120, type: 'grunt' },
+      { dx: 0, dy: -160, type: 'shooter' }
+    ];
+    centerPoints.forEach((pt, i) => {
+      queue.push({ x: W / 2 + pt.dx, y: -40 + pt.dy, type: pt.type, delay: i * 5 });
+    });
   }
+
   return queue;
 }
 
@@ -1347,7 +1401,12 @@ function drawHUD() {
   ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 15px Courier New';
   ctx.textAlign = 'left';   ctx.fillText(`${currentBoss.name}`, 10, 24);
   ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS ${score}`, 10, 44);
-  ctx.textAlign = 'center'; ctx.font = 'bold 16px Courier New'; ctx.fillText(`STAGE ${wave}`, W / 2, 26);
+
+  // FIX: RIMUOVE "STAGE X" SE C'È UN BOSS O IL SUO WARNING
+  if (!activeBoss && bossWarningTimer <= 0) {
+    ctx.textAlign = 'center'; ctx.font = 'bold 16px Courier New'; ctx.fillText(`STAGE ${wave}`, W / 2, 26);
+  }
+
   ctx.textAlign = 'right';  ctx.font = 'bold 14px Courier New'; ctx.fillText(`REC ${hiScore}`, W - 10, 26);
   
   for (let i = 0; i < lives; i++) {
@@ -1469,9 +1528,8 @@ function drawEraLegend() {
   ctx.restore();
 }
 
-// --- MENU A PAGINE RIVISITATI ---
 function drawScreens() {
-  // PAGINA 1: COPERTINA FULL FRAME
+  // PAGINA 1: COPERTINA
   if (state === 'COVER') {
     if (imgCover && imgCover.complete && imgCover.naturalWidth !== 0) {
       ctx.drawImage(imgCover, 0, 0, W, H);
@@ -1486,7 +1544,6 @@ function drawScreens() {
       ctx.fillText('AGENCY ARCADE', W / 2, 280);
     }
 
-    // Scritta iniziale blu, senza riquadro, lampeggia a bassa frequenza, leggermente più in basso
     if (Math.floor(frame / 45) % 2 === 0) {
       ctx.fillStyle = '#00ccff';
       ctx.font = '900 18px Courier New';
@@ -1527,7 +1584,7 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 3: REGOLE (IMPAGINAZIONE CENTRALE E NETTO CONTRASTO TITOLO/TESTO)
+  // PAGINA 3: REGOLE
   if (state === 'RULES') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1539,7 +1596,6 @@ function drawScreens() {
 
     ctx.textAlign = 'center';
 
-    // REGOLE CON FORTE DIFFERENZA DI FONT
     ctx.fillStyle = '#ffea00'; ctx.font = '900 20px Courier New';
     ctx.fillText('01. ONDATE INCUBI', W/2, 130);
     ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
