@@ -465,54 +465,54 @@ const astTommi = new Image(); astTommi.src = 'assets/invaders/tommi-ast.png';
 const astGiampa = new Image(); astGiampa.src = 'assets/invaders/giampa-ast.png';
 const astBretto = new Image(); astBretto.src = 'assets/invaders/bretto-ast.png';
 
+// --- RI-BILANCIAMENTO CAPI D'AGENZIA ---
 const CHARACTERS = {
   TOMMI: {
     id: 'TOMMI',
     name: "TOMMI",
-    role: "Coordinatore Video & Set 🎬",
-    perkBonus: "BONUS: Citronella (Sparo Ultra Rapido)",
+    role: "Coordinatore Video & Set",
+    perkBonus: "BONUS: Doppia Cam 4K (Doppio Laser)",
     perkMalus: "MALUS: Movimento iperattivo",
     primary: "#ff0055",
-    bg: "#060a1a",
     portrait: imgTommi,
     astImg: astTommi,
     speed: 6.8,
-    cooldown: 9,
-    bulletWidth: 5,
+    cooldown: 7,
+    bulletWidth: 6,
     multiShot: false
   },
   GIAMPA: {
     id: 'GIAMPA',
     name: "GIAMPA",
-    role: "Coordinatore Grafica 🎨",
-    perkBonus: "BONUS: Mega Pennello (Laser Gigante)",
-    perkMalus: "MALUS: Movimenti più lenti",
+    role: "Coordinatore Grafica",
+    perkBonus: "BONUS: Canvas Vettoriale (Mega Laser 28px)",
+    perkMalus: "MALUS: Movimento più pesante",
     primary: "#ffd700",
-    bg: "#141000",
     portrait: imgGiampa,
     astImg: astGiampa,
     speed: 4.8,
-    cooldown: 14,
-    bulletWidth: 16,
+    cooldown: 10,
+    bulletWidth: 28,
     multiShot: false
   },
   BRETTO: {
     id: 'BRETTO',
     name: "BRETTO",
-    role: "Regista degli Eventi 🎧",
+    role: "Regista degli Eventi",
     perkBonus: "BONUS: Regia Multi-Cam (Triplo Sparo)",
-    perkMalus: "MALUS: Ricarica leggermente lunga",
+    perkMalus: "MALUS: Ricarica più lenta",
     primary: "#ff33aa",
-    bg: "#140018",
     portrait: imgBretto,
     astImg: astBretto,
     speed: 5.4,
-    cooldown: 18,
+    cooldown: 16,
     bulletWidth: 6,
     multiShot: true
   }
 };
 
+const charList = ['TOMMI', 'GIAMPA', 'BRETTO'];
+let charSelectIndex = 0;
 let currentBoss = CHARACTERS.TOMMI;
 
 function saveScore(finalScore) {
@@ -552,8 +552,10 @@ let wave = 1;
 let currentTier = 1;
 let frame = 0;
 let deathTimer = 0;
-let bossBannerTimer = 0;
-let bossBannerName = "";
+
+let bossWarningTimer = 0;
+let upcomingBossName = "";
+let upcomingBossWave = 0;
 
 let joyDX = 0, joyDY = 0, joyActive = false;
 let touchFire = false;
@@ -647,9 +649,22 @@ function sfxPlayerHit() {
   triggerShake(16, 10);
 }
 
-function advanceFromCover() {
+function advanceMenuState() {
+  getAC();
   if (state === 'COVER') {
-    state = 'TUTORIAL';
+    state = 'STORY';
+  } else if (state === 'STORY') {
+    state = 'RULES';
+  } else if (state === 'RULES') {
+    state = 'POWERUPS_INFO';
+  } else if (state === 'POWERUPS_INFO') {
+    state = 'CHAR_SELECT';
+  } else if (state === 'CHAR_SELECT') {
+    selectBoss(charList[charSelectIndex]);
+  } else if (state === 'ERA_INTRO') {
+    state = 'playing';
+  } else if (state === 'gameover') {
+    state = 'CHAR_SELECT';
   }
 }
 
@@ -657,17 +672,20 @@ const keys = {};
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
   getAC();
-  if (state === 'COVER' && (e.code === 'Space' || e.code === 'Enter')) advanceFromCover();
-  else if (state === 'TUTORIAL' && (e.code === 'Space' || e.code === 'Enter')) state = 'CHAR_SELECT';
+  if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(state)) {
+    if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
+  }
   else if (state === 'CHAR_SELECT') {
-    if (e.key === '1') selectBoss('TOMMI');
-    if (e.key === '2') selectBoss('GIAMPA');
-    if (e.key === '3') selectBoss('BRETTO');
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') charSelectIndex = (charSelectIndex - 1 + 3) % 3;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') charSelectIndex = (charSelectIndex + 1) % 3;
+    if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
   }
   else if (state === 'ERA_INTRO' && (e.code === 'Space' || e.code === 'Enter')) {
     state = 'playing';
   }
-  else if (state === 'gameover' && (e.code === 'Space' || e.code === 'Enter')) state = 'CHAR_SELECT';
+  else if (state === 'gameover' && (e.code === 'Space' || e.code === 'Enter')) {
+    state = 'CHAR_SELECT';
+  }
   else if ((e.code === 'KeyP' || e.code === 'Escape') && (state === 'playing' || state === 'PAUSE')) {
     state = state === 'playing' ? 'PAUSE' : 'playing';
     updateMusicState();
@@ -727,12 +745,8 @@ function bindFireBtn(id) {
   const press = (e) => { 
     if (e) e.preventDefault(); 
     getAC(); 
-    if (state === 'COVER') {
-      advanceFromCover();
-      return;
-    }
-    if (state === 'ERA_INTRO') {
-      state = 'playing';
+    if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO', 'CHAR_SELECT', 'ERA_INTRO'].includes(state)) {
+      advanceMenuState();
       return;
     }
     touchFire = true; 
@@ -814,13 +828,21 @@ const player = {
       let bw = currentBoss.bulletWidth;
       let cd = this.boostTimer > 0 ? 5 : currentBoss.cooldown;
 
-      if (currentBoss.multiShot || this.boostTimer > 0) {
+      if (this.boostTimer > 0) {
+        playerBullets.push(new Bullet(this.x, this.y - 22, 0, -10, currentBoss.primary, bw, 16));
+        playerBullets.push(new Bullet(this.x - 12, this.y - 14, -2, -9.5, currentBoss.primary, bw, 14));
+        playerBullets.push(new Bullet(this.x + 12, this.y - 14, 2, -9.5, currentBoss.primary, bw, 14));
+      } else if (currentBoss.id === 'TOMMI') {
+        playerBullets.push(new Bullet(this.x - 10, this.y - 20, 0, -9.5, currentBoss.primary, bw, 14));
+        playerBullets.push(new Bullet(this.x + 10, this.y - 20, 0, -9.5, currentBoss.primary, bw, 14));
+      } else if (currentBoss.id === 'GIAMPA') {
+        playerBullets.push(new Bullet(this.x, this.y - 24, 0, -9, currentBoss.primary, bw, 20));
+      } else if (currentBoss.id === 'BRETTO') {
         playerBullets.push(new Bullet(this.x, this.y - 20, 0, -9, currentBoss.primary, bw, 14));
         playerBullets.push(new Bullet(this.x - 14, this.y - 12, -2.5, -8.5, currentBoss.primary, bw, 12));
         playerBullets.push(new Bullet(this.x + 14, this.y - 12, 2.5, -8.5, currentBoss.primary, bw, 12));
-      } else {
-        playerBullets.push(new Bullet(this.x, this.y - 22, 0, -9, currentBoss.primary, bw, 14));
       }
+
       this.shootTimer = cd;
       sfxShoot();
     }
@@ -833,18 +855,18 @@ const player = {
     if (this.shieldTimer > 0) {
       ctx.save();
       ctx.beginPath();
-      ctx.arc(this.x, this.y, 36, 0, Math.PI * 2);
+      ctx.arc(this.x, this.y, 38, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 153, 255, 0.25)'; ctx.fill();
-      ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.strokeStyle = '#00ccff'; ctx.lineWidth = 3; ctx.stroke();
       ctx.restore();
     }
 
     if (this.jamTimer > 0 || this.lagTimer > 0) {
       ctx.save();
       ctx.beginPath();
-      ctx.arc(this.x, this.y, 34, 0, Math.PI * 2);
+      ctx.arc(this.x, this.y, 36, 0, Math.PI * 2);
       ctx.strokeStyle = this.jamTimer > 0 ? '#ff0055' : '#ff9900';
-      ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]); ctx.stroke();
+      ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.stroke();
       ctx.restore();
     }
 
@@ -862,12 +884,11 @@ const player = {
   }
 };
 
-// --- FIX 3: POTENZIAMENTI E DEBUFF INGRANDITI (40x40) E MOLTO PIÙ CHIARI ---
 class Drop {
   constructor(x, y, type) {
     this.x = x; this.y = y; this.type = type;
     this.w = 40; this.h = 40; this.dead = false;
-    this.speed = 2.0;
+    this.speed = 1.8;
   }
   update() {
     this.y += this.speed;
@@ -876,13 +897,12 @@ class Drop {
   draw() {
     ctx.save();
     let col = '#ff0055';
-    let label = '⚡';
 
-    if (this.type === 'COFFEE') { col = '#ffcc00'; label = '☕'; }
-    else if (this.type === 'BOOST') { col = '#ff0055'; label = '⚡'; }
-    else if (this.type === 'SHIELD') { col = '#00ccff'; label = '🛡️'; }
-    else if (this.type === 'LAG') { col = '#ff9900'; label = '🐢'; }
-    else if (this.type === 'JAM') { col = '#ff0055'; label = '🚫'; }
+    if (this.type === 'COFFEE') col = '#ffcc00';
+    else if (this.type === 'BOOST') col = '#ff0055';
+    else if (this.type === 'SHIELD') col = '#00ccff';
+    else if (this.type === 'LAG') col = '#ff9900';
+    else if (this.type === 'JAM') col = '#ff0055';
 
     ctx.fillStyle = '#101228';
     ctx.beginPath();
@@ -894,11 +914,11 @@ class Drop {
     if (dropImg && dropImg.complete && dropImg.naturalWidth !== 0) {
       ctx.drawImage(dropImg, this.x - 15, this.y - 15, 30, 30);
     } else {
-      ctx.font = '22px "Segoe UI Emoji", "Apple Color Emoji", sans-serif'; 
+      ctx.font = 'bold 12px "Courier New", monospace'; 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(label, Math.round(this.x), Math.round(this.y + 1));
+      ctx.fillStyle = col;
+      ctx.fillText(this.type.substring(0, 3), Math.round(this.x), Math.round(this.y + 1));
     }
     ctx.restore();
   }
@@ -971,15 +991,15 @@ class Enemy {
 
     switch (type) {
       case 'grunt':   
-        this.hp = 1; this.maxHp = 1; this.w = 36; this.h = 36; this.points = 100; 
+        this.hp = 1; this.maxHp = 1; this.w = 38; this.h = 38; this.points = 100; 
         this.canShoot = false;
         break;
       case 'shooter': 
-        this.hp = 2 + (this.tier > 1 ? 1 : 0); this.maxHp = this.hp; this.w = 40; this.h = 40; this.points = 200; 
+        this.hp = 2 + (this.tier > 1 ? 1 : 0); this.maxHp = this.hp; this.w = 42; this.h = 42; this.points = 200; 
         this.canShoot = true;  
         break;
       case 'tank':    
-        this.hp = 4 + (this.tier * 2); this.maxHp = this.hp; this.w = 48; this.h = 48; this.points = 500; 
+        this.hp = 4 + (this.tier * 2); this.maxHp = this.hp; this.w = 50; this.h = 50; this.points = 500; 
         this.canShoot = true;  
         break;
     }
@@ -989,17 +1009,17 @@ class Enemy {
 
   setupTheme() {
     if (this.tier === 1) {
-      if (this.type === 'grunt')       { this.name = "BRIEF CONFUSO"; this.icon = "📄"; this.color = "#ff0055"; }
-      else if (this.type === 'shooter'){ this.name = "FEEDBACK EXTRA"; this.icon = "💬"; this.color = "#ffaa00"; }
-      else if (this.type === 'tank')   { this.name = "LOGO PIÙ GRANDE"; this.icon = "🔍"; this.color = "#aa00ff"; }
+      if (this.type === 'grunt')       { this.name = "BRIEF CONFUSO"; this.color = "#ff0055"; }
+      else if (this.type === 'shooter'){ this.name = "FEEDBACK EXTRA"; this.color = "#ffaa00"; }
+      else if (this.type === 'tank')   { this.name = "LOGO PIÙ GRANDE"; this.color = "#aa00ff"; }
     } else if (this.tier === 2) {
-      if (this.type === 'grunt')       { this.name = "SCADENZA IERI"; this.icon = "⏰"; this.color = "#00ffcc"; }
-      else if (this.type === 'shooter'){ this.name = "RENDER CRASH"; this.icon = "💥"; this.color = "#ff3300"; }
-      else if (this.type === 'tank')   { this.name = "FATTURA SCADUTA"; this.icon = "💸"; this.color = "#e60000"; }
+      if (this.type === 'grunt')       { this.name = "SCADENZA IERI"; this.color = "#00ffcc"; }
+      else if (this.type === 'shooter'){ this.name = "RENDER CRASH"; this.color = "#ff3300"; }
+      else if (this.type === 'tank')   { this.name = "FATTURA SCADUTA"; this.color = "#e60000"; }
     } else {
-      if (this.type === 'grunt')       { this.name = "CALL ALLE 18"; this.icon = "📞"; this.color = "#ffff00"; }
-      else if (this.type === 'shooter'){ this.name = "BUDGET ZERO"; this.icon = "💰"; this.color = "#ff00aa"; }
-      else if (this.type === 'tank')   { this.name = "MICRO-MANAGEMENT"; this.icon = "👁️"; this.color = "#00ff00"; }
+      if (this.type === 'grunt')       { this.name = "CALL ALLE 18"; this.color = "#ffff00"; }
+      else if (this.type === 'shooter'){ this.name = "BUDGET ZERO"; this.color = "#ff00aa"; }
+      else if (this.type === 'tank')   { this.name = "MICRO-MANAGEMENT"; this.color = "#00ff00"; }
     }
   }
 
@@ -1031,7 +1051,7 @@ class Enemy {
       this.dead = true; score += this.points;
       spawnExplosion(this.x, this.y, this.color, 18);
       sfxEnemyExplode();
-      if (Math.random() < 0.24) spawnDrop(this.x, this.y);
+      if (Math.random() < 0.10) spawnDrop(this.x, this.y);
     } else { sfxEnemyHit(); }
   }
 
@@ -1043,10 +1063,11 @@ class Enemy {
     if (enemyImg && enemyImg.complete && enemyImg.naturalWidth !== 0) {
       ctx.drawImage(enemyImg, x - this.w / 2, y - this.h / 2, this.w, this.h);
     } else {
-      ctx.font = `${this.w - 4}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(this.icon, x, y);
+      ctx.fillStyle = '#101228';
+      ctx.beginPath(); ctx.roundRect(x - this.w/2, y - this.h/2, this.w, this.h, 8); ctx.fill();
+      ctx.strokeStyle = this.color; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(this.name.substring(0, 4), x, y);
     }
 
     if (this.type === 'tank') {
@@ -1058,14 +1079,13 @@ class Enemy {
   }
 }
 
-// --- FIX 4 & 6: BOSS NON STRECCIATI (PROPORZIONE 1:1 SQUARE 110x110) E NOMI ACCATTIVANTI ---
 class Boss {
   constructor(waveNum) {
-    // Dimensioni quadrate per evitare distorsioni su PNG 256x256
     this.w = 110; 
     this.h = 110;
-    this.x = W / 2; this.y = -100;
-    this.targetY = 110;
+    this.x = W / 2; 
+    this.y = -120;
+    this.targetY = 150; 
     
     this.maxHp = 50 + waveNum * 5; 
     this.hp = this.maxHp;
@@ -1093,10 +1113,6 @@ class Boss {
       this.name = "SERVER CRASH 500";
       this.color = "#e60000";
     }
-
-    // Trigger dell'annuncio nome boss (senza mettere in pausa)
-    bossBannerTimer = 180;
-    bossBannerName = this.name;
   }
 
   update() {
@@ -1154,9 +1170,29 @@ class Boss {
     let x = this.x, y = this.y;
     ctx.save();
     
+    // BARRA DELLA VITA FISSA IN ALTO
+    ctx.fillStyle = 'rgba(10, 6, 26, 0.9)';
+    ctx.fillRect(W / 2 - 140, 8, 280, 40);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(W / 2 - 140, 8, 280, 40);
+
+    ctx.fillStyle = '#ffea00';
+    ctx.font = '900 13px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(this.name, W / 2, 23);
+
+    ctx.fillStyle = '#222';
+    ctx.fillRect(W / 2 - 120, 28, 240, 12);
+    ctx.fillStyle = this.color;
+    ctx.fillRect(W / 2 - 120, 28, (240) * Math.max(0, this.hp / this.maxHp), 12);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W / 2 - 120, 28, 240, 12);
+
+    // SPRITE DEL BOSS
     const bossImg = ASSETS[`BOSS_${this.bossIndex}`];
     if (bossImg && bossImg.complete && bossImg.naturalWidth !== 0) {
-      // Disegna in rapporto 1:1 perfetto senza strecciare l'immagine
       ctx.drawImage(bossImg, x - this.w / 2, y - this.h / 2, this.w, this.h);
     } else {
       ctx.fillStyle = this.color;
@@ -1178,19 +1214,6 @@ class Boss {
       ctx.fillRect(x - 15, y + 10, 30, 20);
     }
 
-    // Barra HP del Boss
-    ctx.fillStyle = 'rgba(10, 10, 30, 0.85)';
-    ctx.fillRect(W / 2 - 120, 48, 240, 16);
-    ctx.fillStyle = this.color;
-    ctx.fillRect(W / 2 - 118, 50, (236) * Math.max(0, this.hp / this.maxHp), 12);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(W / 2 - 120, 48, 240, 16);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 12px "Courier New", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(this.name, W / 2, 43);
     ctx.restore();
   }
 }
@@ -1198,6 +1221,15 @@ class Boss {
 let enemies = [];
 let activeBoss = null;
 let spawnQueue = [];
+
+function getBossNameByWave(w) {
+  let idx = ((Math.floor(w / 10) - 1) % 5) + 1;
+  if (idx === 1) return "LOOP REVISIONI INFINITE";
+  if (idx === 2) return "IL CLIENTE IMPOSSIBILE";
+  if (idx === 3) return "LE TASSE & F24 KILLER";
+  if (idx === 4) return "CALL MARATONA DELLE 18:00";
+  return "SERVER CRASH 500";
+}
 
 function buildWave(w) {
   let newTier = w <= 10 ? 1 : w <= 20 ? 2 : 3;
@@ -1207,8 +1239,10 @@ function buildWave(w) {
   }
 
   if (w % 10 === 0) {
-    activeBoss = new Boss(w);
-    triggerShake(20, 8);
+    bossWarningTimer = 180;
+    upcomingBossName = getBossNameByWave(w);
+    upcomingBossWave = w;
+    activeBoss = null;
     return [];
   }
 
@@ -1228,6 +1262,8 @@ function buildWave(w) {
 }
 
 function spawnWaveEnemies() {
+  if (bossWarningTimer > 0) return;
+
   if (spawnQueue.length === 0 && enemies.length === 0 && (!activeBoss || activeBoss.dead)) {
     if (activeBoss && activeBoss.dead) activeBoss = null;
     wave++;
@@ -1308,36 +1344,46 @@ function hitPlayer() {
 }
 
 function drawHUD() {
-  ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 14px Courier New';
-  ctx.textAlign = 'left';   ctx.fillText(`${currentBoss.name}`, 10, 22);
-  ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS ${score}`, 10, 40);
-  ctx.textAlign = 'center'; ctx.font = 'bold 15px Courier New'; ctx.fillText(`STAGE ${wave}`, W / 2, 24);
-  ctx.textAlign = 'right';  ctx.font = 'bold 13px Courier New'; ctx.fillText(`REC ${hiScore}`, W - 10, 24);
+  ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 15px Courier New';
+  ctx.textAlign = 'left';   ctx.fillText(`${currentBoss.name}`, 10, 24);
+  ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS ${score}`, 10, 44);
+  ctx.textAlign = 'center'; ctx.font = 'bold 16px Courier New'; ctx.fillText(`STAGE ${wave}`, W / 2, 26);
+  ctx.textAlign = 'right';  ctx.font = 'bold 14px Courier New'; ctx.fillText(`REC ${hiScore}`, W - 10, 26);
   
   for (let i = 0; i < lives; i++) {
     ctx.fillStyle = currentBoss.primary;
-    ctx.fillRect(W - 22 - (i * 20), 34, 14, 14);
+    ctx.fillRect(W - 22 - (i * 20), 38, 14, 14);
   }
 
-  // --- FIX 5: ANNOUNCER BOSS DINAMICO E NON-BLOCCANTE ---
-  if (bossBannerTimer > 0) {
-    bossBannerTimer--;
+  // BANNER ANNOUNCER BOSS
+  if (bossWarningTimer > 0) {
+    bossWarningTimer--;
+
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 0, 85, 0.9)';
-    ctx.fillRect(0, H / 2 - 45, W, 70);
+    ctx.fillStyle = 'rgba(255, 0, 85, 0.92)';
+    ctx.fillRect(0, H / 2 - 60, W, 120);
     ctx.strokeStyle = '#ffea00';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(0, H / 2 - 45, W, 70);
+    ctx.lineWidth = 4;
+    ctx.strokeRect(0, H / 2 - 60, W, 120);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 18px Courier New';
+    ctx.textAlign = 'center';
+    ctx.fillText('WARNING // MEGA BOSS', W / 2, H / 2 - 24);
+
+    ctx.fillStyle = '#ffea00';
+    ctx.font = '900 20px Courier New';
+    ctx.fillText(upcomingBossName, W / 2, H / 2 + 14);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 13px Courier New';
-    ctx.textAlign = 'center';
-    ctx.fillText('⚠️ BOSS IN ARRIVO! ⚠️', W / 2, H / 2 - 20);
-
-    ctx.fillStyle = '#ffea00';
-    ctx.font = '900 18px Courier New';
-    ctx.fillText(bossBannerName, W / 2, H / 2 + 12);
+    ctx.fillText('PREPARATI ALLA BATTAGLIA...', W / 2, H / 2 + 42);
     ctx.restore();
+
+    if (bossWarningTimer === 0) {
+      activeBoss = new Boss(upcomingBossWave);
+      triggerShake(20, 8);
+    }
   }
 }
 
@@ -1345,12 +1391,12 @@ function drawEraLegend() {
   if (state !== 'ERA_INTRO') return;
 
   ctx.save();
-  ctx.fillStyle = 'rgba(6, 2, 18, 0.88)';
+  ctx.fillStyle = 'rgba(6, 2, 18, 0.94)';
   ctx.fillRect(0, 0, W, H);
 
   ctx.fillStyle = '#0e051b';
   ctx.beginPath();
-  ctx.roundRect(16, 80, 448, 480, 16);
+  ctx.roundRect(16, 50, 448, 520, 16);
   ctx.fill();
   ctx.strokeStyle = '#ffea00';
   ctx.lineWidth = 3;
@@ -1358,34 +1404,34 @@ function drawEraLegend() {
 
   let title = currentTier === 1 ? "ERA 1: BRIEF & FEEDBACK" : currentTier === 2 ? "ERA 2: RENDER & SCADENZE" : "ERA 3: CAOS CORPORATE";
   ctx.fillStyle = '#ffea00';
-  ctx.font = '900 20px "Courier New", monospace';
+  ctx.font = '900 22px "Courier New", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(title, W / 2, 118);
+  ctx.fillText(title, W / 2, 90);
 
   ctx.fillStyle = '#ff0055';
-  ctx.font = 'bold 14px "Courier New", monospace';
-  ctx.fillText("ATTENZIONE! NUOVI INCUBI RILEVATI:", W / 2, 145);
+  ctx.font = 'bold 15px "Courier New", monospace';
+  ctx.fillText("ATTENZIONE! NUOVI INCUBI RILEVATI:", W / 2, 120);
 
   const legendList = currentTier === 1 ? [
-    { icon: "📄", name: "BRIEF CONFUSO", desc: "Base - Movimento rapido e incerto", col: "#ff0055" },
-    { icon: "💬", name: "FEEDBACK EXTRA", desc: "Attaccante - Spara laser a raffica", col: "#ffaa00" },
-    { icon: "🔍", name: "LOGO PIÙ GRANDE", desc: "Tank - Corazzato ad alta resistenza", col: "#aa00ff" }
+    { code: "[BASE]", name: "BRIEF CONFUSO", desc: "Movimento rapido e imprevedibile", col: "#ff0055" },
+    { code: "[ATK]",  name: "FEEDBACK EXTRA", desc: "Spara laser a raffica continua", col: "#ffaa00" },
+    { code: "[TANK]", name: "LOGO PIÙ GRANDE", desc: "Corazzato con alta resistenza", col: "#aa00ff" }
   ] : currentTier === 2 ? [
-    { icon: "⏰", name: "SCADENZA IERI", desc: "Base - Velocità di discesa aumentata", col: "#00ffcc" },
-    { icon: "💥", name: "RENDER CRASH", desc: "Attaccante - Sparo diretto mirato", col: "#ff3300" },
-    { icon: "💸", name: "FATTURA SCADUTA", desc: "Tank - Super barriera protettiva", col: "#e60000" }
+    { code: "[BASE]", name: "SCADENZA IERI", desc: "Velocità di discesa aumentata", col: "#00ffcc" },
+    { code: "[ATK]",  name: "RENDER CRASH", desc: "Sparo diretto a puntamento mirato", col: "#ff3300" },
+    { code: "[TANK]", name: "FATTURA SCADUTA", desc: "Super barriera protettiva heavy", col: "#e60000" }
   ] : [
-    { icon: "📞", name: "CALL ALLE 18", desc: "Base - Traiettoria a zig-zag", col: "#ffff00" },
-    { icon: "💰", name: "BUDGET ZERO", desc: "Attaccante - Sparo rapido incrociato", col: "#ff00aa" },
-    { icon: "👁️", name: "MICRO-MANAGEMENT", desc: "Tank - Ultra hp & controllo zona", col: "#00ff00" }
+    { code: "[BASE]", name: "CALL ALLE 18", desc: "Traiettoria a zig-zag serrata", col: "#ffff00" },
+    { code: "[ATK]",  name: "BUDGET ZERO", desc: "Sparo rapido ad alto impatto", col: "#ff00aa" },
+    { code: "[TANK]", name: "MICRO-MANAGEMENT", desc: "Ultra resistenza & controllo area", col: "#00ff00" }
   ];
 
   legendList.forEach((item, idx) => {
-    let boxY = 170 + (idx * 110);
+    let boxY = 150 + (idx * 115);
 
     ctx.fillStyle = '#160a2c';
     ctx.beginPath();
-    ctx.roundRect(30, boxY, 420, 95, 12);
+    ctx.roundRect(30, boxY, 420, 100, 12);
     ctx.fill();
     ctx.strokeStyle = item.col;
     ctx.lineWidth = 2.5;
@@ -1393,180 +1439,253 @@ function drawEraLegend() {
 
     const enemyImg = ASSETS[item.name];
     if (enemyImg && enemyImg.complete && enemyImg.naturalWidth !== 0) {
-      ctx.drawImage(enemyImg, 45, boxY + 22, 50, 50);
+      ctx.drawImage(enemyImg, 45, boxY + 25, 50, 50);
     } else {
-      ctx.font = '36px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+      ctx.fillStyle = item.col;
+      ctx.font = 'bold 15px "Courier New", monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(item.icon, 70, boxY + 47);
+      ctx.fillText(item.code, 68, boxY + 50);
     }
 
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = item.col;
-    ctx.font = 'bold 16px "Courier New", monospace';
-    ctx.fillText(item.name, 110, boxY + 36);
+    ctx.font = 'bold 17px "Courier New", monospace';
+    ctx.fillText(item.name, 110, boxY + 38);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '13px "Courier New", monospace';
-    ctx.fillText(item.desc, 110, boxY + 64);
+    ctx.font = '14px "Courier New", monospace';
+    ctx.fillText(item.desc, 110, boxY + 68);
   });
 
-  ctx.fillStyle = Math.floor(frame / 20) % 2 === 0 ? '#ffffff' : '#ffea00';
-  ctx.font = 'bold 16px "Courier New", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('TOCCA SPARO PER INIZIARE ►', W / 2, 535);
+  if (Math.floor(frame / 40) % 2 === 0) {
+    ctx.fillStyle = '#ffea00';
+    ctx.font = '900 18px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('CONTINUA ►', W / 2, 542);
+  }
 
   ctx.restore();
 }
 
+// --- MENU A PAGINE RIVISITATI ---
 function drawScreens() {
-  // --- FIX 1: COPERTINA A TUTTO FRAME CON TASTO LAMPEGGIANTE IN BASSO ---
+  // PAGINA 1: COPERTINA FULL FRAME
   if (state === 'COVER') {
     if (imgCover && imgCover.complete && imgCover.naturalWidth !== 0) {
-      // Prende tutto il canvas del gioco
       ctx.drawImage(imgCover, 0, 0, W, H);
     } else {
       ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, W, H);
       ctx.fillStyle = '#ff0055';
-      ctx.font = '900 32px Courier New';
+      ctx.font = '900 34px Courier New';
       ctx.textAlign = 'center';
       ctx.fillText('FEEDBACK INVADERS', W / 2, 240);
       ctx.fillStyle = '#ffea00';
-      ctx.font = 'bold 18px Courier New';
+      ctx.font = 'bold 20px Courier New';
       ctx.fillText('AGENCY ARCADE', W / 2, 280);
     }
 
-    // Tasto lampeggiante posizionato nella parte bassa dell'immagine
-    if (Math.floor(frame / 20) % 2 === 0) {
-      ctx.fillStyle = '#101228';
-      ctx.beginPath();
-      ctx.roundRect(W / 2 - 180, H - 90, 360, 54, 12);
-      ctx.fill();
-      ctx.strokeStyle = '#ffea00';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      ctx.fillStyle = '#ffea00';
-      ctx.font = '900 16px Courier New';
+    // Scritta iniziale blu, senza riquadro, lampeggia a bassa frequenza, leggermente più in basso
+    if (Math.floor(frame / 45) % 2 === 0) {
+      ctx.fillStyle = '#00ccff';
+      ctx.font = '900 18px Courier New';
       ctx.textAlign = 'center';
-      ctx.fillText('PREMI SPARO PER COMINCIARE ►', W / 2, H - 56);
+      ctx.fillText('PREMI SPARO PER COMINCIARE ►', W / 2, H - 35);
     }
     return;
   }
 
-  // --- FIX 2: TUTORIAL CON TESTI MOLTO PIÙ GRANDI E LEGGIBILI ---
-  if (state === 'TUTORIAL') {
+  // PAGINA 2: STORIA
+  if (state === 'STORY') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 24px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('AGENZIA VS INCUBI 🚀', W/2, 42);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('LA STORIA', W/2, 55);
 
-    // BOX STORIA
-    ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(16, 58, 448, 120, 12); ctx.fill();
-    ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = '#ffea00'; ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('📖 LA STORIA DELLO STUDIO CREATIVO:', W/2, 80);
-    ctx.fillStyle = '#ffffff'; ctx.font = '13px Courier New';
-    ctx.fillText('Tre capi d\'agenzia. Un\'unica grande missione.', W/2, 102);
-    ctx.fillText('Tra brief assurdi, scadenze ed indecisioni,', W/2, 122);
-    ctx.fillText('il caotico mondo della creatività è sotto attacco!', W/2, 142);
-    ctx.fillText('Pilota il tuo capo e salva lo studio dal caos.', W/2, 162);
+    ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(20, 85, 440, 440, 16); ctx.fill();
+    ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 3; ctx.stroke();
 
-    // BOX REGOLE
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(16, 192, 448, 140, 12); ctx.fill();
-    ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'left';
-    ctx.fillText('DISTRUGGI FEEDBACK & SCADENZE 🎯', 30, 216);
-    ctx.fillStyle = '#ffffff'; ctx.font = '13px Courier New';
-    ctx.fillText('• Elimina le ondate di nemici prima che scendano', 30, 240);
-    ctx.fillText('• I nemici si evolvono e cambiano ogni 10 stadi', 30, 262);
-    ctx.fillText('• Sconfiggi i Boss (Clienti e Tasse) ogni 10 stadi', 30, 284);
-    ctx.fillText('• Raccogli Caffè ☕, Citronella ⚡ e Scudi 🛡️', 30, 306);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 20px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('Tre coordinatori d\'agenzia.', W/2, 140);
+    ctx.fillText('Un\'unica grande missione.', W/2, 180);
+    
+    ctx.fillStyle = '#ffea00';
+    ctx.fillText('Un\'invasione incessante di', W/2, 245);
+    ctx.fillText('brief assurdi, feedback tossici', W/2, 285);
+    ctx.fillText('e scadenze da incubo!', W/2, 325);
 
-    // BOX CONTROLLI
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(16, 344, 448, 110, 12); ctx.fill();
-    ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = '#ffd700'; ctx.font = 'bold 15px Courier New';
-    ctx.fillText('CONTROLLI DI GIOCO 🎮', 30, 368);
-    ctx.fillStyle = '#ffffff'; ctx.font = '13px Courier New';
-    ctx.fillText('• Joystick Touch o Frecce PC per muoverti', 30, 392);
-    ctx.fillText('• Tasto SPARO o SPAZIO per attaccare', 30, 414);
-    ctx.fillText('• Tasto P o ESC per mettere in Pausa', 30, 436);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('Pilota il tuo capo e salva', W/2, 390);
+    ctx.fillText('lo studio dal caos totale!', W/2, 430);
 
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`RECORD ATTUALE: ${hiScore} PTS`, W/2, 478);
-
-    ctx.beginPath(); ctx.fillStyle = '#ff0055'; ctx.roundRect(30, 510, 420, 60, 12); ctx.fill();
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px Courier New';
-    ctx.fillText('AVANTI: SCEGLI IL TUO CAPO ►', W/2, 546);
+    if (Math.floor(frame / 40) % 2 === 0) {
+      ctx.fillStyle = '#ffea00';
+      ctx.font = '900 20px Courier New';
+      ctx.fillText('CONTINUA ►', W/2, H - 35);
+    }
     return;
   }
 
-  // --- SELEZIONE PERSONAGGI INGRANDITA ---
-  if (state === 'CHAR_SELECT') {
+  // PAGINA 3: REGOLE (IMPAGINAZIONE CENTRALE E NETTO CONTRASTO TITOLO/TESTO)
+  if (state === 'RULES') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 20px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('Scegli il tuo capo di agenzia', W/2, 42);
+    
+    ctx.fillStyle = '#ff0055'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('REGOLE DI GIOCO', W/2, 55);
 
-    const bosses = [
-      { key: 'TOMMI', y: 65, col: '#ff0055' },
-      { key: 'GIAMPA', y: 220, col: '#ffd700' },
-      { key: 'BRETTO', y: 375, col: '#ff33aa' }
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 85, 440, 440, 16); ctx.fill();
+    ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3; ctx.stroke();
+
+    ctx.textAlign = 'center';
+
+    // REGOLE CON FORTE DIFFERENZA DI FONT
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 20px Courier New';
+    ctx.fillText('01. ONDATE INCUBI', W/2, 130);
+    ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
+    ctx.fillText('Elimina i nemici prima che superino', W/2, 155);
+    ctx.fillText('la linea di difesa dello studio.', W/2, 178);
+
+    ctx.fillStyle = '#00ffcc'; ctx.font = '900 20px Courier New';
+    ctx.fillText('02. EVOLUZIONE ERE', W/2, 225);
+    ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
+    ctx.fillText('I nemici cambiano e diventano più', W/2, 250);
+    ctx.fillText('aggressivi ogni 10 stadi superati.', W/2, 273);
+
+    ctx.fillStyle = '#ff00ff'; ctx.font = '900 20px Courier New';
+    ctx.fillText('03. SCONTRI MEGA BOSS', W/2, 320);
+    ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
+    ctx.fillText('Affronta i 5 Boss dell\'agenzia', W/2, 345);
+    ctx.fillText('dotati di attacchi speciali unici.', W/2, 368);
+
+    ctx.fillStyle = '#ffd700'; ctx.font = '900 20px Courier New';
+    ctx.fillText('04. CONTROLLI GUIDA', W/2, 415);
+    ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
+    ctx.fillText('Usa Joystick Touch o Frecce PC', W/2, 440);
+    ctx.fillText('insieme al tasto SPARO.', W/2, 463);
+
+    if (Math.floor(frame / 40) % 2 === 0) {
+      ctx.fillStyle = '#ffea00';
+      ctx.font = '900 20px Courier New';
+      ctx.fillText('CONTINUA ►', W/2, H - 35);
+    }
+    return;
+  }
+
+  // PAGINA 4: POTENZIAMENTI
+  if (state === 'POWERUPS_INFO') {
+    ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
+    
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 30px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('MODULI & POTENZIAMENTI', W/2, 52);
+
+    const items = [
+      { key: 'COFFEE', tag: '[+ VITA]', title: 'MODULO CAFFÈ', desc: 'Ripristina +1 Unità Energia', col: '#ffcc00' },
+      { key: 'BOOST',  tag: '[+ SPARO]', title: 'CITRONELLA BOOST', desc: 'Frequenza Firing Ultra-Rapida', col: '#ff0055' },
+      { key: 'SHIELD', tag: '[+ SCUDO]', title: 'SCUDO TERMICO', desc: 'Barriera Invulnerabilità', col: '#00ccff' },
+      { key: 'LAG',    tag: '[- LAG]',   title: 'ANOMALIA LAG', desc: 'Rallentamento Motori (Malus)', col: '#ff9900' },
+      { key: 'JAM',    tag: '[- BLOCCO]', title: 'BLOCCO TASTIERA', desc: 'Disattiva Sistemi Arma (Malus)', col: '#ff0055' }
     ];
 
-    bosses.forEach(b => {
-      let c = CHARACTERS[b.key];
-      ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(15, b.y, 450, 140, 12); ctx.fill();
-      ctx.strokeStyle = b.col; ctx.lineWidth = 2.5; ctx.stroke();
+    items.forEach((item, idx) => {
+      let boxY = 82 + (idx * 84);
 
-      ctx.fillStyle = b.col; ctx.font = 'bold 24px Courier New'; ctx.textAlign = 'left';
-      ctx.fillText(c.name, 30, b.y + 34);
+      ctx.fillStyle = '#101228';
+      ctx.beginPath();
+      ctx.roundRect(20, boxY, 440, 74, 12);
+      ctx.fill();
+      ctx.strokeStyle = item.col;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
 
-      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
-      ctx.fillText(c.role, 30, b.y + 58);
-
-      ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New';
-      ctx.fillText(c.perkBonus, 30, b.y + 82);
-      ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New';
-      ctx.fillText(c.perkMalus, 30, b.y + 102);
-
-      ctx.fillStyle = b.col; ctx.font = 'bold 15px Courier New';
-      ctx.fillText('GIOCA ►', 30, b.y + 126);
-
-      if (c.portrait && c.portrait.complete && c.portrait.naturalWidth !== 0) {
-        ctx.save();
-        ctx.beginPath(); ctx.roundRect(330, b.y + 12, 120, 116, 10); ctx.clip();
-        ctx.drawImage(c.portrait, 330, b.y + 12, 120, 116);
-        ctx.restore();
-        ctx.beginPath(); ctx.roundRect(330, b.y + 12, 120, 116, 10);
-        ctx.strokeStyle = b.col; ctx.lineWidth = 1.5; ctx.stroke();
+      const dropImg = ASSETS[item.key];
+      if (dropImg && dropImg.complete && dropImg.naturalWidth !== 0) {
+        ctx.drawImage(dropImg, 32, boxY + 17, 40, 40);
       } else {
-        ctx.beginPath(); ctx.fillStyle = b.col;
-        ctx.roundRect(330, b.y + 12, 120, 116, 10); ctx.fill();
+        ctx.fillStyle = item.col;
+        ctx.font = 'bold 12px Courier New';
+        ctx.textAlign = 'center';
+        ctx.fillText(item.tag, 52, boxY + 41);
       }
+
+      ctx.fillStyle = item.col; ctx.font = 'bold 18px Courier New'; ctx.textAlign = 'left';
+      ctx.fillText(item.title, 100, boxY + 30);
+
+      ctx.fillStyle = '#ffffff'; ctx.font = '14px Courier New';
+      ctx.fillText(item.desc, 100, boxY + 54);
     });
+
+    if (Math.floor(frame / 40) % 2 === 0) {
+      ctx.fillStyle = '#ffea00';
+      ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText('CONTINUA ►', W/2, H - 35);
+    }
+    return;
+  }
+
+  // PAGINA 5: SELEZIONE PERSONAGGI CAROSELLO
+  if (state === 'CHAR_SELECT') {
+    ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
+    
+    ctx.fillStyle = '#ffff00'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('SCEGLI IL TUO CAPO 🚀', W/2, 45);
+
+    let key = charList[charSelectIndex];
+    let c = CHARACTERS[key];
+
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 68, 440, 435, 16); ctx.fill();
+    ctx.strokeStyle = c.primary; ctx.lineWidth = 3.5; ctx.stroke();
+
+    if (c.portrait && c.portrait.complete && c.portrait.naturalWidth !== 0) {
+      ctx.save();
+      ctx.beginPath(); ctx.roundRect(W/2 - 95, 88, 190, 180, 14); ctx.clip();
+      ctx.drawImage(c.portrait, W/2 - 95, 88, 190, 180);
+      ctx.restore();
+      ctx.beginPath(); ctx.roundRect(W/2 - 95, 88, 190, 180, 14);
+      ctx.strokeStyle = c.primary; ctx.lineWidth = 2.5; ctx.stroke();
+    }
+
+    ctx.fillStyle = c.primary; ctx.font = '900 30px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText(c.name, W/2, 300);
+
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px Courier New';
+    ctx.fillText(c.role, W/2, 332);
+
+    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 15px Courier New';
+    ctx.fillText(c.perkBonus, W/2, 375);
+
+    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 15px Courier New';
+    ctx.fillText(c.perkMalus, W/2, 410);
+
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 36px Courier New';
+    ctx.fillText('◄', 45, 275);
+    ctx.fillText('►', W - 45, 275);
+
+    if (Math.floor(frame / 40) % 2 === 0) {
+      ctx.fillStyle = c.primary;
+      ctx.font = '900 20px Courier New';
+      ctx.fillText('CONTINUA ►', W/2, H - 35);
+    }
     return;
   }
 
   if (state === 'PAUSE') {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#ffea00'; ctx.font = 'bold 36px Courier New'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 36px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('IN PAUSA', W/2, H/2 - 20);
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 16px Courier New';
+    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 18px Courier New';
     ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', W/2, H/2 + 25);
     return;
   }
 
   if (state === 'dead' || state === 'gameover') {
     ctx.fillStyle = 'rgba(0,0,0,0.88)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 38px Courier New'; ctx.textAlign = 'center';
+    ctx.fillStyle = currentBoss.primary; ctx.font = '900 38px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('GAME OVER', W/2, H/2 - 50);
     ctx.fillStyle = '#ffff00'; ctx.font = 'bold 22px Courier New'; ctx.fillText(`SCORE: ${score}`, W/2, H/2 + 10);
     ctx.fillStyle = '#ff0055'; ctx.font = '16px Courier New'; ctx.fillText(`RECORD: ${hiScore}`, W/2, H/2 + 45);
     ctx.fillStyle = Math.floor(frame/30)%2===0 ? '#fff' : currentBoss.primary;
-    ctx.font = 'bold 16px Courier New'; ctx.fillText('TOCCA PER CAMBIARE / RIPROVARE', W/2, H/2 + 110);
+    ctx.font = '900 18px Courier New'; ctx.fillText('TOCCA PER RIPROVARE', W/2, H/2 + 110);
   }
 }
 
@@ -1576,20 +1695,21 @@ canvas.addEventListener('pointerdown', e => {
   let x = (e.clientX - rect.left) * (W / rect.width);
   let y = (e.clientY - rect.top) * (H / rect.height);
 
-  if (state === 'COVER') {
-    // Si avanza dal cover esclusivamente tramite tasto SPARO
-    return;
-  }
-
-  if (state === 'TUTORIAL') {
-    if (y >= 500) state = 'CHAR_SELECT';
+  if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(state)) {
+    advanceMenuState();
     return;
   }
 
   if (state === 'CHAR_SELECT') {
-    if (y >= 65 && y <= 205) selectBoss('TOMMI');
-    else if (y >= 220 && y <= 360) selectBoss('GIAMPA');
-    else if (y >= 375 && y <= 515) selectBoss('BRETTO');
+    if (x < 80) {
+      charSelectIndex = (charSelectIndex - 1 + 3) % 3;
+      return;
+    }
+    if (x > W - 80) {
+      charSelectIndex = (charSelectIndex + 1) % 3;
+      return;
+    }
+    advanceMenuState();
     return;
   }
 
@@ -1630,7 +1750,7 @@ function update() {
 
   if (shakeTime > 0) shakeTime--;
 
-  if (state === 'COVER' || state === 'TUTORIAL' || state === 'CHAR_SELECT' || state === 'PAUSE' || state === 'ERA_INTRO') return;
+  if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO', 'CHAR_SELECT', 'PAUSE', 'ERA_INTRO'].includes(state)) return;
 
   if (state === 'dead') {
     deathTimer--; updateParticles();
@@ -1672,7 +1792,7 @@ function draw() {
   ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, W, H);
   drawStars();
   
-  if (state === 'COVER' || state === 'TUTORIAL' || state === 'CHAR_SELECT') {
+  if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO', 'CHAR_SELECT'].includes(state)) {
     drawScreens();
     ctx.restore();
     return;
