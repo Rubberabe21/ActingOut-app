@@ -52,12 +52,12 @@ body {
   transform: translateX(-50%);
   width: 100vw;
   height: 100svh;
-  max-width: 440px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 10px) 8px;
+  padding: max(env(safe-area-inset-top), 2px) 2px max(env(safe-area-inset-bottom), 2px) 2px;
   background: #060609 !important;
   overflow: hidden;
 }
@@ -67,18 +67,18 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 6px;
+  padding: 3px 4px;
   margin-bottom: 2px;
   flex-shrink: 0;
   background: linear-gradient(90deg, #111118 0%, #1a1a26 100%);
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid #00f3ff55;
   box-shadow: 0 0 10px rgba(0, 243, 255, 0.15);
 }
 
 .header-title {
   color: #00f3ff !important;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: .5px;
   font-family: 'Courier New', monospace;
@@ -97,11 +97,11 @@ body {
   background: #181824;
   border: 1.5px solid #ffea00 !important;
   color: #ffea00 !important;
-  padding: 4px 6px;
+  padding: 3px 6px;
   font-family: 'Courier New', monospace;
   font-size: 9px;
   font-weight: bold;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   box-shadow: 0 0 6px rgba(255, 234, 0, 0.3) !important;
   transition: transform 0.1s ease;
@@ -130,10 +130,13 @@ body {
   align-items: center;
   overflow: hidden;
   min-height: 0;
-  margin: 2px 0;
+  margin: 0;
+  padding: 0;
 }
 
 canvas {
+  width: 100%;
+  height: 100%;
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
@@ -141,27 +144,27 @@ canvas {
   border: 2px solid #00f3ff !important;
   box-shadow: 0 0 20px rgba(0, 243, 255, 0.35) !important;
   background: #101014;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-/* Pulsantiera Orizzontale per la Direzione (SU, GIÙ, SINISTRA, DESTRA) */
+/* Pulsantiera Orizzontale Compatta per la Direzione */
 .control-deck {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 8px;
+  gap: 4px;
+  padding: 4px;
   background: linear-gradient(180deg, #14141d 0%, #0b0b10 100%);
   border: 2px solid #00f3ff !important;
-  border-radius: 14px;
+  border-radius: 10px;
   box-shadow: 0 0 15px rgba(0, 243, 255, 0.25) !important;
   flex-shrink: 0;
   margin-top: 2px;
 }
 
 .dir-btn {
-  height: 54px;
+  height: 46px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -169,24 +172,24 @@ canvas {
   background: linear-gradient(180deg, #00b4d8 0%, #0077b6 100%);
   border: 2px solid #90e0ef;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 4px 0 #003554, 0 4px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 3px 0 #003554, 0 3px 8px rgba(0, 0, 0, 0.5);
   text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   font-family: 'Courier New', monospace;
   transition: transform 0.05s ease, background 0.1s ease;
 }
 
 .dir-btn span {
-  font-size: 18px;
+  font-size: 15px;
   line-height: 1;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .dir-btn:active {
-  transform: translateY(3px);
+  transform: translateY(2px);
   box-shadow: 0 1px 0 #003554, 0 2px 4px rgba(0,0,0,0.4);
   background: linear-gradient(180deg, #0077b6 0%, #005f73 100%);
 }
@@ -276,21 +279,10 @@ canvas {
   cursor: pointer;
   box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
 }
-
-@media (max-height: 670px) {
-  .dir-btn {
-    height: 44px;
-    font-size: 10px;
-  }
-  .dir-btn span {
-    font-size: 15px;
-  }
-}
 </style>
 </head>
 <body>
 
-<!-- MUSICA INIZIALE DA ASSETS/FROGGER/MUSICA_FROGGER.MP4 -->
 <audio id="bgMusic" src="assets/frogger/musica_frogger.mp4" loop autoplay playsinline style="display:none;"></audio>
 
 <div id="game-wrapper">
@@ -307,7 +299,6 @@ canvas {
     <canvas id="game"></canvas>
   </div>
 
-  <!-- Pulsantiera Orizzontale: SU, GIÙ, SINISTRA, DESTRA -->
   <div class="control-deck">
     <button class="dir-btn" id="btnUp"><span>▲</span>SU</button>
     <button class="dir-btn" id="btnDown"><span>▼</span>GIÙ</button>
@@ -354,7 +345,6 @@ canvas.height = CANVAS_H;
 let musicEnabled = localStorage.getItem('deadlineDrive_music') !== 'false';
 let sfxEnabled = localStorage.getItem('deadlineDrive_sfx') !== 'false';
 
-// Musica di sottofondo mantenuta bassa (0.12) per far risaltare i suoni di gioco
 const bgMusic = document.getElementById('bgMusic');
 bgMusic.volume = 0.12;
 
@@ -466,7 +456,6 @@ function getAC() {
   return audioCtx;
 }
 
-// SUONI DI GIOCO AD ALTO VOLUME (SFX > MUSICA)
 function playSound(type) {
   if (!sfxEnabled) return;
   try {
@@ -479,42 +468,36 @@ function playSound(type) {
     gain.connect(ac.destination);
 
     if (type === 'cross') {
-      // Passo / Movimento
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(580, ac.currentTime);
       osc.frequency.setValueAtTime(750, ac.currentTime + .06);
       gain.gain.setValueAtTime(.40, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .14);
     } else if (type === 'crash') {
-      // Impatto / Collisione
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(320, ac.currentTime);
       osc.frequency.exponentialRampToValueAtTime(35, ac.currentTime + .28);
       gain.gain.setValueAtTime(.60, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .28);
     } else if (type === 'pickup') {
-      // Bonus preso
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(520, ac.currentTime);
       osc.frequency.setValueAtTime(1040, ac.currentTime + .1);
       gain.gain.setValueAtTime(.50, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .22);
     } else if (type === 'malus') {
-      // Malus preso
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(220, ac.currentTime);
       osc.frequency.linearRampToValueAtTime(70, ac.currentTime + .22);
       gain.gain.setValueAtTime(.50, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .22);
     } else if (type === 'fail') {
-      // Game Over
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(260, ac.currentTime);
       osc.frequency.linearRampToValueAtTime(40, ac.currentTime + .35);
       gain.gain.setValueAtTime(.65, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .35);
     } else if (type === 'guard_active') {
-      // Scudo Attivato
       osc.type = 'sine';
       osc.frequency.setValueAtTime(700, ac.currentTime);
       osc.frequency.linearRampToValueAtTime(1400, ac.currentTime + .12);
@@ -524,10 +507,15 @@ function playSound(type) {
   } catch (e) {}
 }
 
+const imgCover = new Image(); imgCover.src = 'assets/pacman/copertina.png';
 const imgGiulia = new Image(); imgGiulia.src = 'assets/frogger/giulia.png';
 const imgTobi = new Image();   imgTobi.src = 'assets/frogger/tobi.png';
 const imgDave = new Image();   imgDave.src = 'assets/frogger/dave.png';
 const imgLuca = new Image();   imgLuca.src = 'assets/frogger/luca.png';
+
+const ASSETS = {
+  COVER: imgCover
+};
 
 const CHARACTERS = {
   GIULIA: {
@@ -866,10 +854,6 @@ function hitPlayer() {
   }
 }
 
-/* =======================================================
-   DISEGNO GIOCO & RIGIDO CONTROLLO TESTI DENTRO LE CLIP
-   ======================================================= */
-
 function drawGameWorld() {
   ctx.fillStyle = '#181818';
   ctx.fillRect(0, HUD_HEIGHT, CANVAS_W, CANVAS_H - HUD_HEIGHT);
@@ -1036,7 +1020,7 @@ function drawHUD() {
 }
 
 /* =======================================================
-   STILE GRAFICO DEGLI SCHERMI MENU (CYBER DECK ARCADE)
+   STILE GRAFICO DEGLI SCHERMI MENU (COVER & MENUS)
    ======================================================= */
 
 function drawMenuBackground() {
@@ -1093,63 +1077,67 @@ function drawCyberPanel(x, y, w, h, borderColor = '#00f3ff', bgColor = 'rgba(16,
 }
 
 function drawScreens() {
-  drawMenuBackground();
-
-  // 1. COPERTINA (COVER SCREEN)
+  // 1. COPERTINA (COVER SCREEN - ISPIRATA A FEEDBACK INVADERS)
   if (gameState === 'COVER') {
-    let boxW = 300, boxH = 340;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 60;
+    if (ASSETS.COVER && ASSETS.COVER.complete && ASSETS.COVER.naturalWidth !== 0) {
+      ctx.drawImage(ASSETS.COVER, 0, 0, CANVAS_W, CANVAS_H);
+    } else {
+      drawMenuBackground();
+      let boxW = 300, boxH = 340;
+      let boxX = (CANVAS_W - boxW) / 2, boxY = 60;
 
-    drawCyberPanel(boxX, boxY, boxW, boxH, '#00f3ff');
+      drawCyberPanel(boxX, boxY, boxW, boxH, '#00f3ff');
 
-    ctx.fillStyle = 'rgba(0, 243, 255, 0.2)';
-    ctx.fillRect(boxX + 20, boxY + 20, boxW - 40, 24);
-    ctx.strokeStyle = '#00f3ff';
-    ctx.strokeRect(boxX + 20, boxY + 20, boxW - 40, 24);
+      ctx.fillStyle = 'rgba(0, 243, 255, 0.2)';
+      ctx.fillRect(boxX + 20, boxY + 20, boxW - 40, 24);
+      ctx.strokeStyle = '#00f3ff';
+      ctx.strokeRect(boxX + 20, boxY + 20, boxW - 40, 24);
 
-    ctx.fillStyle = '#00f3ff';
-    ctx.font = '900 11px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('⚡ PREMIERE PRO ARCADE ⚡', CANVAS_W / 2, boxY + 36);
+      ctx.fillStyle = '#00f3ff';
+      ctx.font = '900 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡ PREMIERE PRO ARCADE ⚡', CANVAS_W / 2, boxY + 36);
 
-    ctx.fillStyle = '#ffea00';
-    ctx.font = '900 22px "Courier New", monospace';
-    ctx.shadowColor = '#ffea00';
-    ctx.shadowBlur = 12;
-    ctx.fillText('DEADLINE DRIVE', CANVAS_W / 2, boxY + 95);
-    ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffea00';
+      ctx.font = '900 22px "Courier New", monospace';
+      ctx.shadowColor = '#ffea00';
+      ctx.shadowBlur = 12;
+      ctx.fillText('DEADLINE DRIVE', CANVAS_W / 2, boxY + 95);
+      ctx.shadowBlur = 0;
 
-    ctx.fillStyle = '#ff0055';
-    ctx.font = '900 12px monospace';
-    ctx.fillText('TIMELINE RUSH 2026', CANVAS_W / 2, boxY + 120);
+      ctx.fillStyle = '#ff0055';
+      ctx.font = '900 12px monospace';
+      ctx.fillText('TIMELINE RUSH 2026', CANVAS_W / 2, boxY + 120);
 
-    ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(boxX + 25, boxY + 145, boxW - 50, 95);
-    ctx.strokeStyle = '#ff0055';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(boxX + 25, boxY + 145, boxW - 50, 95);
+      ctx.fillStyle = '#0a0a12';
+      ctx.fillRect(boxX + 25, boxY + 145, boxW - 50, 95);
+      ctx.strokeStyle = '#ff0055';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(boxX + 25, boxY + 145, boxW - 50, 95);
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '11px sans-serif';
-    ctx.fillText('Risali le tracce video prima', CANVAS_W / 2, boxY + 172);
-    ctx.fillText('che scada l\'Export finale!', CANVAS_W / 2, boxY + 192);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('Risali le tracce video prima', CANVAS_W / 2, boxY + 172);
+      ctx.fillText('che scada l\'Export finale!', CANVAS_W / 2, boxY + 192);
 
-    ctx.fillStyle = '#00ff66';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText(`HIGH SCORE: ${highScore} PTS`, CANVAS_W / 2, boxY + 220);
+      ctx.fillStyle = '#00ff66';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText(`HIGH SCORE: ${highScore} PTS`, CANVAS_W / 2, boxY + 220);
+    }
 
-    let btnPulse = Math.sin(frame * 0.1) * 3;
-    ctx.fillStyle = 'rgba(0, 243, 255, 0.9)';
-    ctx.fillRect(boxX + 30, boxY + 265 - btnPulse / 2, boxW - 60, 42 + btnPulse);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(boxX + 30, boxY + 265 - btnPulse / 2, boxW - 60, 42 + btnPulse);
-
-    ctx.fillStyle = '#000000';
-    ctx.font = '900 13px monospace';
-    ctx.fillText('TOCCA O PREMI PER INIZIARE ►', CANVAS_W / 2, boxY + 291);
+    if (Math.floor(frame / 40) % 2 === 0) {
+      ctx.fillStyle = '#00f3ff';
+      ctx.font = '900 14px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = '#00f3ff';
+      ctx.shadowBlur = 8;
+      ctx.fillText('PREMI PER COMINCIARE ►', CANVAS_W / 2, CANVAS_H - 30);
+      ctx.shadowBlur = 0;
+    }
     return;
   }
+
+  drawMenuBackground();
 
   // 2. LA STORIA (STORY SCREEN)
   if (gameState === 'STORY') {
@@ -1170,11 +1158,11 @@ function drawScreens() {
 
     ctx.textAlign = 'left';
     ctx.font = '11px sans-serif';
-    
+
     ctx.fillStyle = '#00f3ff';
     ctx.fillText('CLIENTE: IMPOSSIBILE', boxX + 25, boxY + 75);
     ctx.fillText('DEADLINE: 00:03 MINUTI', boxX + 25, boxY + 93);
-    
+
     ctx.fillStyle = '#ff0055';
     ctx.fillText('STATO TIMELINE: PANICO TOTALE!', boxX + 25, boxY + 115);
 
@@ -1344,7 +1332,7 @@ function drawScreens() {
 
     ctx.fillStyle = '#00f3ff';
     ctx.font = '900 16px monospace';
-    ctx.fillText('◄   CAMBIA PERSONAGGIO   ►', CANVAS_W / 2, boxY + 330);
+    ctx.fillText('◄  CAMBIA PERSONAGGIO   ►', CANVAS_W / 2, boxY + 330);
 
     ctx.fillStyle = c.primary;
     ctx.fillRect(boxX + 30, boxY + 348, boxW - 60, 38);
