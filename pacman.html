@@ -554,14 +554,16 @@ const ERAS_INFO = [
   }
 ];
 
-// --- PERSONAGGI E PERK ---
+// --- PERSONAGGI E PERK RISTRUTTURATI PER VESTIBILITÀ E FONT GRANDI ---
 const CHARACTERS = {
   LAURA: {
     id: 'LAURA',
     name: "LAURA",
     role: "Senior Graphic Designer",
-    perkBonus: "BONUS: Render Master (+1 Bomba, +1 Raggio)",
-    perkMalus: "MALUS: Precisione Senior (-5% Vel)",
+    perkBonusTitle: "BONUS: Render Master",
+    perkBonusDesc: "+1 Bomba | +1 Raggio Esplosione",
+    perkMalusTitle: "MALUS: Precisione Senior",
+    perkMalusDesc: "-5% Velocità di Corsa",
     primary: "#00ffcc",
     wallCol: "#00aaff",
     portrait: ASSETS.LAURA,
@@ -575,8 +577,10 @@ const CHARACTERS = {
     id: 'GUIDO',
     name: "GUIDO",
     role: "Junior Graphic Designer",
-    perkBonus: "BONUS: Agilità Junior (+20% Vel, +15% PTS)",
-    perkMalus: "MALUS: Bozza Iniziale (1 Bomba & Base)",
+    perkBonusTitle: "BONUS: Agilità Junior",
+    perkBonusDesc: "+20% Velocità | +15% Punti",
+    perkMalusTitle: "MALUS: Bozza Iniziale",
+    perkMalusDesc: "1 Bomba & Raggio Base",
     primary: "#ffd700",
     wallCol: "#ffaa00",
     portrait: ASSETS.GUIDO,
@@ -1240,7 +1244,6 @@ function updateBombsAndExplosions() {
 
       loadLevel();
 
-      // Mostra la schermata di presentazione SOLTANTO all'inizio di un'Era o per i Mega Boss
       if (isNewEra || isBossLevel) {
         state = 'ERA_INTRO';
       } else {
@@ -1434,24 +1437,36 @@ function drawSingleEnemy(e) {
   }
 }
 
+// --- CORREZIONE HUD DI GIOCO PERFETTA: NESSUN TAGLIO DEI TESTI O DELLE VITE ---
 function drawHUD() {
   ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
   ctx.strokeStyle = currentBoss.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, CANVAS_W, HUD_HEIGHT);
 
-  ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'left';
+  // Sinistra: Nome personaggio & Punteggio
+  ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'left';
   ctx.fillText(`${currentBoss.name}`, 8, 16);
-  ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 8, 32);
+  ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'left';
+  ctx.fillText(`PTS: ${score}`, 8, 32);
 
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
-  ctx.fillText(`STAGE ${level}/50`, CANVAS_W / 2, 26);
+  // Centro: Stage
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'center';
+  ctx.fillText(`STAGE ${level}/50`, CANVAS_W / 2, 24);
 
-  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'right';
+  // Destra: Record
+  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'right';
   ctx.fillText(`REC: ${hiScore}`, CANVAS_W - 8, 16);
 
-  ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New';
-  let heartStr = '';
-  for (let i = 0; i < Math.max(0, lives); i++) heartStr += '♥ ';
-  ctx.fillText(`VITE: ${heartStr.trim()}`, CANVAS_W - 8, 32);
+  // Destra: Scritta VITE + Indicatore grafico cuori rossi
+  ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'right';
+  ctx.fillText(`VITE:`, CANVAS_W - 48, 32);
+
+  // Disegno esplicito dei blocchi cuore rossi senza dipendere da font di sistema
+  for (let i = 0; i < lives; i++) {
+    let hx = CANVAS_W - 38 + (i * 12);
+    let hy = 23;
+    ctx.fillStyle = '#ff0055';
+    ctx.fillRect(hx, hy, 9, 9);
+  }
 }
 
 function drawScreens() {
@@ -1476,7 +1491,7 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 2: STORIA
+  // PAGINA 2: STORIA (AMPLIATA ED INGRANDITA ALL'INTERO SPAZIO)
   if (state === 'STORY') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1493,15 +1508,14 @@ function drawScreens() {
     ctx.fillText('Un’ondata di file corrotti', W / 2, 118);
     ctx.fillText('ha invaso il server:', W / 2, 138);
     ctx.fillText('grafiche rovinate, export', W / 2, 156);
-    ctx.fillText('sbagliati e bozze inutilizzabili', W / 2, 174);
+    ctx.fillText('sbagliati e bozze inutili', W / 2, 174);
     ctx.fillText('stanno per compromettere', W / 2, 192);
-    ctx.fillText('la consegna!', W / 2, 210);
+    ctx.fillText('la consegna delle 18:30!', W / 2, 210);
 
     ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 13px Courier New';
-    ctx.fillText('Piazza le bombe di Cleanup,', W / 2, 245);
-    ctx.fillText('fai saltare i file spazzatura', W / 2, 268);
-    ctx.fillText('e salva più grafiche possibile', W / 2, 288);
-    ctx.fillText('prima delle 18:30!', W / 2, 308);
+    ctx.fillText('Piazza le bombe Cleanup,', W / 2, 245);
+    ctx.fillText('spazza via i file spazzatura', W / 2, 268);
+    ctx.fillText('e salva il progetto!', W / 2, 288);
 
     if (Math.floor(frame / 40) % 2 === 0) {
       ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New';
@@ -1593,7 +1607,7 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 5: SELEZIONE PERSONAGGI
+  // PAGINA 5: SELEZIONE PERSONAGGI (DISPOSIZIONE E FONT INGGRANDITI E PERFETTAMENTE CONTENUTI)
   if (state === 'CHAR_SELECT') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1608,24 +1622,29 @@ function drawScreens() {
 
     if (c.portrait && c.portrait.complete && c.portrait.naturalWidth !== 0) {
       ctx.save();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 58, 130, 115, 10); ctx.clip();
-      ctx.drawImage(c.portrait, W / 2 - 65, 58, 130, 115);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 55, 120, 110, 10); ctx.clip();
+      ctx.drawImage(c.portrait, W / 2 - 60, 55, 120, 110);
       ctx.restore();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 58, 130, 115, 10);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 55, 120, 110, 10);
       ctx.strokeStyle = c.primary; ctx.lineWidth = 2; ctx.stroke();
     }
 
     ctx.fillStyle = c.primary; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(c.name, W / 2, 200);
+    ctx.fillText(c.name, W / 2, 190);
 
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New';
-    ctx.fillText(c.role, W / 2, 225);
+    ctx.fillText(c.role, W / 2, 212);
 
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 13px Courier New';
-    ctx.fillText(c.perkBonus, W / 2, 258);
+    // Titoli e Descrizioni Perk separati per massima chiarezza e zero sbavature
+    ctx.fillStyle = '#ffff00'; ctx.font = '900 15px Courier New';
+    ctx.fillText(c.perkBonusTitle, W / 2, 242);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
+    ctx.fillText(c.perkBonusDesc, W / 2, 262);
 
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 13px Courier New';
-    ctx.fillText(c.perkMalus, W / 2, 285);
+    ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
+    ctx.fillText(c.perkMalusTitle, W / 2, 294);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
+    ctx.fillText(c.perkMalusDesc, W / 2, 314);
 
     ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New';
     ctx.fillText('◄', 28, 175);
@@ -1638,7 +1657,7 @@ function drawScreens() {
     return;
   }
 
-  // ERA INTRO SCREEN (Solo all'inizio di ogni Era o per il Mega Boss)
+  // ERA INTRO SCREEN (Mostrata SOLO all'inizio di ogni Era o per il Mega Boss)
   if (state === 'ERA_INTRO') {
     ctx.save();
     ctx.fillStyle = 'rgba(6, 2, 18, 0.96)'; ctx.fillRect(0, 0, W, H);
@@ -1790,7 +1809,6 @@ canvas.addEventListener('pointerdown', e => {
   if (state === 'PAUSE') {
     state = 'playing';
     updateMusicState();
-    return;
   }
 
   if (state === 'gameover') {
