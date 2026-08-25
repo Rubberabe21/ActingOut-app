@@ -53,7 +53,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 6px) 8px;
+    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 10px) 8px;
     background: #060212 !important;
     overflow: hidden;
   }
@@ -73,20 +73,34 @@
     font-weight: bold;
     text-shadow: 0 0 6px #00f0ff !important;
     letter-spacing: 1px;
+    flex: 1;
   }
+
+  .header-btns-right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
   .opt-btn {
     background: #1a0836;
     border: 1.5px solid #ffea00 !important;
     color: #ffea00 !important;
     padding: 5px 10px;
     font-family: 'Courier New', monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
     box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
   }
   .opt-btn:active { transform: scale(0.92); }
+
+  #btnExitTop {
+    border-color: #ff007f !important;
+    color: #ff007f !important;
+    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3) !important;
+  }
 
   #canvas-container {
     position: relative;
@@ -117,18 +131,19 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 6px 10px;
+    padding: 10px;
     background: #160a2c;
     border: 2px solid #ffea00 !important;
     border-radius: 14px;
     box-shadow: 0 0 15px rgba(255, 234, 0, 0.4) !important;
     flex-shrink: 0;
+    margin-top: 2px;
   }
 
   .joystick-zone {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 140px;
+    height: 140px;
     background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
     border: 2.5px solid #00f0ff !important;
     border-radius: 50%;
@@ -142,8 +157,8 @@
 
   .joystick-knob {
     position: absolute;
-    width: 44px;
-    height: 44px;
+    width: 56px;
+    height: 56px;
     background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
     border: 2.5px solid #ffffff;
     border-radius: 50%;
@@ -155,46 +170,25 @@
   }
 
   .fire-btn {
-    width: 92px;
-    height: 92px;
+    width: 70px;
+    height: 70px;
     background: radial-gradient(circle at 35% 35%, #ff3366, #990026);
     border: 3px solid #ffffff;
     color: #ffffff;
-    font-size: 13px;
+    font-size: 28px;
     font-weight: 900;
     border-radius: 50%;
-    box-shadow: 0 5px 0 #66001a, 0 0 18px rgba(255, 0, 85, 0.8);
+    box-shadow: 0 4px 0 #66001a, 0 0 18px rgba(255, 0, 85, 0.8);
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 4px #000;
     cursor: pointer;
   }
   .fire-btn:active {
-    transform: translateY(3px);
+    transform: translateY(2px);
     box-shadow: 0 1px 0 #66001a;
     background: #ff0033;
   }
-
-  .exit-btn {
-    width: 100%;
-    margin-top: 2px;
-    padding: 6px;
-    background: #060212;
-    border: 1.5px solid #ff007f !important;
-    color: #ff007f !important;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    font-size: 11px;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-    box-shadow: 0 0 10px rgba(255, 0, 127, 0.3) !important;
-    flex-shrink: 0;
-  }
-  .exit-btn:active { transform: scale(0.96); }
 
   .modal-overlay {
     display: none;
@@ -284,7 +278,10 @@
 <div id="game-wrapper">
   <div class="top-header">
     <span class="header-title">CYBER RUN: GRID BOMBER</span>
-    <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+    <div class="header-btns-right">
+      <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
+      <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+    </div>
   </div>
 
   <div id="canvas-container">
@@ -298,11 +295,8 @@
 
     <div class="fire-btn" id="btnBomb">
       <span>💣</span>
-      <span>BOMBA</span>
     </div>
   </div>
-
-  <button class="exit-btn" onclick="exitGame(score)">◄ TORNA ALL'HUB ARCADE</button>
 
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
@@ -375,6 +369,7 @@ function updateMusicState() {
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
+const btnExitTop = document.getElementById('btnExitTop');
 const sensSlider = document.getElementById('sensSlider');
 const sensValText = document.getElementById('sensValText');
 const btnToggleMusic = document.getElementById('btnToggleMusic');
@@ -426,6 +421,11 @@ btnCloseSettings.onclick = () => {
     state = 'playing';
   }
   updateMusicState();
+};
+
+btnExitTop.onclick = () => {
+  getAC();
+  exitGame(score);
 };
 
 // --- PRE-CARICAMENTO ASSETS PNG ---
@@ -554,7 +554,7 @@ const ERAS_INFO = [
   }
 ];
 
-// --- PERSONAGGI E PERK RISTRUTTURATI PER VESTIBILITÀ E FONT GRANDI ---
+// --- PERSONAGGI E PERK ---
 const CHARACTERS = {
   LAURA: {
     id: 'LAURA',
@@ -792,7 +792,7 @@ function handleJoyMove(clientX, clientY) {
   let dy = clientY - centerY;
 
   const dist = Math.hypot(dx, dy);
-  const maxRadius = rect.width / 2 - 12;
+  const maxRadius = rect.width / 2 - 15;
 
   if (dist > maxRadius) {
     dx = (dx / dist) * maxRadius;
@@ -1437,30 +1437,24 @@ function drawSingleEnemy(e) {
   }
 }
 
-// --- CORREZIONE HUD DI GIOCO PERFETTA: NESSUN TAGLIO DEI TESTI O DELLE VITE ---
 function drawHUD() {
   ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
   ctx.strokeStyle = currentBoss.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, CANVAS_W, HUD_HEIGHT);
 
-  // Sinistra: Nome personaggio & Punteggio
   ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'left';
   ctx.fillText(`${currentBoss.name}`, 8, 16);
   ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'left';
   ctx.fillText(`PTS: ${score}`, 8, 32);
 
-  // Centro: Stage
   ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'center';
   ctx.fillText(`STAGE ${level}/50`, CANVAS_W / 2, 24);
 
-  // Destra: Record
   ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'right';
   ctx.fillText(`REC: ${hiScore}`, CANVAS_W - 8, 16);
 
-  // Destra: Scritta VITE + Indicatore grafico cuori rossi
   ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'right';
   ctx.fillText(`VITE:`, CANVAS_W - 48, 32);
 
-  // Disegno esplicito dei blocchi cuore rossi senza dipendere da font di sistema
   for (let i = 0; i < lives; i++) {
     let hx = CANVAS_W - 38 + (i * 12);
     let hy = 23;
@@ -1472,7 +1466,6 @@ function drawHUD() {
 function drawScreens() {
   const W = CANVAS_W, H = CANVAS_H;
 
-  // PAGINA 1: COPERTINA
   if (state === 'COVER') {
     if (ASSETS.COVER && ASSETS.COVER.complete && ASSETS.COVER.naturalWidth !== 0) {
       ctx.drawImage(ASSETS.COVER, 0, 0, W, H);
@@ -1491,7 +1484,6 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 2: STORIA (AMPLIATA ED INGRANDITA ALL'INTERO SPAZIO)
   if (state === 'STORY') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1524,7 +1516,6 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 3: REGOLE
   if (state === 'RULES') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1567,7 +1558,6 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 4: POTENZIAMENTI
   if (state === 'POWERUPS_INFO') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1607,7 +1597,6 @@ function drawScreens() {
     return;
   }
 
-  // PAGINA 5: SELEZIONE PERSONAGGI (DISPOSIZIONE E FONT INGGRANDITI E PERFETTAMENTE CONTENUTI)
   if (state === 'CHAR_SELECT') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1622,20 +1611,19 @@ function drawScreens() {
 
     if (c.portrait && c.portrait.complete && c.portrait.naturalWidth !== 0) {
       ctx.save();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 55, 120, 110, 10); ctx.clip();
-      ctx.drawImage(c.portrait, W / 2 - 60, 55, 120, 110);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 58, 130, 115, 10); ctx.clip();
+      ctx.drawImage(c.portrait, W / 2 - 65, 58, 130, 115);
       ctx.restore();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 55, 120, 110, 10);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 58, 130, 115, 10);
       ctx.strokeStyle = c.primary; ctx.lineWidth = 2; ctx.stroke();
     }
 
     ctx.fillStyle = c.primary; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(c.name, W / 2, 190);
+    ctx.fillText(c.name, W / 2, 200);
 
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New';
     ctx.fillText(c.role, W / 2, 212);
 
-    // Titoli e Descrizioni Perk separati per massima chiarezza e zero sbavature
     ctx.fillStyle = '#ffff00'; ctx.font = '900 15px Courier New';
     ctx.fillText(c.perkBonusTitle, W / 2, 242);
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
@@ -1657,7 +1645,6 @@ function drawScreens() {
     return;
   }
 
-  // ERA INTRO SCREEN (Mostrata SOLO all'inizio di ogni Era o per il Mega Boss)
   if (state === 'ERA_INTRO') {
     ctx.save();
     ctx.fillStyle = 'rgba(6, 2, 18, 0.96)'; ctx.fillRect(0, 0, W, H);
@@ -1708,7 +1695,6 @@ function drawScreens() {
       ctx.fillStyle = '#00f0ff'; ctx.font = '900 14px Courier New';
       ctx.fillText('NEMICI DI QUESTA ERA:', W / 2, 162);
 
-      // Mostro Base
       let mImg = ASSETS.MOSTRI[currentEraIndex];
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(18, 178, W - 36, 56, 8); ctx.fill();
       ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2; ctx.stroke();
@@ -1725,7 +1711,6 @@ function drawScreens() {
       ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
       ctx.fillText('Resistenza: 1 Colpo  | +200 PTS', 68, 220);
 
-      // Mostro Corrotto
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(18, 242, W - 36, 56, 8); ctx.fill();
       ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2; ctx.stroke();
 
