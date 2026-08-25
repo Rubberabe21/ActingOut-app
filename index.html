@@ -649,6 +649,7 @@ class MainHub extends Phaser.Scene {
         this.load.video('gabri_video', 'assets/hub/gabri.mp4', 'loadeddata', false, true);
         this.load.video('raffa_video', 'assets/hub/raffa.mp4', 'loadeddata', false, true);
         this.load.video('pierri_video', 'assets/hub/pierri.mp4', 'loadeddata', false, true);
+        this.load.video('morena_video', 'assets/hub/morena.mp4', 'loadeddata', false, true);
 
         const playerSkins = [
             'dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png',
@@ -702,6 +703,11 @@ class MainHub extends Phaser.Scene {
         if (this.npc.setPipeline) this.npc.setPipeline('GreenKey');
         this.npc.play(true);
         this.npc.setMute(true);
+
+        this.morena = this.add.video(1035, 580, 'morena_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+        if (this.morena.setPipeline) this.morena.setPipeline('GreenKey');
+        this.morena.play(true);
+        this.morena.setMute(true);
 
         this.raffa = this.add.video(1900, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
         if (this.raffa.setPipeline) this.raffa.setPipeline('GreenKey');
@@ -849,6 +855,12 @@ class MainHub extends Phaser.Scene {
                 "Sto preparando le grafiche per l’evento di Bretto. Mi manca solo capire quale versione è quella definitiva.",
                 "Sto facendo una prova della presentazione… video, audio, slide, tutto insieme. Incrociamo le dita."
             ])];
+        } else if (speakerKey === 'morena') {
+            this.npcLines = [line1, Phaser.Math.RND.pick([
+                "Sto riguardando questa sequenza per la decima volta… ormai conosco le pause dell’intervistato meglio delle mie.",
+                "Aspetta, sto cercando quel momento preciso in cui tutto cambia. So che è da qualche parte in queste due ore di girato.",
+                "Oggi sono in modalità Premiere assoluta: taglia, ascolta, sposta… e poi ricomincia da capo."
+            ])];
         } else if (speakerKey === 'raffa') {
             this.npcLines = [line1, Phaser.Math.RND.pick([
                 "Sto cercando il microfono che avevo messo qui… o forse era nell’altra scatola.",
@@ -887,6 +899,9 @@ class MainHub extends Phaser.Scene {
         } else if (this.activeSpeaker === 'pierri') {
             targetX = this.pierri.x;
             targetY = this.pierri.y;
+        } else if (this.activeSpeaker === 'morena') {
+            targetX = this.morena.x;
+            targetY = this.morena.y;
         } else if (this.activeSpeaker === 'raffa') {
             targetX = this.raffa.x;
             targetY = this.raffa.y;
@@ -1014,6 +1029,12 @@ class MainHub extends Phaser.Scene {
             return;
         }
 
+        let distMorena = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.morena.x, this.morena.y);
+        if (distMorena < 70) {
+            this.startDialogue('morena');
+            return;
+        }
+
         let distRaffa = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y);
         if (distRaffa < 70) {
             this.startDialogue('raffa');
@@ -1090,6 +1111,14 @@ class MainHub extends Phaser.Scene {
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y) < 70) {
             this.infoBox.setPosition(this.npc.x, this.cabBadgeY);
             this.boxTitleText.setText("Giovannone");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
+        }
+
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.morena.x, this.morena.y) < 70) {
+            this.infoBox.setPosition(this.morena.x, this.cabBadgeY);
+            this.boxTitleText.setText("Morena");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
             return;
