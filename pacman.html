@@ -455,7 +455,7 @@ for (let i = 1; i <= 5; i++) {
   ASSETS.BOSSI[i] = imgB;
 }
 
-// --- CONFIGURAZIONE ERE, STORIE DI 3 RIGHE E BOSS/MOSTRI (50 LIVELLI) ---
+// --- CONFIGURAZIONE ERE, STORIE E BOSS (50 LIVELLI) ---
 const ERAS_INFO = [
   { 
     era: 1, 
@@ -466,14 +466,14 @@ const ERAS_INFO = [
     colTough: "#ffaa00",
     filterTough: "hue-rotate(60deg) saturate(200%)",
     storyEra: [
-      "I vecchi raster animati sono impazziti nel server!",
-      "I file .GIF corrotti cambiano colore e resistenza.",
-      "Pulisci la cartella prima che saturino il disco!"
+      "I vecchi raster animati sono impazziti!",
+      "I file .GIF corrotti mutano nel server.",
+      "Pulisci la cartella prima della consegna!"
     ],
     storyBoss: [
-      "Un gigantesco Loop Infinito blocca il rendering!",
-      "Questa bozza gigante resiste a ben 10 esplosioni.",
-      "Distruggilo per sbloccare l'accesso al server!"
+      "Un Loop Infinito blocca il rendering!",
+      "La bozza gigante resiste a 10 colpi.",
+      "Distruggilo per accedere al server!"
     ]
   },
   { 
@@ -486,13 +486,13 @@ const ERAS_INFO = [
     filterTough: "hue-rotate(270deg) saturate(250%)",
     storyEra: [
       "I collegamenti dei layout si sono spezzati!",
-      "I Bug 404 rimbalzano all'impazzata nei corridoi.",
-      "Le varianti viola corazzate richiedono 2 colpi!"
+      "I Bug 404 rimbalzano all'impazzata.",
+      "Elimina le varianti viola corazzate!"
     ],
     storyBoss: [
-      "Schermata blu imminente! Il Kernel Panic avanza.",
-      "Errore fatale che minaccia di formattare l'archivio.",
-      "Usa le bombe di cleanup prima del crash totale!"
+      "Kernel Panic! Schermata blu imminente.",
+      "Errore fatale che minaccia l'archivio.",
+      "Usa le bombe prima del crash totale!"
     ]
   },
   { 
@@ -504,14 +504,14 @@ const ERAS_INFO = [
     colTough: "#00ff66",
     filterTough: "hue-rotate(120deg) saturate(200%)",
     storyEra: [
-      "I font del cliente sono scomparsi senza traccia!",
-      "Caratteri fantasma vagano tra i file di progetto.",
-      "Elimina le versioni verdi corazzate con un doppio colpo!"
+      "I font del cliente sono scomparsi!",
+      "Caratteri fantasma vagano tra i file.",
+      "Elimina i Tofu verdi a doppio colpo!"
     ],
     storyBoss: [
-      "Il leggendario blocco Tofu vuoto e gigante è riemerso!",
-      "Il terrore di ogni tipografo ostruisce le tavole.",
-      "Fallo saltare in aria prima della stampa finale!"
+      "Il blocco Tofu vuoto e gigante è qui!",
+      "Il terrore dei tipografi ostruisce tutto.",
+      "Fallo saltare prima della stampa!"
     ]
   },
   { 
@@ -523,14 +523,14 @@ const ERAS_INFO = [
     colTough: "#ff0055",
     filterTough: "hue-rotate(300deg) saturate(220%)",
     storyEra: [
-      "La RAM della workstation è saturata al 99%!",
-      "Le rotelline di caricamento ti inseguono senza sosta.",
-      "I Ram Eater rossi sono ultra-resistenti e veloci!"
+      "La RAM della workstation è al 99%!",
+      "Le rotelline ti inseguono nel server.",
+      "I Ram Eater rossi sono ultra-veloci!"
     ],
     storyBoss: [
-      "La Girandola della Morte sta congelando Photoshop!",
-      "Un vortice di caricamento infinito minaccia la consegna.",
-      "Colpisci duro per liberare la memoria dello studio!"
+      "La Girandola congelante blocca la RAM!",
+      "Un vortice infinito blocca la consegna.",
+      "Colpisci duro per liberare lo studio!"
     ]
   },
   { 
@@ -542,14 +542,14 @@ const ERAS_INFO = [
     colTough: "#ff0000",
     filterTough: "hue-rotate(180deg) saturate(300%)",
     storyEra: [
-      "Mancano pochissimi minuti alle ore 18:30!",
-      "File non salvati ed errori si muovono a gran velocità.",
-      "Fai esplodere tutte le minacce per salvare il progetto!"
+      "Mancano pochi minuti alle 18:30!",
+      "File non salvati corrono nel sistema.",
+      "Fai esplodere il caos pre-consegna!"
     ],
     storyBoss: [
-      "Il timer segna 00:00! Il Crash Finale è qui!",
-      "L'ultimo ostacolo tra lo studio e la consegna dell'anno.",
-      "Piazza ogni bomba a disposizione e salva l'agenzia!"
+      "Il timer segna 00:00! Crash Finale!",
+      "L'ultimo ostacolo per salvare il lavoro.",
+      "Piazza ogni bomba e salva l'agenzia!"
     ]
   }
 ];
@@ -560,8 +560,8 @@ const CHARACTERS = {
     id: 'LAURA',
     name: "LAURA",
     role: "Senior Graphic Designer",
-    perkBonus: "BONUS: Render Master (2 Bombe & Raggio +1)",
-    perkMalus: "MALUS: Precisione Senior (-5% Velocità)",
+    perkBonus: "BONUS: Render Master (+1 Bomba, +1 Raggio)",
+    perkMalus: "MALUS: Precisione Senior (-5% Vel)",
     primary: "#00ffcc",
     wallCol: "#00aaff",
     portrait: ASSETS.LAURA,
@@ -575,8 +575,8 @@ const CHARACTERS = {
     id: 'GUIDO',
     name: "GUIDO",
     role: "Junior Graphic Designer",
-    perkBonus: "BONUS: Agilità Junior (+20% Velocità & +15% PTS)",
-    perkMalus: "MALUS: Bozza Iniziale (1 Bomba & Raggio Base)",
+    perkBonus: "BONUS: Agilità Junior (+20% Vel, +15% PTS)",
+    perkMalus: "MALUS: Bozza Iniziale (1 Bomba & Base)",
     primary: "#ffd700",
     wallCol: "#ffaa00",
     portrait: ASSETS.GUIDO,
@@ -901,7 +901,6 @@ function loadLevel() {
       } else if ((r <= 2 && c <= 2) || (r >= ROWS - 3 && c >= COLS - 3)) {
         map[r][c] = 0; blockData[r][c] = null;
       } else if (isBossLevel && (r >= 5 && r <= 9 && c >= 4 && c <= 8)) {
-        // Area centrale sgombra per il Mega Boss 2x2
         map[r][c] = 0; blockData[r][c] = null;
       } else {
         if (Math.random() < (0.50 + Math.min(level * 0.005, 0.20))) {
@@ -920,7 +919,6 @@ function loadLevel() {
   }
 
   if (isBossLevel) {
-    // Generazione del MEGA BOSS (2x2)
     let bossEra = Math.min(5, Math.floor(level / 10));
     let bossHp = 10 + (bossEra - 1) * 5;
     enemies.push({
@@ -936,7 +934,6 @@ function loadLevel() {
       hitTimer: 0
     });
   } else {
-    // Nemici regolari
     let emptyCells = [];
     for (let r = 1; r < ROWS - 1; r++) {
       for (let c = 1; c < COLS - 1; c++) {
@@ -957,7 +954,6 @@ function loadLevel() {
       }
 
       let mType = Math.random() < 0.7 ? currentEraIndex : (Math.floor(Math.random() * currentEraIndex) + 1);
-      
       let chanceOfTough = 0.25 + Math.min(level * 0.01, 0.45);
       let enemyHp = (Math.random() < chanceOfTough) ? 2 : 1;
 
@@ -1446,12 +1442,16 @@ function drawHUD() {
   ctx.fillText(`${currentBoss.name}`, 8, 16);
   ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 8, 32);
 
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
   ctx.fillText(`STAGE ${level}/50`, CANVAS_W / 2, 26);
 
-  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'right';
+  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'right';
   ctx.fillText(`REC: ${hiScore}`, CANVAS_W - 8, 16);
-  ctx.fillStyle = '#ff0055'; ctx.fillText(`VITE: ${'❤️'.repeat(Math.max(0, lives))}`, CANVAS_W - 8, 34);
+
+  ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New';
+  let heartStr = '';
+  for (let i = 0; i < Math.max(0, lives); i++) heartStr += '♥ ';
+  ctx.fillText(`VITE: ${heartStr.trim()}`, CANVAS_W - 8, 32);
 }
 
 function drawScreens() {
@@ -1463,14 +1463,14 @@ function drawScreens() {
       ctx.drawImage(ASSETS.COVER, 0, 0, W, H);
     } else {
       ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#00f0ff'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#00f0ff'; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
       ctx.fillText('CYBER RUN: BOMBER', W / 2, 180);
       ctx.fillStyle = '#ffea00'; ctx.font = 'bold 16px Courier New';
       ctx.fillText('AGENCY ARCADE', W / 2, 220);
     }
 
     if (Math.floor(frame / 45) % 2 === 0) {
-      ctx.fillStyle = '#00ffcc'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#00ffcc'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
       ctx.fillText('PREMI BOMBA PER INIZIARE ►', W / 2, H - 22);
     }
     return;
@@ -1481,31 +1481,31 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
     ctx.fillStyle = '#ffea00'; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('LA STORIA', W / 2, 42);
+    ctx.fillText('LA STORIA', W / 2, 48);
 
-    ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(10, 52, W - 20, H - 90, 12); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(10, 15, W - 20, H - 30, 12); ctx.fill();
     ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2.5; ctx.stroke();
 
     ctx.fillStyle = '#ff0055'; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('Laura e Guido sono nei guai!', W / 2, 78);
+    ctx.fillText('Laura e Guido sono nei guai!', W / 2, 85);
     
-    ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
-    ctx.fillText('Un’ondata di file corrotti', W / 2, 110);
-    ctx.fillText('ha invaso il server:', W / 2, 128);
-    ctx.fillText('grafiche rovinate, export', W / 2, 146);
-    ctx.fillText('sbagliati e bozze inutilizzabili', W / 2, 164);
-    ctx.fillText('stanno per compromettere', W / 2, 182);
-    ctx.fillText('la consegna!', W / 2, 200);
+    ctx.fillStyle = '#ffffff'; ctx.font = '13px Courier New';
+    ctx.fillText('Un’ondata di file corrotti', W / 2, 118);
+    ctx.fillText('ha invaso il server:', W / 2, 138);
+    ctx.fillText('grafiche rovinate, export', W / 2, 156);
+    ctx.fillText('sbagliati e bozze inutilizzabili', W / 2, 174);
+    ctx.fillText('stanno per compromettere', W / 2, 192);
+    ctx.fillText('la consegna!', W / 2, 210);
 
     ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 13px Courier New';
-    ctx.fillText('Piazza le bombe di Cleanup,', W / 2, 236);
-    ctx.fillText('fai saltare i file spazzatura', W / 2, 256);
-    ctx.fillText('e salva più grafiche possibile', W / 2, 276);
-    ctx.fillText('prima delle 18:30!', W / 2, 296);
+    ctx.fillText('Piazza le bombe di Cleanup,', W / 2, 245);
+    ctx.fillText('fai saltare i file spazzatura', W / 2, 268);
+    ctx.fillText('e salva più grafiche possibile', W / 2, 288);
+    ctx.fillText('prima delle 18:30!', W / 2, 308);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 18);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New';
+      ctx.fillText('CONTINUA ►', W / 2, 385);
     }
     return;
   }
@@ -1515,39 +1515,40 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
     ctx.fillStyle = '#00f0ff'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('REGOLE DI GIOCO', W / 2, 40);
+    ctx.fillText('REGOLE DI GIOCO', W / 2, 45);
 
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 50, W - 20, H - 85, 12); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 15, W - 20, H - 30, 12); ctx.fill();
     ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; ctx.stroke();
 
     ctx.textAlign = 'center';
 
     ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
-    ctx.fillText('01. PULISCI FILE CORROTTI', W / 2, 75);
+    ctx.fillText('01. PULISCI FILE CORROTTI', W / 2, 80);
     ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
-    ctx.fillText('Fai esplodere .JPG, .PNG, .PSD,', W / 2, 93);
-    ctx.fillText('.AI e .PDF per aprirti la strada.', W / 2, 111);
+    ctx.fillText('Fai esplodere .JPG, .PNG,', W / 2, 98);
+    ctx.fillText('.PSD, .AI e .PDF per strada.', W / 2, 114);
 
     ctx.fillStyle = '#00ffcc'; ctx.font = '900 14px Courier New';
-    ctx.fillText('02. DISTRUGGI I BUG', W / 2, 142);
+    ctx.fillText('02. DISTRUGGI I BUG', W / 2, 145);
     ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
-    ctx.fillText('Elimina i bug vaganti e i Mega Boss', W / 2, 160);
-    ctx.fillText('ogni 10 livelli per avanzare.', W / 2, 178);
+    ctx.fillText('Elimina i bug vaganti e i', W / 2, 163);
+    ctx.fillText('Mega Boss ogni 10 livelli.', W / 2, 179);
 
     ctx.fillStyle = '#ff00ff'; ctx.font = '900 14px Courier New';
-    ctx.fillText('03. RACCOGLI POTENZIAMENTI', W / 2, 209);
+    ctx.fillText('03. RACCOGLI POTENZIAMENTI', W / 2, 210);
     ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
-    ctx.fillText('Aumenta raggio, bombe e velocità', W / 2, 227);
-    ctx.fillText('scavando tra i file dello studio.', W / 2, 245);
+    ctx.fillText('Aumenta raggio, bombe e', W / 2, 228);
+    ctx.fillText('velocità scavando tra i file.', W / 2, 244);
 
     ctx.fillStyle = '#ffd700'; ctx.font = '900 14px Courier New';
-    ctx.fillText('04. CONTROLLI GUIDA', W / 2, 276);
+    ctx.fillText('04. CONTROLLI GUIDA', W / 2, 275);
     ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
-    ctx.fillText('Joystick Touch / WASD + Tasto BOMBA', W / 2, 294);
+    ctx.fillText('Joystick Touch / WASD', W / 2, 293);
+    ctx.fillText('+ Tasto BOMBA / SPAZIO', W / 2, 309);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 18);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New';
+      ctx.fillText('CONTINUA ►', W / 2, 385);
     }
     return;
   }
@@ -1557,7 +1558,10 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
     ctx.fillStyle = '#ffea00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('MODULI & POTENZIAMENTI', W / 2, 38);
+    ctx.fillText('MODULI & POTENZIAMENTI', W / 2, 45);
+
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 15, W - 20, H - 30, 12); ctx.fill();
+    ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 2.5; ctx.stroke();
 
     const items = [
       { tag: '💣', title: 'EXTRA BOMB', desc: '+1 Bomba Simultanea', col: '#ff0055' },
@@ -1567,24 +1571,24 @@ function drawScreens() {
     ];
 
     items.forEach((item, idx) => {
-      let boxY = 54 + (idx * 70);
-      ctx.fillStyle = '#101228'; ctx.beginPath();
-      ctx.roundRect(10, boxY, W - 20, 62, 10); ctx.fill();
+      let boxY = 62 + (idx * 70);
+      ctx.fillStyle = '#160a2c'; ctx.beginPath();
+      ctx.roundRect(20, boxY, W - 40, 62, 10); ctx.fill();
       ctx.strokeStyle = item.col; ctx.lineWidth = 2; ctx.stroke();
 
-      ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(item.tag, 36, boxY + 31);
+      ctx.font = '26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(item.tag, 46, boxY + 31);
 
-      ctx.fillStyle = item.col; ctx.font = 'bold 14px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillText(item.title, 64, boxY + 28);
+      ctx.fillStyle = item.col; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(item.title, 76, boxY + 28);
 
       ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
-      ctx.fillText(item.desc, 64, boxY + 48);
+      ctx.fillText(item.desc, 76, boxY + 48);
     });
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('CONTINUA ►', W / 2, H - 18);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText('CONTINUA ►', W / 2, 385);
     }
     return;
   }
@@ -1594,75 +1598,75 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
     ctx.fillStyle = '#ffff00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('SCEGLI IL TUO GRAFICO 🎨', W / 2, 36);
+    ctx.fillText('SCEGLI IL TUO GRAFICO 🎨', W / 2, 42);
 
     let key = charList[charSelectIndex];
     let c = CHARACTERS[key];
 
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 48, W - 20, H - 85, 14); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 15, W - 20, H - 30, 14); ctx.fill();
     ctx.strokeStyle = c.primary; ctx.lineWidth = 3; ctx.stroke();
 
     if (c.portrait && c.portrait.complete && c.portrait.naturalWidth !== 0) {
       ctx.save();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 60, 130, 115, 10); ctx.clip();
-      ctx.drawImage(c.portrait, W / 2 - 65, 60, 130, 115);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 58, 130, 115, 10); ctx.clip();
+      ctx.drawImage(c.portrait, W / 2 - 65, 58, 130, 115);
       ctx.restore();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 60, 130, 115, 10);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 58, 130, 115, 10);
       ctx.strokeStyle = c.primary; ctx.lineWidth = 2; ctx.stroke();
     }
 
     ctx.fillStyle = c.primary; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(c.name, W / 2, 202);
+    ctx.fillText(c.name, W / 2, 200);
 
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New';
-    ctx.fillText(c.role, W / 2, 226);
+    ctx.fillText(c.role, W / 2, 225);
 
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New';
-    ctx.fillText(c.perkBonus, W / 2, 260);
+    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 13px Courier New';
+    ctx.fillText(c.perkBonus, W / 2, 258);
 
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New';
-    ctx.fillText(c.perkMalus, W / 2, 288);
+    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 13px Courier New';
+    ctx.fillText(c.perkMalus, W / 2, 285);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 30px Courier New';
-    ctx.fillText('◄', 28, 180);
-    ctx.fillText('►', W - 28, 180);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New';
+    ctx.fillText('◄', 28, 175);
+    ctx.fillText('►', W - 28, 175);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = c.primary; ctx.font = '900 16px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 18);
+      ctx.fillStyle = c.primary; ctx.font = '900 18px Courier New';
+      ctx.fillText('CONTINUA ►', W / 2, 385);
     }
     return;
   }
 
-  // ERA INTRO SCREEN (Mostrata SOLO all'inizio di ogni Era o per il Mega Boss)
+  // ERA INTRO SCREEN (Solo all'inizio di ogni Era o per il Mega Boss)
   if (state === 'ERA_INTRO') {
     ctx.save();
     ctx.fillStyle = 'rgba(6, 2, 18, 0.96)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(10, 26, W - 20, H - 52, 14); ctx.fill();
+    ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(10, 15, W - 20, H - 30, 14); ctx.fill();
     ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 3; ctx.stroke();
 
     let eraData = ERAS_INFO[currentEraIndex - 1];
     let isBossLvl = (level % 10 === 0);
 
     ctx.fillStyle = '#ffea00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`STAGE ${level}/50`, W / 2, 54);
+    ctx.fillText(`STAGE ${level}/50`, W / 2, 46);
 
     ctx.fillStyle = eraData.colBase; ctx.font = 'bold 16px Courier New';
-    ctx.fillText(eraData.name, W / 2, 78);
+    ctx.fillText(eraData.name, W / 2, 70);
 
     let lines = isBossLvl ? eraData.storyBoss : eraData.storyEra;
     ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
-    ctx.fillText(lines[0], W / 2, 106);
-    ctx.fillText(lines[1], W / 2, 124);
-    ctx.fillText(lines[2], W / 2, 142);
+    ctx.fillText(lines[0], W / 2, 98);
+    ctx.fillText(lines[1], W / 2, 116);
+    ctx.fillText(lines[2], W / 2, 134);
 
     if (isBossLvl) {
-      ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
-      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, 172);
+      ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New';
+      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, 162);
 
       let bImg = ASSETS.BOSSI[currentEraIndex];
       let bossSize = 64;
-      let bx = W / 2 - bossSize / 2, by = 186;
+      let bx = W / 2 - bossSize / 2, by = 178;
 
       if (bImg && bImg.complete && bImg.naturalWidth !== 0) {
         ctx.drawImage(bImg, bx, by, bossSize, bossSize);
@@ -1674,56 +1678,56 @@ function drawScreens() {
         ctx.fillText(`BOSS ${currentEraIndex}`, W / 2, by + 36);
       }
 
-      ctx.fillStyle = '#ffea00'; ctx.font = 'bold 14px Courier New';
-      ctx.fillText(eraData.boss, W / 2, 272);
+      ctx.fillStyle = '#ffea00'; ctx.font = 'bold 15px Courier New';
+      ctx.fillText(eraData.boss, W / 2, 262);
 
       ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New';
       let bossHp = 10 + (currentEraIndex - 1) * 5;
-      ctx.fillText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, 294);
+      ctx.fillText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, 284);
 
     } else {
       ctx.fillStyle = '#00f0ff'; ctx.font = '900 14px Courier New';
-      ctx.fillText('NEMICI DI QUESTA ERA:', W / 2, 172);
+      ctx.fillText('NEMICI DI QUESTA ERA:', W / 2, 162);
 
       // Mostro Base
       let mImg = ASSETS.MOSTRI[currentEraIndex];
-      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(18, 186, W - 36, 54, 8); ctx.fill();
+      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(18, 178, W - 36, 56, 8); ctx.fill();
       ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2; ctx.stroke();
 
       if (mImg && mImg.complete && mImg.naturalWidth !== 0) {
-        ctx.drawImage(mImg, 26, 197, 32, 32);
+        ctx.drawImage(mImg, 24, 188, 32, 32);
       } else {
-        ctx.fillStyle = eraData.colBase; ctx.beginPath(); ctx.arc(42, 213, 12, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = eraData.colBase; ctx.beginPath(); ctx.arc(40, 204, 12, 0, Math.PI * 2); ctx.fill();
       }
 
       ctx.textAlign = 'left';
       ctx.fillStyle = eraData.colBase; ctx.font = 'bold 13px Courier New';
-      ctx.fillText(`${eraData.monster} [Base]`, 68, 208);
+      ctx.fillText(`${eraData.monster} [Base]`, 68, 200);
       ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-      ctx.fillText('Resistenza: 1 Colpo  | +200 PTS', 68, 226);
+      ctx.fillText('Resistenza: 1 Colpo  | +200 PTS', 68, 220);
 
       // Mostro Corrotto
-      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(18, 248, W - 36, 54, 8); ctx.fill();
+      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(18, 242, W - 36, 56, 8); ctx.fill();
       ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2; ctx.stroke();
 
       if (mImg && mImg.complete && mImg.naturalWidth !== 0) {
         ctx.filter = eraData.filterTough;
-        ctx.drawImage(mImg, 26, 259, 32, 32);
+        ctx.drawImage(mImg, 24, 252, 32, 32);
         ctx.filter = 'none';
       } else {
-        ctx.fillStyle = eraData.colTough; ctx.beginPath(); ctx.arc(42, 275, 12, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = eraData.colTough; ctx.beginPath(); ctx.arc(40, 268, 12, 0, Math.PI * 2); ctx.fill();
       }
 
       ctx.textAlign = 'left';
       ctx.fillStyle = eraData.colTough; ctx.font = 'bold 13px Courier New';
-      ctx.fillText(`${eraData.monster} [Corrotto]`, 68, 270);
+      ctx.fillText(`${eraData.monster} [Corrotto]`, 68, 264);
       ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-      ctx.fillText('Resistenza: 2 Colpi | +350 PTS', 68, 288);
+      ctx.fillText('Resistenza: 2 Colpi | +350 PTS', 68, 284);
     }
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('INIZIA STAGE ►', W / 2, H - 18);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText('INIZIA STAGE ►', W / 2, 385);
     }
     ctx.restore();
     return;
@@ -1731,7 +1735,7 @@ function drawScreens() {
 
   if (state === 'PAUSE') {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('IN PAUSA', W / 2, H / 2 - 15);
     ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 13px Courier New';
     ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', W / 2, H / 2 + 20);
@@ -1745,7 +1749,7 @@ function drawScreens() {
     ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px Courier New'; ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + 10);
     ctx.fillStyle = '#ff0055'; ctx.font = '14px Courier New'; ctx.fillText(`RECORD: ${hiScore}`, W / 2, H / 2 + 40);
     ctx.fillStyle = Math.floor(frame / 30) % 2 === 0 ? '#fff' : currentBoss.primary;
-    ctx.font = '900 14px Courier New'; ctx.fillText('TOCCA PER RIPROVARE', W / 2, H / 2 + 90);
+    ctx.font = '900 16px Courier New'; ctx.fillText('TOCCA PER RIPROVARE', W / 2, H / 2 + 90);
   }
 }
 
