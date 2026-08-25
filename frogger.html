@@ -290,7 +290,8 @@ canvas {
 </head>
 <body>
 
-<audio id="bgMusic" src="assets/frogger/music.mp3" loop autoplay playsinline style="display:none;"></audio>
+<!-- MUSICA INIZIALE DA ASSETS/FROGGER/MUSICA_FROGGER.MP4 -->
+<audio id="bgMusic" src="assets/frogger/musica_frogger.mp4" loop autoplay playsinline style="display:none;"></audio>
 
 <div id="game-wrapper">
   <div class="top-header">
@@ -353,8 +354,9 @@ canvas.height = CANVAS_H;
 let musicEnabled = localStorage.getItem('deadlineDrive_music') !== 'false';
 let sfxEnabled = localStorage.getItem('deadlineDrive_sfx') !== 'false';
 
+// Musica di sottofondo mantenuta bassa (0.12) per far risaltare i suoni di gioco
 const bgMusic = document.getElementById('bgMusic');
-bgMusic.volume = 0.3;
+bgMusic.volume = 0.12;
 
 function playBgMusic() {
   if (musicEnabled && bgMusic.paused) {
@@ -464,6 +466,7 @@ function getAC() {
   return audioCtx;
 }
 
+// SUONI DI GIOCO AD ALTO VOLUME (SFX > MUSICA)
 function playSound(type) {
   if (!sfxEnabled) return;
   try {
@@ -476,35 +479,47 @@ function playSound(type) {
     gain.connect(ac.destination);
 
     if (type === 'cross') {
+      // Passo / Movimento
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(523, ac.currentTime);
-      osc.frequency.setValueAtTime(659, ac.currentTime + .08);
-      gain.gain.setValueAtTime(.18, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .16);
+      osc.frequency.setValueAtTime(580, ac.currentTime);
+      osc.frequency.setValueAtTime(750, ac.currentTime + .06);
+      gain.gain.setValueAtTime(.40, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + .14);
     } else if (type === 'crash') {
+      // Impatto / Collisione
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(250, ac.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, ac.currentTime + .25);
-      gain.gain.setValueAtTime(.25, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .25);
+      osc.frequency.setValueAtTime(320, ac.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(35, ac.currentTime + .28);
+      gain.gain.setValueAtTime(.60, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + .28);
     } else if (type === 'pickup') {
+      // Bonus preso
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(440, ac.currentTime);
-      osc.frequency.setValueAtTime(880, ac.currentTime + .1);
-      gain.gain.setValueAtTime(.2, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .2);
+      osc.frequency.setValueAtTime(520, ac.currentTime);
+      osc.frequency.setValueAtTime(1040, ac.currentTime + .1);
+      gain.gain.setValueAtTime(.50, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + .22);
     } else if (type === 'malus') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, ac.currentTime);
-      osc.frequency.linearRampToValueAtTime(80, ac.currentTime + .2);
-      gain.gain.setValueAtTime(.2, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .2);
-    } else if (type === 'fail') {
+      // Malus preso
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(220, ac.currentTime);
-      osc.frequency.linearRampToValueAtTime(50, ac.currentTime + .3);
-      gain.gain.setValueAtTime(.25, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .3);
+      osc.frequency.linearRampToValueAtTime(70, ac.currentTime + .22);
+      gain.gain.setValueAtTime(.50, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + .22);
+    } else if (type === 'fail') {
+      // Game Over
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(260, ac.currentTime);
+      osc.frequency.linearRampToValueAtTime(40, ac.currentTime + .35);
+      gain.gain.setValueAtTime(.65, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + .35);
+    } else if (type === 'guard_active') {
+      // Scudo Attivato
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(700, ac.currentTime);
+      osc.frequency.linearRampToValueAtTime(1400, ac.currentTime + .12);
+      gain.gain.setValueAtTime(.45, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + .12);
     }
   } catch (e) {}
 }
@@ -593,6 +608,7 @@ function advanceMenuState() {
   lastMenuAdvanceTime = now;
 
   getAC();
+  playSound('cross');
   if (gameState === 'COVER') {
     gameState = 'STORY';
   } else if (gameState === 'STORY') {
@@ -799,7 +815,10 @@ function checkPickups() {
         playSound('pickup');
         if (p.type.speedBoost) player.speedMult = p.type.speedBoost;
         if (p.type.scoreBoost) player.tempScoreMult = p.type.scoreBoost;
-        if (p.type.shieldDuration) player.guardTimer = p.type.shieldDuration;
+        if (p.type.shieldDuration) {
+          player.guardTimer = p.type.shieldDuration;
+          playSound('guard_active');
+        }
       }
       addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, p.type.isMalus ? '#ff0055' : '#00f3ff', 10);
       currentLane.pickups.splice(i, 1);
@@ -878,7 +897,6 @@ function drawGameWorld() {
     }
   });
 
-  // DISEGNO OSTACOLI CLIP CON RITAGLIO RIGIDO PER LE SCRITTE (RIGOROSAMENTE DENTRO)
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'ROAD') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
