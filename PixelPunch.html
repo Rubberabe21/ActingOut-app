@@ -59,7 +59,6 @@
     overflow: hidden;
   }
 
-  /* TOP HEADER BAR */
   .top-header {
     width: 100%;
     display: flex;
@@ -85,7 +84,7 @@
   .opt-btn {
     background: #10101c;
     border: 1.5px solid #ffcc00 !important;
-    color: #ffcc00 !important;
+    color: #ffea00 !important;
     padding: 4px 7px;
     font-family: 'Courier New', monospace;
     font-size: 10px;
@@ -128,7 +127,6 @@
     cursor: pointer;
   }
 
-  /* MODALI OPZIONI E INFO */
   .modal-overlay {
     display: none;
     position: absolute;
@@ -181,7 +179,7 @@
     border: 2px solid #ff0055;
     color: #ffffff;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 12px;
     border-radius: 4px;
     cursor: pointer;
   }
@@ -202,7 +200,6 @@
     box-shadow: 3px 3px 0px #000;
   }
 
-  /* CARDS INFO DENTRO I SUB-MODALI */
   .info-card {
     background: #141424;
     border: 2px solid #00e5ff;
@@ -276,14 +273,14 @@
       <div class="modal-title">📖 REGOLE DI GIOCO</div>
 
       <div class="info-card" style="border-color:#ff0055;">
-        <h4 style="color:#ff0055;">1. EVITA IL BURNOUT!</h4>
+        <h4 style="color:#ff0055;">1. EVITA IL BURNOUT! 💀</h4>
         <p>• Colpisci i ticket prima che scadano.</p>
         <p>• Ogni errore o ritardo alza lo STRESS.</p>
         <p style="color:#ffea00; font-weight:bold;">• Al 100% di Stress il server va in CRASH!</p>
       </div>
 
       <div class="info-card" style="border-color:#00e5ff;">
-        <h4 style="color:#00e5ff;">2. TIPOLOGIE DI TICKET</h4>
+        <h4 style="color:#00e5ff;">2. TIPOLOGIE DI TICKET 🕹️</h4>
         <p>• <span style="color:#ff0055; font-weight:bold;">🔴 ROSSI</span> (1 Tap): +100 PTS</p>
         <p>• <span style="color:#aa00ff; font-weight:bold;">🟣 VIOLA</span> (2 Tap): +250 PTS</p>
         <p>• <span style="color:#ffea00; font-weight:bold;">☕ CAFFÈ</span> / <span style="color:#ffea00; font-weight:bold;">🌟 VIP</span>: +300/500 PTS & -STRESS</p>
@@ -291,7 +288,7 @@
       </div>
 
       <div class="info-card" style="border-color:#ff0055;">
-        <h4 style="color:#ff0055;">3. TRAPPOLE DA EVITARE!</h4>
+        <h4 style="color:#ff0055;">3. TRAPPOLE DA EVITARE! ⚠️</h4>
         <p>• <span style="color:#00ff44; font-weight:bold;">🟢 VERDE</span> (APPROVATO) & <span style="color:#ff0055; font-weight:bold;">🖤 NERO</span> (CORROTTO)</p>
         <p style="color:#ff0055; font-weight:bold;">NON TOCARLI: +12% STRESS!</p>
       </div>
@@ -1087,22 +1084,55 @@ function draw() {
         ctx.fillStyle = '#ffcc00'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('Al 100% di Stress è GAME OVER!', W / 2, 147);
 
-        // 2. TICKET BUONI
+        // 2. TICKET BUONI (TICKETS BOX)
         ctx.fillStyle = '#00e5ff'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('2. TIPOLOGIE DI TICKET 🕹️', W / 2, 182);
         draw80sBox(ctx, 20, 192, W - 40, 115, '#00e5ff', '#0a1628', 2);
+
+        // Disegno icone vector/PNG o cerchi colorati per la spiegazione
+        let tY = 214;
+        let centerX = W / 2;
+
+        // Linea 🔴 ROSSI
+        ctx.fillStyle = '#ff0055';
+        ctx.beginPath(); ctx.arc(centerX - 95, tY - 3, 5, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('🔴 ROSSI (1 Tap): +100 PTS', W / 2, 214);
-        ctx.fillText('🟣 VIOLA (2 Tap): +250 PTS', W / 2, 234);
-        ctx.fillText('☕ CAFFÈ & 🌟 VIP: -STRESS & PTS', W / 2, 254);
-        ctx.fillText('🌴 FERIE: Pausa & -20% STRESS', W / 2, 274);
+        ctx.fillText('ROSSI (1 Tap): +100 PTS', centerX + 10, tY);
+
+        // Linea 🟣 VIOLA
+        tY += 20;
+        ctx.fillStyle = '#aa00ff';
+        ctx.beginPath(); ctx.arc(centerX - 95, tY - 3, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('VIOLA (2 Tap): +250 PTS', centerX + 10, tY);
+
+        // Linea ☕ CAFFÈ & VIP
+        tY += 20;
+        if (ASSETS.CAFFE && ASSETS.CAFFE.complete && ASSETS.CAFFE.naturalWidth !== 0) {
+            ctx.drawImage(ASSETS.CAFFE, centerX - 105, tY - 10, 14, 14);
+        } else {
+            ctx.fillStyle = '#ffcc00'; ctx.font = '11px sans-serif'; ctx.fillText('☕', centerX - 98, tY);
+        }
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('CAFFÈ & VIP: -STRESS & PTS', centerX + 10, tY);
+
+        // Linea 🌴 FERIE
+        tY += 20;
+        ctx.fillStyle = '#00e5ff'; ctx.font = '11px sans-serif'; ctx.fillText('🌴', centerX - 98, tY);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('FERIE: Pausa & -20% STRESS', centerX + 10, tY);
 
         // 3. TRAPPOLE
         ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 327);
         draw80sBox(ctx, 20, 337, W - 40, 80, '#ff0055', '#1a0810', 2);
+
+        let trY = 360;
+        ctx.fillStyle = '#00ff44';
+        ctx.beginPath(); ctx.arc(centerX - 120, trY - 3, 5, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('🟢 VERDE (APPROVATO) & 🖤 NERO (CORROTTO)', W / 2, 360);
+        ctx.fillText('VERDE (APPROVATO) & NERO (CORROTTO)', centerX + 10, trY);
+
         ctx.fillStyle = '#ff0055'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('NON TOCARLI: +12% STRESS!', W / 2, 380);
 
