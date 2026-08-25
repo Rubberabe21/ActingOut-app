@@ -370,14 +370,16 @@
       </div>
 
       <div class="info-card" style="border-color:#00ffcc;">
-        <h4 style="color:#00ffcc;">2. ELIMINA I BUG & MEGA BOSS</h4>
-        <p>• Elimina tutti i bug e affronta i Mega Boss 2x2 ogni 10 livelli per superare i 50 Stage totali.</p>
+        <h4 style="color:#00ffcc;">2. NEMICI BASE E CORAZZATI</h4>
+        <p>• <span style="color:#ff007f; font-weight:bold;">Nemici Base</span>: 1 Colpo per eliminarli.</p>
+        <p>• <span style="color:#ffaa00; font-weight:bold;">Nemici Corazzati</span>: 2 Colpi, colore speciale e barra vita.</p>
+        <p>• <span style="color:#ff0055; font-weight:bold;">Mega Boss 2x2</span> ogni 10 livelli (10+ HP).</p>
       </div>
 
       <div class="info-card" style="border-color:#ff0055;">
         <h4 style="color:#ff0055;">3. POTENZIAMENTI DISPONIBILI</h4>
         <p>• 💣 <span style="color:#ff0055; font-weight:bold;">Gomma Vettoriale</span>: +1 Bomba simultanea</p>
-        <p>• 🔥 <span style="color:#ffaa00; font-weight:bold;">Warp Brush</span>: +1 Raggio esplosione</p>
+        <p>• 🔥 <span style="color:#ffaa00; font-weight:bold;">Warp Brush</span>: +1 Raggio d'esplosione</p>
         <p>• 👟 <span style="color:#00ffcc; font-weight:bold;">Acceleratore Iterazione</span>: +20% Velocità</p>
         <p>• ☕ <span style="color:#ffea00; font-weight:bold;">Cache Punti Layers</span>: +300 Punti Extra</p>
       </div>
@@ -1094,7 +1096,7 @@ function loadLevel() {
       }
 
       let mType = Math.random() < 0.7 ? currentEraIndex : (Math.floor(Math.random() * currentEraIndex) + 1);
-      let chanceOfTough = 0.25 + Math.min(level * 0.01, 0.45);
+      let chanceOfTough = 0.20 + Math.min(level * 0.012, 0.50);
       let enemyHp = (Math.random() < chanceOfTough) ? 2 : 1;
 
       enemies.push({
@@ -1106,7 +1108,7 @@ function loadLevel() {
         dirX: Math.random() < 0.5 ? 1 : -1, dirY: 0,
         hp: enemyHp, maxHp: enemyHp,
         hitTimer: 0,
-        speed: 1.0 + mType * 0.12 + Math.min(level * 0.01, 0.4)
+        speed: 1.0 + mType * 0.12 + Math.min(level * 0.012, 0.45)
       });
     }
   }
@@ -1594,7 +1596,6 @@ function drawSingleEnemy(e) {
   }
 }
 
-// FUNZIONE PER DISEGNARE CUORI VETTORIALI NITIDI NEL HUD
 function drawHeart(c, x, y, size) {
   c.save();
   c.fillStyle = '#ff0055';
@@ -1629,7 +1630,6 @@ function drawHUD() {
   ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'right';
   ctx.fillText(`REC: ${hiScore}`, CANVAS_W - 8, 16);
 
-  // Visualizzazione VITE nitida e brillante
   ctx.textAlign = 'right';
   ctx.fillStyle = '#ff0055';
   ctx.font = 'bold 10px Courier New';
@@ -1831,26 +1831,26 @@ function drawScreens() {
   if (state === 'ERA_INTRO') {
     ctx.save();
     ctx.fillStyle = 'rgba(6, 2, 18, 0.95)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(12, 25, W - 24, H - 50, 14); ctx.fill();
+    ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(12, 22, W - 24, H - 44, 14); ctx.fill();
     ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 3; ctx.stroke();
 
     let eraData = ERAS_INFO[currentEraIndex - 1];
     let isBossLvl = (level % 10 === 0);
 
     ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`STAGE ${level}/50`, W / 2, 52);
+    ctx.fillText(`STAGE ${level}/50`, W / 2, 48);
 
     ctx.fillStyle = eraData.colBase; ctx.font = 'bold 14px Courier New';
-    ctx.fillText(eraData.name, W / 2, 75);
+    ctx.fillText(eraData.name, W / 2, 68);
 
     if (isBossLvl) {
       let bossEra = Math.min(5, Math.floor(level / 10));
       ctx.fillStyle = '#ff0055'; ctx.font = '900 13px Courier New';
-      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, 98);
+      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, 90);
 
       let bImg = ASSETS.BOSSI[bossEra];
-      let imgSize = 64;
-      let imgY = 110;
+      let imgSize = 58;
+      let imgY = 100;
 
       ctx.fillStyle = '#080818';
       ctx.fillRect(W / 2 - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
@@ -1862,54 +1862,73 @@ function drawScreens() {
       } else {
         ctx.fillStyle = eraData.colBase;
         ctx.font = '900 12px Courier New';
-        ctx.fillText(`BOSS ${bossEra}`, W / 2, imgY + 36);
+        ctx.fillText(`BOSS ${bossEra}`, W / 2, imgY + 30);
       }
 
-      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
-      ctx.fillText(eraData.boss, W / 2, imgY + imgSize + 20);
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+      ctx.fillText(eraData.boss, W / 2, imgY + imgSize + 18);
 
-      ctx.fillStyle = '#ffea00'; ctx.font = '11px Courier New';
-      let lineY = imgY + imgSize + 40;
+      ctx.fillStyle = '#ffea00'; ctx.font = '10px Courier New';
+      let lineY = imgY + imgSize + 34;
       eraData.storyBoss.forEach(line => {
         ctx.fillText(line, W / 2, lineY);
-        lineY += 16;
+        lineY += 15;
       });
 
     } else {
-      ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 13px Courier New';
-      ctx.fillText(`NEMICO: ${eraData.monster}`, W / 2, 98);
+      ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 12px Courier New';
+      ctx.fillText(`NEMICI ERA ${currentEraIndex}: ${eraData.monster}`, W / 2, 88);
 
       let mImg = ASSETS.MOSTRI[currentEraIndex];
-      let imgSize = 52;
-      let imgY = 110;
+      let imgSize = 44;
+      let imgY = 98;
 
+      // VARIANTE BASE (1 HP)
+      let box1X = W / 2 - 60;
       ctx.fillStyle = '#080818';
-      ctx.fillRect(W / 2 - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
-      ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2;
-      ctx.strokeRect(W / 2 - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
+      ctx.fillRect(box1X - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
+      ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2;
+      ctx.strokeRect(box1X - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
 
       if (mImg && mImg.complete && mImg.naturalWidth !== 0) {
-        ctx.drawImage(mImg, W / 2 - imgSize / 2, imgY, imgSize, imgSize);
-      } else {
-        ctx.fillStyle = eraData.colBase;
-        ctx.font = '900 12px Courier New';
-        ctx.fillText(`MOSTRO ${currentEraIndex}`, W / 2, imgY + 30);
+        ctx.drawImage(mImg, box1X - imgSize / 2, imgY, imgSize, imgSize);
       }
+      ctx.fillStyle = eraData.colBase; ctx.font = 'bold 9px Courier New';
+      ctx.fillText("BASE (1 HP)", box1X, imgY + imgSize + 14);
+
+      // VARIANTE CORAZZATA (2 HP)
+      let box2X = W / 2 + 60;
+      ctx.fillStyle = '#080818';
+      ctx.fillRect(box2X - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
+      ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2;
+      ctx.strokeRect(box2X - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
+
+      if (mImg && mImg.complete && mImg.naturalWidth !== 0) {
+        ctx.save();
+        ctx.filter = eraData.filterTough;
+        ctx.drawImage(mImg, box2X - imgSize / 2, imgY, imgSize, imgSize);
+        ctx.restore();
+      }
+      ctx.fillStyle = eraData.colTough; ctx.font = 'bold 9px Courier New';
+      ctx.fillText("CORAZZATO (2 HP)", box2X, imgY + imgSize + 14);
 
       ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-      let lineY = imgY + imgSize + 22;
+      let lineY = imgY + imgSize + 32;
       eraData.storyEra.forEach(line => {
         ctx.fillText(line, W / 2, lineY);
-        lineY += 16;
+        lineY += 15;
       });
+
+      ctx.fillStyle = '#ffea00'; ctx.font = '10px Courier New';
+      ctx.fillText('⚡ Avanzando nei livelli la velocità e i nemici 2 HP aumentano!', W / 2, lineY + 4);
     }
 
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 12px Courier New';
-    ctx.fillText(`MOLTIPLICATORE PUNTI: x${currentBoss.scoreMult}`, W / 2, H - 55);
+    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New';
+    ctx.fillText(`MOLTIPLICATORE PUNTI: x${currentBoss.scoreMult}`, W / 2, H - 48);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
-      ctx.fillText('INIZIA STAGE ►', W / 2, H - 28);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 13px Courier New';
+      ctx.fillText('INIZIA STAGE ►', W / 2, H - 24);
     }
     ctx.restore();
     return;
