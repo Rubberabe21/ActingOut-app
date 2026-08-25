@@ -1828,108 +1828,137 @@ function drawScreens() {
     return;
   }
 
+  // --- SCHERMATA ERA_INTRO INGRANDITA E CON SCHEDE SPAZIOSE ---
   if (state === 'ERA_INTRO') {
     ctx.save();
-    ctx.fillStyle = 'rgba(6, 2, 18, 0.95)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(12, 22, W - 24, H - 44, 14); ctx.fill();
-    ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = 'rgba(6, 2, 18, 0.96)'; ctx.fillRect(0, 0, W, H);
+
+    // Riquadro principale esterno espanso
+    ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(10, 10, W - 20, H - 20, 14); ctx.fill();
+    ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 2.5; ctx.stroke();
 
     let eraData = ERAS_INFO[currentEraIndex - 1];
     let isBossLvl = (level % 10 === 0);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`STAGE ${level}/50`, W / 2, 48);
+    // Intestazione Stage
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText(`STAGE ${level}/50`, W / 2, 34);
 
-    ctx.fillStyle = eraData.colBase; ctx.font = 'bold 14px Courier New';
-    ctx.fillText(eraData.name, W / 2, 68);
+    ctx.fillStyle = eraData.colBase; ctx.font = 'bold 13px Courier New';
+    ctx.fillText(eraData.name, W / 2, 54);
+
+    // Box descrizione storia dell'Era
+    let storyBoxX = 20, storyBoxY = 66, storyBoxW = W - 40, storyBoxH = 68;
+    ctx.fillStyle = '#140a28'; ctx.beginPath(); ctx.roundRect(storyBoxX, storyBoxY, storyBoxW, storyBoxH, 8); ctx.fill();
+    ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 1.5; ctx.stroke();
+
+    let lines = isBossLvl ? eraData.storyBoss : eraData.storyEra;
+    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText(lines[0], W / 2, storyBoxY + 20);
+    ctx.fillText(lines[1], W / 2, storyBoxY + 38);
+    ctx.fillText(lines[2], W / 2, storyBoxY + 56);
 
     if (isBossLvl) {
       let bossEra = Math.min(5, Math.floor(level / 10));
-      ctx.fillStyle = '#ff0055'; ctx.font = '900 13px Courier New';
-      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, 90);
+      let bossCardX = 25, bossCardY = 146, bossCardW = W - 50, bossCardH = 142;
+
+      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(bossCardX, bossCardY, bossCardW, bossCardH, 10); ctx.fill();
+      ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
+
+      ctx.fillStyle = '#ff0055'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, bossCardY + 22);
 
       let bImg = ASSETS.BOSSI[bossEra];
-      let imgSize = 58;
-      let imgY = 100;
+      let bossSize = 52;
+      let bx = W / 2 - bossSize / 2, by = bossCardY + 32;
 
-      ctx.fillStyle = '#080818';
-      ctx.fillRect(W / 2 - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
-      ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2;
-      ctx.strokeRect(W / 2 - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
+      ctx.fillStyle = '#080818'; ctx.fillRect(bx - 3, by - 3, bossSize + 6, bossSize + 6);
+      ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 1.5; ctx.strokeRect(bx - 3, by - 3, bossSize + 6, bossSize + 6);
 
       if (bImg && bImg.complete && bImg.naturalWidth !== 0) {
-        ctx.drawImage(bImg, W / 2 - imgSize / 2, imgY, imgSize, imgSize);
+        ctx.drawImage(bImg, bx, by, bossSize, bossSize);
       } else {
-        ctx.fillStyle = eraData.colBase;
-        ctx.font = '900 12px Courier New';
-        ctx.fillText(`BOSS ${bossEra}`, W / 2, imgY + 30);
+        ctx.fillStyle = eraData.colBase; ctx.font = '900 11px Courier New';
+        ctx.fillText(`BOSS ${bossEra}`, W / 2, by + 28);
       }
 
-      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-      ctx.fillText(eraData.boss, W / 2, imgY + imgSize + 18);
+      ctx.fillStyle = '#ffea00'; ctx.font = 'bold 12px Courier New';
+      ctx.fillText(eraData.boss, W / 2, bossCardY + 102);
 
-      ctx.fillStyle = '#ffea00'; ctx.font = '10px Courier New';
-      let lineY = imgY + imgSize + 34;
-      eraData.storyBoss.forEach(line => {
-        ctx.fillText(line, W / 2, lineY);
-        lineY += 15;
-      });
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New';
+      let bossHp = 10 + (bossEra - 1) * 5;
+      ctx.fillText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, bossCardY + 122);
 
     } else {
-      ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 12px Courier New';
-      ctx.fillText(`NEMICI ERA ${currentEraIndex}: ${eraData.monster}`, W / 2, 88);
+      // Due schede affiancate con spaziatura perfetta
+      let cardW = 138, cardH = 142;
+      let card1X = 22, cardY = 146;
+      let card2X = W - 22 - cardW;
 
       let mImg = ASSETS.MOSTRI[currentEraIndex];
-      let imgSize = 44;
-      let imgY = 98;
+      let imgSize = 42;
 
-      // VARIANTE BASE (1 HP)
-      let box1X = W / 2 - 60;
-      ctx.fillStyle = '#080818';
-      ctx.fillRect(box1X - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
-      ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2;
-      ctx.strokeRect(box1X - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
+      // Card 1: BASE
+      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(card1X, cardY, cardW, cardH, 10); ctx.fill();
+      ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2; ctx.stroke();
+
+      ctx.fillStyle = eraData.colBase; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText("MOSTRO BASE", card1X + cardW / 2, cardY + 20);
+
+      let img1X = card1X + cardW / 2 - imgSize / 2, img1Y = cardY + 28;
+      ctx.fillStyle = '#080818'; ctx.fillRect(img1X - 3, img1Y - 3, imgSize + 6, imgSize + 6);
+      ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 1.5; ctx.strokeRect(img1X - 3, img1Y - 3, imgSize + 6, imgSize + 6);
 
       if (mImg && mImg.complete && mImg.naturalWidth !== 0) {
-        ctx.drawImage(mImg, box1X - imgSize / 2, imgY, imgSize, imgSize);
+        ctx.drawImage(mImg, img1X, img1Y, imgSize, imgSize);
       }
-      ctx.fillStyle = eraData.colBase; ctx.font = 'bold 9px Courier New';
-      ctx.fillText("BASE (1 HP)", box1X, imgY + imgSize + 14);
 
-      // VARIANTE CORAZZATA (2 HP)
-      let box2X = W / 2 + 60;
-      ctx.fillStyle = '#080818';
-      ctx.fillRect(box2X - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
-      ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2;
-      ctx.strokeRect(box2X - imgSize / 2 - 4, imgY - 4, imgSize + 8, imgSize + 8);
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New';
+      ctx.fillText("RESISTENZA: 1 HP", card1X + cardW / 2, cardY + 92);
+      ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Courier New';
+      ctx.fillText("+200 PUNTI", card1X + cardW / 2, cardY + 112);
+
+      // Card 2: CORAZZATO
+      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(card2X, cardY, cardW, cardH, 10); ctx.fill();
+      ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2; ctx.stroke();
+
+      ctx.fillStyle = eraData.colTough; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText("CORAZZATO", card2X + cardW / 2, cardY + 20);
+
+      let img2X = card2X + cardW / 2 - imgSize / 2, img2Y = cardY + 28;
+      ctx.fillStyle = '#080818'; ctx.fillRect(img2X - 3, img2Y - 3, imgSize + 6, imgSize + 6);
+      ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 1.5; ctx.strokeRect(img2X - 3, img2Y - 3, imgSize + 6, imgSize + 6);
 
       if (mImg && mImg.complete && mImg.naturalWidth !== 0) {
         ctx.save();
         ctx.filter = eraData.filterTough;
-        ctx.drawImage(mImg, box2X - imgSize / 2, imgY, imgSize, imgSize);
+        ctx.drawImage(mImg, img2X, img2Y, imgSize, imgSize);
         ctx.restore();
       }
-      ctx.fillStyle = eraData.colTough; ctx.font = 'bold 9px Courier New';
-      ctx.fillText("CORAZZATO (2 HP)", box2X, imgY + imgSize + 14);
 
-      ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-      let lineY = imgY + imgSize + 32;
-      eraData.storyEra.forEach(line => {
-        ctx.fillText(line, W / 2, lineY);
-        lineY += 15;
-      });
-
-      ctx.fillStyle = '#ffea00'; ctx.font = '10px Courier New';
-      ctx.fillText('⚡ Avanzando nei livelli la velocità e i nemici 2 HP aumentano!', W / 2, lineY + 4);
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New';
+      ctx.fillText("RESISTENZA: 2 HP", card2X + cardW / 2, cardY + 92);
+      ctx.fillStyle = '#ffaa00'; ctx.font = 'bold 10px Courier New';
+      ctx.fillText("+350 PUNTI", card2X + cardW / 2, cardY + 112);
     }
 
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New';
-    ctx.fillText(`MOLTIPLICATORE PUNTI: x${currentBoss.scoreMult}`, W / 2, H - 48);
+    // Moltiplicatore
+    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText(`MOLTIPLICATORE PERSONAGGIO: x${currentBoss.scoreMult}`, W / 2, 308);
 
-    if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 13px Courier New';
-      ctx.fillText('INIZIA STAGE ►', W / 2, H - 24);
-    }
+    // Consiglio
+    ctx.fillStyle = '#ffea00'; ctx.font = '10px Courier New';
+    ctx.fillText('⚡ Piazza le bombe con cura prima che ti circondino!', W / 2, 328);
+
+    // Pulsante Avvia Stage Risaltato
+    let btnW = 220, btnH = 36, btnX = (W - btnW) / 2, btnY = 354;
+    ctx.fillStyle = (Math.floor(frame / 30) % 2 === 0) ? '#ffea00' : '#ffd700';
+    ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 8); ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
+
+    ctx.fillStyle = '#000000'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('INIZIA STAGE ►', W / 2, btnY + 22);
+
     ctx.restore();
     return;
   }
@@ -1991,7 +2020,6 @@ canvas.addEventListener('pointerdown', e => {
   if (state === 'PAUSE') {
     state = 'playing';
     updateMusicState();
-    return;
   }
 
   if (state === 'gameover') {

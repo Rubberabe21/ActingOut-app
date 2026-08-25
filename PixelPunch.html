@@ -208,7 +208,7 @@
     border: 2px solid #00e5ff;
     border-radius: 6px;
     padding: 8px 10px;
-    text-align: left;
+    text-align: center;
     font-size: 11px;
     line-height: 1.4;
     color: #ffffff;
@@ -305,7 +305,7 @@
     <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
       <div class="modal-title">⚡ BONUS & MALUS PRODUCER</div>
 
-      <div class="info-card" style="border-color:#00e5ff;">
+      <div class="info-card" style="border-color:#00e5ff; text-align:left;">
         <h4 style="color:#00e5ff;">🎨 IRIS - AI Specialist</h4>
         <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> AUTO-FIX AI</p>
         <p>• Risoluzione automatica ticket casuali.</p>
@@ -313,7 +313,7 @@
         <p>• Moltiplicatore Punti: x1.0</p>
       </div>
 
-      <div class="info-card" style="border-color:#ffea00;">
+      <div class="info-card" style="border-color:#ffea00; text-align:left;">
         <h4 style="color:#ffea00;">🎨 CRISTINA - Senior Exec</h4>
         <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> DOUBLE ESPRESSO</p>
         <p>• Punti Caffè raddoppiati (600 PTS).</p>
@@ -321,7 +321,7 @@
         <p>• Pausa Ferie: 10s | Moltiplicatore: x1.15</p>
       </div>
 
-      <div class="info-card" style="border-color:#ff0055;">
+      <div class="info-card" style="border-color:#ff0055; text-align:left;">
         <h4 style="color:#ff0055;">🎨 RACHELE - Lead Producer</h4>
         <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> VACATION RUSH</p>
         <p>• Combo Boost ad ogni colpo a segno.</p>
@@ -1057,49 +1057,49 @@ function draw() {
         return;
     }
 
-    // --- PAGINA 3: REGOLE E TUTORIAL MOLTO CHIARO ---
+    // --- PAGINA 3: REGOLE E TUTORIAL PERFETTAMENTE BILANCIATO ---
     if (state === 'RULES') {
         ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
 
         draw80sBox(ctx, 12, 15, W - 24, H - 30, '#ffcc00', '#0c0c1a', 3);
 
         ctx.fillStyle = '#ffcc00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('★ HOW TO PLAY ★', W / 2, 45);
+        ctx.fillText('★ HOW TO PLAY ★', W / 2, 42);
 
         // 1. OBIETTIVO
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('1. EVITA IL BURNOUT! 💀', W / 2, 78);
-        draw80sBox(ctx, 22, 85, W - 44, 75, '#ff0055', '#160a18', 2);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('• Colpisci i ticket prima che scadano.', W / 2, 107);
-        ctx.fillText('• Ogni errore o ritardo alza lo STRESS.', W / 2, 127);
-        ctx.fillStyle = '#ffcc00'; ctx.font = '900 12px Courier New';
-        ctx.fillText('• Al 100% di Stress il server va in CRASH!', W / 2, 147);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('1. EVITA IL BURNOUT! 💀', W / 2, 74);
+        draw80sBox(ctx, 22, 82, W - 44, 72, '#ff0055', '#160a18', 2);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('• Colpisci i ticket prima che scadano.', W / 2, 102);
+        ctx.fillText('• Ogni errore o ritardo alza lo STRESS.', W / 2, 120);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 11px Courier New';
+        ctx.fillText('• Al 100% di Stress il server va in CRASH!', W / 2, 138);
 
         // 2. TICKET BUONI
-        ctx.fillStyle = '#00e5ff'; ctx.font = '900 15px Courier New';
-        ctx.fillText('2. TIPOLOGIE DI TICKET 🕹️', W / 2, 182);
-        draw80sBox(ctx, 22, 192, W - 44, 110, '#00e5ff', '#0a1628', 2);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New';
-        ctx.fillText('• 🔴 ROSSI (1 Tap): +100 PTS (es. "ASAP")', W / 2, 214);
-        ctx.fillText('• 🟣 VIOLA (2 Tap): +250 PTS (es. "DOPPIA")', W / 2, 234);
-        ctx.fillText('• ☕ CAFFÈ / 🌟 VIP: +300/500 PTS e -STRESS', W / 2, 254);
-        ctx.fillText('• 🌴 FERIE: Pausa totale e -20% STRESS', W / 2, 274);
+        ctx.fillStyle = '#00e5ff'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('2. TIPOLOGIE DI TICKET 🕹️', W / 2, 172);
+        draw80sBox(ctx, 22, 180, W - 44, 115, '#00e5ff', '#0a1628', 2);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('• 🔴 ROSSI (1 Tap): +100 PTS', W / 2, 200);
+        ctx.fillText('• 🟣 VIOLA (2 Tap): +250 PTS', W / 2, 222);
+        ctx.fillText('• ☕ CAFFÈ / 🌟 VIP: +300/500 PTS e -STRESS', W / 2, 244);
+        ctx.fillText('• 🌴 FERIE: Pausa totale e -20% STRESS', W / 2, 266);
 
         // 3. TRAPPOLE
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
-        ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 322);
-        draw80sBox(ctx, 22, 332, W - 44, 75, '#ff0055', '#1a0810', 2);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New';
-        ctx.fillText('• 🟢 VERDE (APPROVATO) & 🖤 NERO (CORROTTO)', W / 2, 354);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 312);
+        draw80sBox(ctx, 22, 320, W - 44, 72, '#ff0055', '#1a0810', 2);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('• 🟢 VERDE (APPROVATO) & 🖤 NERO (CORROTTO)', W / 2, 342);
         ctx.fillStyle = '#ff0055'; ctx.font = '900 11px Courier New';
-        ctx.fillText('NON TOCARLI: Aumentano lo Stress del 12%!', W / 2, 374);
+        ctx.fillText('NON TOCARLI: Aumentano lo Stress del 12%!', W / 2, 364);
 
         // Prompt
-        draw80sBox(ctx, 35, H - 70, W - 70, 42, '#ffcc00', '#101020', 3);
+        draw80sBox(ctx, 35, H - 65, W - 70, 42, '#ffcc00', '#101020', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
             ctx.fillStyle = '#ffcc00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
-            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, H - 44);
+            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, H - 39);
         }
         ctx.restore();
         return;
