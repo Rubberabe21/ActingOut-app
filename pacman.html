@@ -455,7 +455,7 @@ for (let i = 1; i <= 5; i++) {
   ASSETS.BOSSI[i] = imgB;
 }
 
-// --- CONFIGURAZIONE ERE, STORIE DI 3 RIGHE E BASS/MOSTRI (50 LIVELLI) ---
+// --- CONFIGURAZIONE ERE, STORIE DI 3 RIGHE E BOSS/MOSTRI (50 LIVELLI) ---
 const ERAS_INFO = [
   { 
     era: 1, 
@@ -958,7 +958,6 @@ function loadLevel() {
 
       let mType = Math.random() < 0.7 ? currentEraIndex : (Math.floor(Math.random() * currentEraIndex) + 1);
       
-      // Probabilità che un mostro sia di versione "Corrotta" (2 HP + diverso colore)
       let chanceOfTough = 0.25 + Math.min(level * 0.01, 0.45);
       let enemyHp = (Math.random() < chanceOfTough) ? 2 : 1;
 
@@ -1185,7 +1184,6 @@ function updateBombsAndExplosions() {
         if (!e) continue;
 
         if (e.isBoss) {
-          // Collisione Esplosione vs Mega Boss (2x2)
           let bLeft = e.x - CELL_SIZE, bRight = e.x + CELL_SIZE;
           let bTop = e.y - CELL_SIZE, bBottom = e.y + CELL_SIZE;
           let cellCenterX = cell.gx * CELL_SIZE + CELL_SIZE / 2;
@@ -1206,7 +1204,6 @@ function updateBombsAndExplosions() {
             }
           }
         } else {
-          // Normal Enemy collision
           if (Math.floor(e.x / CELL_SIZE) === cell.gx && Math.floor(e.y / CELL_SIZE) === cell.gy) {
             if (!e.hitTimer || e.hitTimer <= 0) {
               e.hp--;
@@ -1233,6 +1230,7 @@ function updateBombsAndExplosions() {
   }
 
   if (enemies.length === 0 && state === 'playing') {
+    let prevEra = currentEraIndex;
     score += Math.floor(1000 * level * currentBoss.scoreMult);
     level++;
 
@@ -1240,9 +1238,18 @@ function updateBombsAndExplosions() {
       state = 'gameover';
       saveScore(score);
     } else {
-      let isNewEra = (Math.floor((level - 1) / 10) + 1) !== currentEraIndex;
+      let nextEra = Math.min(5, Math.floor((level - 1) / 10) + 1);
+      let isNewEra = (nextEra !== prevEra);
+      let isBossLevel = (level % 10 === 0);
+
       loadLevel();
-      state = 'ERA_INTRO';
+
+      // Mostra la schermata di presentazione SOLTANTO all'inizio di un'Era o per i Mega Boss
+      if (isNewEra || isBossLevel) {
+        state = 'ERA_INTRO';
+      } else {
+        state = 'playing';
+      }
       playSound('powerup');
     }
   }
@@ -1367,7 +1374,6 @@ function drawSingleEnemy(e) {
   let eraData = ERAS_INFO[e.era - 1];
 
   if (e.isBoss) {
-    // --- RENDERING MEGA BOSS (2x2 CASINE) ---
     ctx.save();
     let bossSize = CELL_SIZE * 2 - 4;
     let bImg = ASSETS.BOSSI[e.era];
@@ -1388,14 +1394,12 @@ function drawSingleEnemy(e) {
       ctx.fillText(`BOSS ${e.era}`, ex, ey + 4);
     }
 
-    // Barra HP Boss
     ctx.fillStyle = '#080814'; ctx.fillRect(ex - 22, ey - bossSize / 2 - 8, 44, 5);
     ctx.fillStyle = '#ff0055'; ctx.fillRect(ex - 22, ey - bossSize / 2 - 8, 44 * (e.hp / e.maxHp), 5);
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.5; ctx.strokeRect(ex - 22, ey - bossSize / 2 - 8, 44, 5);
 
     ctx.restore();
   } else {
-    // --- RENDERING MOSTRO NORMALE ---
     let r = 11;
     let mImg = ASSETS.MOSTRI[e.era];
     ctx.save();
@@ -1424,7 +1428,6 @@ function drawSingleEnemy(e) {
       ctx.arc(ex + 3.5 + (e.dirX || 0) * 1.2, ey - 3 + (e.dirY || 0) * 1.2, 1.2, 0, Math.PI * 2); ctx.fill();
     }
 
-    // Indicatore per mostro corazzato (2 HP)
     if (e.maxHp > 1) {
       ctx.fillStyle = '#080814'; ctx.fillRect(ex - 10, ey - r - 6, 20, 3);
       ctx.fillStyle = (e.hp === 2) ? eraData.colTough : '#ff0055';
@@ -1467,8 +1470,8 @@ function drawScreens() {
     }
 
     if (Math.floor(frame / 45) % 2 === 0) {
-      ctx.fillStyle = '#00ffcc'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('PREMI BOMBA PER COMINCIARE ►', W / 2, H - 25);
+      ctx.fillStyle = '#00ffcc'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText('PREMI BOMBA PER INIZIARE ►', W / 2, H - 22);
     }
     return;
   }
@@ -1477,32 +1480,32 @@ function drawScreens() {
   if (state === 'STORY') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('LA STORIA', W / 2, 45);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('LA STORIA', W / 2, 42);
 
-    ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(14, 62, W - 28, H - 105, 12); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(10, 52, W - 20, H - 90, 12); ctx.fill();
     ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2.5; ctx.stroke();
 
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 14px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('Laura e Guido sono nei guai!', W / 2, 90);
+    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('Laura e Guido sono nei guai!', W / 2, 78);
     
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Un’ondata di file corrotti', W / 2, 125);
-    ctx.fillText('ha invaso il server:', W / 2, 142);
-    ctx.fillText('grafiche rovinate, export', W / 2, 159);
-    ctx.fillText('sbagliati e bozze inutilizzabili', W / 2, 176);
-    ctx.fillText('stanno per compromettere', W / 2, 193);
-    ctx.fillText('la consegna!', W / 2, 210);
+    ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
+    ctx.fillText('Un’ondata di file corrotti', W / 2, 110);
+    ctx.fillText('ha invaso il server:', W / 2, 128);
+    ctx.fillText('grafiche rovinate, export', W / 2, 146);
+    ctx.fillText('sbagliati e bozze inutilizzabili', W / 2, 164);
+    ctx.fillText('stanno per compromettere', W / 2, 182);
+    ctx.fillText('la consegna!', W / 2, 200);
 
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 12px Courier New';
-    ctx.fillText('Piazza le bombe di Cleanup,', W / 2, 250);
-    ctx.fillText('fai saltare i file spazzatura', W / 2, 270);
-    ctx.fillText('e salva più grafiche possibile', W / 2, 290);
-    ctx.fillText('prima delle 18:30!', W / 2, 310);
+    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 13px Courier New';
+    ctx.fillText('Piazza le bombe di Cleanup,', W / 2, 236);
+    ctx.fillText('fai saltare i file spazzatura', W / 2, 256);
+    ctx.fillText('e salva più grafiche possibile', W / 2, 276);
+    ctx.fillText('prima delle 18:30!', W / 2, 296);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 20);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New';
+      ctx.fillText('CONTINUA ►', W / 2, H - 18);
     }
     return;
   }
@@ -1511,40 +1514,40 @@ function drawScreens() {
   if (state === 'RULES') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
-    ctx.fillStyle = '#00f0ff'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('REGOLE DI GIOCO', W / 2, 42);
+    ctx.fillStyle = '#00f0ff'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('REGOLE DI GIOCO', W / 2, 40);
 
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(14, 58, W - 28, H - 100, 12); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 50, W - 20, H - 85, 12); ctx.fill();
     ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; ctx.stroke();
 
     ctx.textAlign = 'center';
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 13px Courier New';
-    ctx.fillText('01. PULISCI FILE CORROTTI', W / 2, 85);
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Fai esplodere .JPG, .PNG,', W / 2, 103);
-    ctx.fillText('.PSD, .AI e .PDF per aprirti la strada.', W / 2, 119);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
+    ctx.fillText('01. PULISCI FILE CORROTTI', W / 2, 75);
+    ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
+    ctx.fillText('Fai esplodere .JPG, .PNG, .PSD,', W / 2, 93);
+    ctx.fillText('.AI e .PDF per aprirti la strada.', W / 2, 111);
 
-    ctx.fillStyle = '#00ffcc'; ctx.font = '900 13px Courier New';
-    ctx.fillText('02. DISTRUGGI I BUG', W / 2, 150);
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Elimina i bug vaganti e i Mega Boss', W / 2, 168);
-    ctx.fillText('ogni 10 livelli per avanzare.', W / 2, 184);
+    ctx.fillStyle = '#00ffcc'; ctx.font = '900 14px Courier New';
+    ctx.fillText('02. DISTRUGGI I BUG', W / 2, 142);
+    ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
+    ctx.fillText('Elimina i bug vaganti e i Mega Boss', W / 2, 160);
+    ctx.fillText('ogni 10 livelli per avanzare.', W / 2, 178);
 
-    ctx.fillStyle = '#ff00ff'; ctx.font = '900 13px Courier New';
-    ctx.fillText('03. RACCOGLI POTENZIAMENTI', W / 2, 215);
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Aumenta raggio, bombe e velocità', W / 2, 233);
-    ctx.fillText('scavando tra i file dello studio.', W / 2, 249);
+    ctx.fillStyle = '#ff00ff'; ctx.font = '900 14px Courier New';
+    ctx.fillText('03. RACCOGLI POTENZIAMENTI', W / 2, 209);
+    ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
+    ctx.fillText('Aumenta raggio, bombe e velocità', W / 2, 227);
+    ctx.fillText('scavando tra i file dello studio.', W / 2, 245);
 
-    ctx.fillStyle = '#ffd700'; ctx.font = '900 13px Courier New';
-    ctx.fillText('04. CONTROLLI GUIDA', W / 2, 280);
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Joystick Touch / WASD + Tasto BOMBA', W / 2, 298);
+    ctx.fillStyle = '#ffd700'; ctx.font = '900 14px Courier New';
+    ctx.fillText('04. CONTROLLI GUIDA', W / 2, 276);
+    ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
+    ctx.fillText('Joystick Touch / WASD + Tasto BOMBA', W / 2, 294);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 20);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New';
+      ctx.fillText('CONTINUA ►', W / 2, H - 18);
     }
     return;
   }
@@ -1553,35 +1556,35 @@ function drawScreens() {
   if (state === 'POWERUPS_INFO') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('MODULI & POTENZIAMENTI', W / 2, 40);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('MODULI & POTENZIAMENTI', W / 2, 38);
 
     const items = [
       { tag: '💣', title: 'EXTRA BOMB', desc: '+1 Bomba Simultanea', col: '#ff0055' },
-      { tag: '🔥', title: 'FIRE RANGE', desc: '+1 Raggio di Esplosione', col: '#ffaa00' },
+      { tag: '🔥', title: 'FIRE RANGE', desc: '+1 Raggio Esplosione', col: '#ffaa00' },
       { tag: '👟', title: 'SPEED BOOST', desc: '+20% Velocità Corsa', col: '#00ffcc' },
-      { tag: '☕', title: 'PAUSA CAFFÈ', desc: '+300 Punti Bonus Extra', col: '#ffd700' }
+      { tag: '☕', title: 'PAUSA CAFFÈ', desc: '+300 Punti Extra', col: '#ffd700' }
     ];
 
     items.forEach((item, idx) => {
-      let boxY = 62 + (idx * 68);
+      let boxY = 54 + (idx * 70);
       ctx.fillStyle = '#101228'; ctx.beginPath();
-      ctx.roundRect(14, boxY, W - 28, 58, 10); ctx.fill();
+      ctx.roundRect(10, boxY, W - 20, 62, 10); ctx.fill();
       ctx.strokeStyle = item.col; ctx.lineWidth = 2; ctx.stroke();
 
-      ctx.font = '22px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(item.tag, 40, boxY + 29);
+      ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(item.tag, 36, boxY + 31);
 
-      ctx.fillStyle = item.col; ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillText(item.title, 68, boxY + 26);
+      ctx.fillStyle = item.col; ctx.font = 'bold 14px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(item.title, 64, boxY + 28);
 
-      ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-      ctx.fillText(item.desc, 68, boxY + 44);
+      ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
+      ctx.fillText(item.desc, 64, boxY + 48);
     });
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('CONTINUA ►', W / 2, H - 20);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText('CONTINUA ►', W / 2, H - 18);
     }
     return;
   }
@@ -1590,78 +1593,76 @@ function drawScreens() {
   if (state === 'CHAR_SELECT') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
-    ctx.fillStyle = '#ffff00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('SCEGLI IL TUO GRAFICO 🎨', W / 2, 38);
+    ctx.fillStyle = '#ffff00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('SCEGLI IL TUO GRAFICO 🎨', W / 2, 36);
 
     let key = charList[charSelectIndex];
     let c = CHARACTERS[key];
 
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(14, 54, W - 28, H - 95, 14); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 48, W - 20, H - 85, 14); ctx.fill();
     ctx.strokeStyle = c.primary; ctx.lineWidth = 3; ctx.stroke();
 
     if (c.portrait && c.portrait.complete && c.portrait.naturalWidth !== 0) {
       ctx.save();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 68, 120, 110, 10); ctx.clip();
-      ctx.drawImage(c.portrait, W / 2 - 60, 68, 120, 110);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 60, 130, 115, 10); ctx.clip();
+      ctx.drawImage(c.portrait, W / 2 - 65, 60, 130, 115);
       ctx.restore();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 68, 120, 110, 10);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 65, 60, 130, 115, 10);
       ctx.strokeStyle = c.primary; ctx.lineWidth = 2; ctx.stroke();
     }
 
-    ctx.fillStyle = c.primary; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(c.name, W / 2, 205);
+    ctx.fillStyle = c.primary; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText(c.name, W / 2, 202);
 
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
-    ctx.fillText(c.role, W / 2, 228);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New';
+    ctx.fillText(c.role, W / 2, 226);
 
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 11px Courier New';
+    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New';
     ctx.fillText(c.perkBonus, W / 2, 260);
 
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px Courier New';
-    ctx.fillText(c.perkMalus, W / 2, 285);
+    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New';
+    ctx.fillText(c.perkMalus, W / 2, 288);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 28px Courier New';
-    ctx.fillText('◄', 32, 180);
-    ctx.fillText('►', W - 32, 180);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 30px Courier New';
+    ctx.fillText('◄', 28, 180);
+    ctx.fillText('►', W - 28, 180);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = c.primary; ctx.font = '900 15px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 20);
+      ctx.fillStyle = c.primary; ctx.font = '900 16px Courier New';
+      ctx.fillText('CONTINUA ►', W / 2, H - 18);
     }
     return;
   }
 
-  // --- SCHERMATA DI PRESENTAZIONE INTRODUTTIVA DEI MOSTRI E DEL BOSS PRIMA DI OGNI TURNO ---
+  // ERA INTRO SCREEN (Mostrata SOLO all'inizio di ogni Era o per il Mega Boss)
   if (state === 'ERA_INTRO') {
     ctx.save();
     ctx.fillStyle = 'rgba(6, 2, 18, 0.96)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(12, 32, W - 24, H - 64, 14); ctx.fill();
+    ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(10, 26, W - 20, H - 52, 14); ctx.fill();
     ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 3; ctx.stroke();
 
     let eraData = ERAS_INFO[currentEraIndex - 1];
     let isBossLvl = (level % 10 === 0);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`STAGE ${level}/50`, W / 2, 60);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText(`STAGE ${level}/50`, W / 2, 54);
 
-    ctx.fillStyle = eraData.colBase; ctx.font = 'bold 15px Courier New';
-    ctx.fillText(eraData.name, W / 2, 85);
+    ctx.fillStyle = eraData.colBase; ctx.font = 'bold 16px Courier New';
+    ctx.fillText(eraData.name, W / 2, 78);
 
-    // Storie di 3 righe per il livello
     let lines = isBossLvl ? eraData.storyBoss : eraData.storyEra;
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText(lines[0], W / 2, 115);
-    ctx.fillText(lines[1], W / 2, 133);
-    ctx.fillText(lines[2], W / 2, 151);
+    ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
+    ctx.fillText(lines[0], W / 2, 106);
+    ctx.fillText(lines[1], W / 2, 124);
+    ctx.fillText(lines[2], W / 2, 142);
 
     if (isBossLvl) {
-      // --- ANTEPRIMA DEL MEGA BOSS ---
-      ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New';
-      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, 182);
+      ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
+      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, 172);
 
       let bImg = ASSETS.BOSSI[currentEraIndex];
       let bossSize = 64;
-      let bx = W / 2 - bossSize / 2, by = 195;
+      let bx = W / 2 - bossSize / 2, by = 186;
 
       if (bImg && bImg.complete && bImg.naturalWidth !== 0) {
         ctx.drawImage(bImg, bx, by, bossSize, bossSize);
@@ -1673,57 +1674,56 @@ function drawScreens() {
         ctx.fillText(`BOSS ${currentEraIndex}`, W / 2, by + 36);
       }
 
-      ctx.fillStyle = '#ffea00'; ctx.font = 'bold 13px Courier New';
-      ctx.fillText(eraData.boss, W / 2, 280);
+      ctx.fillStyle = '#ffea00'; ctx.font = 'bold 14px Courier New';
+      ctx.fillText(eraData.boss, W / 2, 272);
 
-      ctx.fillStyle = '#ff0055'; ctx.font = '11px Courier New';
+      ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px Courier New';
       let bossHp = 10 + (currentEraIndex - 1) * 5;
-      ctx.fillText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, 300);
+      ctx.fillText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, 294);
 
     } else {
-      // --- PRESENTAZIONE DEI MOSTRI BASE E CORROTTI ---
-      ctx.fillStyle = '#00f0ff'; ctx.font = '900 13px Courier New';
-      ctx.fillText('MOSTRI DI QUESTO TURNO:', W / 2, 180);
+      ctx.fillStyle = '#00f0ff'; ctx.font = '900 14px Courier New';
+      ctx.fillText('NEMICI DI QUESTA ERA:', W / 2, 172);
 
-      // Mostro 1: Standard (1 Colpo)
+      // Mostro Base
       let mImg = ASSETS.MOSTRI[currentEraIndex];
-      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(24, 195, W - 48, 52, 8); ctx.fill();
+      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(18, 186, W - 36, 54, 8); ctx.fill();
       ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2; ctx.stroke();
 
       if (mImg && mImg.complete && mImg.naturalWidth !== 0) {
-        ctx.drawImage(mImg, 34, 205, 32, 32);
+        ctx.drawImage(mImg, 26, 197, 32, 32);
       } else {
-        ctx.fillStyle = eraData.colBase; ctx.beginPath(); ctx.arc(50, 221, 12, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = eraData.colBase; ctx.beginPath(); ctx.arc(42, 213, 12, 0, Math.PI * 2); ctx.fill();
       }
 
       ctx.textAlign = 'left';
-      ctx.fillStyle = eraData.colBase; ctx.font = 'bold 12px Courier New';
-      ctx.fillText(`${eraData.monster} [Standard]`, 76, 216);
-      ctx.fillStyle = '#ffffff'; ctx.font = '10px Courier New';
-      ctx.fillText('Resistenza: 1 Colpo | Punti: +200', 76, 233);
+      ctx.fillStyle = eraData.colBase; ctx.font = 'bold 13px Courier New';
+      ctx.fillText(`${eraData.monster} [Base]`, 68, 208);
+      ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
+      ctx.fillText('Resistenza: 1 Colpo  | +200 PTS', 68, 226);
 
-      // Mostro 2: Corrotto (2 Colpi)
-      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(24, 255, W - 48, 52, 8); ctx.fill();
+      // Mostro Corrotto
+      ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(18, 248, W - 36, 54, 8); ctx.fill();
       ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2; ctx.stroke();
 
       if (mImg && mImg.complete && mImg.naturalWidth !== 0) {
         ctx.filter = eraData.filterTough;
-        ctx.drawImage(mImg, 34, 265, 32, 32);
+        ctx.drawImage(mImg, 26, 259, 32, 32);
         ctx.filter = 'none';
       } else {
-        ctx.fillStyle = eraData.colTough; ctx.beginPath(); ctx.arc(50, 281, 12, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = eraData.colTough; ctx.beginPath(); ctx.arc(42, 275, 12, 0, Math.PI * 2); ctx.fill();
       }
 
       ctx.textAlign = 'left';
-      ctx.fillStyle = eraData.colTough; ctx.font = 'bold 12px Courier New';
-      ctx.fillText(`${eraData.monster} [Corrotto]`, 76, 276);
-      ctx.fillStyle = '#ffffff'; ctx.font = '10px Courier New';
-      ctx.fillText('Resistenza: 2 Colpi | Punti: +350', 76, 293);
+      ctx.fillStyle = eraData.colTough; ctx.font = 'bold 13px Courier New';
+      ctx.fillText(`${eraData.monster} [Corrotto]`, 68, 270);
+      ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
+      ctx.fillText('Resistenza: 2 Colpi | +350 PTS', 68, 288);
     }
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('INIZIA STAGE ►', W / 2, H - 20);
+      ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+      ctx.fillText('INIZIA STAGE ►', W / 2, H - 18);
     }
     ctx.restore();
     return;
