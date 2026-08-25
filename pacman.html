@@ -277,7 +277,7 @@
 
 <div id="game-wrapper">
   <div class="top-header">
-    <span class="header-title">CYBER RUN: GRID BOMBER</span>
+    <span class="header-title">FILE BOMBER</span>
     <div class="header-btns-right">
       <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
       <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
@@ -294,7 +294,8 @@
     </div>
 
     <div class="fire-btn" id="btnBomb">
-      <span>💣</span>
+      <img src="assets/pacman/bomba.png" alt="Bomba" style="width:36px; height:36px; object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+      <span style="display:none;">💣</span>
     </div>
   </div>
 
@@ -435,6 +436,10 @@ const ASSETS = {
   GUIDO: new Image(),
   MOV_LAURA: new Image(),
   MOV_GUIDO: new Image(),
+  BOMBA: new Image(),
+  FUOCO: new Image(),
+  SCARPA: new Image(),
+  CAFFE: new Image(),
   MOSTRI: [],
   BOSSI: []
 };
@@ -444,6 +449,11 @@ ASSETS.LAURA.src = 'assets/pacman/laura.png';
 ASSETS.GUIDO.src = 'assets/pacman/guido.png';
 ASSETS.MOV_LAURA.src = 'assets/pacman/mov-laura.png';
 ASSETS.MOV_GUIDO.src = 'assets/pacman/mov-guido.png';
+
+ASSETS.BOMBA.src = 'assets/pacman/bomba.png';
+ASSETS.FUOCO.src = 'assets/pacman/fuoco.png';
+ASSETS.SCARPA.src = 'assets/pacman/scarpa.png';
+ASSETS.CAFFE.src = 'assets/pacman/caffe.png';
 
 for (let i = 1; i <= 5; i++) {
   const imgM = new Image();
@@ -492,7 +502,7 @@ const ERAS_INFO = [
     storyBoss: [
       "Kernel Panic! Schermata blu imminente.",
       "Errore fatale che minaccia l'archivio.",
-      "Usa le bombe prima del crash totale!"
+      "Usa le gomme prima del crash totale!"
     ]
   },
   { 
@@ -544,12 +554,12 @@ const ERAS_INFO = [
     storyEra: [
       "Mancano pochi minuti alle 18:30!",
       "File non salvati corrono nel sistema.",
-      "Fai esplodere il caos pre-consegna!"
+      "Cancella il caos pre-consegna!"
     ],
     storyBoss: [
       "Il timer segna 00:00! Crash Finale!",
       "L'ultimo ostacolo per salvare il lavoro.",
-      "Piazza ogni bomba e salva l'agenzia!"
+      "Usa ogni gomma a disposizione e salva lo studio!"
     ]
   }
 ];
@@ -561,7 +571,7 @@ const CHARACTERS = {
     name: "LAURA",
     role: "Senior Graphic Designer",
     perkBonusTitle: "BONUS: Render Master",
-    perkBonusDesc: "+1 Bomba | +1 Raggio Esplosione",
+    perkBonusDesc: "+1 Gomma | +1 Raggio Warp",
     perkMalusTitle: "MALUS: Precisione Senior",
     perkMalusDesc: "-5% Velocità di Corsa",
     primary: "#00ffcc",
@@ -580,7 +590,7 @@ const CHARACTERS = {
     perkBonusTitle: "BONUS: Agilità Junior",
     perkBonusDesc: "+20% Velocità | +15% Punti",
     perkMalusTitle: "MALUS: Bozza Iniziale",
-    perkMalusDesc: "1 Bomba & Raggio Base",
+    perkMalusDesc: "1 Gomma & Raggio Base",
     primary: "#ffd700",
     wallCol: "#ffaa00",
     portrait: ASSETS.GUIDO,
@@ -1320,23 +1330,46 @@ function drawSingleBlock(r, c) {
   }
 }
 
+// RENDERING POWER-UP IN PARTITA CON PNG
 function drawSinglePowerup(pw) {
   if (!pw) return;
-  let px = pw.gx * CELL_SIZE + CELL_SIZE / 2, py = pw.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2;
-  ctx.fillStyle = '#ffcc00'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-  let icon = pw.type === 'BOMB_UP' ? '💣' : pw.type === 'FIRE_UP' ? '🔥' : pw.type === 'SPEED_UP' ? '👟' : '☕';
-  ctx.fillText(icon, px, py + 4);
+  let px = pw.gx * CELL_SIZE + CELL_SIZE / 2;
+  let py = pw.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2;
+  let size = 20;
+
+  let imgAsset = null;
+  let fallbackEmoji = '⚡';
+
+  if (pw.type === 'BOMB_UP') { imgAsset = ASSETS.BOMBA; fallbackEmoji = '💣'; }
+  else if (pw.type === 'FIRE_UP') { imgAsset = ASSETS.FUOCO; fallbackEmoji = '🔥'; }
+  else if (pw.type === 'SPEED_UP') { imgAsset = ASSETS.SCARPA; fallbackEmoji = '👟'; }
+  else if (pw.type === 'COFFEE') { imgAsset = ASSETS.CAFFE; fallbackEmoji = '☕'; }
+
+  if (imgAsset && imgAsset.complete && imgAsset.naturalWidth !== 0) {
+    ctx.drawImage(imgAsset, px - size / 2, py - size / 2, size, size);
+  } else {
+    ctx.fillStyle = '#ffcc00'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(fallbackEmoji, px, py + 4);
+  }
 }
 
+// RENDERING BOMBA PIAZZATA SULLA GRIGLIA
 function drawSingleBomb(b) {
   if (!b) return;
-  let bx = b.gx * CELL_SIZE + CELL_SIZE / 2, by = b.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2;
+  let bx = b.gx * CELL_SIZE + CELL_SIZE / 2;
+  let by = b.gy * CELL_SIZE + HUD_HEIGHT + CELL_SIZE / 2;
   let pulse = Math.sin(Date.now() / 70) * 1.5;
+
   ctx.save();
-  ctx.beginPath(); ctx.arc(bx, by, 9 + pulse, 0, Math.PI * 2);
-  ctx.fillStyle = '#ff0055'; ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.font = `${16 + pulse}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('💣', bx, by + 1);
+  if (ASSETS.BOMBA && ASSETS.BOMBA.complete && ASSETS.BOMBA.naturalWidth !== 0) {
+    let size = 22 + pulse;
+    ctx.drawImage(ASSETS.BOMBA, bx - size / 2, by - size / 2, size, size);
+  } else {
+    ctx.beginPath(); ctx.arc(bx, by, 9 + pulse, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff0055'; ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = `${16 + pulse}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('💣', bx, by + 1);
+  }
   ctx.restore();
 }
 
@@ -1466,6 +1499,7 @@ function drawHUD() {
 function drawScreens() {
   const W = CANVAS_W, H = CANVAS_H;
 
+  // PAGINA 1: COPERTINA
   if (state === 'COVER') {
     if (ASSETS.COVER && ASSETS.COVER.complete && ASSETS.COVER.naturalWidth !== 0) {
       ctx.drawImage(ASSETS.COVER, 0, 0, W, H);
@@ -1484,6 +1518,7 @@ function drawScreens() {
     return;
   }
 
+  // PAGINA 2: STORIA
   if (state === 'STORY') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1516,6 +1551,7 @@ function drawScreens() {
     return;
   }
 
+  // PAGINA 3: REGOLE
   if (state === 'RULES') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1558,6 +1594,7 @@ function drawScreens() {
     return;
   }
 
+  // PAGINA 4: POTENZIAMENTI
   if (state === 'POWERUPS_INFO') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1568,10 +1605,10 @@ function drawScreens() {
     ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 2.5; ctx.stroke();
 
     const items = [
-      { tag: '💣', title: 'EXTRA BOMB', desc: '+1 Bomba Simultanea', col: '#ff0055' },
-      { tag: '🔥', title: 'FIRE RANGE', desc: '+1 Raggio Esplosione', col: '#ffaa00' },
-      { tag: '👟', title: 'SPEED BOOST', desc: '+20% Velocità Corsa', col: '#00ffcc' },
-      { tag: '☕', title: 'PAUSA CAFFÈ', desc: '+300 Punti Extra', col: '#ffd700' }
+      { key: 'BOMBA', title: 'GOMMA VETTORIALE', desc: '+1 Gomma (Cancella Blocchi)', col: '#ff0055' },
+      { key: 'FUOCO', title: 'WARP BRUSH', desc: '+1 Raggio Esplosione', col: '#ffaa00' },
+      { key: 'SCARPA', title: 'ACCELERATORE ITERAZIONE', desc: '+20% Vel. Elaborazione', col: '#00ffcc' },
+      { key: 'CAFFE', title: 'CACHE PUNTI LAYERS', desc: '+300 Punti Extra Layers', col: '#ffd700' }
     ];
 
     items.forEach((item, idx) => {
@@ -1580,14 +1617,20 @@ function drawScreens() {
       ctx.roundRect(20, boxY, W - 40, 62, 10); ctx.fill();
       ctx.strokeStyle = item.col; ctx.lineWidth = 2; ctx.stroke();
 
-      ctx.font = '26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(item.tag, 46, boxY + 31);
+      let imgAsset = ASSETS[item.key];
+      if (imgAsset && imgAsset.complete && imgAsset.naturalWidth !== 0) {
+        ctx.drawImage(imgAsset, 32, boxY + 15, 32, 32);
+      } else {
+        ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        let fallbackEmoji = item.key === 'BOMBA' ? '💣' : item.key === 'FUOCO' ? '🔥' : item.key === 'SCARPA' ? '👟' : '☕';
+        ctx.fillText(fallbackEmoji, 48, boxY + 31);
+      }
 
-      ctx.fillStyle = item.col; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillText(item.title, 76, boxY + 28);
+      ctx.fillStyle = item.col; ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(item.title, 72, boxY + 28);
 
-      ctx.fillStyle = '#ffffff'; ctx.font = '12px Courier New';
-      ctx.fillText(item.desc, 76, boxY + 48);
+      ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
+      ctx.fillText(item.desc, 72, boxY + 48);
     });
 
     if (Math.floor(frame / 40) % 2 === 0) {
@@ -1597,6 +1640,7 @@ function drawScreens() {
     return;
   }
 
+  // PAGINA 5: SELEZIONE PERSONAGGI
   if (state === 'CHAR_SELECT') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
@@ -1645,6 +1689,7 @@ function drawScreens() {
     return;
   }
 
+  // ERA INTRO SCREEN
   if (state === 'ERA_INTRO') {
     ctx.save();
     ctx.fillStyle = 'rgba(6, 2, 18, 0.96)'; ctx.fillRect(0, 0, W, H);

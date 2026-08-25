@@ -89,6 +89,7 @@
             padding: max(env(safe-area-inset-top), 24px) 24px max(env(safe-area-inset-bottom), 24px) 24px;
             text-align: center;
             gap: 12px;
+            background: url('assets/hub/sfondostart.png') no-repeat center center / cover;
         }
         .main-logo {
             width: 250px;
@@ -405,7 +406,8 @@
     <button id="home-menu-btn" class="top-home-btn">X</button>
 
     <div id="landing-screen">
-        <img src="assets/hub/logo.png" alt="Agency Arcade Logo" class="main-logo">
+        <video id="logo-video" src="assets/hub/logoanimation.mp4" autoplay muted playsinline style="display:none;"></video>
+        <canvas id="logo-canvas" class="main-logo"></canvas>
         <div id="action-buttons-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;"></div>
     </div>
 
@@ -451,6 +453,60 @@ const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
 let supabaseClient = null;
 if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+// Logo Animation with Chroma Key Green Screen Removal (#3DFF03)
+const logoVideo = document.getElementById('logo-video');
+const logoCanvas = document.getElementById('logo-canvas');
+const logoCtx = logoCanvas.getContext('2d', { willReadFrequently: true });
+
+function processLogoFrame() {
+    if (!logoVideo) return;
+
+    if (logoVideo.videoWidth && logoVideo.videoHeight) {
+        if (logoCanvas.width !== logoVideo.videoWidth) {
+            logoCanvas.width = logoVideo.videoWidth;
+            logoCanvas.height = logoVideo.videoHeight;
+        }
+        logoCtx.drawImage(logoVideo, 0, 0, logoCanvas.width, logoCanvas.height);
+        
+        try {
+            let frame = logoCtx.getImageData(0, 0, logoCanvas.width, logoCanvas.height);
+            let data = frame.data;
+            
+            // Rimuove lo sfondo verde #3DFF03 (R:61, G:255, B:3)
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i];
+                let g = data[i + 1];
+                let b = data[i + 2];
+                
+                let dist = Math.sqrt((r - 61) * (r - 61) + (g - 255) * (g - 255) + (b - 3) * (b - 3));
+                if (dist < 165 || (g > 100 && g > r * 1.25 && g > b * 1.25)) {
+                    data[i + 3] = 0;
+                }
+            }
+            logoCtx.putImageData(frame, 0, 0);
+        } catch (e) {
+            console.error("Errore lettura Canvas (verificare protocollo server locale):", e);
+        }
+    }
+    
+    if (!logoVideo.ended && !logoVideo.paused) {
+        requestAnimationFrame(processLogoFrame);
+    }
+}
+
+if (logoVideo) {
+    logoVideo.onloadedmetadata = () => {
+        logoVideo.play().catch(err => console.log("Autoplay impedito:", err));
+    };
+    logoVideo.addEventListener('play', () => {
+        requestAnimationFrame(processLogoFrame);
+    });
+    logoVideo.addEventListener('ended', () => {
+        processLogoFrame();
+    });
+    logoVideo.play().catch(() => {});
 }
 
 const AVATAR_LIST = Array.from({ length: 102 }, (_, i) => `assets/avatars/testa${i + 1}.png`);
