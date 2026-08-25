@@ -516,6 +516,8 @@ let score = 0;
 let hiScore = parseInt(localStorage.getItem('invaders_highScore')) || 0;
 let lives = 3;
 let wave = 1;
+let currentTier = 1;
+let eraBannerTimer = 0;
 let frame = 0;
 let deathTimer = 0;
 
@@ -804,11 +806,11 @@ const player = {
   }
 };
 
-// --- FIX 1: POTENZIAMENTI PERFETTAMENTE CENTRATI ---
+// --- FIX 1: CENTRAMENTO ASSOLUTO PERFETTO PER OGNI EMOJI DI POTENZIAMENTO ---
 class Drop {
   constructor(x, y, type) {
     this.x = x; this.y = y; this.type = type;
-    this.w = 30; this.h = 30; this.dead = false;
+    this.w = 32; this.h = 32; this.dead = false;
     this.speed = 2.0;
   }
   update() {
@@ -828,16 +830,17 @@ class Drop {
 
     ctx.fillStyle = '#101228';
     ctx.beginPath();
-    ctx.roundRect(this.x - 15, this.y - 15, 30, 30, 8);
+    ctx.roundRect(this.x - 16, this.y - 16, 32, 32, 8);
     ctx.fill();
     ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
 
-    ctx.font = '16px "Segoe UI Emoji", "Apple Color Emoji", sans-serif'; 
+    ctx.font = '18px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif'; 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#ffffff';
-    // Centramento assoluto senza offset arbitrari
-    ctx.fillText(label, this.x, this.y);
+    
+    // Allineamento universale preciso al pixel
+    ctx.fillText(label, Math.round(this.x), Math.round(this.y + 1));
     ctx.restore();
   }
 }
@@ -899,27 +902,26 @@ function drawParticles() {
   ctx.globalAlpha = 1;
 }
 
-// --- FIX 3 & 4: NATTATIVA STUDIO CREATIVO E NEMICI CHE CAMBIANO DOPO OGNI BOSS ---
+// --- FIX 2: RIMOZIONE DEI QUADRATI COLORATI DAI NEMICI ---
 class Enemy {
   constructor(x, y, type) {
     this.x = x; this.y = y; this.type = type; this.dead = false;
     this.shootTimer = Math.floor(Math.random() * 60);
     this.t = 0;
     
-    // Determina l'Era di gioco in base al livello attuale
     this.tier = wave <= 10 ? 1 : wave <= 20 ? 2 : 3;
 
     switch (type) {
       case 'grunt':   
-        this.hp = 1; this.maxHp = 1; this.w = 34; this.h = 28; this.points = 100; 
+        this.hp = 1; this.maxHp = 1; this.w = 34; this.h = 34; this.points = 100; 
         this.canShoot = false;
         break;
       case 'shooter': 
-        this.hp = 2 + (this.tier > 1 ? 1 : 0); this.maxHp = this.hp; this.w = 38; this.h = 32; this.points = 200; 
+        this.hp = 2 + (this.tier > 1 ? 1 : 0); this.maxHp = this.hp; this.w = 38; this.h = 38; this.points = 200; 
         this.canShoot = true;  
         break;
       case 'tank':    
-        this.hp = 4 + (this.tier * 2); this.maxHp = this.hp; this.w = 46; this.h = 40; this.points = 500; 
+        this.hp = 4 + (this.tier * 2); this.maxHp = this.hp; this.w = 46; this.h = 46; this.points = 500; 
         this.canShoot = true;  
         break;
     }
@@ -929,17 +931,14 @@ class Enemy {
 
   setupTheme() {
     if (this.tier === 1) {
-      // ERA 1: I BRIEF E I FEEDBACK (Livelli 1-9)
       if (this.type === 'grunt')       { this.name = "BRIEF CONFUSO"; this.icon = "📄"; this.color = "#ff0055"; }
       else if (this.type === 'shooter'){ this.name = "FEEDBACK EXTRA"; this.icon = "💬"; this.color = "#ffaa00"; }
       else if (this.type === 'tank')   { this.name = "LOGO PIÙ GRANDE"; this.icon = "🔍"; this.color = "#aa00ff"; }
     } else if (this.tier === 2) {
-      // ERA 2: LE SCADENZE E IL RENDER (Livelli 11-19) - Evoluzione dopo Boss 1
       if (this.type === 'grunt')       { this.name = "SCADENZA IERI"; this.icon = "⏰"; this.color = "#00ffcc"; }
       else if (this.type === 'shooter'){ this.name = "RENDER CRASH"; this.icon = "💥"; this.color = "#ff3300"; }
       else if (this.type === 'tank')   { this.name = "FATTURA SCADUTA"; this.icon = "💸"; this.color = "#e60000"; }
     } else {
-      // ERA 3: IL CAOS CORPORATE (Livelli 21+) - Evoluzione dopo Boss 2
       if (this.type === 'grunt')       { this.name = "CALL ALLE 18"; this.icon = "📞"; this.color = "#ffff00"; }
       else if (this.type === 'shooter'){ this.name = "BUDGET ZERO"; this.icon = "💰"; this.color = "#ff00aa"; }
       else if (this.type === 'tank')   { this.name = "MICRO-MANAGEMENT"; this.icon = "👁️"; this.color = "#00ff00"; }
@@ -982,39 +981,28 @@ class Enemy {
     const x = this.x, y = this.y;
     ctx.save();
     
-    // Riquadro stile retro per i nemici dell'agenzia
-    ctx.fillStyle = '#0f0826';
-    ctx.beginPath();
-    ctx.roundRect(x - this.w/2, y - this.h/2, this.w, this.h, 6);
-    ctx.fill();
-    ctx.strokeStyle = this.color;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Icona del Nemico
-    ctx.font = '16px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+    // Icona libera senza quadrato colorato
+    ctx.font = `${this.w - 6}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(this.icon, x, y - 2);
+    ctx.fillText(this.icon, x, y);
 
-    // Barra HP per i Nemici Tank
+    // Barra HP discreta per i nemici Tank
     if (this.type === 'tank') {
-      ctx.fillStyle = '#333'; ctx.fillRect(x - 18, y - this.h/2 - 6, 36, 4);
-      ctx.fillStyle = this.color; ctx.fillRect(x - 18, y - this.h/2 - 6, 36 * (this.hp/this.maxHp), 4);
+      ctx.fillStyle = '#111'; ctx.fillRect(x - 18, y - this.h/2 - 4, 36, 4);
+      ctx.fillStyle = this.color; ctx.fillRect(x - 18, y - this.h/2 - 4, 36 * (this.hp/this.maxHp), 4);
     }
 
     ctx.restore();
   }
 }
 
-// --- FIX 2: BOSS BILANCIATI ED EQUILIBRATI ---
 class Boss {
   constructor(waveNum) {
     this.w = 110; this.h = 80;
     this.x = W / 2; this.y = -100;
     this.targetY = 110;
     
-    // NOTEVOLMENTE RIDOTTA LA SALUTE DEL BOSS (Inizialmente era 500, ora parte da 70 HP!)
     this.maxHp = 50 + waveNum * 5; 
     this.hp = this.maxHp;
     this.damageSinceLastDrop = 0;
@@ -1023,7 +1011,6 @@ class Boss {
     this.timer = 0;
     this.attackCooldown = 65;
     
-    // Storie & Boss Tematici per l'Agenzia Creativa
     if (waveNum === 10) {
       this.name = "CLIENTE INDECISO 🤯";
       this.color = "#ff0055";
@@ -1046,7 +1033,6 @@ class Boss {
       let pattern = Math.floor(Math.random() * 3);
       
       if (pattern === 0) {
-        // Attacco bilanciato a 3 proiettili
         for (let a = -0.25; a <= 0.25; a += 0.25) {
           enemyBullets.push(new Bullet(this.x, this.y + 40, Math.sin(a) * 3.5, Math.cos(a) * 3.5, this.color, 8, 8));
         }
@@ -1127,6 +1113,12 @@ let activeBoss = null;
 let spawnQueue = [];
 
 function buildWave(w) {
+  let newTier = w <= 10 ? 1 : w <= 20 ? 2 : 3;
+  if (w === 1 || newTier !== currentTier) {
+    currentTier = newTier;
+    eraBannerTimer = 210; // Mostra il banner della legenda per ~3.5 secondi
+  }
+
   if (w % 10 === 0) {
     activeBoss = new Boss(w);
     triggerShake(20, 8);
@@ -1239,6 +1231,61 @@ function drawHUD() {
     ctx.fillStyle = currentBoss.primary;
     ctx.fillRect(W - 20 - (i * 18), 34, 12, 12);
   }
+}
+
+// --- FIX 3: LEGENDA DEI NEMICI INIZIALI E DI OGNI NUOVA ERA ---
+function drawEraLegend() {
+  if (eraBannerTimer <= 0) return;
+  eraBannerTimer--;
+
+  ctx.save();
+  ctx.globalAlpha = Math.min(1, eraBannerTimer / 30);
+
+  ctx.fillStyle = 'rgba(10, 6, 26, 0.92)';
+  ctx.beginPath();
+  ctx.roundRect(W / 2 - 190, 65, 380, 115, 10);
+  ctx.fill();
+  ctx.strokeStyle = '#ffea00';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  let title = currentTier === 1 ? "ERA 1: BRIEF & FEEDBACK" : currentTier === 2 ? "ERA 2: RENDER & SCADENZE" : "ERA 3: CAOS CORPORATE";
+  ctx.fillStyle = '#ffea00';
+  ctx.font = 'bold 13px "Courier New", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(title, W / 2, 85);
+
+  const legendList = currentTier === 1 ? [
+    { icon: "📄", name: "BRIEF CONFUSO", role: "Veloce / Base" },
+    { icon: "💬", name: "FEEDBACK EXTRA", role: "Attaccante (Spara)" },
+    { icon: "🔍", name: "LOGO PIÙ GRANDE", role: "Resistente (Tank)" }
+  ] : currentTier === 2 ? [
+    { icon: "⏰", name: "SCADENZA IERI", role: "Veloce / Base" },
+    { icon: "💥", name: "RENDER CRASH", role: "Attaccante (Spara)" },
+    { icon: "💸", name: "FATTURA SCADUTA", role: "Resistente (Tank)" }
+  ] : [
+    { icon: "📞", name: "CALL ALLE 18", role: "Veloce / Base" },
+    { icon: "💰", name: "BUDGET ZERO", role: "Attaccante (Spara)" },
+    { icon: "👁️", name: "MICRO-MANAGEMENT", role: "Resistente (Tank)" }
+  ];
+
+  legendList.forEach((item, idx) => {
+    let yPos = 110 + (idx * 20);
+    ctx.font = '14px "Segoe UI Emoji", sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(item.icon, W / 2 - 170, yPos);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px "Courier New", monospace';
+    ctx.fillText(item.name, W / 2 - 145, yPos);
+
+    ctx.fillStyle = '#ff0055';
+    ctx.font = '10px "Courier New", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(item.role, W / 2 + 170, yPos);
+  });
+
+  ctx.restore();
 }
 
 function drawScreens() {
@@ -1385,7 +1432,7 @@ canvas.addEventListener('pointerdown', e => {
 });
 
 function startGame() {
-  score = 0; lives = 3; wave = 1;
+  score = 0; lives = 3; wave = 1; currentTier = 1; eraBannerTimer = 210;
   enemies = []; activeBoss = null; playerBullets = []; enemyBullets = []; drops = [];
   particles.length = 0; spawnQueue = buildWave(1);
   player.reset(); state = 'playing';
@@ -1456,6 +1503,7 @@ function draw() {
   player.draw();
   drawParticles();
   drawHUD();
+  drawEraLegend();
 
   if (state === 'PAUSE' || state === 'dead' || state === 'gameover') drawScreens();
   ctx.restore();
