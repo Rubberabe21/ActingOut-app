@@ -53,7 +53,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 6px) 8px;
+    /* Aumentato leggermente il padding inferiore per i controlli più grandi */
+    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 10px) 8px;
     background: #060212 !important;
     overflow: hidden;
   }
@@ -73,20 +74,36 @@
     font-weight: bold;
     text-shadow: 0 0 6px #ff0055 !important;
     letter-spacing: 1px;
+    flex: 1;
   }
+  
+  /* Container per i pulsanti a destra nell'header */
+  .header-btns-right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
   .opt-btn {
     background: #1a0836;
     border: 1.5px solid #ffea00 !important;
     color: #ffea00 !important;
     padding: 5px 10px;
     font-family: 'Courier New', monospace;
-    font-size: 12px;
+    font-size: 11px; /* Leggermente più piccolo per far stare entrambi */
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
     box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
   }
   .opt-btn:active { transform: scale(0.92); }
+  
+  /* Stile specifico per il tasto ESCI in alto */
+  #btnExitTop {
+    border-color: #ff007f !important;
+    color: #ff007f !important;
+    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3) !important;
+  }
 
   #canvas-container {
     position: relative;
@@ -117,18 +134,22 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 6px 10px;
+    /* Aumentato padding verticale per i controlli più grandi */
+    padding: 10px;
     background: #160a2c;
     border: 2px solid #ffea00 !important;
     border-radius: 14px;
     box-shadow: 0 0 15px rgba(255, 234, 0, 0.4) !important;
     flex-shrink: 0;
+    /* Margin top ridotto dato che non c'è più il tasto sotto */
+    margin-top: 2px;
   }
 
   .joystick-zone {
     position: relative;
-    width: 100px;
-    height: 100px;
+    /* INGRANDITO: da 100px a 140px */
+    width: 140px;
+    height: 140px;
     background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
     border: 2.5px solid #ff0055 !important;
     border-radius: 50%;
@@ -142,8 +163,9 @@
 
   .joystick-knob {
     position: absolute;
-    width: 44px;
-    height: 44px;
+    /* Proporzionato al nuovo joystick */
+    width: 56px;
+    height: 56px;
     background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
     border: 2.5px solid #ffffff;
     border-radius: 50%;
@@ -155,46 +177,30 @@
   }
 
   .fire-btn {
-    width: 92px;
-    height: 92px;
+    /* RIMPICCIOLITO: da 92px a 70px */
+    width: 70px;
+    height: 70px;
     background: radial-gradient(circle at 35% 35%, #ff3366, #990026);
     border: 3px solid #ffffff;
     color: #ffffff;
-    font-size: 13px;
+    /* Aumentato font size dell'emoji centrale */
+    font-size: 28px;
     font-weight: 900;
     border-radius: 50%;
-    box-shadow: 0 5px 0 #66001a, 0 0 18px rgba(255, 0, 85, 0.8);
+    /* Ridotto leggermente l'effetto 3D proporzionalmente */
+    box-shadow: 0 4px 0 #66001a, 0 0 18px rgba(255, 0, 85, 0.8);
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 4px #000;
     cursor: pointer;
   }
   .fire-btn:active {
-    transform: translateY(3px);
+    transform: translateY(2px);
     box-shadow: 0 1px 0 #66001a;
     background: #ff0033;
   }
 
-  .exit-btn {
-    width: 100%;
-    margin-top: 2px;
-    padding: 6px;
-    background: #060212;
-    border: 1.5px solid #ff007f !important;
-    color: #ff007f !important;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    font-size: 11px;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-    box-shadow: 0 0 10px rgba(255, 0, 127, 0.3) !important;
-    flex-shrink: 0;
-  }
-  .exit-btn:active { transform: scale(0.96); }
+  /* Rimosso stile .exit-btn vecchio */
 
   .modal-overlay {
     display: none;
@@ -284,7 +290,11 @@
 <div id="game-wrapper">
   <div class="top-header">
     <span class="header-title">FEEDBACK INVADERS</span>
-    <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+    <div class="header-btns-right">
+      <!-- NUOVO POSIZIONAMENTO TASTO ESCI -->
+      <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
+      <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+    </div>
   </div>
 
   <div id="canvas-container">
@@ -296,13 +306,12 @@
       <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
+    <!-- TASTO FUOCO MODIFICATO (Più piccolo, no scritta) -->
     <div class="fire-btn" id="btnFire">
-      <span>🔥</span>
-      <span>SPARO</span>
     </div>
   </div>
 
-  <button class="exit-btn" onclick="exitGame(score)">◄ TORNA ALL'HUB ARCADE</button>
+  <!-- VECCHIO TASTO ESCI RIMOSSO DA QUI -->
 
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
@@ -342,7 +351,6 @@ let musicEnabled = localStorage.getItem('invaders_music') !== 'false';
 let sfxEnabled = localStorage.getItem('invaders_sfx') !== 'false';
 
 const bgMusic = document.getElementById('bgMusic');
-// MODIFICATO: Musica abbassata a 0.15 per dare risalto agli SFX
 bgMusic.volume = 0.15;
 
 function playBgMusic() {
@@ -372,6 +380,8 @@ function updateMusicState() {
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
+// Aggiunto riferimento al nuovo tasto esci
+const btnExitTop = document.getElementById('btnExitTop');
 const sensSlider = document.getElementById('sensSlider');
 const sensValText = document.getElementById('sensValText');
 const btnToggleMusic = document.getElementById('btnToggleMusic');
@@ -423,6 +433,12 @@ btnCloseSettings.onclick = () => {
     state = 'playing';
   }
   updateMusicState();
+};
+
+// Logica del nuovo tasto Esci in alto
+btnExitTop.onclick = () => {
+  getAC(); // Attiva audio context per salvare punteggio se serve
+  exitGame(score);
 };
 
 // --- PRE-CARICAMENTO ASSETS PNG ---
@@ -713,7 +729,8 @@ function handleJoyMove(clientX, clientY) {
   let dy = clientY - centerY;
 
   const dist = Math.hypot(dx, dy);
-  const maxRadius = rect.width / 2 - 12;
+  // Max Radius proporzionato alla nuova dimensione (rect.width / 2 - padding)
+  const maxRadius = rect.width / 2 - 15; 
 
   if (dist > maxRadius) {
     dx = (dx / dist) * maxRadius;
@@ -722,6 +739,7 @@ function handleJoyMove(clientX, clientY) {
 
   joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
 
+  // Sensibilità basata sul nuovo raggio
   joyDX = (dx / maxRadius) * joySensitivity;
   joyDY = (dy / maxRadius) * joySensitivity;
 }
@@ -826,6 +844,7 @@ const player = {
     
     if (this.boostTimer > 0)  this.boostTimer--;
     if (this.shieldTimer > 0) { this.shieldTimer--; this.invTimer = Math.max(this.invTimer, 2); }
+    if (this.lagTimer > 0)    this.lagTimer--;
     if (this.jamTimer > 0)    this.jamTimer--;
 
     let wantsToShoot = keyPressed('Space') || keyPressed('KeyZ') || touchFire;
@@ -1177,25 +1196,25 @@ class Boss {
     let x = this.x, y = this.y;
     ctx.save();
     
-    // BARRA DELLA VITA E NOME FISSI IN ALTO
+    // BARRA DELLA VITA E NOME FISSI IN ALTO (Alzato leggermente per nuovo header)
     ctx.fillStyle = 'rgba(10, 6, 26, 0.9)';
-    ctx.fillRect(W / 2 - 140, 8, 280, 40);
+    ctx.fillRect(W / 2 - 140, 45, 280, 40);
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2;
-    ctx.strokeRect(W / 2 - 140, 8, 280, 40);
+    ctx.strokeRect(W / 2 - 140, 45, 280, 40);
 
     ctx.fillStyle = '#ffea00';
     ctx.font = '900 13px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(this.name, W / 2, 23);
+    ctx.fillText(this.name, W / 2, 60);
 
     ctx.fillStyle = '#222';
-    ctx.fillRect(W / 2 - 120, 28, 240, 12);
+    ctx.fillRect(W / 2 - 120, 65, 240, 12);
     ctx.fillStyle = this.color;
-    ctx.fillRect(W / 2 - 120, 28, (240) * Math.max(0, this.hp / this.maxHp), 12);
+    ctx.fillRect(W / 2 - 120, 65, (240) * Math.max(0, this.hp / this.maxHp), 12);
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1;
-    ctx.strokeRect(W / 2 - 120, 28, 240, 12);
+    ctx.strokeRect(W / 2 - 120, 65, 240, 12);
 
     // SPRITE DEL BOSS
     const bossImg = ASSETS[`BOSS_${this.bossIndex}`];
@@ -1448,7 +1467,8 @@ function drawEraLegend() {
 
   ctx.fillStyle = '#0e051b';
   ctx.beginPath();
-  ctx.roundRect(16, 50, 448, 520, 16);
+  // Alzata legenda per nuovo header
+  ctx.roundRect(16, 70, 448, 520, 16); 
   ctx.fill();
   ctx.strokeStyle = '#ffea00';
   ctx.lineWidth = 3;
@@ -1458,11 +1478,11 @@ function drawEraLegend() {
   ctx.fillStyle = '#ffea00';
   ctx.font = '900 22px "Courier New", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(title, W / 2, 90);
+  ctx.fillText(title, W / 2, 110);
 
   ctx.fillStyle = '#ff0055';
   ctx.font = 'bold 15px "Courier New", monospace';
-  ctx.fillText("ATTENZIONE! NUOVI INCUBI RILEVATI:", W / 2, 120);
+  ctx.fillText("ATTENZIONE! NUOVI INCUBI RILEVATI:", W / 2, 140);
 
   const legendList = currentTier === 1 ? [
     { code: "[BASE]", name: "BRIEF CONFUSO", desc: "Movimento rapido e imprevedibile", col: "#ff0055" },
@@ -1479,7 +1499,7 @@ function drawEraLegend() {
   ];
 
   legendList.forEach((item, idx) => {
-    let boxY = 150 + (idx * 115);
+    let boxY = 170 + (idx * 115);
 
     ctx.fillStyle = '#160a2c';
     ctx.beginPath();
@@ -1515,7 +1535,7 @@ function drawEraLegend() {
     ctx.fillStyle = '#ffea00';
     ctx.font = '900 18px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('CONTINUA ►', W / 2, 542);
+    ctx.fillText('CONTINUA ►', W / 2, 562);
   }
 
   ctx.restore();
@@ -1549,23 +1569,23 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
     ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('LA STORIA', W/2, 55);
+    ctx.fillText('LA STORIA', W/2, 85); // Abbassato per nuovo header
 
-    ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(20, 85, 440, 440, 16); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(20, 115, 440, 440, 16); ctx.fill();
     ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 3; ctx.stroke();
 
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 20px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('Tre coordinatori d\'agenzia.', W/2, 140);
-    ctx.fillText('Un\'unica grande missione.', W/2, 180);
+    ctx.fillText('Tre coordinatori d\'agenzia.', W/2, 170);
+    ctx.fillText('Un\'unica grande missione.', W/2, 210);
     
     ctx.fillStyle = '#ffea00';
-    ctx.fillText('Un\'invasione incessante di', W/2, 245);
-    ctx.fillText('brief assurdi, feedback tossici', W/2, 285);
-    ctx.fillText('e scadenze da incubo!', W/2, 325);
+    ctx.fillText('Un\'invasione incessante di', W/2, 275);
+    ctx.fillText('brief assurdi, feedback tossici', W/2, 315);
+    ctx.fillText('e scadenze da incubo!', W/2, 355);
 
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Pilota il tuo capo e salva', W/2, 390);
-    ctx.fillText('lo studio dal caos totale!', W/2, 430);
+    ctx.fillText('Pilota il tuo capo e salva', W/2, 420);
+    ctx.fillText('lo studio dal caos totale!', W/2, 460);
 
     if (Math.floor(frame / 40) % 2 === 0) {
       ctx.fillStyle = '#ffea00';
@@ -1579,36 +1599,36 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
     ctx.fillStyle = '#ff0055'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('REGOLE DI GIOCO', W/2, 55);
+    ctx.fillText('REGOLE DI GIOCO', W/2, 85);
 
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 85, 440, 440, 16); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 115, 440, 440, 16); ctx.fill();
     ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3; ctx.stroke();
 
     ctx.textAlign = 'center';
 
     ctx.fillStyle = '#ffea00'; ctx.font = '900 20px Courier New';
-    ctx.fillText('01. ONDATE INCUBI', W/2, 130);
+    ctx.fillText('01. ONDATE INCUBI', W/2, 160);
     ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('Elimina i nemici prima che superino', W/2, 155);
-    ctx.fillText('la linea di difesa dello studio.', W/2, 178);
+    ctx.fillText('Elimina i nemici prima che superino', W/2, 185);
+    ctx.fillText('la linea di difesa dello studio.', W/2, 208);
 
     ctx.fillStyle = '#00ffcc'; ctx.font = '900 20px Courier New';
-    ctx.fillText('02. EVOLUZIONE ERE', W/2, 225);
+    ctx.fillText('02. EVOLUZIONE ERE', W/2, 255);
     ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('I nemici cambiano e diventano più', W/2, 250);
-    ctx.fillText('aggressivi ogni 10 stadi superati.', W/2, 273);
+    ctx.fillText('I nemici cambiano e diventano più', W/2, 280);
+    ctx.fillText('aggressivi ogni 10 stadi superati.', W/2, 303);
 
     ctx.fillStyle = '#ff00ff'; ctx.font = '900 20px Courier New';
-    ctx.fillText('03. SCONTRI MEGA BOSS', W/2, 320);
+    ctx.fillText('03. SCONTRI MEGA BOSS', W/2, 350);
     ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('Affronta i 5 Boss dell\'agenzia', W/2, 345);
-    ctx.fillText('dotati di attacchi speciali unici.', W/2, 368);
+    ctx.fillText('Affronta i 5 Boss dell\'agenzia', W/2, 375);
+    ctx.fillText('dotati di attacchi speciali unici.', W/2, 398);
 
     ctx.fillStyle = '#ffd700'; ctx.font = '900 20px Courier New';
-    ctx.fillText('04. CONTROLLI GUIDA', W/2, 415);
+    ctx.fillText('04. CONTROLLI GUIDA', W/2, 445);
     ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('Usa Joystick Touch o Frecce PC', W/2, 440);
-    ctx.fillText('insieme al tasto SPARO.', W/2, 463);
+    ctx.fillText('Usa Joystick Touch o Frecce PC', W/2, 470);
+    ctx.fillText('insieme al tasto SPARO.', W/2, 493);
 
     if (Math.floor(frame / 40) % 2 === 0) {
       ctx.fillStyle = '#ffea00';
@@ -1622,7 +1642,7 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
     ctx.fillStyle = '#ffea00'; ctx.font = '900 30px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('MODULI & POTENZIAMENTI', W/2, 52);
+    ctx.fillText('MODULI & POTENZIAMENTI', W/2, 82);
 
     const items = [
       { key: 'COFFEE', tag: '[+ VITA]', title: 'MODULO CAFFÈ', desc: 'Ripristina +1 Unità Energia', col: '#ffcc00' },
@@ -1633,7 +1653,7 @@ function drawScreens() {
     ];
 
     items.forEach((item, idx) => {
-      let boxY = 82 + (idx * 84);
+      let boxY = 112 + (idx * 84);
 
       ctx.fillStyle = '#101228';
       ctx.beginPath();
@@ -1672,38 +1692,38 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
     
     ctx.fillStyle = '#ffff00'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('SCEGLI IL TUO CAPO 🚀', W/2, 45);
+    ctx.fillText('SCEGLI IL TUO CAPO 🚀', W/2, 75);
 
     let key = charList[charSelectIndex];
     let c = CHARACTERS[key];
 
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 68, 440, 435, 16); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 98, 440, 435, 16); ctx.fill();
     ctx.strokeStyle = c.primary; ctx.lineWidth = 3.5; ctx.stroke();
 
     if (c.portrait && c.portrait.complete && c.portrait.naturalWidth !== 0) {
       ctx.save();
-      ctx.beginPath(); ctx.roundRect(W/2 - 95, 88, 190, 180, 14); ctx.clip();
-      ctx.drawImage(c.portrait, W/2 - 95, 88, 190, 180);
+      ctx.beginPath(); ctx.roundRect(W/2 - 95, 118, 190, 180, 14); ctx.clip();
+      ctx.drawImage(c.portrait, W/2 - 95, 118, 190, 180);
       ctx.restore();
-      ctx.beginPath(); ctx.roundRect(W/2 - 95, 88, 190, 180, 14);
+      ctx.beginPath(); ctx.roundRect(W/2 - 95, 118, 190, 180, 14);
       ctx.strokeStyle = c.primary; ctx.lineWidth = 2.5; ctx.stroke();
     }
 
     ctx.fillStyle = c.primary; ctx.font = '900 30px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(c.name, W/2, 300);
+    ctx.fillText(c.name, W/2, 330);
 
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 18px Courier New';
-    ctx.fillText(c.role, W/2, 332);
+    ctx.fillText(c.role, W/2, 362);
 
     ctx.fillStyle = '#ffff00'; ctx.font = 'bold 15px Courier New';
-    ctx.fillText(c.perkBonus, W/2, 375);
+    ctx.fillText(c.perkBonus, W/2, 405);
 
     ctx.fillStyle = '#ff0055'; ctx.font = 'bold 15px Courier New';
-    ctx.fillText(c.perkMalus, W/2, 410);
+    ctx.fillText(c.perkMalus, W/2, 440);
 
     ctx.fillStyle = '#ffea00'; ctx.font = '900 36px Courier New';
-    ctx.fillText('◄', 45, 275);
-    ctx.fillText('►', W - 45, 275);
+    ctx.fillText('◄', 45, 305);
+    ctx.fillText('►', W - 45, 305);
 
     if (Math.floor(frame / 40) % 2 === 0) {
       ctx.fillStyle = c.primary;
