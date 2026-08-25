@@ -59,6 +59,7 @@
     overflow: hidden;
   }
 
+  /* TOP HEADER BAR */
   .top-header {
     width: 100%;
     display: flex;
@@ -69,11 +70,11 @@
     flex-shrink: 0;
   }
   .header-title {
-    color: #ff0055 !important;
+    color: #ffcc00 !important;
     font-size: 13px;
-    font-weight: bold;
-    text-shadow: 0 0 6px #ff0055 !important;
-    letter-spacing: 1px;
+    font-weight: 900;
+    text-shadow: 2px 2px 0px #ff0044;
+    letter-spacing: 1.5px;
     flex: 1;
   }
   .header-btns-right {
@@ -82,23 +83,22 @@
     align-items: center;
   }
   .opt-btn {
-    background: #1a0836;
-    border: 1.5px solid #ffea00 !important;
-    color: #ffea00 !important;
+    background: #10101c;
+    border: 2px solid #ffcc00 !important;
+    color: #ffcc00 !important;
     padding: 5px 10px;
     font-family: 'Courier New', monospace;
     font-size: 11px;
     font-weight: bold;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
+    box-shadow: 2px 2px 0px #000000;
   }
-  .opt-btn:active { transform: scale(0.92); }
+  .opt-btn:active { transform: translate(1px, 1px); }
 
   #btnExitTop {
-    border-color: #ff007f !important;
-    color: #ff007f !important;
-    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3) !important;
+    border-color: #ff0055 !important;
+    color: #ff0055 !important;
   }
 
   #canvas-container {
@@ -116,18 +116,19 @@
     max-height: 100%;
     object-fit: contain;
     aspect-ratio: 380 / 540;
-    border: 2px solid #00ffcc !important;
-    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3) !important;
-    border-radius: 10px;
-    background: #060612;
+    border: 4px solid #333344 !important;
+    box-shadow: 0 0 20px #000000, inset 0 0 10px #000000;
+    border-radius: 8px;
+    background: #08080c;
     cursor: pointer;
   }
 
+  /* MODALE OPZIONI */
   .modal-overlay {
     display: none;
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(6, 2, 18, 0.95);
+    background: rgba(4, 4, 8, 0.96);
     z-index: 200;
     justify-content: center;
     align-items: center;
@@ -136,10 +137,10 @@
   .modal-box {
     width: 100%;
     max-width: 320px;
-    background: #0e051b;
-    border: 3px solid #ff0055 !important;
-    box-shadow: 0 0 25px rgba(255, 0, 85, 0.5) !important;
-    border-radius: 14px;
+    background: #0c0c18;
+    border: 4px solid #ff0055 !important;
+    box-shadow: 4px 4px 0px #000000;
+    border-radius: 8px;
     padding: 18px;
     display: flex;
     flex-direction: column;
@@ -148,53 +149,52 @@
     text-align: center;
   }
   .modal-title {
-    color: #ffea00;
+    color: #ffcc00;
     font-size: 16px;
     font-weight: 900;
-    text-shadow: 0 0 8px #ffea00;
+    text-shadow: 2px 2px 0px #000;
   }
   .option-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    background: #160a2c;
+    background: #141424;
     padding: 10px;
-    border: 1px solid rgba(0, 255, 204, 0.4);
-    border-radius: 8px;
+    border: 2px solid #00e5ff;
+    border-radius: 6px;
   }
   .option-label {
     font-size: 11px;
     font-weight: bold;
-    color: #00ffcc !important;
+    color: #00e5ff !important;
   }
   .toggle-btn {
     width: 100%;
     padding: 8px;
-    background: #2a144a;
+    background: #201438;
     border: 2px solid #ff0055;
     color: #ffffff;
     font-weight: bold;
     font-size: 13px;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
   }
   .toggle-btn.active {
-    border-color: #00ff66;
-    color: #00ff66;
-    background: #082814;
-    box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+    border-color: #00ff44;
+    color: #00ff44;
+    background: #082810;
   }
   .close-modal-btn {
     padding: 10px;
-    background: linear-gradient(180deg, #ff0055, #a3003b);
+    background: #ff0055;
     border: 2px solid #ffffff;
     color: #ffffff;
     font-weight: bold;
     font-size: 12px;
-    border-radius: 8px;
+    border-radius: 4px;
     cursor: pointer;
-    box-shadow: 0 0 12px rgba(255, 0, 85, 0.5);
+    box-shadow: 3px 3px 0px #000;
   }
 </style>
 </head>
@@ -204,7 +204,7 @@
 
 <div id="wrapper">
   <div class="top-header">
-    <span class="header-title">PIXEL PUNCH</span>
+    <span class="header-title">PIXEL PUNCH '84</span>
     <div class="header-btns-right">
       <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
       <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
@@ -217,7 +217,7 @@
 
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
-      <div class="modal-title">⚙️ OPZIONI GIOCO</div>
+      <div class="modal-title">⚙️ OPZIONI CABINET</div>
 
       <div class="option-item">
         <span class="option-label">MUSICA DI SOTTOFONDO</span>
@@ -240,16 +240,21 @@ const ctx = cvs.getContext('2d');
 cvs.width = 380; 
 cvs.height = 540;
 
-function drawRoundRect(c, x, y, w, h, r) {
-  if (w < 2 * r) r = w / 2;
-  if (h < 2 * r) r = h / 2;
-  c.beginPath();
-  c.moveTo(x + r, y);
-  c.arcTo(x + w, y, x + w, y + h, r);
-  c.arcTo(x + w, y + h, x, y + h, r);
-  c.arcTo(x, y + h, x, y, r);
-  c.arcTo(x, y, x + w, y, r);
-  c.closePath();
+// HELPER: 80s CABINET BEVELLED PANEL
+function draw80sBox(c, x, y, w, h, borderColor, bgCol, borderWidth = 3) {
+  c.fillStyle = bgCol;
+  c.fillRect(x, y, w, h);
+  c.lineWidth = borderWidth;
+  c.strokeStyle = borderColor;
+  c.strokeRect(x, y, w, h);
+  
+  // Inner bevel highlights
+  c.fillStyle = 'rgba(255, 255, 255, 0.12)';
+  c.fillRect(x, y, w, 2);
+  c.fillRect(x, y, 2, h);
+  c.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  c.fillRect(x, y + h - 2, w, 2);
+  c.fillRect(x + w - 2, y, 2, h);
 }
 
 // AUDIO AUTOPLAY CONFIGURATION
@@ -359,36 +364,36 @@ const CHARACTERS = {
     IRIS: {
         id: 'IRIS',
         name: "IRIS",
-        subtitle: "Iris, la maestra dell'AI",
-        perkBonusTitle: "BONUS: Auto-Fix AI",
-        perkBonusDesc: "Auto-Risoluzione & Ferie 7s",
-        primary: "#00ffcc",
-        bg: "#06061a",
-        padBg: "#120f2e",
+        subtitle: "AI Producer Specialist",
+        perkBonusTitle: "PERK: AUTO-FIX AI",
+        perkBonusDesc: "Fix automatico & Ferie 7s",
+        primary: "#00e5ff",
+        bg: "#060814",
+        padBg: "#101026",
         img: ASSETS.IRIS,
         ferieSec: 7
     },
     CRISTINA: {
         id: 'CRISTINA',
         name: "CRISTINA",
-        subtitle: "Cristina, la producer sagace",
-        perkBonusTitle: "BONUS: Caffè x2 Extra",
-        perkBonusDesc: "Punti Doppi & Ferie 10s",
-        primary: "#ffd700",
-        bg: "#120e00",
-        padBg: "#261a00",
+        subtitle: "Senior Producer Exec",
+        perkBonusTitle: "PERK: DOUBLE ESPRESSO",
+        perkBonusDesc: "Punti Caffè x2 & Ferie 10s",
+        primary: "#ffcc00",
+        bg: "#100c02",
+        padBg: "#221a04",
         img: ASSETS.CRISTINA,
         ferieSec: 10
     },
     RACHELE: {
         id: 'RACHELE',
         name: "RACHELE",
-        subtitle: "Rachele, l'inarrestabile",
-        perkBonusTitle: "BONUS: Super Ferie & Rush",
-        perkBonusDesc: "15s Relax & Combo Boost",
-        primary: "#ff33aa",
-        bg: "#140018",
-        padBg: "#28002b",
+        subtitle: "Lead Field Producer",
+        perkBonusTitle: "PERK: VACATION RUSH",
+        perkBonusDesc: "15s Super Relax & Combo Boost",
+        primary: "#ff0055",
+        bg: "#140410",
+        padBg: "#280820",
         img: ASSETS.RACHELE,
         ferieSec: 15
     }
@@ -400,7 +405,7 @@ let currentTheme = CHARACTERS.IRIS;
 let highScore = parseInt(localStorage.getItem('pixelPunch_highScore')) || 0;
 let isNewRecord = false;
 
-// SYNTHESIZED SFX
+// SYNTHESIZED SFX (80S SYNTH CHIP)
 let audioCtx = null;
 function getAC() {
     try {
@@ -425,36 +430,37 @@ function playSound(type) {
         
         if (type === 'hit') {
             osc.type = 'square';
-            osc.frequency.setValueAtTime(400, ac.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.2, ac.currentTime);
-            osc.start(); osc.stop(ac.currentTime + 0.1);
+            osc.frequency.setValueAtTime(320, ac.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.3, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.08);
         } else if (type === 'hit_double') {
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(600, ac.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(250, ac.currentTime + 0.12);
-            gain.gain.setValueAtTime(0.25, ac.currentTime);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(580, ac.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(220, ac.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.35, ac.currentTime);
             osc.start(); osc.stop(ac.currentTime + 0.12);
         } else if (type === 'coffee') {
-            osc.type = 'sine';
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, ac.currentTime);
+            osc.frequency.setValueAtTime(554, ac.currentTime + 0.06);
+            osc.frequency.setValueAtTime(659, ac.currentTime + 0.12);
+            gain.gain.setValueAtTime(0.3, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.2);
+        } else if (type === 'golden') {
+            osc.type = 'triangle';
             osc.frequency.setValueAtTime(523, ac.currentTime);
             osc.frequency.setValueAtTime(659, ac.currentTime + 0.08);
             osc.frequency.setValueAtTime(783, ac.currentTime + 0.16);
-            gain.gain.setValueAtTime(0.2, ac.currentTime);
-            osc.start(); osc.stop(ac.currentTime + 0.24);
-        } else if (type === 'golden') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(659, ac.currentTime);
-            osc.frequency.setValueAtTime(880, ac.currentTime + 0.1);
-            osc.frequency.setValueAtTime(1046, ac.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.25, ac.currentTime);
-            osc.start(); osc.stop(ac.currentTime + 0.3);
+            osc.frequency.setValueAtTime(1046, ac.currentTime + 0.24);
+            gain.gain.setValueAtTime(0.35, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.32);
         } else if (type === 'fail') {
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(200, ac.currentTime);
-            osc.frequency.linearRampToValueAtTime(60, ac.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.25, ac.currentTime);
-            osc.start(); osc.stop(ac.currentTime + 0.2);
+            osc.frequency.setValueAtTime(180, ac.currentTime);
+            osc.frequency.linearRampToValueAtTime(40, ac.currentTime + 0.25);
+            gain.gain.setValueAtTime(0.35, ac.currentTime);
+            osc.start(); osc.stop(ac.currentTime + 0.25);
         }
     } catch(e) {}
 }
@@ -466,12 +472,20 @@ let combo = 0;
 let stress = 0;
 let elapsedMatchTime = 0;
 let frame = 0;
+let shakeTime = 0;
+let shakeMag = 0;
+
+function triggerShake(time = 10, mag = 5) {
+    shakeTime = time;
+    shakeMag = mag;
+}
 
 let ferieActive = false;
 let ferieTimer = 0;
 
 let particles = [];
 let floatingTexts = [];
+let impactBursts = [];
 
 const BAD_NOTIFS = [
     { line1: "LOGO PIÙ", line2: "GRANDE!" },
@@ -479,7 +493,7 @@ const BAD_NOTIFS = [
     { line1: "CAMBIA", line2: "COLORE!" },
     { line1: "ASAP", line2: "URGENTE!" },
     { line1: "PROVA CON", line2: "VERDE!" },
-    { line1: "FONTS PIÙ", line2: "LEGGIBILE!" }
+    { line1: "FONTS PIÙ", line2: "LEGGIBILI!" }
 ];
 
 const gridPads = [
@@ -512,7 +526,7 @@ let gameTimerInterval = null;
 function selectCharacter(charKey) {
     currentTheme = CHARACTERS[charKey];
     cvs.style.borderColor = currentTheme.primary;
-    cvs.style.boxShadow = `inset 0 0 15px ${currentTheme.primary}`;
+    cvs.style.boxShadow = `0 0 20px ${currentTheme.primary}`;
     startMatch();
 }
 
@@ -536,17 +550,18 @@ function startMatch() {
 
             if (ferieActive) {
                 ferieTimer--;
-                stress = Math.max(0, stress - 1.5);
+                stress = Math.max(0, stress - 1.8);
                 if (ferieTimer <= 0) {
                     ferieActive = false;
                 }
             } else {
-                stress = Math.min(100, stress + 0.3 + (elapsedMatchTime * 0.012));
+                stress = Math.min(100, stress + 0.35 + (elapsedMatchTime * 0.012));
             }
 
             if (stress >= 100) {
                 state = 'GAMEOVER';
                 playSound('fail');
+                triggerShake(20, 10);
                 saveScore();
                 clearInterval(gameTimerInterval);
             }
@@ -572,13 +587,14 @@ function spawnTicket() {
     target.active = true;
 
     let rand = Math.random();
-    let duration = Math.max(60, 150 - Math.floor(elapsedMatchTime * 1.5));
+    let duration = Math.max(55, 145 - Math.floor(elapsedMatchTime * 1.5));
 
     if (currentTheme.id === 'IRIS' && rand < 0.20 && rand >= 0.05) {
         score += 100;
         stress = Math.max(0, stress - 2);
-        addParticles(target.x + target.w/2, target.y + target.h/2, currentTheme.primary, 8);
-        addFloatText(target.x + target.w/2, target.y + target.h/2, "AI AUTO-FIX! +100", currentTheme.primary);
+        addParticles(target.x + target.w/2, target.y + target.h/2, currentTheme.primary, 12);
+        addFloatText(target.x + target.w/2, target.y + target.h/2, "AI AUTO-FIX!", currentTheme.primary);
+        addImpactBurst(target.x + target.w/2, target.y + target.h/2, "AUTO-FIX!", currentTheme.primary);
         target.active = false;
         return;
     }
@@ -627,7 +643,13 @@ function spawnTicket() {
 
 function hitPad(pad) {
     pad.pressAnim = 6;
-    if (!pad.active) return;
+    let cx = pad.x + pad.w / 2;
+    let cy = pad.y + pad.h / 2;
+
+    if (!pad.active) {
+        triggerShake(3, 2);
+        return;
+    }
 
     if (pad.type === 'FERIE') {
         pad.active = false;
@@ -635,10 +657,12 @@ function hitPad(pad) {
         ferieTimer = currentTheme.ferieSec;
         stress = Math.max(0, stress - 20);
         playSound('golden');
+        triggerShake(12, 6);
         
         gridPads.forEach(p => p.active = false);
-        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#00ffcc', 18);
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `🌴 FERIE RELAX (${currentTheme.ferieSec}s)!`, "#00ffcc");
+        addParticles(cx, cy, '#00e5ff', 22);
+        addFloatText(cx, cy, `🌴 VACATION! (${currentTheme.ferieSec}s)`, "#00e5ff");
+        addImpactBurst(cx, cy, "RELAX!", "#00e5ff");
     }
     else if (pad.type === 'TRAP') {
         pad.active = false;
@@ -647,8 +671,10 @@ function hitPad(pad) {
         score = Math.max(0, score - pen);
         if (currentTheme.id !== 'CRISTINA') stress = Math.min(100, stress + 8);
         playSound('fail');
-        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#00ffcc');
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, (pen === 0 ? "NO PENALTY!" : "-50 PTS"), "#00ffcc");
+        triggerShake(10, 6);
+        addParticles(cx, cy, '#00ff44', 12);
+        addFloatText(cx, cy, (pen === 0 ? "NO PENALTY!" : "-50 PTS"), "#00ff44");
+        addImpactBurst(cx, cy, "TRAP!", "#00ff44");
     } 
     else if (pad.type === 'GLITCH') {
         pad.active = false;
@@ -656,8 +682,10 @@ function hitPad(pad) {
         score = Math.max(0, score - 100);
         stress = Math.min(100, stress + 12);
         playSound('fail');
-        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ff0055');
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "GLITCH! +12% STRESS", "#ff0055");
+        triggerShake(14, 8);
+        addParticles(cx, cy, '#ff0055', 16);
+        addFloatText(cx, cy, "GLITCH! +12% STRESS", "#ff0055");
+        addImpactBurst(cx, cy, "ERROR!", "#ff0055");
     }
     else if (pad.type === 'COFFEE') {
         pad.active = false;
@@ -666,8 +694,10 @@ function hitPad(pad) {
         score += pts;
         stress = Math.max(0, stress - (currentTheme.id === 'CRISTINA' ? 12 : 8));
         playSound('coffee');
-        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffcc00');
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts} CAFFÈ!`, "#ffcc00");
+        triggerShake(6, 4);
+        addParticles(cx, cy, '#ffcc00', 14);
+        addFloatText(cx, cy, `+${pts} CAFFÈ!`, "#ffcc00");
+        addImpactBurst(cx, cy, "BOOST!", "#ffcc00");
     } 
     else if (pad.type === 'GOLDEN') {
         pad.active = false;
@@ -675,26 +705,31 @@ function hitPad(pad) {
         score += 500;
         stress = Math.max(0, stress - 15);
         playSound('golden');
-        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffd700', 16);
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "+500 PTS VIP!", "#ffd700");
+        triggerShake(12, 7);
+        addParticles(cx, cy, '#ffcc00', 20);
+        addFloatText(cx, cy, "+500 PTS VIP!", "#ffcc00");
+        addImpactBurst(cx, cy, "VIP K.O.!", "#ffcc00");
     }
     else if (pad.type === 'DOUBLE') {
         pad.hp--;
         playSound('hit_double');
+        triggerShake(6, 4);
         if (pad.hp <= 0) {
             pad.active = false;
             combo++;
             let pts = 250;
             score += pts;
             stress = Math.max(0, stress - 4);
-            addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#aa00ff', 12);
-            addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts} RISOLTA!`, "#aa00ff");
+            addParticles(cx, cy, '#aa00ff', 16);
+            addFloatText(cx, cy, `+${pts} RISOLTA!`, "#aa00ff");
+            addImpactBurst(cx, cy, "SMASH!", "#aa00ff");
         } else {
-            addParticles(pad.x + pad.w/2, pad.y + pad.h/2, '#ffaa00', 6);
-            addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, "1 ANCORA!", "#ffaa00");
+            addParticles(cx, cy, '#ff8800', 8);
+            addFloatText(cx, cy, "1 ANCORA!", "#ff8800");
+            addImpactBurst(cx, cy, "HIT!", "#ff8800");
         }
     }
-    else {
+    else { // BAD
         pad.active = false;
         combo++;
         let comboBonus = (currentTheme.id === 'RACHELE') ? (combo * 25) : (combo > 3 ? 50 : 0);
@@ -702,33 +737,62 @@ function hitPad(pad) {
         score += pts;
         stress = Math.max(0, stress - 2);
         playSound('hit');
-        addParticles(pad.x + pad.w/2, pad.y + pad.h/2, currentTheme.primary);
-        addFloatText(pad.x + pad.w/2, pad.y + pad.h/2, `+${pts}`, "#ffff00");
+        triggerShake(7, 5);
+        addParticles(cx, cy, currentTheme.primary, 14);
+        addFloatText(cx, cy, `+${pts}`, "#ffcc00");
+        addImpactBurst(cx, cy, combo > 3 ? "CRITICAL!" : "PUNCH!", currentTheme.primary);
     }
 }
 
-function addParticles(x, y, color, count = 10) {
+function addParticles(x, y, color, count = 12) {
     for (let i = 0; i < count; i++) {
+        let angle = Math.random() * Math.PI * 2;
+        let spd = 2 + Math.random() * 6;
         particles.push({
             x, y,
-            vx: (Math.random() - 0.5) * 8,
-            vy: (Math.random() - 0.5) * 8,
-            life: 18,
-            color
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            life: 18 + Math.random() * 10,
+            maxLife: 28,
+            color,
+            size: 3 + Math.random() * 3
         });
     }
 }
 
 function addFloatText(x, y, text, color) {
-    floatingTexts.push({ x, y, text, color, alpha: 1, vy: -1.8 });
+    floatingTexts.push({ x, y, text, color, alpha: 1, vy: -2.0 });
+}
+
+function addImpactBurst(x, y, label, color) {
+    impactBursts.push({
+        x, y,
+        label,
+        color,
+        radius: 8,
+        maxRadius: 40,
+        alpha: 1
+    });
 }
 
 function update() {
-    particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life--; });
+    if (shakeTime > 0) shakeTime--;
+
+    particles.forEach(p => { 
+        p.x += p.vx; 
+        p.y += p.vy; 
+        p.life--; 
+    });
     particles = particles.filter(p => p.life > 0);
 
-    floatingTexts.forEach(ft => { ft.y += ft.vy; ft.alpha -= 0.025; });
+    floatingTexts.forEach(ft => { ft.y += ft.vy; ft.alpha -= 0.028; });
     floatingTexts = floatingTexts.filter(ft => ft.alpha > 0);
+
+    impactBursts.forEach(ib => {
+        ib.radius += 3.8;
+        ib.alpha -= 0.045;
+    });
+    impactBursts = impactBursts.filter(ib => ib.alpha > 0);
 
     gridPads.forEach(p => { if (p.pressAnim > 0) p.pressAnim--; });
 
@@ -748,17 +812,51 @@ function update() {
                 if (p.type === 'BAD' || p.type === 'DOUBLE') {
                     combo = 0;
                     stress = Math.min(100, stress + 7);
+                    triggerShake(8, 4);
                 }
             }
         }
     });
 }
 
+// CRT SCANLINE NATIVE HELPER
+function drawCRTOverlay() {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+  for (let y = 0; y < cvs.height; y += 3) {
+    ctx.fillRect(0, y, cvs.width, 1);
+  }
+  // Subtle glass vignette corners
+  let gradient = ctx.createRadialGradient(cvs.width/2, cvs.height/2, 180, cvs.width/2, cvs.height/2, 280);
+  gradient.addColorStop(0, 'rgba(0,0,0,0)');
+  gradient.addColorStop(1, 'rgba(0,0,0,0.6)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, cvs.width, cvs.height);
+  ctx.restore();
+}
+
 function draw() {
+    ctx.save();
+    if (shakeTime > 0) {
+        let sx = (Math.random() - 0.5) * shakeMag;
+        let sy = (Math.random() - 0.5) * shakeMag;
+        ctx.translate(sx, sy);
+    }
+
     ctx.clearRect(0, 0, cvs.width, cvs.height);
 
+    // DYNAMIC RETRO CHARCOAL BACKGROUND WITH CRT PIXEL GRID
     ctx.fillStyle = currentTheme.bg;
     ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.lineWidth = 1;
+    for (let gx = 0; gx < cvs.width; gx += 16) {
+        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, cvs.height); ctx.stroke();
+    }
+    for (let gy = 0; gy < cvs.height; gy += 16) {
+        ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(cvs.width, gy); ctx.stroke();
+    }
 
     const W = cvs.width, H = cvs.height;
 
@@ -767,157 +865,159 @@ function draw() {
         if (ASSETS.COVER && ASSETS.COVER.complete && ASSETS.COVER.naturalWidth !== 0) {
             ctx.drawImage(ASSETS.COVER, 0, 0, W, H);
         } else {
-            ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, W, H);
-            ctx.fillStyle = '#ff0055'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
-            ctx.fillText('PIXEL PUNCH', W / 2, 200);
-            ctx.fillStyle = '#ffea00'; ctx.font = 'bold 16px Courier New';
-            ctx.fillText('REVISION KILLER', W / 2, 240);
+            ctx.fillStyle = '#080810'; ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('PIXEL PUNCH', W / 2, 190);
+            ctx.fillStyle = '#ff0055'; ctx.font = '900 16px Courier New';
+            ctx.fillText('REVISION KILLER \'84', W / 2, 225);
         }
 
-        if (Math.floor(frame / 45) % 2 === 0) {
-            ctx.fillStyle = '#00ffcc'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
-            ctx.fillText('TOCCA PER INIZIARE ►', W / 2, H - 35);
+        draw80sBox(ctx, 35, H - 70, W - 70, 42, '#ffcc00', '#101020', 3);
+        if (Math.floor(frame / 35) % 2 === 0) {
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('★ PRESS START TO PLAY ★', W / 2, H - 44);
         }
+        drawCRTOverlay();
+        ctx.restore();
         return;
     }
 
     // --- PAGINA 2: STORIA AVVINCENTE DELLE PRODUCER ---
     if (state === 'STORY') {
-        ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
         
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('LA STORIA', W / 2, 48);
+        draw80sBox(ctx, 12, 15, W - 24, H - 30, '#00e5ff', '#0c0c1a', 3);
 
-        ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(10, 15, W - 20, H - 30, 12); ctx.fill();
-        ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('★ MISSION BRIEFING ★', W / 2, 45);
 
-        ctx.fillStyle = '#ff0055'; ctx.font = 'bold 16px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('Iris, Cristina e Rachele:', W / 2, 85);
-        ctx.fillText('Le inarrestabili Producer!', W / 2, 107);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('IRIS, CRISTINA & RACHELE:', W / 2, 80);
+        ctx.fillText('LE INARRESTABILI PRODUCER', W / 2, 100);
         
-        ctx.fillStyle = '#ffffff'; ctx.font = '13px Courier New';
-        ctx.fillText('Tra clienti esigenti che chiedono', W / 2, 142);
-        ctx.fillText('"il logo più grande", mail urgenti,', W / 2, 162);
-        ctx.fillText('e modifiche dell\'ultimo secondo,', W / 2, 182);
-        ctx.fillText('lo stress nello studio sta per', W / 2, 202);
-        ctx.fillText('esplodere in un Burnout totale!', W / 2, 222);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('Studio grafico sotto attacco!', W / 2, 135);
+        ctx.fillText('Clienti inviano mail continue:', W / 2, 155);
+        ctx.fillText('"Logo più grande!", "Consegna ieri!"', W / 2, 175);
+        ctx.fillText('"Fallo verde!", "Lavoro ASAP!"', W / 2, 195);
+        
+        ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('Lo stress sta per raggiungere', W / 2, 230);
+        ctx.fillText('il 100% di BURNOUT FATALE!', W / 2, 250);
 
-        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 15px Courier New';
-        ctx.fillText('Metti K.O. le revisioni,', W / 2, 260);
-        ctx.fillText('gestisci il flusso dei ticket', W / 2, 282);
-        ctx.fillText('e conquista le meritate FERIE!', W / 2, 304);
+        ctx.fillStyle = '#00e5ff'; ctx.font = '900 14px Courier New';
+        ctx.fillText('Distruggi i ticket ed evita', W / 2, 290);
+        ctx.fillText('il collasso dello studio!', W / 2, 310);
 
-        if (Math.floor(frame / 40) % 2 === 0) {
-            ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
-            ctx.fillText('CONTINUA ►', W / 2, 388);
+        if (Math.floor(frame / 35) % 2 === 0) {
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, 485);
         }
+        drawCRTOverlay();
+        ctx.restore();
         return;
     }
 
-    // --- PAGINA 3: REGOLE E TUTORIAL MOLTO CHIARO CON ESEMPI ---
+    // --- PAGINA 3: REGOLE E TUTORIAL MOLTO CHIARO ---
     if (state === 'RULES') {
-        ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
 
-        ctx.fillStyle = '#00ffcc'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('REGOLE DI GIOCO 🥊', W / 2, 45);
+        draw80sBox(ctx, 12, 15, W - 24, H - 30, '#ffcc00', '#0c0c1a', 3);
 
-        ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 15, W - 20, H - 30, 12); ctx.fill();
-        ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; ctx.stroke();
-
-        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('★ HOW TO PLAY ★', W / 2, 45);
 
         // 1. OBIETTIVO
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
-        ctx.fillText('1. OBIETTIVO: EVITA IL BURNOUT!', W / 2, 76);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('1. EVITA IL BURNOUT! 💀', W / 2, 78);
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('• Risolvi i ticket prima che scadano.', W / 2, 95);
-        ctx.fillText('• Ogni ticket scaduto fa salire lo STRESS.', W / 2, 112);
-        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('• Al 100% di Stress hai PERSO!', W / 2, 129);
+        ctx.fillText('Colpisci i ticket prima che scadano.', W / 2, 98);
+        ctx.fillText('Ogni errore fa salire lo STRESS.', W / 2, 116);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 12px Courier New';
+        ctx.fillText('Al 100% di Stress è GAME OVER!', W / 2, 134);
 
-        // 2. TICKET BUONI
-        ctx.fillStyle = '#00ffcc'; ctx.font = '900 15px Courier New';
-        ctx.fillText('2. TICKET BUONI (DA PREMERE)', W / 2, 160);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('• 🔴 ROSSI: 1 Tap (+100 PTS, es. "LOGO GRANDE")', W / 2, 178);
-        ctx.fillText('• 🟣 VIOLA: 2 Tap veloci (+250 PTS)', W / 2, 195);
-        ctx.fillText('• ☕ CAFFÈ / 🌟 VIP: +300/500 PTS e -Stress', W / 2, 212);
-        ctx.fillText('• 🌴 FERIE: Blocca il gioco e dà RELAX!', W / 2, 229);
+        // 2. TICKET
+        ctx.fillStyle = '#00e5ff'; ctx.font = '900 14px Courier New';
+        ctx.fillText('2. TIPOLOGIE DI TICKET 🕹️', W / 2, 168);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New';
+        ctx.fillText('• 🔴 ROSSI (1 Tap): +100 PTS', W / 2, 188);
+        ctx.fillText('• 🟣 VIOLA (2 Tap): +250 PTS', W / 2, 206);
+        ctx.fillText('• ☕ CAFFÈ / 🌟 VIP: +300/500 PTS e -STRESS', W / 2, 224);
+        ctx.fillText('• 🌴 FERIE: Pausa e -20% STRESS', W / 2, 242);
 
         // 3. TRAPPOLE
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
-        ctx.fillText('3. ATTENTO ALLE TRAPPOLE! ⚠️', W / 2, 260);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('• 🟢 VERDE ("APPROVATO") & 🖤 NERO ("CORROTTO")', W / 2, 278);
-        ctx.fillText('• NON toccarli! Tolgono punti e +Stress!', W / 2, 295);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New';
+        ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 276);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New';
+        ctx.fillText('• 🟢 VERDE (APPROVATO) & 🖤 NERO (CORROTTO)', W / 2, 296);
+        ctx.fillText('NON TOCARLI: Aumentano lo Stress!', W / 2, 314);
 
         // 4. CONTROLLI GUIDA
-        ctx.fillStyle = '#ffd700'; ctx.font = '900 14px Courier New';
-        ctx.fillText('4. CONTROLLI GUIDA', W / 2, 325);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('• Touch (1-9) oppure Tastiera (QWE / 1-9)', W / 2, 342);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 13px Courier New';
+        ctx.fillText('4. CONTROLLI: Touch (1-9) / Tastiera (QWE/1-9)', W / 2, 348);
 
-        if (Math.floor(Date.now() / 400) % 2 === 0) {
-            ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New';
-            ctx.fillText('CONTINUA ►', W / 2, 388);
+        if (Math.floor(frame / 35) % 2 === 0) {
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 16px Courier New';
+            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, 485);
         }
+        drawCRTOverlay();
+        ctx.restore();
         return;
     }
 
     // --- PAGINA 4: SELEZIONE PERSONAGGIO ---
     if (state === 'CHAR_SELECT') {
-        ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
-
-        ctx.fillStyle = '#ffff00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('SCEGLI LA TUA PRODUCER 🥊', W / 2, 42);
+        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
 
         let key = charList[charSelectIndex];
         let c = CHARACTERS[key];
 
-        ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(10, 15, W - 20, H - 30, 14); ctx.fill();
-        ctx.strokeStyle = c.primary; ctx.lineWidth = 3; ctx.stroke();
+        draw80sBox(ctx, 12, 15, W - 24, H - 30, c.primary, '#0c0c1a', 4);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('★ SELECT PLAYER ★', W / 2, 45);
 
         if (c.img && c.img.complete && c.img.naturalWidth > 0) {
             ctx.save();
-            ctx.beginPath(); ctx.roundRect(W / 2 - 70, 58, 140, 125, 12); ctx.clip();
-            ctx.drawImage(c.img, W / 2 - 70, 58, 140, 125);
+            draw80sBox(ctx, W / 2 - 70, 62, 140, 125, c.primary, '#101020', 2);
+            ctx.beginPath(); ctx.rect(W / 2 - 68, 64, 136, 121); ctx.clip();
+            ctx.drawImage(c.img, W / 2 - 68, 64, 136, 121);
             ctx.restore();
-            ctx.beginPath(); ctx.roundRect(W / 2 - 70, 58, 140, 125, 12);
-            ctx.strokeStyle = c.primary; ctx.lineWidth = 2.5; ctx.stroke();
         }
 
         ctx.fillStyle = c.primary; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText(c.name, W / 2, 210);
+        ctx.fillText(c.name, W / 2, 218);
 
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
-        ctx.fillText(c.subtitle, W / 2, 232);
+        ctx.fillText(c.subtitle, W / 2, 240);
 
-        ctx.fillStyle = '#ffff00'; ctx.font = '900 15px Courier New';
-        ctx.fillText(c.perkBonusTitle, W / 2, 268);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
-        ctx.fillText(c.perkBonusDesc, W / 2, 288);
+        draw80sBox(ctx, 30, 265, W - 60, 65, '#333355', '#141428', 2);
 
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 36px Courier New';
-        ctx.fillText('◄', 28, 175);
-        ctx.fillText('►', W - 28, 175);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 14px Courier New';
+        ctx.fillText(c.perkBonusTitle, W / 2, 288);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText(c.perkBonusDesc, W / 2, 308);
 
-        if (Math.floor(Date.now() / 400) % 2 === 0) {
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 32px Courier New';
+        ctx.fillText('◄', 32, 130);
+        ctx.fillText('►', W - 32, 130);
+
+        if (Math.floor(frame / 35) % 2 === 0) {
             ctx.fillStyle = c.primary; ctx.font = '900 18px Courier New';
-            ctx.fillText('INIZIA PARTITA ►', W / 2, 388);
+            ctx.fillText('INIZIA PARTITA ►', W / 2, 485);
         }
+        drawCRTOverlay();
+        ctx.restore();
         return;
     }
 
-    // --- GRIGLIA GIOCO 3x3 ---
+    // --- GRIGLIA GIOCO 3x3 (PHYSICAL 80S ARCADE BUTTONS) ---
     gridPads.forEach(p => {
         let padX = p.x;
-        let padY = p.y + (p.pressAnim > 0 ? 3 : 0);
+        let padY = p.y + (p.pressAnim > 0 ? 4 : 0);
 
-        ctx.beginPath();
-        ctx.fillStyle = currentTheme.padBg;
-        drawRoundRect(ctx, padX, padY, p.w, p.h, 10); ctx.fill();
-        ctx.strokeStyle = p.active ? '#ffffff' : '#2a2a50';
-        ctx.lineWidth = 2; ctx.stroke();
+        // Physical Arcade Button Base Frame
+        draw80sBox(ctx, padX, padY, p.w, p.h, p.active ? '#ffffff' : '#28283c', currentTheme.padBg, 3);
 
         ctx.fillStyle = '#7777aa';
         ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'left';
@@ -927,116 +1027,150 @@ function draw() {
             let bgCol = '#ff0055';
             let txtCol = '#ffffff';
 
-            if (p.type === 'FERIE') { bgCol = '#00ffcc'; txtCol = '#000000'; }
-            else if (p.type === 'TRAP') { bgCol = '#00ffcc'; txtCol = '#000000'; }
-            else if (p.type === 'GLITCH') { bgCol = '#1a0008'; txtCol = '#ff0055'; }
+            if (p.type === 'FERIE') { bgCol = '#00e5ff'; txtCol = '#000000'; }
+            else if (p.type === 'TRAP') { bgCol = '#00ff44'; txtCol = '#000000'; }
+            else if (p.type === 'GLITCH') { bgCol = '#200008'; txtCol = '#ff0055'; }
             else if (p.type === 'COFFEE') { bgCol = '#ffcc00'; txtCol = '#000000'; }
-            else if (p.type === 'GOLDEN') { bgCol = '#ffd700'; txtCol = '#000000'; }
+            else if (p.type === 'GOLDEN') { bgCol = '#ffaa00'; txtCol = '#000000'; }
             else if (p.type === 'DOUBLE') { bgCol = '#aa00ff'; txtCol = '#ffffff'; }
 
-            drawRoundRect(ctx, padX + 5, padY + 22, p.w - 10, p.h - 28, 8);
-            ctx.fillStyle = bgCol; ctx.fill();
-            if (p.type === 'GOLDEN' || p.type === 'GLITCH' || p.type === 'FERIE') {
-                ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
-            }
+            draw80sBox(ctx, padX + 5, padY + 22, p.w - 10, p.h - 28, '#ffffff', bgCol, 2);
 
             let timerPct = p.timer / p.maxTimer;
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
             ctx.fillRect(padX + 5, padY + p.h - 10, (p.w - 10) * (1 - timerPct), 4);
 
             ctx.fillStyle = txtCol;
-            ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
+            ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
             ctx.fillText(p.line1, padX + p.w / 2, padY + 68);
             ctx.fillText(p.line2, padX + p.w / 2, padY + 86);
         }
     });
 
-    particles.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); });
+    // PARTICLES & CHUNKY PIXEL BURSTS
+    particles.forEach(p => { 
+        ctx.fillStyle = p.color; 
+        ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size); 
+    });
+
+    impactBursts.forEach(ib => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ib.alpha);
+        ctx.strokeStyle = ib.color;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(ib.x - ib.radius, ib.y - ib.radius, ib.radius * 2, ib.radius * 2);
+
+        ctx.fillStyle = ib.color;
+        ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(ib.label, ib.x, ib.y - ib.radius - 4);
+        ctx.restore();
+    });
+
     floatingTexts.forEach(ft => {
         ctx.save(); ctx.globalAlpha = Math.max(0, ft.alpha); ctx.fillStyle = ft.color;
-        ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'center';
+        ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
         ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
     });
 
     // BANNER FERIE RELAX
     if (ferieActive) {
-        drawRoundRect(ctx, 30, 240, 320, 60, 12);
-        ctx.fillStyle = 'rgba(0, 255, 204, 0.92)'; ctx.fill();
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#000000'; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('🌴 IN FERIE RELAX... 🌴', cvs.width / 2, 266);
+        draw80sBox(ctx, 30, 230, 320, 65, '#ffffff', '#00e5ff', 3);
+        ctx.fillStyle = '#000000'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('🌴 VACATION RELAX! 🌴', cvs.width / 2, 258);
         ctx.font = 'bold 12px Courier New';
-        ctx.fillText(`PAUSA REVISIONI (${ferieTimer}s)`, cvs.width / 2, 286);
+        ctx.fillText(`PAUSA REVISIONI (${ferieTimer}s)`, cvs.width / 2, 280);
     }
 
-    // --- HUD HEADER CON BARRA STRESS ---
-    ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, cvs.width, 74);
-    ctx.strokeStyle = currentTheme.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, cvs.width, 74);
+    // --- HUD ARCADE MARQUEE HEADER ---
+    draw80sBox(ctx, 0, 0, cvs.width, 74, currentTheme.primary, '#080816', 3);
 
-    ctx.fillStyle = currentTheme.primary; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'left';
-    ctx.fillText(`${currentTheme.name}`, 10, 18);
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 12px Courier New';
-    ctx.fillText(`PTS: ${score}`, 10, 34);
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Courier New';
-    ctx.fillText(`REC: ${highScore}`, 10, 48);
+    ctx.fillStyle = currentTheme.primary; ctx.font = '900 13px Courier New'; ctx.textAlign = 'left';
+    ctx.fillText(`1P: ${currentTheme.name}`, 10, 18);
+    ctx.fillStyle = '#ffcc00'; ctx.font = '900 13px Courier New';
+    ctx.fillText(`SCORE: ${score}`, 10, 34);
+    ctx.fillStyle = '#00e5ff'; ctx.font = 'bold 10px Courier New';
+    ctx.fillText(`HIGH: ${highScore}`, 10, 48);
 
     if (combo > 1) {
-        ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'right';
+        ctx.fillStyle = '#00e5ff'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'right';
         ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 18);
     }
 
+    // 80S LED SEGMENTED STRESS GAUGE
     let stressWidth = 360;
     let stressX = 10;
     let stressY = 52;
-    ctx.fillStyle = '#101028';
+    ctx.fillStyle = '#04040a';
     ctx.fillRect(stressX, stressY, stressWidth, 16);
     
     let currentStressPct = Math.min(100, Math.max(0, stress)) / 100;
-    let stressCol = currentStressPct < 0.4 ? '#00ffcc' : (currentStressPct < 0.75 ? '#ffcc00' : '#ff0055');
+    let stressCol = currentStressPct < 0.4 ? '#00ff44' : (currentStressPct < 0.75 ? '#ffcc00' : '#ff0055');
     
-    if (currentStressPct >= 0.75 && Math.floor(Date.now() / 200) % 2 === 0) {
+    if (currentStressPct >= 0.75 && Math.floor(frame / 12) % 2 === 0) {
         stressCol = '#ffffff';
     }
 
-    ctx.fillStyle = stressCol;
-    ctx.fillRect(stressX + 1, stressY + 1, (stressWidth - 2) * currentStressPct, 14);
+    // Draw LED Segments
+    let totalSegments = 20;
+    let filledSegments = Math.floor(totalSegments * currentStressPct);
+    let segWidth = (stressWidth - 4) / totalSegments;
+
+    for (let s = 0; s < totalSegments; s++) {
+        if (s < filledSegments) {
+            ctx.fillStyle = s > 15 ? '#ff0055' : (s > 8 ? '#ffcc00' : '#00ff44');
+            if (currentStressPct >= 0.75 && Math.floor(frame / 12) % 2 === 0) ctx.fillStyle = '#ffffff';
+            ctx.fillRect(stressX + 2 + (s * segWidth), stressY + 2, segWidth - 2, 12);
+        } else {
+            ctx.fillStyle = '#141424';
+            ctx.fillRect(stressX + 2 + (s * segWidth), stressY + 2, segWidth - 2, 12);
+        }
+    }
+    
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
     ctx.strokeRect(stressX, stressY, stressWidth, 16);
 
-    ctx.fillStyle = '#000000'; ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`⚡ LIVELLO STRESS: ${Math.floor(stress)}%`, cvs.width / 2, stressY + 12);
+    ctx.fillStyle = '#ffffff'; ctx.font = '900 10px Courier New'; ctx.textAlign = 'center';
+    let stressStatusLabel = currentStressPct >= 0.75 ? '⚠️ WARNING: OVERHEAT!' : `STRESS GAUGE: ${Math.floor(stress)}%`;
+    ctx.fillText(stressStatusLabel, cvs.width / 2, stressY + 12);
 
     // --- SCHERMATA PAUSA ---
     if (state === 'PAUSE') {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('IN PAUSA', cvs.width / 2, cvs.height / 2 - 15);
-        ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 13px Courier New';
-        ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', cvs.width / 2, cvs.height / 2 + 20);
+        draw80sBox(ctx, 40, cvs.height / 2 - 40, cvs.width - 80, 80, '#ffcc00', '#0c0c18', 3);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('PAUSE', cvs.width / 2, cvs.height / 2 - 10);
+        ctx.fillStyle = '#00e5ff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('TOCCA PER RIPRENDERE', cvs.width / 2, cvs.height / 2 + 15);
     }
 
     // --- OVERLAY GAMEOVER ---
     if (state === 'GAMEOVER') {
-        ctx.fillStyle = 'rgba(5, 5, 18, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
+        ctx.fillStyle = 'rgba(4, 4, 12, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
         
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('BURNOUT! 💀', cvs.width / 2, cvs.height / 2 - 35);
+        draw80sBox(ctx, 20, cvs.height / 2 - 110, cvs.width - 40, 220, '#ff0055', '#0c0c18', 4);
 
-        ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px Courier New';
-        ctx.fillText(`PUNTEGGIO: ${score}`, cvs.width / 2, cvs.height / 2 + 10);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', cvs.width / 2, cvs.height / 2 - 70);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 18px Courier New';
+        ctx.fillText(`SCORE: ${score}`, cvs.width / 2, cvs.height / 2 - 25);
 
         if (isNewRecord) {
-            ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 16px Courier New';
-            ctx.fillText('👑 NUOVO RECORD! 👑', cvs.width / 2, cvs.height / 2 + 40);
+            ctx.fillStyle = '#00ff44'; ctx.font = '900 16px Courier New';
+            ctx.fillText('★ NEW HIGH SCORE! ★', cvs.width / 2, cvs.height / 2 + 10);
         } else {
-            ctx.fillStyle = '#8888aa'; ctx.font = '14px Courier New';
-            ctx.fillText(`RECORD ATTUALE: ${highScore}`, cvs.width / 2, cvs.height / 2 + 40);
+            ctx.fillStyle = '#8888aa'; ctx.font = 'bold 13px Courier New';
+            ctx.fillText(`BEST RECORD: ${highScore}`, cvs.width / 2, cvs.height / 2 + 10);
         }
 
-        ctx.fillStyle = Math.floor(Date.now() / 300) % 2 === 0 ? '#fff' : currentTheme.primary;
-        ctx.font = '900 16px Courier New';
-        ctx.fillText('TOCCA PER RIPROVARE', cvs.width / 2, cvs.height / 2 + 90);
+        if (Math.floor(frame / 30) % 2 === 0) {
+            ctx.fillStyle = '#ffffff'; ctx.font = '900 15px Courier New';
+            ctx.fillText('PRESS TO CONTINUE', cvs.width / 2, cvs.height / 2 + 65);
+        }
     }
+
+    drawCRTOverlay();
+    ctx.restore();
 }
 
 function advanceMenuState() {
