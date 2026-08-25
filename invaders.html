@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#060212">
 <title>Feedback Invaders - Agency Arcade</title>
 <style>
   * { 
@@ -21,7 +22,7 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background: #000000;
+    background: #060212 !important;
     overflow: hidden;
   }
   body {
@@ -31,7 +32,7 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background: #000000;
+    background: #060212 !important;
     overflow: hidden;
     overscroll-behavior: none;
     touch-action: none;
@@ -53,7 +54,7 @@
     align-items: center;
     justify-content: space-between;
     padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 6px) 8px;
-    background: #000000 !important;
+    background: #060212 !important;
     overflow: hidden;
   }
 
@@ -181,7 +182,7 @@
     width: 100%;
     margin-top: 2px;
     padding: 6px;
-    background: #100826;
+    background: #060212;
     border: 1.5px solid #ff007f !important;
     color: #ff007f !important;
     font-family: 'Courier New', monospace;
@@ -199,7 +200,7 @@
     display: none;
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(6, 2, 18, 0.95);
     z-index: 200;
     justify-content: center;
     align-items: center;
@@ -815,7 +816,6 @@ class Drop {
   }
   draw() {
     ctx.save();
-    ctx.beginPath();
     let col = '#ff0055';
     let label = '⚡';
 
@@ -826,12 +826,16 @@ class Drop {
     else if (this.type === 'JAM') { col = '#ff0055'; label = '🚫'; }
 
     ctx.fillStyle = '#101228';
+    ctx.beginPath();
     ctx.roundRect(this.x - 14, this.y - 14, 28, 28, 8);
     ctx.fill();
     ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
 
-    ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(label, this.x, this.y + 5);
+    ctx.font = '14px sans-serif'; 
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(label, this.x, this.y + 1);
     ctx.restore();
   }
 }
@@ -983,6 +987,8 @@ class Boss {
     this.targetY = 110;
     this.maxHp = 150 + waveNum * 35;
     this.hp = this.maxHp;
+    this.damageSinceLastDrop = 0;
+    this.dropThreshold = Math.floor(this.maxHp / 4);
     this.dead = false;
     this.timer = 0;
     this.attackCooldown = 50;
@@ -1015,7 +1021,15 @@ class Boss {
   }
   hit() {
     this.hp--;
+    this.damageSinceLastDrop++;
     triggerShake(4, 3);
+
+    if (this.damageSinceLastDrop >= this.dropThreshold) {
+      this.damageSinceLastDrop = 0;
+      spawnDrop(this.x + (Math.random() - 0.5) * 60, this.y + 20);
+      sfxPowerUp();
+    }
+
     if (this.hp <= 0) {
       this.dead = true;
       score += 5000 + wave * 500;

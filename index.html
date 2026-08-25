@@ -650,6 +650,7 @@ class MainHub extends Phaser.Scene {
         this.load.video('raffa_video', 'assets/hub/raffa.mp4', 'loadeddata', false, true);
         this.load.video('pierri_video', 'assets/hub/pierri.mp4', 'loadeddata', false, true);
         this.load.video('morena_video', 'assets/hub/morena.mp4', 'loadeddata', false, true);
+        this.load.video('scintu_video', 'assets/hub/scintu.mp4', 'loadeddata', false, true);
 
         const playerSkins = [
             'dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png',
@@ -713,6 +714,11 @@ class MainHub extends Phaser.Scene {
         if (this.raffa.setPipeline) this.raffa.setPipeline('GreenKey');
         this.raffa.play(true);
         this.raffa.setMute(true);
+
+        this.scintu = this.add.video(2120, 595, 'scintu_video').setOrigin(0.5, 1).setScale(0.26).setDepth(10);
+        if (this.scintu.setPipeline) this.scintu.setPipeline('GreenKey');
+        this.scintu.play(true);
+        this.scintu.setMute(true);
 
         this.anims.create({
             key: 'idle',
@@ -868,6 +874,13 @@ class MainHub extends Phaser.Scene {
                 "Sto controllando se abbiamo ancora questo adattatore. Aspetta… forse ce l’ho già in tasca.",
                 "Sto preparando la roba per un giro di riprese. Mi manca solo capire dove ho messo metà dell’attrezzatura."
             ])];
+        } else if (speakerKey === 'scintu') {
+            this.npcLines = [line1, Phaser.Math.RND.pick([
+                "Sto settando la C70 prima di uscire… devo ancora controllare esposizione e bilanciamento del bianco.",
+                "Aspetta, sto cambiando lente. Voglio fare una prova prima di portarla sul set.",
+                "Sto controllando tutti i settaggi della C70. Se poi qualcosa non funziona, almeno non sarà colpa della macchina.",
+                "Un attimo che finisco di preparare la camera… batteria, scheda, ottica e siamo pronti a girare."
+            ])];
         } else {
             this.npcLines = [line1, Phaser.Math.RND.pick([
                 "Sto sistemando un po’ di materiale d’archivio. Tu intanto puoi dare un’occhiata ai quattro cabinati più avanti.",
@@ -905,6 +918,9 @@ class MainHub extends Phaser.Scene {
         } else if (this.activeSpeaker === 'raffa') {
             targetX = this.raffa.x;
             targetY = this.raffa.y;
+        } else if (this.activeSpeaker === 'scintu') {
+            targetX = this.scintu.x;
+            targetY = this.scintu.y;
         }
 
         this.dialogueContainer.setPosition(targetX - 20, targetY - 180 - boxH / 2);
@@ -1041,6 +1057,12 @@ class MainHub extends Phaser.Scene {
             return;
         }
 
+        let distScintu = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.scintu.x, this.scintu.y);
+        if (distScintu < 70) {
+            this.startDialogue('scintu');
+            return;
+        }
+
         for (let cab of this.cabinetSprites) {
             let dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y);
             if (dist < 60) {
@@ -1127,6 +1149,14 @@ class MainHub extends Phaser.Scene {
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y) < 70) {
             this.infoBox.setPosition(this.raffa.x, this.cabBadgeY);
             this.boxTitleText.setText("Raffa");
+            this.boxActionText.setText("PARLA 💬");
+            this.infoBox.setVisible(true);
+            return;
+        }
+
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.scintu.x, this.scintu.y) < 70) {
+            this.infoBox.setPosition(this.scintu.x, this.cabBadgeY);
+            this.boxTitleText.setText("Scintu");
             this.boxActionText.setText("PARLA 💬");
             this.infoBox.setVisible(true);
             return;
