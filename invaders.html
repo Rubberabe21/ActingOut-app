@@ -53,7 +53,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    /* Aumentato leggermente il padding inferiore per i controlli più grandi */
     padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 10px) 8px;
     background: #060212 !important;
     overflow: hidden;
@@ -70,17 +69,16 @@
   }
   .header-title {
     color: #ff0055 !important;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     text-shadow: 0 0 6px #ff0055 !important;
     letter-spacing: 1px;
     flex: 1;
   }
   
-  /* Container per i pulsanti a destra nell'header */
   .header-btns-right {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
   }
 
@@ -88,9 +86,9 @@
     background: #1a0836;
     border: 1.5px solid #ffea00 !important;
     color: #ffea00 !important;
-    padding: 5px 10px;
+    padding: 4px 7px;
     font-family: 'Courier New', monospace;
-    font-size: 11px; /* Leggermente più piccolo per far stare entrambi */
+    font-size: 10px;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
@@ -98,7 +96,12 @@
   }
   .opt-btn:active { transform: scale(0.92); }
   
-  /* Stile specifico per il tasto ESCI in alto */
+  #btnMenuTop {
+    border-color: #00f0ff !important;
+    color: #00f0ff !important;
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) !important;
+  }
+
   #btnExitTop {
     border-color: #ff007f !important;
     color: #ff007f !important;
@@ -134,20 +137,17 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    /* Aumentato padding verticale per i controlli più grandi */
     padding: 10px;
     background: #160a2c;
     border: 2px solid #ffea00 !important;
     border-radius: 14px;
     box-shadow: 0 0 15px rgba(255, 234, 0, 0.4) !important;
     flex-shrink: 0;
-    /* Margin top ridotto dato che non c'è più il tasto sotto */
     margin-top: 2px;
   }
 
   .joystick-zone {
     position: relative;
-    /* INGRANDITO: da 100px a 140px */
     width: 140px;
     height: 140px;
     background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
@@ -163,7 +163,6 @@
 
   .joystick-knob {
     position: absolute;
-    /* Proporzionato al nuovo joystick */
     width: 56px;
     height: 56px;
     background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
@@ -177,17 +176,14 @@
   }
 
   .fire-btn {
-    /* RIMPICCIOLITO: da 92px a 70px */
     width: 70px;
     height: 70px;
     background: radial-gradient(circle at 35% 35%, #ff3366, #990026);
     border: 3px solid #ffffff;
     color: #ffffff;
-    /* Aumentato font size dell'emoji centrale */
     font-size: 28px;
     font-weight: 900;
     border-radius: 50%;
-    /* Ridotto leggermente l'effetto 3D proporzionalmente */
     box-shadow: 0 4px 0 #66001a, 0 0 18px rgba(255, 0, 85, 0.8);
     display: flex;
     justify-content: center;
@@ -199,8 +195,6 @@
     box-shadow: 0 1px 0 #66001a;
     background: #ff0033;
   }
-
-  /* Rimosso stile .exit-btn vecchio */
 
   .modal-overlay {
     display: none;
@@ -222,7 +216,7 @@
     padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     color: #ffffff;
     text-align: center;
   }
@@ -281,6 +275,29 @@
     cursor: pointer;
     box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
   }
+
+  .info-card {
+    background: #160a2c;
+    border: 1.5px solid #ff0055;
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #ffffff;
+  }
+  .info-card h4 {
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .info-card p {
+    margin-bottom: 3px;
+  }
+  .info-card p:last-child {
+    margin-bottom: 0;
+  }
 </style>
 </head>
 <body>
@@ -291,7 +308,7 @@
   <div class="top-header">
     <span class="header-title">FEEDBACK INVADERS</span>
     <div class="header-btns-right">
-      <!-- NUOVO POSIZIONAMENTO TASTO ESCI -->
+      <button class="opt-btn" id="btnMenuTop">🏠 MENU</button>
       <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
       <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
     </div>
@@ -306,13 +323,10 @@
       <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
-    <!-- TASTO FUOCO MODIFICATO (Più piccolo, no scritta) -->
-    <div class="fire-btn" id="btnFire">
-    </div>
+    <div class="fire-btn" id="btnFire">🔥</div>
   </div>
 
-  <!-- VECCHIO TASTO ESCI RIMOSSO DA QUI -->
-
+  <!-- MODALE OPZIONI PRINCIPALE -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
       <div class="modal-title">⚙️ OPZIONI GIOCO</div>
@@ -332,7 +346,74 @@
         <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
       </div>
 
+      <div class="option-item">
+        <span class="option-label">GUIDA & SCHEDE INFO</span>
+        <button class="toggle-btn" id="btnOpenRules" style="margin-bottom: 4px; background:#1a0836; border-color:#00f0ff; color:#00f0ff;">📖 REGOLE DI GIOCO</button>
+        <button class="toggle-btn" id="btnOpenPerks" style="background:#1a0836; border-color:#ffea00; color:#ffea00;">⚡ BONUS & MALUS CAPI</button>
+      </div>
+
       <button class="close-modal-btn" id="btnCloseSettings">SALVA E CHIUDI ►</button>
+    </div>
+  </div>
+
+  <!-- MODALE REGOLE DI GIOCO -->
+  <div class="modal-overlay" id="rulesModal">
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title">📖 REGOLE DI GIOCO</div>
+
+      <div class="info-card" style="border-color:#ffea00;">
+        <h4 style="color:#ffea00;">1. ONDATE INCUBI</h4>
+        <p>• Elimina tutte le navette nemico prima che raggiungano la difesa dello studio.</p>
+        <p>• Rispondi con i laser per salvare l'agenzia dal caos!</p>
+      </div>
+
+      <div class="info-card" style="border-color:#00ffcc;">
+        <h4 style="color:#00ffcc;">2. EVOLUZIONE ERE</h4>
+        <p>• I nemici si evolvono ogni 10 stadi superati diventando più veloci ed aggressivi.</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ff0055;">
+        <h4 style="color:#ff0055;">3. SCONTRI MEGA BOSS</h4>
+        <p>• Affronta i 5 Mega Boss dell'agenzia ogni 10 ondate con pattern di fuoco unici.</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ff00ff;">
+        <h4 style="color:#ff00ff;">4. POWER-UP & MALUS</h4>
+        <p>• ☕ <span style="color:#ffea00;">Caffè</span>: +1 Vita | 🔥 <span style="color:#ff0055;">Boost</span>: Sparo rapido</p>
+        <p>• 🛡️ <span style="color:#00ccff;">Scudo</span>: Invulnerabilità | ⚠️ <span style="color:#ff9900;">Lag/Jam</span>: Debuff</p>
+      </div>
+
+      <button class="close-modal-btn" id="btnCloseRules">◄ TORNA ALLE OPZIONI</button>
+    </div>
+  </div>
+
+  <!-- MODALE BONUS & MALUS CAPI -->
+  <div class="modal-overlay" id="perksModal">
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title">⚡ BONUS & MALUS CAPI</div>
+
+      <div class="info-card" style="border-color:#ff0055;">
+        <h4 style="color:#ff0055;">🚀 TOMMI - Coordinatore Video</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Doppia Cam 4K (Doppio Laser)</p>
+        <p>• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Movimento iperattivo</p>
+        <p>• Velocità: 6.8 | Cooldown: 7</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ffd700;">
+        <h4 style="color:#ffd700;">🚀 GIAMPA - Coordinatore Grafica</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Canvas Vettoriale (Mega Laser 28px)</p>
+        <p>• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Movimento più pesante</p>
+        <p>• Velocità: 4.8 | Cooldown: 10</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ff33aa;">
+        <h4 style="color:#ff33aa;">🚀 BRETTO - Regista Eventi</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Regia Multi-Cam (Triplo Sparo)</p>
+        <p>• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Ricarica più lenta</p>
+        <p>• Velocità: 5.4 | Cooldown: 16</p>
+      </div>
+
+      <button class="close-modal-btn" id="btnClosePerks">◄ TORNA ALLE OPZIONI</button>
     </div>
   </div>
 </div>
@@ -380,12 +461,20 @@ function updateMusicState() {
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
-// Aggiunto riferimento al nuovo tasto esci
 const btnExitTop = document.getElementById('btnExitTop');
+const btnMenuTop = document.getElementById('btnMenuTop');
 const sensSlider = document.getElementById('sensSlider');
 const sensValText = document.getElementById('sensValText');
 const btnToggleMusic = document.getElementById('btnToggleMusic');
 const btnToggleSfx = document.getElementById('btnToggleSfx');
+
+const btnOpenRules = document.getElementById('btnOpenRules');
+const btnCloseRules = document.getElementById('btnCloseRules');
+const rulesModal = document.getElementById('rulesModal');
+
+const btnOpenPerks = document.getElementById('btnOpenPerks');
+const btnClosePerks = document.getElementById('btnClosePerks');
+const perksModal = document.getElementById('perksModal');
 
 sensSlider.value = joySensitivity;
 sensValText.innerText = joySensitivity.toFixed(2) + 'x';
@@ -435,9 +524,39 @@ btnCloseSettings.onclick = () => {
   updateMusicState();
 };
 
-// Logica del nuovo tasto Esci in alto
+btnOpenRules.onclick = () => {
+  settingsModal.style.display = 'none';
+  rulesModal.style.display = 'flex';
+};
+
+btnCloseRules.onclick = () => {
+  rulesModal.style.display = 'none';
+  settingsModal.style.display = 'flex';
+};
+
+btnOpenPerks.onclick = () => {
+  settingsModal.style.display = 'none';
+  perksModal.style.display = 'flex';
+};
+
+btnClosePerks.onclick = () => {
+  perksModal.style.display = 'none';
+  settingsModal.style.display = 'flex';
+};
+
+btnMenuTop.onclick = () => {
+  getAC();
+  activeBoss = null;
+  enemies = [];
+  playerBullets = [];
+  enemyBullets = [];
+  drops = [];
+  state = 'COVER';
+  updateMusicState();
+};
+
 btnExitTop.onclick = () => {
-  getAC(); // Attiva audio context per salvare punteggio se serve
+  getAC();
   exitGame(score);
 };
 
@@ -588,7 +707,7 @@ function getAC() {
   return audioCtx;
 }
 
-// --- EFFETTI SONORI (VOLUME AUMENTATO) ---
+// --- EFFETTI SONORI ---
 function sfxShoot() {
   if (!sfxEnabled) return;
   const ac = getAC(), t = ac.currentTime;
@@ -729,7 +848,6 @@ function handleJoyMove(clientX, clientY) {
   let dy = clientY - centerY;
 
   const dist = Math.hypot(dx, dy);
-  // Max Radius proporzionato alla nuova dimensione (rect.width / 2 - padding)
   const maxRadius = rect.width / 2 - 15; 
 
   if (dist > maxRadius) {
@@ -739,7 +857,6 @@ function handleJoyMove(clientX, clientY) {
 
   joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
 
-  // Sensibilità basata sul nuovo raggio
   joyDX = (dx / maxRadius) * joySensitivity;
   joyDY = (dy / maxRadius) * joySensitivity;
 }
@@ -811,7 +928,7 @@ const player = {
   x: W / 2, y: H - 70,
   w: 56, h: 56,
   shootTimer: 0, invTimer: 0, alive: true,
-  
+
   boostTimer: 0, shieldTimer: 0, lagTimer: 0, jamTimer: 0,
 
   reset() {
@@ -822,7 +939,7 @@ const player = {
 
   update() {
     if (!this.alive) return;
-    
+
     let spd = currentBoss.speed;
     if (this.lagTimer > 0) { spd *= 0.5; this.lagTimer--; }
 
@@ -841,7 +958,7 @@ const player = {
 
     if (this.shootTimer > 0) this.shootTimer--;
     if (this.invTimer > 0)   this.invTimer--;
-    
+
     if (this.boostTimer > 0)  this.boostTimer--;
     if (this.shieldTimer > 0) { this.shieldTimer--; this.invTimer = Math.max(this.invTimer, 2); }
     if (this.lagTimer > 0)    this.lagTimer--;
@@ -877,7 +994,7 @@ const player = {
   draw() {
     if (!this.alive) return;
     if (this.invTimer > 0 && this.shieldTimer === 0 && Math.floor(this.invTimer / 4) % 2 === 0) return;
-    
+
     if (this.shieldTimer > 0) {
       ctx.save();
       ctx.beginPath();
@@ -1012,7 +1129,7 @@ class Enemy {
     this.x = x; this.y = y; this.type = type; this.dead = false;
     this.shootTimer = Math.floor(Math.random() * 60);
     this.t = 0;
-    
+
     this.tier = wave <= 10 ? 1 : wave <= 20 ? 2 : 3;
 
     switch (type) {
@@ -1055,7 +1172,7 @@ class Enemy {
     if (this.type === 'grunt')       { this.y += speed;       this.x += Math.sin(this.t * 0.05) * 1.8; }
     else if (this.type === 'shooter') { this.y += speed * 0.65; this.x += Math.sin(this.t * 0.04 + this.x) * 2.2; }
     else if (this.type === 'tank')    { this.y += speed * 0.45; this.x += Math.cos(this.t * 0.03) * 1.5; }
-    
+
     this.x = Math.max(this.w / 2, Math.min(W - this.w / 2, this.x));
     if (this.y > H + 50) this.dead = true;
 
@@ -1084,7 +1201,7 @@ class Enemy {
   draw() {
     const x = this.x, y = this.y;
     ctx.save();
-    
+
     const enemyImg = ASSETS[this.name];
     if (enemyImg && enemyImg.complete && enemyImg.naturalWidth !== 0) {
       ctx.drawImage(enemyImg, x - this.w / 2, y - this.h / 2, this.w, this.h);
@@ -1112,7 +1229,7 @@ class Boss {
     this.x = W / 2; 
     this.y = -120;
     this.targetY = 150; 
-    
+
     this.maxHp = 50 + waveNum * 5; 
     this.hp = this.maxHp;
     this.damageSinceLastDrop = 0;
@@ -1120,9 +1237,9 @@ class Boss {
     this.dead = false;
     this.timer = 0;
     this.attackCooldown = 65;
-    
+
     this.bossIndex = ((Math.floor(waveNum / 10) - 1) % 5) + 1;
-    
+
     if (this.bossIndex === 1) {
       this.name = "LOOP REVISIONI INFINITE";
       this.color = "#25D366";
@@ -1144,13 +1261,13 @@ class Boss {
   update() {
     this.timer++;
     if (this.y < this.targetY) { this.y += 2; return; }
-    
+
     this.x += Math.sin(this.timer * 0.03) * 2.8;
-    
+
     if (--this.attackCooldown <= 0) {
       this.attackCooldown = Math.max(35, 75 - wave * 1.5);
       let pattern = Math.floor(Math.random() * 3);
-      
+
       if (pattern === 0) {
         for (let a = -0.25; a <= 0.25; a += 0.25) {
           enemyBullets.push(new Bullet(this.x, this.y + 45, Math.sin(a) * 3.5, Math.cos(a) * 3.5, this.color, 8, 8));
@@ -1195,7 +1312,7 @@ class Boss {
   draw() {
     let x = this.x, y = this.y;
     ctx.save();
-    
+
     // BARRA DELLA VITA E NOME FISSI IN ALTO (Alzato leggermente per nuovo header)
     ctx.fillStyle = 'rgba(10, 6, 26, 0.9)';
     ctx.fillRect(W / 2 - 140, 45, 280, 40);
@@ -1421,7 +1538,7 @@ function drawHUD() {
   }
 
   ctx.textAlign = 'right';  ctx.font = 'bold 14px Courier New'; ctx.fillText(`REC ${hiScore}`, W - 10, 26);
-  
+
   for (let i = 0; i < lives; i++) {
     ctx.fillStyle = currentBoss.primary;
     ctx.fillRect(W - 22 - (i * 20), 38, 14, 14);
@@ -1567,7 +1684,7 @@ function drawScreens() {
 
   if (state === 'STORY') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
-    
+
     ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('LA STORIA', W/2, 85); // Abbassato per nuovo header
 
@@ -1577,7 +1694,7 @@ function drawScreens() {
     ctx.fillStyle = '#ffffff'; ctx.font = 'bold 20px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('Tre coordinatori d\'agenzia.', W/2, 170);
     ctx.fillText('Un\'unica grande missione.', W/2, 210);
-    
+
     ctx.fillStyle = '#ffea00';
     ctx.fillText('Un\'invasione incessante di', W/2, 275);
     ctx.fillText('brief assurdi, feedback tossici', W/2, 315);
@@ -1597,7 +1714,7 @@ function drawScreens() {
 
   if (state === 'RULES') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
-    
+
     ctx.fillStyle = '#ff0055'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('REGOLE DI GIOCO', W/2, 85);
 
@@ -1640,7 +1757,7 @@ function drawScreens() {
 
   if (state === 'POWERUPS_INFO') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
-    
+
     ctx.fillStyle = '#ffea00'; ctx.font = '900 30px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('MODULI & POTENZIAMENTI', W/2, 82);
 
@@ -1690,7 +1807,7 @@ function drawScreens() {
 
   if (state === 'CHAR_SELECT') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
-    
+
     ctx.fillStyle = '#ffff00'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('SCEGLI IL TUO CAPO 🚀', W/2, 75);
 
@@ -1830,11 +1947,11 @@ function update() {
   player.update();
   spawnWaveEnemies();
   if (activeBoss) activeBoss.update();
-  
+
   for (const b of playerBullets) b.update();
   for (const b of enemyBullets)  b.update();
   for (const e of enemies)       e.update();
-  for (const d of drops)         d.update();
+  for (const d of drops)         d.draw();
 
   playerBullets = playerBullets.filter(b => !b.dead);
   enemyBullets  = enemyBullets.filter(b => !b.dead);
@@ -1855,7 +1972,7 @@ function draw() {
 
   ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, W, H);
   drawStars();
-  
+
   if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO', 'CHAR_SELECT'].includes(state)) {
     drawScreens();
     ctx.restore();
@@ -1866,7 +1983,7 @@ function draw() {
   for (const b of enemyBullets)  b.draw();
   for (const b of playerBullets) b.draw();
   for (const e of enemies)       e.draw();
-  
+
   if (activeBoss) activeBoss.draw();
 
   player.draw();

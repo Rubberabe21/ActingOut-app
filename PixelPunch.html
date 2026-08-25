@@ -71,30 +71,35 @@
   }
   .header-title {
     color: #ffcc00 !important;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 900;
     text-shadow: 2px 2px 0px #ff0044;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     flex: 1;
   }
   .header-btns-right {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
   }
   .opt-btn {
     background: #10101c;
-    border: 2px solid #ffcc00 !important;
+    border: 1.5px solid #ffcc00 !important;
     color: #ffcc00 !important;
-    padding: 5px 10px;
+    padding: 4px 7px;
     font-family: 'Courier New', monospace;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
     border-radius: 4px;
     cursor: pointer;
     box-shadow: 2px 2px 0px #000000;
   }
   .opt-btn:active { transform: translate(1px, 1px); }
+
+  #btnMenuTop {
+    border-color: #00f0ff !important;
+    color: #00f0ff !important;
+  }
 
   #btnExitTop {
     border-color: #ff0055 !important;
@@ -123,7 +128,7 @@
     cursor: pointer;
   }
 
-  /* MODALE OPZIONI */
+  /* MODALI OPZIONI E INFO */
   .modal-overlay {
     display: none;
     position: absolute;
@@ -144,13 +149,13 @@
     padding: 18px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     color: #ffffff;
     text-align: center;
   }
   .modal-title {
     color: #ffcc00;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 900;
     text-shadow: 2px 2px 0px #000;
   }
@@ -176,7 +181,7 @@
     border: 2px solid #ff0055;
     color: #ffffff;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 12px;
     border-radius: 4px;
     cursor: pointer;
   }
@@ -196,6 +201,30 @@
     cursor: pointer;
     box-shadow: 3px 3px 0px #000;
   }
+
+  /* CARDS INFO DENTRO I SUB-MODALI */
+  .info-card {
+    background: #141424;
+    border: 2px solid #00e5ff;
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #ffffff;
+  }
+  .info-card h4 {
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .info-card p {
+    margin-bottom: 3px;
+  }
+  .info-card p:last-child {
+    margin-bottom: 0;
+  }
 </style>
 </head>
 <body>
@@ -206,6 +235,7 @@
   <div class="top-header">
     <span class="header-title">PIXEL PUNCH '84</span>
     <div class="header-btns-right">
+      <button class="opt-btn" id="btnMenuTop">🏠 MENU</button>
       <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
       <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
     </div>
@@ -215,6 +245,7 @@
     <canvas id="game"></canvas>
   </div>
 
+  <!-- MODALE OPZIONI PRINCIPALE -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
       <div class="modal-title">⚙️ OPZIONI CABINET</div>
@@ -229,7 +260,76 @@
         <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
       </div>
 
+      <div class="option-item">
+        <span class="option-label">GUIDA & SCHEDE INFO</span>
+        <button class="toggle-btn" id="btnOpenRules" style="margin-bottom: 4px; background:#1a0836; border-color:#00e5ff; color:#00e5ff;">📖 REGOLE DI GIOCO</button>
+        <button class="toggle-btn" id="btnOpenPerks" style="background:#1a0836; border-color:#ffea00; color:#ffea00;">⚡ BONUS & MALUS PRODUCER</button>
+      </div>
+
       <button class="close-modal-btn" id="btnCloseSettings">SALVA E CHIUDI ►</button>
+    </div>
+  </div>
+
+  <!-- MODALE REGOLE DI GIOCO -->
+  <div class="modal-overlay" id="rulesModal">
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title">📖 REGOLE DI GIOCO</div>
+
+      <div class="info-card" style="border-color:#ff0055;">
+        <h4 style="color:#ff0055;">1. EVITA IL BURNOUT! 💀</h4>
+        <p>• Colpisci i ticket prima che scadano.</p>
+        <p>• Ogni errore o ritardo alza lo STRESS.</p>
+        <p style="color:#ffea00; font-weight:bold;">• Al 100% di Stress il server va in CRASH!</p>
+      </div>
+
+      <div class="info-card" style="border-color:#00e5ff;">
+        <h4 style="color:#00e5ff;">2. TIPOLOGIE DI TICKET 🕹️</h4>
+        <p>• <span style="color:#ff0055; font-weight:bold;">🔴 ROSSI</span> (1 Tap): +100 PTS</p>
+        <p>• <span style="color:#aa00ff; font-weight:bold;">🟣 VIOLA</span> (2 Tap): +250 PTS</p>
+        <p>• <span style="color:#ffea00; font-weight:bold;">☕ CAFFÈ</span> / <span style="color:#ffea00; font-weight:bold;">🌟 VIP</span>: +300/500 PTS e -STRESS</p>
+        <p>• <span style="color:#00e5ff; font-weight:bold;">🌴 FERIE</span>: Pausa e -20% STRESS</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ff0055;">
+        <h4 style="color:#ff0055;">3. TRAPPOLE DA EVITARE! ⚠️</h4>
+        <p>• <span style="color:#00ff44; font-weight:bold;">🟢 VERDE</span> (APPROVATO) & <span style="color:#ff0055; font-weight:bold;">🖤 NERO</span> (CORROTTO)</p>
+        <p style="color:#ff0055; font-weight:bold;">NON TOCARLI: Aumentano lo Stress del 12%!</p>
+      </div>
+
+      <button class="close-modal-btn" id="btnCloseRules">◄ TORNA ALLE OPZIONI</button>
+    </div>
+  </div>
+
+  <!-- MODALE BONUS & MALUS PRODUCER -->
+  <div class="modal-overlay" id="perksModal">
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title">⚡ BONUS & MALUS PRODUCER</div>
+
+      <div class="info-card" style="border-color:#00e5ff;">
+        <h4 style="color:#00e5ff;">🎨 IRIS - AI Specialist</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> AUTO-FIX AI</p>
+        <p>• Risoluzione automatica ticket casuali.</p>
+        <p>• Pausa Ferie: 7 Secondi</p>
+        <p>• Moltiplicatore Punti: x1.0</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ffea00;">
+        <h4 style="color:#ffea00;">🎨 CRISTINA - Senior Exec</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> DOUBLE ESPRESSO</p>
+        <p>• Punti Caffè raddoppiati (600 PTS).</p>
+        <p>• Nessuna penalità sui ticket Approvati.</p>
+        <p>• Pausa Ferie: 10s | Moltiplicatore: x1.15</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ff0055;">
+        <h4 style="color:#ff0055;">🎨 RACHELE - Lead Producer</h4>
+        <p>• <span style="color:#ffea00; font-weight:bold;">PERK:</span> VACATION RUSH</p>
+        <p>• Combo Boost ad ogni colpo a segno.</p>
+        <p>• Super Pausa Ferie: 15 Secondi</p>
+        <p>• Moltiplicatore Punti: x1.25</p>
+      </div>
+
+      <button class="close-modal-btn" id="btnClosePerks">◄ TORNA ALLE OPZIONI</button>
     </div>
   </div>
 </div>
@@ -240,7 +340,6 @@ const ctx = cvs.getContext('2d');
 cvs.width = 380; 
 cvs.height = 540;
 
-// HELPER: 80s CABINET BEVELLED PANEL
 function draw80sBox(c, x, y, w, h, borderColor, bgCol, borderWidth = 3) {
   c.fillStyle = bgCol;
   c.fillRect(x, y, w, h);
@@ -248,7 +347,6 @@ function draw80sBox(c, x, y, w, h, borderColor, bgCol, borderWidth = 3) {
   c.strokeStyle = borderColor;
   c.strokeRect(x, y, w, h);
   
-  // Inner bevel highlights
   c.fillStyle = 'rgba(255, 255, 255, 0.12)';
   c.fillRect(x, y, w, 2);
   c.fillRect(x, y, 2, h);
@@ -257,7 +355,25 @@ function draw80sBox(c, x, y, w, h, borderColor, bgCol, borderWidth = 3) {
   c.fillRect(x + w - 2, y, 2, h);
 }
 
-// AUDIO AUTOPLAY CONFIGURATION
+function drawImageCover(c, img, dx, dy, dWidth, dHeight) {
+  if (!img || !img.complete || img.naturalWidth === 0) return;
+  let imgRatio = img.naturalWidth / img.naturalHeight;
+  let destRatio = dWidth / dHeight;
+  let sx, sy, sWidth, sHeight;
+  if (imgRatio > destRatio) {
+    sHeight = img.naturalHeight;
+    sWidth = sHeight * destRatio;
+    sx = (img.naturalWidth - sWidth) / 2;
+    sy = 0;
+  } else {
+    sWidth = img.naturalWidth;
+    sHeight = sWidth / destRatio;
+    sx = 0;
+    sy = (img.naturalHeight - sHeight) / 2;
+  }
+  c.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+}
+
 let musicEnabled = localStorage.getItem('pixelPunch_music') !== 'false';
 let sfxEnabled = localStorage.getItem('pixelPunch_sfx') !== 'false';
 
@@ -290,8 +406,17 @@ const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
 const btnExitTop = document.getElementById('btnExitTop');
+const btnMenuTop = document.getElementById('btnMenuTop');
 const btnToggleMusic = document.getElementById('btnToggleMusic');
 const btnToggleSfx = document.getElementById('btnToggleSfx');
+
+const btnOpenRules = document.getElementById('btnOpenRules');
+const btnCloseRules = document.getElementById('btnCloseRules');
+const rulesModal = document.getElementById('rulesModal');
+
+const btnOpenPerks = document.getElementById('btnOpenPerks');
+const btnClosePerks = document.getElementById('btnClosePerks');
+const perksModal = document.getElementById('perksModal');
 
 function renderOptionButtons() {
   btnToggleMusic.className = `toggle-btn ${musicEnabled ? 'active' : ''}`;
@@ -332,12 +457,40 @@ btnCloseSettings.onclick = () => {
   updateMusicState();
 };
 
+btnOpenRules.onclick = () => {
+  settingsModal.style.display = 'none';
+  rulesModal.style.display = 'flex';
+};
+
+btnCloseRules.onclick = () => {
+  rulesModal.style.display = 'none';
+  settingsModal.style.display = 'flex';
+};
+
+btnOpenPerks.onclick = () => {
+  settingsModal.style.display = 'none';
+  perksModal.style.display = 'flex';
+};
+
+btnClosePerks.onclick = () => {
+  perksModal.style.display = 'none';
+  settingsModal.style.display = 'flex';
+};
+
+btnMenuTop.onclick = () => {
+  getAC();
+  if (gameTimerInterval) clearInterval(gameTimerInterval);
+  gridPads.forEach(p => p.active = false);
+  ferieActive = false;
+  state = 'COVER';
+  updateMusicState();
+};
+
 btnExitTop.onclick = () => {
   getAC();
   exitGame();
 };
 
-// PRELOAD ASSETS
 const ASSETS = {
   COVER: new Image(),
   IRIS: new Image(),
@@ -359,7 +512,6 @@ ASSETS.FUOCO.src = 'assets/pacman/fuoco.png';
 ASSETS.SCARPA.src = 'assets/pacman/scarpa.png';
 ASSETS.CAFFE.src = 'assets/pacman/caffe.png';
 
-// PRODUCER CHARACTERS
 const CHARACTERS = {
     IRIS: {
         id: 'IRIS',
@@ -371,7 +523,8 @@ const CHARACTERS = {
         bg: "#060814",
         padBg: "#101026",
         img: ASSETS.IRIS,
-        ferieSec: 7
+        ferieSec: 7,
+        scoreMult: 1.0
     },
     CRISTINA: {
         id: 'CRISTINA',
@@ -383,7 +536,8 @@ const CHARACTERS = {
         bg: "#100c02",
         padBg: "#221a04",
         img: ASSETS.CRISTINA,
-        ferieSec: 10
+        ferieSec: 10,
+        scoreMult: 1.15
     },
     RACHELE: {
         id: 'RACHELE',
@@ -395,7 +549,8 @@ const CHARACTERS = {
         bg: "#140410",
         padBg: "#280820",
         img: ASSETS.RACHELE,
-        ferieSec: 15
+        ferieSec: 15,
+        scoreMult: 1.25
     }
 };
 
@@ -405,7 +560,6 @@ let currentTheme = CHARACTERS.IRIS;
 let highScore = parseInt(localStorage.getItem('pixelPunch_highScore')) || 0;
 let isNewRecord = false;
 
-// SYNTHESIZED SFX (80S SYNTH CHIP)
 let audioCtx = null;
 function getAC() {
     try {
@@ -465,7 +619,6 @@ function playSound(type) {
     } catch(e) {}
 }
 
-// GAME MECHANICS & STATES
 let state = 'COVER'; 
 let score = 0;
 let combo = 0;
@@ -819,22 +972,6 @@ function update() {
     });
 }
 
-// CRT SCANLINE NATIVE HELPER
-function drawCRTOverlay() {
-  ctx.save();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-  for (let y = 0; y < cvs.height; y += 3) {
-    ctx.fillRect(0, y, cvs.width, 1);
-  }
-  // Subtle glass vignette corners
-  let gradient = ctx.createRadialGradient(cvs.width/2, cvs.height/2, 180, cvs.width/2, cvs.height/2, 280);
-  gradient.addColorStop(0, 'rgba(0,0,0,0)');
-  gradient.addColorStop(1, 'rgba(0,0,0,0.6)');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, cvs.width, cvs.height);
-  ctx.restore();
-}
-
 function draw() {
     ctx.save();
     if (shakeTime > 0) {
@@ -845,7 +982,6 @@ function draw() {
 
     ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-    // DYNAMIC RETRO CHARCOAL BACKGROUND WITH CRT PIXEL GRID
     ctx.fillStyle = currentTheme.bg;
     ctx.fillRect(0, 0, cvs.width, cvs.height);
 
@@ -877,7 +1013,6 @@ function draw() {
             ctx.fillStyle = '#ffcc00'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
             ctx.fillText('★ PRESS START TO PLAY ★', W / 2, H - 44);
         }
-        drawCRTOverlay();
         ctx.restore();
         return;
     }
@@ -895,25 +1030,29 @@ function draw() {
         ctx.fillText('IRIS, CRISTINA & RACHELE:', W / 2, 80);
         ctx.fillText('LE INARRESTABILI PRODUCER', W / 2, 100);
         
+        draw80sBox(ctx, 22, 120, W - 44, 150, '#00e5ff', '#0a1224', 2);
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('Studio grafico sotto attacco!', W / 2, 135);
-        ctx.fillText('Clienti inviano mail continue:', W / 2, 155);
-        ctx.fillText('"Logo più grande!", "Consegna ieri!"', W / 2, 175);
-        ctx.fillText('"Fallo verde!", "Lavoro ASAP!"', W / 2, 195);
-        
-        ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('Lo stress sta per raggiungere', W / 2, 230);
-        ctx.fillText('il 100% di BURNOUT FATALE!', W / 2, 250);
+        ctx.fillText('Studio grafico sotto attacco!', W / 2, 142);
+        ctx.fillText('Clienti inviano mail continue:', W / 2, 164);
+        ctx.fillText('"Logo più grande!", "Consegna ieri!"', W / 2, 186);
+        ctx.fillText('"Fallo verde!", "Lavoro ASAP!"', W / 2, 208);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 12px Courier New';
+        ctx.fillText('Lo stress sta per raggiungere', W / 2, 234);
+        ctx.fillText('il 100% di BURNOUT FATALE!', W / 2, 252);
 
+        draw80sBox(ctx, 22, 285, W - 44, 120, '#ff0055', '#1a0814', 2);
         ctx.fillStyle = '#00e5ff'; ctx.font = '900 14px Courier New';
-        ctx.fillText('Distruggi i ticket ed evita', W / 2, 290);
-        ctx.fillText('il collasso dello studio!', W / 2, 310);
+        ctx.fillText('IL TUO COMPITO:', W / 2, 308);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText('Distruggi tutti i ticket pendenti,', W / 2, 332);
+        ctx.fillText('schiva le trappole dei clienti', W / 2, 352);
+        ctx.fillText('e salva la consegna prima del crash!', W / 2, 372);
 
+        draw80sBox(ctx, 35, H - 70, W - 70, 42, '#ffcc00', '#101020', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
-            ctx.fillStyle = '#ffcc00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
-            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, 485);
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, H - 44);
         }
-        drawCRTOverlay();
         ctx.restore();
         return;
     }
@@ -928,39 +1067,40 @@ function draw() {
         ctx.fillText('★ HOW TO PLAY ★', W / 2, 45);
 
         // 1. OBIETTIVO
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('1. EVITA IL BURNOUT! 💀', W / 2, 78);
+        draw80sBox(ctx, 22, 85, W - 44, 75, '#ff0055', '#160a18', 2);
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText('Colpisci i ticket prima che scadano.', W / 2, 98);
-        ctx.fillText('Ogni errore fa salire lo STRESS.', W / 2, 116);
+        ctx.fillText('• Colpisci i ticket prima che scadano.', W / 2, 107);
+        ctx.fillText('• Ogni errore o ritardo alza lo STRESS.', W / 2, 127);
         ctx.fillStyle = '#ffcc00'; ctx.font = '900 12px Courier New';
-        ctx.fillText('Al 100% di Stress è GAME OVER!', W / 2, 134);
+        ctx.fillText('• Al 100% di Stress il server va in CRASH!', W / 2, 147);
 
-        // 2. TICKET
-        ctx.fillStyle = '#00e5ff'; ctx.font = '900 14px Courier New';
-        ctx.fillText('2. TIPOLOGIE DI TICKET 🕹️', W / 2, 168);
+        // 2. TICKET BUONI
+        ctx.fillStyle = '#00e5ff'; ctx.font = '900 15px Courier New';
+        ctx.fillText('2. TIPOLOGIE DI TICKET 🕹️', W / 2, 182);
+        draw80sBox(ctx, 22, 192, W - 44, 110, '#00e5ff', '#0a1628', 2);
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New';
-        ctx.fillText('• 🔴 ROSSI (1 Tap): +100 PTS', W / 2, 188);
-        ctx.fillText('• 🟣 VIOLA (2 Tap): +250 PTS', W / 2, 206);
-        ctx.fillText('• ☕ CAFFÈ / 🌟 VIP: +300/500 PTS e -STRESS', W / 2, 224);
-        ctx.fillText('• 🌴 FERIE: Pausa e -20% STRESS', W / 2, 242);
+        ctx.fillText('• 🔴 ROSSI (1 Tap): +100 PTS (es. "ASAP")', W / 2, 214);
+        ctx.fillText('• 🟣 VIOLA (2 Tap): +250 PTS (es. "DOPPIA")', W / 2, 234);
+        ctx.fillText('• ☕ CAFFÈ / 🌟 VIP: +300/500 PTS e -STRESS', W / 2, 254);
+        ctx.fillText('• 🌴 FERIE: Pausa totale e -20% STRESS', W / 2, 274);
 
         // 3. TRAPPOLE
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New';
-        ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 276);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New';
+        ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 322);
+        draw80sBox(ctx, 22, 332, W - 44, 75, '#ff0055', '#1a0810', 2);
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New';
-        ctx.fillText('• 🟢 VERDE (APPROVATO) & 🖤 NERO (CORROTTO)', W / 2, 296);
-        ctx.fillText('NON TOCARLI: Aumentano lo Stress!', W / 2, 314);
+        ctx.fillText('• 🟢 VERDE (APPROVATO) & 🖤 NERO (CORROTTO)', W / 2, 354);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 11px Courier New';
+        ctx.fillText('NON TOCARLI: Aumentano lo Stress del 12%!', W / 2, 374);
 
-        // 4. CONTROLLI GUIDA
-        ctx.fillStyle = '#ffcc00'; ctx.font = '900 13px Courier New';
-        ctx.fillText('4. CONTROLLI: Touch (1-9) / Tastiera (QWE/1-9)', W / 2, 348);
-
+        // Prompt
+        draw80sBox(ctx, 35, H - 70, W - 70, 42, '#ffcc00', '#101020', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
-            ctx.fillStyle = '#ffcc00'; ctx.font = '900 16px Courier New';
-            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, 485);
+            ctx.fillStyle = '#ffcc00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('PREMI PER CONTINUARE ►', W / 2, H - 44);
         }
-        drawCRTOverlay();
         ctx.restore();
         return;
     }
@@ -977,36 +1117,52 @@ function draw() {
         ctx.fillStyle = '#ffcc00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('★ SELECT PLAYER ★', W / 2, 45);
 
+        // FOTO PRODUCER CON COVER SENZA DISTORSIONE
+        let frameX = W / 2 - 70;
+        let frameY = 62;
+        let frameW = 140;
+        let frameH = 140;
+
+        draw80sBox(ctx, frameX, frameY, frameW, frameH, c.primary, '#101020', 3);
+
         if (c.img && c.img.complete && c.img.naturalWidth > 0) {
             ctx.save();
-            draw80sBox(ctx, W / 2 - 70, 62, 140, 125, c.primary, '#101020', 2);
-            ctx.beginPath(); ctx.rect(W / 2 - 68, 64, 136, 121); ctx.clip();
-            ctx.drawImage(c.img, W / 2 - 68, 64, 136, 121);
+            ctx.beginPath();
+            ctx.rect(frameX + 3, frameY + 3, frameW - 6, frameH - 6);
+            ctx.clip();
+            drawImageCover(ctx, c.img, frameX + 3, frameY + 3, frameW - 6, frameH - 6);
             ctx.restore();
         }
 
         ctx.fillStyle = c.primary; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText(c.name, W / 2, 218);
+        ctx.fillText(c.name, W / 2, 232);
 
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New';
+        ctx.fillText(c.subtitle, W / 2, 255);
+
+        draw80sBox(ctx, 22, 280, W - 44, 120, '#333355', '#141428', 2);
+
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 16px Courier New';
+        ctx.fillText(c.perkBonusTitle, W / 2, 310);
+        
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
-        ctx.fillText(c.subtitle, W / 2, 240);
+        ctx.fillText(c.perkBonusDesc, W / 2, 335);
 
-        draw80sBox(ctx, 30, 265, W - 60, 65, '#333355', '#141428', 2);
+        ctx.fillStyle = '#00e5ff'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText(`Ferie Speciali: ${c.ferieSec}s Relax`, W / 2, 365);
 
-        ctx.fillStyle = '#ffcc00'; ctx.font = '900 14px Courier New';
-        ctx.fillText(c.perkBonusTitle, W / 2, 288);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New';
-        ctx.fillText(c.perkBonusDesc, W / 2, 308);
+        ctx.fillStyle = '#ffcc00'; ctx.font = 'bold 12px Courier New';
+        ctx.fillText(`Moltiplicatore Punti: x${c.scoreMult || 1.0}`, W / 2, 385);
 
-        ctx.fillStyle = '#ffcc00'; ctx.font = '900 32px Courier New';
-        ctx.fillText('◄', 32, 130);
-        ctx.fillText('►', W - 32, 130);
+        ctx.fillStyle = '#ffcc00'; ctx.font = '900 36px Courier New';
+        ctx.fillText('◄', 32, 132);
+        ctx.fillText('►', W - 32, 132);
 
+        draw80sBox(ctx, 35, H - 70, W - 70, 42, c.primary, '#101020', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
-            ctx.fillStyle = c.primary; ctx.font = '900 18px Courier New';
-            ctx.fillText('INIZIA PARTITA ►', W / 2, 485);
+            ctx.fillStyle = c.primary; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('INIZIA PARTITA ►', W / 2, H - 44);
         }
-        drawCRTOverlay();
         ctx.restore();
         return;
     }
@@ -1016,7 +1172,6 @@ function draw() {
         let padX = p.x;
         let padY = p.y + (p.pressAnim > 0 ? 4 : 0);
 
-        // Physical Arcade Button Base Frame
         draw80sBox(ctx, padX, padY, p.w, p.h, p.active ? '#ffffff' : '#28283c', currentTheme.padBg, 3);
 
         ctx.fillStyle = '#7777aa';
@@ -1047,7 +1202,6 @@ function draw() {
         }
     });
 
-    // PARTICLES & CHUNKY PIXEL BURSTS
     particles.forEach(p => { 
         ctx.fillStyle = p.color; 
         ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size); 
@@ -1072,7 +1226,6 @@ function draw() {
         ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
     });
 
-    // BANNER FERIE RELAX
     if (ferieActive) {
         draw80sBox(ctx, 30, 230, 320, 65, '#ffffff', '#00e5ff', 3);
         ctx.fillStyle = '#000000'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
@@ -1081,7 +1234,6 @@ function draw() {
         ctx.fillText(`PAUSA REVISIONI (${ferieTimer}s)`, cvs.width / 2, 280);
     }
 
-    // --- HUD ARCADE MARQUEE HEADER ---
     draw80sBox(ctx, 0, 0, cvs.width, 74, currentTheme.primary, '#080816', 3);
 
     ctx.fillStyle = currentTheme.primary; ctx.font = '900 13px Courier New'; ctx.textAlign = 'left';
@@ -1096,7 +1248,6 @@ function draw() {
         ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 18);
     }
 
-    // 80S LED SEGMENTED STRESS GAUGE
     let stressWidth = 360;
     let stressX = 10;
     let stressY = 52;
@@ -1104,13 +1255,7 @@ function draw() {
     ctx.fillRect(stressX, stressY, stressWidth, 16);
     
     let currentStressPct = Math.min(100, Math.max(0, stress)) / 100;
-    let stressCol = currentStressPct < 0.4 ? '#00ff44' : (currentStressPct < 0.75 ? '#ffcc00' : '#ff0055');
     
-    if (currentStressPct >= 0.75 && Math.floor(frame / 12) % 2 === 0) {
-        stressCol = '#ffffff';
-    }
-
-    // Draw LED Segments
     let totalSegments = 20;
     let filledSegments = Math.floor(totalSegments * currentStressPct);
     let segWidth = (stressWidth - 4) / totalSegments;
@@ -1133,7 +1278,6 @@ function draw() {
     let stressStatusLabel = currentStressPct >= 0.75 ? '⚠️ WARNING: OVERHEAT!' : `STRESS GAUGE: ${Math.floor(stress)}%`;
     ctx.fillText(stressStatusLabel, cvs.width / 2, stressY + 12);
 
-    // --- SCHERMATA PAUSA ---
     if (state === 'PAUSE') {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
         draw80sBox(ctx, 40, cvs.height / 2 - 40, cvs.width - 80, 80, '#ffcc00', '#0c0c18', 3);
@@ -1143,7 +1287,6 @@ function draw() {
         ctx.fillText('TOCCA PER RIPRENDERE', cvs.width / 2, cvs.height / 2 + 15);
     }
 
-    // --- OVERLAY GAMEOVER ---
     if (state === 'GAMEOVER') {
         ctx.fillStyle = 'rgba(4, 4, 12, 0.95)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
         
@@ -1169,7 +1312,6 @@ function draw() {
         }
     }
 
-    drawCRTOverlay();
     ctx.restore();
 }
 
@@ -1188,7 +1330,6 @@ function advanceMenuState() {
     }
 }
 
-// Touch / Pointer Event Handler
 cvs.addEventListener('pointerdown', (e) => {
     getAC();
     let rect = cvs.getBoundingClientRect();
@@ -1240,7 +1381,6 @@ cvs.addEventListener('pointerdown', (e) => {
     }
 });
 
-// Tastiera PC
 const KEY_MAP = {
     '1': 0, 'q': 0, 'Q': 0, 'Numpad7': 0,
     '2': 1, 'w': 1, 'W': 1, 'Numpad8': 1,
