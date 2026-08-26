@@ -77,8 +77,8 @@
   .header-title {
     color: #00f0ff !important;
     font-size: 13px;
-    font-weight: bold;
-    text-shadow: 0 0 6px #00f0ff !important;
+    font-weight: 900;
+    text-shadow: 0 0 8px #00f0ff !important;
     letter-spacing: 1px;
     flex: 1;
   }
@@ -96,7 +96,7 @@
     padding: 6px 0;
     font-family: 'Courier New', monospace;
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 900;
     border-radius: 6px;
     cursor: pointer;
     box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
@@ -134,7 +134,7 @@
     height: 100%;
     max-width: 100%;
     max-height: 100%;
-    object-fit: fill !important;
+    object-fit: contain !important;
     border: 2px solid #00f0ff !important;
     box-shadow: 0 0 15px rgba(0,240,255,0.4) !important;
     image-rendering: pixelated;
@@ -250,8 +250,9 @@
   }
   .option-label {
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 900;
     color: #00f0ff !important;
+    letter-spacing: 0.5px;
   }
   .toggle-btn {
     width: 100%;
@@ -259,7 +260,7 @@
     background: #2a144a;
     border: 2px solid #ff007f;
     color: #ffffff;
-    font-weight: bold;
+    font-weight: 900;
     font-size: 13px;
     border-radius: 6px;
     cursor: pointer;
@@ -280,7 +281,7 @@
     background: linear-gradient(180deg, #ff007f, #a30052);
     border: 2px solid #ffffff;
     color: #ffffff;
-    font-weight: bold;
+    font-weight: 900;
     font-size: 12px;
     border-radius: 8px;
     cursor: pointer;
@@ -294,14 +295,16 @@
     padding: 8px 10px;
     text-align: left;
     font-size: 11px;
-    line-height: 1.4;
+    line-height: 1.45;
     color: #ffffff;
+    font-weight: bold;
   }
   .info-card h4 {
     font-size: 12px;
     font-weight: 900;
     margin-bottom: 4px;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   .info-card p {
     margin-bottom: 3px;
@@ -592,6 +595,24 @@ for (let i = 1; i <= 5; i++) {
   const imgB = new Image();
   imgB.src = `assets/pacman/boss${i}.png`;
   ASSETS.BOSSI[i] = imgB;
+}
+
+// HELPER TESTO DEFINITO E NITO SU CANVAS
+function drawCrispText(text, x, y, font, color, align = 'center', strokeColor = '#000000', strokeWidth = 3) {
+  ctx.save();
+  ctx.font = font;
+  ctx.textAlign = align;
+  ctx.textBaseline = 'middle';
+  let rx = Math.round(x);
+  let ry = Math.round(y);
+  if (strokeColor) {
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeText(text, rx, ry);
+  }
+  ctx.fillStyle = color;
+  ctx.fillText(text, rx, ry);
+  ctx.restore();
 }
 
 // --- CONFIGURAZIONE ERE, STORIE E BOSS (50 LIVELLI) ---
@@ -1511,8 +1532,8 @@ function drawSingleBlock(r, c) {
       ctx.strokeStyle = blk.border; ctx.lineWidth = 1.5;
       ctx.strokeRect(x + 1.5, y + 1.5, CELL_SIZE - 3, CELL_SIZE - 3);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; ctx.fillRect(x + 2, y + 2, CELL_SIZE - 4, 3);
-      ctx.fillStyle = blk.textCol; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
-      ctx.fillText(blk.label, x + CELL_SIZE / 2, y + CELL_SIZE / 2 - (blk.hp > 1 ? 1 : -3));
+      
+      drawCrispText(blk.label, x + CELL_SIZE / 2, y + CELL_SIZE / 2 - (blk.hp > 1 ? 1 : -3), '900 10px monospace', blk.textCol, 'center', '#000000', 2);
 
       if (blk.hp > 1) {
         let barW = CELL_SIZE - 6, barH = 3, barX = x + 3, barY = y + CELL_SIZE - 5;
@@ -1542,8 +1563,7 @@ function drawSinglePowerup(pw) {
   if (imgAsset && imgAsset.complete && imgAsset.naturalWidth !== 0) {
     ctx.drawImage(imgAsset, px - size / 2, py - size / 2, size, size);
   } else {
-    ctx.fillStyle = '#ffcc00'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(fallbackEmoji, px, py + 4);
+    drawCrispText(fallbackEmoji, px, py + 1, '14px sans-serif', '#ffcc00', 'center', null, 0);
   }
 }
 
@@ -1560,8 +1580,7 @@ function drawSingleBomb(b) {
   } else {
     ctx.beginPath(); ctx.arc(bx, by, 9 + pulse, 0, Math.PI * 2);
     ctx.fillStyle = '#ff0055'; ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.font = `${16 + pulse}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('💣', bx, by + 1);
+    drawCrispText('💣', bx, by + 1, `${16 + pulse}px sans-serif`, '#ffffff', 'center', null, 0);
   }
   ctx.restore();
 }
@@ -1615,8 +1634,7 @@ function drawSingleEnemy(e) {
       ctx.roundRect(ex - bossSize / 2, ey - bossSize / 2, bossSize, bossSize, 8);
       ctx.fill();
       ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.fillStyle = '#ffffff'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText(`BOSS ${e.era}`, ex, ey + 4);
+      drawCrispText(`BOSS ${e.era}`, ex, ey + 4, '900 12px Courier New', '#ffffff', 'center', '#000000', 2);
     }
 
     ctx.fillStyle = '#080814'; ctx.fillRect(ex - 22, ey - bossSize / 2 - 8, 44, 5);
@@ -1691,22 +1709,16 @@ function drawHUD() {
   ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
   ctx.strokeStyle = currentBoss.primary; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, CANVAS_W, HUD_HEIGHT);
 
-  ctx.fillStyle = currentBoss.primary; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'left';
-  ctx.fillText(`${currentBoss.name}`, 8, 16);
-  ctx.fillStyle = '#ffff00'; ctx.fillText(`PTS: ${score}`, 8, 32);
+  drawCrispText(`${currentBoss.name}`, 10, 16, '900 12px Courier New', currentBoss.primary, 'left', '#000000', 2);
+  drawCrispText(`PTS: ${score}`, 10, 32, '900 12px Courier New', '#ffff00', 'left', '#000000', 2);
 
-  ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'center';
-  ctx.fillText(`STAGE ${level}/50`, CANVAS_W / 2, 26);
+  drawCrispText(`STAGE ${level}/50`, CANVAS_W / 2, 26, '900 12px Courier New', '#ffffff', 'center', '#000000', 2);
 
-  ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Courier New'; ctx.textAlign = 'right';
-  ctx.fillText(`REC: ${hiScore}`, CANVAS_W - 8, 16);
+  drawCrispText(`REC: ${hiScore}`, CANVAS_W - 10, 16, '900 11px Courier New', '#00ffcc', 'right', '#000000', 2);
 
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#ff0055';
-  ctx.font = 'bold 10px Courier New';
   let availableLives = Math.max(0, lives);
-  let textRightX = CANVAS_W - 8 - (availableLives * 14);
-  ctx.fillText(`VITE:`, textRightX, 33);
+  let textRightX = CANVAS_W - 10 - (availableLives * 14);
+  drawCrispText(`VITE:`, textRightX, 33, '900 11px Courier New', '#ff0055', 'right', '#000000', 2);
 
   for (let i = 0; i < availableLives; i++) {
     let hX = CANVAS_W - 12 - (i * 14);
@@ -1722,15 +1734,12 @@ function drawScreens() {
       ctx.drawImage(ASSETS.COVER, 0, 0, W, H);
     } else {
       ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#00f0ff'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('CYBER RUN: BOMBER', W / 2, 180);
-      ctx.fillStyle = '#ffea00'; ctx.font = 'bold 16px Courier New';
-      ctx.fillText('AGENCY ARCADE', W / 2, 220);
+      drawCrispText('CYBER RUN: BOMBER', W / 2, 180, '900 24px Courier New', '#00f0ff', 'center', '#000000', 3);
+      drawCrispText('AGENCY ARCADE', W / 2, 220, '900 16px Courier New', '#ffea00', 'center', '#000000', 3);
     }
 
     if (Math.floor(frame / 45) % 2 === 0) {
-      ctx.fillStyle = '#00ffcc'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('PREMI BOMBA PER INIZIARE ►', W / 2, H - 25);
+      drawCrispText('PREMI BOMBA PER INIZIARE ►', W / 2, H - 25, '900 14px Courier New', '#00ffcc', 'center', '#000000', 3);
     }
     return;
   }
@@ -1738,32 +1747,34 @@ function drawScreens() {
   if (state === 'STORY') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('LA STORIA', W / 2, 45);
+    drawCrispText('LA STORIA', W / 2, 42, '900 24px Courier New', '#ffea00', 'center', '#000000', 3);
 
     ctx.beginPath(); ctx.fillStyle = '#120a28'; ctx.roundRect(14, 62, W - 28, H - 105, 12); ctx.fill();
     ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 2.5; ctx.stroke();
 
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 14px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('Laura e Guido sono nei guai!', W / 2, 90);
+    drawCrispText('Laura e Guido sono nei guai!', W / 2, 88, '900 15px Courier New', '#ff0055', 'center', '#000000', 2);
 
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Un’ondata di file corrotti', W / 2, 125);
-    ctx.fillText('ha invaso il server:', W / 2, 142);
-    ctx.fillText('grafiche rovinate, export', W / 2, 159);
-    ctx.fillText('sbagliati e bozze inutilizzabili', W / 2, 176);
-    ctx.fillText('stanno per compromettere', W / 2, 193);
-    ctx.fillText('la consegna!', W / 2, 210);
+    let lineY = 122;
+    const storyLines = [
+      'Un’ondata di file corrotti',
+      'ha invaso il server:',
+      'grafiche rovinate, export',
+      'sbagliati e bozze inutilizzabili',
+      'stanno per compromettere',
+      'la consegna!'
+    ];
+    storyLines.forEach(l => {
+      drawCrispText(l, W / 2, lineY, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
+      lineY += 18;
+    });
 
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 12px Courier New';
-    ctx.fillText('Piazza le bombe di Cleanup,', W / 2, 250);
-    ctx.fillText('fai saltare i file spazzatura', W / 2, 270);
-    ctx.fillText('e salva più grafiche possibile', W / 2, 290);
-    ctx.fillText('prima delle 18:30!', W / 2, 310);
+    drawCrispText('Piazza le bombe di Cleanup,', W / 2, 252, '900 13px Courier New', '#00ffcc', 'center', '#000000', 2);
+    drawCrispText('fai saltare i file spazzatura', W / 2, 272, '900 13px Courier New', '#00ffcc', 'center', '#000000', 2);
+    drawCrispText('e salva più grafiche possibile', W / 2, 292, '900 13px Courier New', '#00ffcc', 'center', '#000000', 2);
+    drawCrispText('prima delle 18:30!', W / 2, 312, '900 13px Courier New', '#00ffcc', 'center', '#000000', 2);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 20);
+      drawCrispText('CONTINUA ►', W / 2, H - 20, '900 15px Courier New', '#ffea00', 'center', '#000000', 3);
     }
     return;
   }
@@ -1771,40 +1782,28 @@ function drawScreens() {
   if (state === 'RULES') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#00f0ff'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('REGOLE DI GIOCO', W / 2, 42);
+    drawCrispText('REGOLE DI GIOCO', W / 2, 38, '900 22px Courier New', '#00f0ff', 'center', '#000000', 3);
 
     ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(14, 58, W - 28, H - 100, 12); ctx.fill();
     ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; ctx.stroke();
 
-    ctx.textAlign = 'center';
+    drawCrispText('01. PULISCI FILE CORROTTI', W / 2, 82, '900 14px Courier New', '#ffea00', 'center', '#000000', 2);
+    drawCrispText('Fai esplodere .JPG, .PNG,', W / 2, 102, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
+    drawCrispText('.PSD, .AI e .PDF per aprirti la strada.', W / 2, 120, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 13px Courier New';
-    ctx.fillText('01. PULISCI FILE CORROTTI', W / 2, 85);
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Fai esplodere .JPG, .PNG,', W / 2, 103);
-    ctx.fillText('.PSD, .AI e .PDF per aprirti la strada.', W / 2, 119);
+    drawCrispText('02. DISTRUGGI I BUG', W / 2, 150, '900 14px Courier New', '#00ffcc', 'center', '#000000', 2);
+    drawCrispText('Elimina i bug vaganti e i Mega Boss', W / 2, 170, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
+    drawCrispText('ogni 10 livelli per avanzare.', W / 2, 188, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
 
-    ctx.fillStyle = '#00ffcc'; ctx.font = '900 13px Courier New';
-    ctx.fillText('02. DISTRUGGI I BUG', W / 2, 150);
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Elimina i bug vaganti e i Mega Boss', W / 2, 168);
-    ctx.fillText('ogni 10 livelli per avanzare.', W / 2, 184);
+    drawCrispText('03. RACCOGLI POTENZIAMENTI', W / 2, 218, '900 14px Courier New', '#ff00ff', 'center', '#000000', 2);
+    drawCrispText('Aumenta raggio, bombe e velocità', W / 2, 238, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
+    drawCrispText('o usa Command-Z per guadagnare vite!', W / 2, 256, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
 
-    ctx.fillStyle = '#ff00ff'; ctx.font = '900 13px Courier New';
-    ctx.fillText('03. RACCOGLI POTENZIAMENTI', W / 2, 215);
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Aumenta raggio, bombe e velocità', W / 2, 233);
-    ctx.fillText('o usa Command-Z per guadagnare vite!', W / 2, 249);
-
-    ctx.fillStyle = '#ffd700'; ctx.font = '900 13px Courier New';
-    ctx.fillText('04. CONTROLLI GUIDA', W / 2, 280);
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-    ctx.fillText('Joystick Touch / WASD + Tasto BOMBA', W / 2, 298);
+    drawCrispText('04. CONTROLLI GUIDA', W / 2, 286, '900 14px Courier New', '#ffd700', 'center', '#000000', 2);
+    drawCrispText('Joystick Touch / WASD + Tasto BOMBA', W / 2, 306, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 20);
+      drawCrispText('CONTINUA ►', W / 2, H - 20, '900 15px Courier New', '#ffea00', 'center', '#000000', 3);
     }
     return;
   }
@@ -1812,8 +1811,7 @@ function drawScreens() {
   if (state === 'POWERUPS_INFO') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('MODULI & POTENZIAMENTI', W / 2, 32);
+    drawCrispText('MODULI & POTENZIAMENTI', W / 2, 32, '900 18px Courier New', '#ffea00', 'center', '#000000', 3);
 
     const items = [
       { key: 'BOMBA', title: 'GOMMA VETTORIALE', desc: '+1 Gomma (Cancella Blocchi)', col: '#ff0055' },
@@ -1833,21 +1831,16 @@ function drawScreens() {
       if (imgAsset && imgAsset.complete && imgAsset.naturalWidth !== 0) {
         ctx.drawImage(imgAsset, 24, boxY + 11, 28, 28);
       } else {
-        ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         let fallbackEmoji = item.key === 'BOMBA' ? '💣' : item.key === 'FUOCO' ? '🔥' : item.key === 'SCARPA' ? '👟' : item.key === 'CAFFE' ? '☕' : '❤️';
-        ctx.fillText(fallbackEmoji, 38, boxY + 25);
+        drawCrispText(fallbackEmoji, 38, boxY + 25, '20px sans-serif', '#ffffff', 'center', null, 0);
       }
 
-      ctx.fillStyle = item.col; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillText(item.title, 62, boxY + 20);
-
-      ctx.fillStyle = '#ffffff'; ctx.font = '10px Courier New';
-      ctx.fillText(item.desc, 62, boxY + 36);
+      drawCrispText(item.title, 62, boxY + 18, '900 12px Courier New', item.col, 'left', '#000000', 2);
+      drawCrispText(item.desc, 62, boxY + 35, 'bold 11px Courier New', '#ffffff', 'left', '#000000', 2);
     });
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('CONTINUA ►', W / 2, H - 15);
+      drawCrispText('CONTINUA ►', W / 2, H - 15, '900 15px Courier New', '#ffea00', 'center', '#000000', 3);
     }
     return;
   }
@@ -1855,47 +1848,37 @@ function drawScreens() {
   if (state === 'CHAR_SELECT') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#ffff00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('SCEGLI IL TUO GRAFICO 🎨', W / 2, 38);
+    drawCrispText('SCEGLI IL TUO GRAFICO 🎨', W / 2, 34, '900 20px Courier New', '#ffff00', 'center', '#000000', 3);
 
     let key = charList[charSelectIndex];
     let c = CHARACTERS[key];
 
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(14, 54, W - 28, H - 95, 14); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(14, 52, W - 28, H - 90, 14); ctx.fill();
     ctx.strokeStyle = c.primary; ctx.lineWidth = 3; ctx.stroke();
 
     if (c.portrait && c.portrait.complete && c.portrait.naturalWidth !== 0) {
       ctx.save();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 68, 120, 110, 10); ctx.clip();
-      ctx.drawImage(c.portrait, W / 2 - 60, 68, 120, 110);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 64, 120, 110, 10); ctx.clip();
+      ctx.drawImage(c.portrait, W / 2 - 60, 64, 120, 110);
       ctx.restore();
-      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 68, 120, 110, 10);
+      ctx.beginPath(); ctx.roundRect(W / 2 - 60, 64, 120, 110, 10);
       ctx.strokeStyle = c.primary; ctx.lineWidth = 2; ctx.stroke();
     }
 
-    ctx.fillStyle = c.primary; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(c.name, W / 2, 205);
+    drawCrispText(c.name, W / 2, 200, '900 24px Courier New', c.primary, 'center', '#000000', 3);
+    drawCrispText(c.role, W / 2, 224, '900 13px Courier New', '#ffffff', 'center', '#000000', 2);
 
-    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
-    ctx.fillText(c.role, W / 2, 228);
+    drawCrispText(c.perkBonusTitle, W / 2, 256, '900 13px Courier New', '#ffff00', 'center', '#000000', 2);
+    drawCrispText(c.perkBonusDesc, W / 2, 274, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
 
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 11px Courier New';
-    ctx.fillText(c.perkBonusTitle, W / 2, 260);
-    ctx.fillStyle = '#ffffff'; ctx.font = '10px Courier New';
-    ctx.fillText(c.perkBonusDesc, W / 2, 274);
+    drawCrispText(c.perkMalusTitle, W / 2, 298, '900 13px Courier New', '#ff0055', 'center', '#000000', 2);
+    drawCrispText(c.perkMalusDesc, W / 2, 316, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
 
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 11px Courier New';
-    ctx.fillText(c.perkMalusTitle, W / 2, 296);
-    ctx.fillStyle = '#ffffff'; ctx.font = '10px Courier New';
-    ctx.fillText(c.perkMalusDesc, W / 2, 310);
-
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 28px Courier New';
-    ctx.fillText('◄', 32, 180);
-    ctx.fillText('►', W - 32, 180);
+    drawCrispText('◄', 32, 175, '900 30px Courier New', '#ffea00', 'center', '#000000', 3);
+    drawCrispText('►', W - 32, 175, '900 30px Courier New', '#ffea00', 'center', '#000000', 3);
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = c.primary; ctx.font = '900 15px Courier New';
-      ctx.fillText('CONTINUA ►', W / 2, H - 20);
+      drawCrispText('CONTINUA ►', W / 2, H - 20, '900 16px Courier New', c.primary, 'center', '#000000', 3);
     }
     return;
   }
@@ -1910,21 +1893,17 @@ function drawScreens() {
     let eraData = ERAS_INFO[currentEraIndex - 1];
     let isBossLvl = (level % 10 === 0);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`STAGE ${level}/50`, W / 2, 34);
-
-    ctx.fillStyle = eraData.colBase; ctx.font = 'bold 13px Courier New';
-    ctx.fillText(eraData.name, W / 2, 54);
+    drawCrispText(`STAGE ${level}/50`, W / 2, 32, '900 18px Courier New', '#ffea00', 'center', '#000000', 3);
+    drawCrispText(eraData.name, W / 2, 52, '900 14px Courier New', eraData.colBase, 'center', '#000000', 2);
 
     let storyBoxX = 20, storyBoxY = 66, storyBoxW = W - 40, storyBoxH = 68;
     ctx.fillStyle = '#140a28'; ctx.beginPath(); ctx.roundRect(storyBoxX, storyBoxY, storyBoxW, storyBoxH, 8); ctx.fill();
     ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 1.5; ctx.stroke();
 
     let lines = isBossLvl ? eraData.storyBoss : eraData.storyEra;
-    ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(lines[0], W / 2, storyBoxY + 20);
-    ctx.fillText(lines[1], W / 2, storyBoxY + 38);
-    ctx.fillText(lines[2], W / 2, storyBoxY + 56);
+    drawCrispText(lines[0], W / 2, storyBoxY + 18, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
+    drawCrispText(lines[1], W / 2, storyBoxY + 36, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
+    drawCrispText(lines[2], W / 2, storyBoxY + 54, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
 
     if (isBossLvl) {
       let bossEra = Math.min(5, Math.floor(level / 10));
@@ -1933,8 +1912,7 @@ function drawScreens() {
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(bossCardX, bossCardY, bossCardW, bossCardH, 10); ctx.fill();
       ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
 
-      ctx.fillStyle = '#ff0055'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, bossCardY + 22);
+      drawCrispText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, bossCardY + 22, '900 13px Courier New', '#ff0055', 'center', '#000000', 2);
 
       let bImg = ASSETS.BOSSI[bossEra];
       let bossSize = 52;
@@ -1946,16 +1924,13 @@ function drawScreens() {
       if (bImg && bImg.complete && bImg.naturalWidth !== 0) {
         ctx.drawImage(bImg, bx, by, bossSize, bossSize);
       } else {
-        ctx.fillStyle = eraData.colBase; ctx.font = '900 11px Courier New';
-        ctx.fillText(`BOSS ${bossEra}`, W / 2, by + 28);
+        drawCrispText(`BOSS ${bossEra}`, W / 2, by + 26, '900 12px Courier New', eraData.colBase, 'center', '#000000', 2);
       }
 
-      ctx.fillStyle = '#ffea00'; ctx.font = 'bold 12px Courier New';
-      ctx.fillText(eraData.boss, W / 2, bossCardY + 102);
+      drawCrispText(eraData.boss, W / 2, bossCardY + 102, '900 13px Courier New', '#ffea00', 'center', '#000000', 2);
 
-      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New';
       let bossHp = 10 + (bossEra - 1) * 5;
-      ctx.fillText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, bossCardY + 122);
+      drawCrispText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, bossCardY + 122, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
 
     } else {
       let cardW = 138, cardH = 142;
@@ -1968,8 +1943,7 @@ function drawScreens() {
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(card1X, cardY, cardW, cardH, 10); ctx.fill();
       ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2; ctx.stroke();
 
-      ctx.fillStyle = eraData.colBase; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText("MOSTRO BASE", card1X + cardW / 2, cardY + 20);
+      drawCrispText("MOSTRO BASE", card1X + cardW / 2, cardY + 20, '900 12px Courier New', eraData.colBase, 'center', '#000000', 2);
 
       let img1X = card1X + cardW / 2 - imgSize / 2, img1Y = cardY + 28;
       ctx.fillStyle = '#080818'; ctx.fillRect(img1X - 3, img1Y - 3, imgSize + 6, imgSize + 6);
@@ -1979,16 +1953,13 @@ function drawScreens() {
         ctx.drawImage(mImg, img1X, img1Y, imgSize, imgSize);
       }
 
-      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New';
-      ctx.fillText("RESISTENZA: 1 HP", card1X + cardW / 2, cardY + 92);
-      ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Courier New';
-      ctx.fillText("+200 PUNTI", card1X + cardW / 2, cardY + 112);
+      drawCrispText("RESISTENZA: 1 HP", card1X + cardW / 2, cardY + 92, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
+      drawCrispText("+200 PUNTI", card1X + cardW / 2, cardY + 112, '900 11px Courier New', '#00ffcc', 'center', '#000000', 2);
 
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(card2X, cardY, cardW, cardH, 10); ctx.fill();
       ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2; ctx.stroke();
 
-      ctx.fillStyle = eraData.colTough; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText("CORAZZATO", card2X + cardW / 2, cardY + 20);
+      drawCrispText("CORAZZATO", card2X + cardW / 2, cardY + 20, '900 12px Courier New', eraData.colTough, 'center', '#000000', 2);
 
       let img2X = card2X + cardW / 2 - imgSize / 2, img2Y = cardY + 28;
       ctx.fillStyle = '#080818'; ctx.fillRect(img2X - 3, img2Y - 3, imgSize + 6, imgSize + 6);
@@ -2001,25 +1972,19 @@ function drawScreens() {
         ctx.restore();
       }
 
-      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 10px Courier New';
-      ctx.fillText("RESISTENZA: 2 HP", card2X + cardW / 2, cardY + 92);
-      ctx.fillStyle = '#ffaa00'; ctx.font = 'bold 10px Courier New';
-      ctx.fillText("+350 PUNTI", card2X + cardW / 2, cardY + 112);
+      drawCrispText("RESISTENZA: 2 HP", card2X + cardW / 2, cardY + 92, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
+      drawCrispText("+350 PUNTI", card2X + cardW / 2, cardY + 112, '900 11px Courier New', '#ffaa00', 'center', '#000000', 2);
     }
 
-    ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`MOLTIPLICATORE PERSONAGGIO: x${currentBoss.scoreMult}`, W / 2, 308);
-
-    ctx.fillStyle = '#ffea00'; ctx.font = '10px Courier New';
-    ctx.fillText('⚡ Piazza le bombe con cura prima che ti circondino!', W / 2, 328);
+    drawCrispText(`MOLTIPLICATORE PERSONAGGIO: x${currentBoss.scoreMult}`, W / 2, 308, 'bold 12px Courier New', '#00ffcc', 'center', '#000000', 2);
+    drawCrispText('⚡ Piazza le bombe con cura prima che ti circondino!', W / 2, 328, 'bold 11px Courier New', '#ffea00', 'center', '#000000', 2);
 
     let btnW = 220, btnH = 36, btnX = (W - btnW) / 2, btnY = 354;
     ctx.fillStyle = (Math.floor(frame / 30) % 2 === 0) ? '#ffea00' : '#ffd700';
     ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 8); ctx.fill();
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
 
-    ctx.fillStyle = '#000000'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('INIZIA STAGE ►', W / 2, btnY + 22);
+    drawCrispText('INIZIA STAGE ►', W / 2, btnY + 18, '900 14px Courier New', '#000000', 'center', null, 0);
 
     ctx.restore();
     return;
@@ -2027,23 +1992,19 @@ function drawScreens() {
 
   if (state === 'PAUSE') {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('IN PAUSA', W / 2, H / 2 - 15);
-    ctx.fillStyle = '#00f3ff'; ctx.font = 'bold 13px Courier New';
-    ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', W / 2, H / 2 + 20);
+    drawCrispText('IN PAUSA', W / 2, H / 2 - 15, '900 30px Courier New', '#ffea00', 'center', '#000000', 3);
+    drawCrispText('TOCCA IL GIOCO PER RIPRENDERE', W / 2, H / 2 + 20, '900 14px Courier New', '#00f0ff', 'center', '#000000', 2);
     return;
   }
 
   if (state === 'gameover') {
     ctx.fillStyle = 'rgba(0,0,0,0.88)'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = currentBoss.primary; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER 💀', W / 2, H / 2 - 35);
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + 10);
-    ctx.fillStyle = '#ff0055'; ctx.font = '14px Courier New';
-    ctx.fillText(`RECORD: ${hiScore}`, W / 2, H / 2 + 40);
-    ctx.fillStyle = Math.floor(frame / 30) % 2 === 0 ? '#fff' : currentBoss.primary;
-    ctx.font = '900 14px Courier New'; ctx.fillText('TOCCA PER RIPROVARE', W / 2, H / 2 + 90);
+    drawCrispText('GAME OVER 💀', W / 2, H / 2 - 35, '900 34px Courier New', currentBoss.primary, 'center', '#000000', 3);
+    drawCrispText(`SCORE: ${score}`, W / 2, H / 2 + 10, '900 20px Courier New', '#ffff00', 'center', '#000000', 2);
+    drawCrispText(`RECORD: ${hiScore}`, W / 2, H / 2 + 40, '900 15px Courier New', '#ff0055', 'center', '#000000', 2);
+    
+    let activeCol = Math.floor(frame / 30) % 2 === 0 ? '#ffffff' : currentBoss.primary;
+    drawCrispText('TOCCA PER RIPROVARE', W / 2, H / 2 + 90, '900 16px Courier New', activeCol, 'center', '#000000', 3);
   }
 }
 
