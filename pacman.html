@@ -597,7 +597,7 @@ for (let i = 1; i <= 5; i++) {
   ASSETS.BOSSI[i] = imgB;
 }
 
-// HELPER TESTO DEFINITO E NITO SU CANVAS
+// HELPER TESTO DEFINITO E NITIDO SU CANVAS
 function drawCrispText(text, x, y, font, color, align = 'center', strokeColor = '#000000', strokeWidth = 3) {
   ctx.save();
   ctx.font = font;
@@ -1893,29 +1893,29 @@ function drawScreens() {
     let eraData = ERAS_INFO[currentEraIndex - 1];
     let isBossLvl = (level % 10 === 0);
 
-    drawCrispText(`STAGE ${level}/50`, W / 2, 32, '900 18px Courier New', '#ffea00', 'center', '#000000', 3);
-    drawCrispText(eraData.name, W / 2, 52, '900 14px Courier New', eraData.colBase, 'center', '#000000', 2);
+    drawCrispText(`STAGE ${level}/50`, W / 2, 30, '900 16px Courier New', '#ffea00', 'center', '#000000', 3);
+    drawCrispText(eraData.name, W / 2, 48, '900 13px Courier New', eraData.colBase, 'center', '#000000', 2);
 
-    let storyBoxX = 20, storyBoxY = 66, storyBoxW = W - 40, storyBoxH = 68;
+    let storyBoxX = 20, storyBoxY = 62, storyBoxW = W - 40, storyBoxH = 60;
     ctx.fillStyle = '#140a28'; ctx.beginPath(); ctx.roundRect(storyBoxX, storyBoxY, storyBoxW, storyBoxH, 8); ctx.fill();
     ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 1.5; ctx.stroke();
 
     let lines = isBossLvl ? eraData.storyBoss : eraData.storyEra;
-    drawCrispText(lines[0], W / 2, storyBoxY + 18, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
-    drawCrispText(lines[1], W / 2, storyBoxY + 36, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
-    drawCrispText(lines[2], W / 2, storyBoxY + 54, 'bold 12px Courier New', '#ffffff', 'center', '#000000', 2);
+    drawCrispText(lines[0], W / 2, storyBoxY + 16, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
+    drawCrispText(lines[1], W / 2, storyBoxY + 32, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
+    drawCrispText(lines[2], W / 2, storyBoxY + 48, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
 
     if (isBossLvl) {
       let bossEra = Math.min(5, Math.floor(level / 10));
-      let bossCardX = 25, bossCardY = 146, bossCardW = W - 50, bossCardH = 142;
+      let bossCardX = 20, bossCardY = 132, bossCardW = W - 40, bossCardH = 168;
 
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(bossCardX, bossCardY, bossCardW, bossCardH, 10); ctx.fill();
       ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.stroke();
 
-      drawCrispText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, bossCardY + 22, '900 13px Courier New', '#ff0055', 'center', '#000000', 2);
+      drawCrispText('⚠️ ALLERTA MEGA BOSS (2x2) ⚠️', W / 2, bossCardY + 18, '900 12px Courier New', '#ff0055', 'center', '#000000', 2);
 
       let bImg = ASSETS.BOSSI[bossEra];
-      let bossSize = 52;
+      let bossSize = 48;
       let bx = W / 2 - bossSize / 2, by = bossCardY + 32;
 
       ctx.fillStyle = '#080818'; ctx.fillRect(bx - 3, by - 3, bossSize + 6, bossSize + 6);
@@ -1924,28 +1924,30 @@ function drawScreens() {
       if (bImg && bImg.complete && bImg.naturalWidth !== 0) {
         ctx.drawImage(bImg, bx, by, bossSize, bossSize);
       } else {
-        drawCrispText(`BOSS ${bossEra}`, W / 2, by + 26, '900 12px Courier New', eraData.colBase, 'center', '#000000', 2);
+        drawCrispText(`BOSS ${bossEra}`, W / 2, by + 24, '900 12px Courier New', eraData.colBase, 'center', '#000000', 2);
       }
 
       drawCrispText(eraData.boss, W / 2, bossCardY + 102, '900 13px Courier New', '#ffea00', 'center', '#000000', 2);
 
       let bossHp = 10 + (bossEra - 1) * 5;
-      drawCrispText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, bossCardY + 122, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
+      drawCrispText(`RESISTENZA: ${bossHp} COLPI`, W / 2, bossCardY + 122, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
 
     } else {
-      let cardW = 138, cardH = 142;
-      let card1X = 22, cardY = 146;
-      let card2X = W - 22 - cardW;
+      let cardW = 142, cardH = 168;
+      let card1X = 20, cardY = 132;
+      let card2X = W - 20 - cardW;
 
       let mImg = ASSETS.MOSTRI[currentEraIndex];
-      let imgSize = 42;
+      let imgSize = 40;
 
+      // Card 1: Mostro Base
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(card1X, cardY, cardW, cardH, 10); ctx.fill();
       ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2; ctx.stroke();
 
-      drawCrispText("MOSTRO BASE", card1X + cardW / 2, cardY + 20, '900 12px Courier New', eraData.colBase, 'center', '#000000', 2);
+      drawCrispText("MOSTRO BASE", card1X + cardW / 2, cardY + 16, '900 11px Courier New', '#ffffff', 'center', '#000000', 2);
+      drawCrispText(eraData.monster, card1X + cardW / 2, cardY + 32, '900 11px Courier New', eraData.colBase, 'center', '#000000', 2);
 
-      let img1X = card1X + cardW / 2 - imgSize / 2, img1Y = cardY + 28;
+      let img1X = card1X + cardW / 2 - imgSize / 2, img1Y = cardY + 46;
       ctx.fillStyle = '#080818'; ctx.fillRect(img1X - 3, img1Y - 3, imgSize + 6, imgSize + 6);
       ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 1.5; ctx.strokeRect(img1X - 3, img1Y - 3, imgSize + 6, imgSize + 6);
 
@@ -1953,15 +1955,17 @@ function drawScreens() {
         ctx.drawImage(mImg, img1X, img1Y, imgSize, imgSize);
       }
 
-      drawCrispText("RESISTENZA: 1 HP", card1X + cardW / 2, cardY + 92, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
-      drawCrispText("+200 PUNTI", card1X + cardW / 2, cardY + 112, '900 11px Courier New', '#00ffcc', 'center', '#000000', 2);
+      drawCrispText("RESISTENZA: 1 HP", card1X + cardW / 2, cardY + 112, 'bold 10px Courier New', '#ffffff', 'center', '#000000', 2);
+      drawCrispText("+200 PUNTI", card1X + cardW / 2, cardY + 128, '900 11px Courier New', '#00ffcc', 'center', '#000000', 2);
 
+      // Card 2: Mostro Corazzato
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(card2X, cardY, cardW, cardH, 10); ctx.fill();
       ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2; ctx.stroke();
 
-      drawCrispText("CORAZZATO", card2X + cardW / 2, cardY + 20, '900 12px Courier New', eraData.colTough, 'center', '#000000', 2);
+      drawCrispText("CORAZZATO", card2X + cardW / 2, cardY + 16, '900 11px Courier New', '#ffffff', 'center', '#000000', 2);
+      drawCrispText(eraData.monster, card2X + cardW / 2, cardY + 32, '900 11px Courier New', eraData.colTough, 'center', '#000000', 2);
 
-      let img2X = card2X + cardW / 2 - imgSize / 2, img2Y = cardY + 28;
+      let img2X = card2X + cardW / 2 - imgSize / 2, img2Y = cardY + 46;
       ctx.fillStyle = '#080818'; ctx.fillRect(img2X - 3, img2Y - 3, imgSize + 6, imgSize + 6);
       ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 1.5; ctx.strokeRect(img2X - 3, img2Y - 3, imgSize + 6, imgSize + 6);
 
@@ -1972,19 +1976,19 @@ function drawScreens() {
         ctx.restore();
       }
 
-      drawCrispText("RESISTENZA: 2 HP", card2X + cardW / 2, cardY + 92, 'bold 11px Courier New', '#ffffff', 'center', '#000000', 2);
-      drawCrispText("+350 PUNTI", card2X + cardW / 2, cardY + 112, '900 11px Courier New', '#ffaa00', 'center', '#000000', 2);
+      drawCrispText("RESISTENZA: 2 HP", card2X + cardW / 2, cardY + 112, 'bold 10px Courier New', '#ffffff', 'center', '#000000', 2);
+      drawCrispText("+350 PUNTI", card2X + cardW / 2, cardY + 128, '900 11px Courier New', '#ffaa00', 'center', '#000000', 2);
     }
 
-    drawCrispText(`MOLTIPLICATORE PERSONAGGIO: x${currentBoss.scoreMult}`, W / 2, 308, 'bold 12px Courier New', '#00ffcc', 'center', '#000000', 2);
-    drawCrispText('⚡ Piazza le bombe con cura prima che ti circondino!', W / 2, 328, 'bold 11px Courier New', '#ffea00', 'center', '#000000', 2);
+    drawCrispText(`MOLTIPLICATORE: x${currentBoss.scoreMult}`, W / 2, 312, '900 12px Courier New', '#00ffcc', 'center', '#000000', 2);
+    drawCrispText('Pulisci il server dai file corrotti!', W / 2, 328, 'bold 11px Courier New', '#ffea00', 'center', '#000000', 2);
 
-    let btnW = 220, btnH = 36, btnX = (W - btnW) / 2, btnY = 354;
+    let btnW = 200, btnH = 36, btnX = (W - btnW) / 2, btnY = 352;
     ctx.fillStyle = (Math.floor(frame / 30) % 2 === 0) ? '#ffea00' : '#ffd700';
     ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 8); ctx.fill();
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
 
-    drawCrispText('INIZIA STAGE ►', W / 2, btnY + 18, '900 14px Courier New', '#000000', 'center', null, 0);
+    drawCrispText('INIZIA STAGE ►', W / 2, btnY + 18, '900 13px Courier New', '#000000', 'center', null, 0);
 
     ctx.restore();
     return;
