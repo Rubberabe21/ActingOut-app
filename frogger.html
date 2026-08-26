@@ -468,6 +468,13 @@ function playSound(type) {
       osc.frequency.linearRampToValueAtTime(40, ac.currentTime + .35);
       gain.gain.setValueAtTime(.65, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .35);
+    } else if (type === 'levelup') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, ac.currentTime);
+      osc.frequency.setValueAtTime(660, ac.currentTime + .08);
+      osc.frequency.setValueAtTime(880, ac.currentTime + .16);
+      gain.gain.setValueAtTime(.60, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + .28);
     }
   } catch (e) {}
 }
@@ -507,14 +514,28 @@ const CHARACTER_LIST = ['GIULIA', 'TOBI', 'DAVE', 'LUCA'];
 let selectedCharIndex = 0;
 let currentTheme = CHARACTERS.GIULIA;
 
-const PREMIERE_CLIPS = {
-  BLUE_A_ROLL:   { label: 'A001_C004', bg: '#2b52a1', border: '#5682e8', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.2 },
-  PURPLE_B_ROLL: { label: 'B002_DRONE', bg: '#7f22a7', border: '#b842df', textCol: '#ffffff', topBar: '#ff0055', wMult: 2.4 },
-  ROSE_LUMETRI:  { label: 'LUMETRI COLOR', bg: '#a11b43', border: '#e64273', textCol: '#ffffff', topBar: '#ffee00', wMult: 2.2 },
-  GOLD_VOICEOVER:{ label: 'VO_MASTER', bg: '#8f7d18', border: '#dbc330', textCol: '#ffffff', topBar: '#00ff66', isAudio: true, wMult: 2.0 },
-  GREEN_SFX:     { label: 'SFX_WHOOSH', bg: '#2d7a3a', border: '#4ec462', textCol: '#ffffff', topBar: '#00ff66', isAudio: true, wMult: 2.0 },
-  TEAL_MUSIC:    { label: 'BEAT_TRACK', bg: '#147b85', border: '#23b3be', textCol: '#ffffff', topBar: '#00ff66', isAudio: true, wMult: 2.4 },
-  OFFLINE_RED:   { label: 'OFFLINE 🔴', bg: '#8b0000', border: '#ff3333', textCol: '#ffffff', topBar: '#ff0000', wMult: 2.2 }
+/* DEFINIZIONE BLOCCHI CON COMPORTAMENTI UNICI */
+const BLOCK_TYPES = {
+  A_ROLL: {
+    id: 'A_ROLL', label: 'A001_C004', bg: '#2b52a1', border: '#5682e8', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.2,
+    desc: 'Clip Standard: Movimento costante e regolare.'
+  },
+  SPEED_RAMP: {
+    id: 'SPEED_RAMP', label: 'SPEED RAMP ⚡', bg: '#7f22a7', border: '#b842df', textCol: '#ffffff', topBar: '#ff0055', wMult: 2.3,
+    desc: 'Speed Ramp: Accelera e rallenta ritmicamente!'
+  },
+  LUMETRI: {
+    id: 'LUMETRI', label: 'LUMETRI COLOR 🎨', bg: '#a11b43', border: '#e64273', textCol: '#ffffff', topBar: '#ffee00', wMult: 2.1,
+    desc: 'Lumetri Glitch: Esegue flash cromatici di disturbo.'
+  },
+  PROXY_FADE: {
+    id: 'PROXY_FADE', label: 'PROXY 50% 🎬', bg: '#147b85', border: '#23b3be', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.4,
+    desc: 'Proxy Fade: Diventa semitrasparente. Sfrutta il ritmo!'
+  },
+  OFFLINE_CORRUPT: {
+    id: 'OFFLINE_CORRUPT', label: 'OFFLINE 🔴', bg: '#8b0000', border: '#ff3333', textCol: '#ffffff', topBar: '#ff0000', wMult: 2.2,
+    desc: 'Corrupt Offline: Movimento a scatti intermittenti.'
+  }
 };
 
 const PICKUP_TYPES = {
@@ -530,11 +551,15 @@ let gameState = 'COVER';
 let score = 0;
 let highScore = parseInt(localStorage.getItem('deadlineDrive_highScore')) || 0;
 let lives = 3;
-let level = 1;
+let currentLevel = 1;
+let maxReachedLevel = 1;
+let totalLanesGenerated = 0;
 let frame = 0;
 let visualScrollOffset = 0;
 let activeLanes = [];
 let particles = [];
+
+let levelModalData = { title: '', desc: '', blockInfo: '' };
 
 let player = {
   gx: Math.floor(COLS / 2),
@@ -548,7 +573,6 @@ let player = {
   glitchTimer: 0
 };
 
-// GESTIONE DEBOUNCE E SENSIBILITÀ COMANDI
 let moveState = { up: false, down: false, left: false, right: false };
 let moveCooldown = 0;
 let lastMenuAdvanceTime = 0;
@@ -570,63 +594,77 @@ function advanceMenuState() {
     gameState = 'CHAR_SELECT';
   } else if (gameState === 'CHAR_SELECT') {
     startGame();
+  } else if (gameState === 'LEVEL_POPUP') {
+    gameState = 'playing';
   } else if (gameState === 'gameover') {
     gameState = 'CHAR_SELECT';
   }
 }
 
-/* GENERAZIONE CORSIE EQUILIBRATA E SEMPRE ATTRAVERSABILE */
-function createNewLane(isInitialSetup = false, r = 0) {
-  let isSafe = false;
+function showLevelPopup(lvl, blockType) {
+  currentLevel = lvl;
+  playSound('levelup');
+  levelModalData = {
+    title: `🎬 TIMELINE TRACK V${lvl}`,
+    desc: `Hai raggiunto il livello di traccia V${lvl}!`,
+    blockInfo: blockType ? blockType.desc : 'Mantieni il ritmo lungo la Timeline!'
+  };
+  gameState = 'LEVEL_POPUP';
+}
 
-  if (isInitialSetup) {
-    // Zona di partenza e corsie di riposo regolari (ogni 3-4 corsie)
-    isSafe = (r === 0 || r === ROWS - 1 || r === ROWS - 2 || r % 4 === 0);
-  } else {
-    // Garantisce una corsia SAFE ogni 3-4 ostacoli
-    let safeCount = 0;
-    for (let i = 0; i < Math.min(3, activeLanes.length); i++) {
-      if (activeLanes[i] && activeLanes[i].type === 'SAFE') safeCount++;
-    }
-    isSafe = (safeCount === 0);
-  }
+/* GENERAZIONE CORSIE E TRACCE CON RIGHE MONO-TIPO E LIVELLI V1, V2, V3... */
+function createNewLane(isInitialSetup = false, r = 0) {
+  totalLanesGenerated++;
+  
+  // Ogni livello occupa un blocco di 5 corsie (4 ostacoli + 1 SAFE checkpoint)
+  let laneLevelIndex = Math.max(1, Math.floor(totalLanesGenerated / 5) + 1);
+  let isSafe = (totalLanesGenerated % 5 === 0) || (isInitialSetup && (r === 0 || r === ROWS - 1 || r === ROWS - 2));
 
   let laneType = isSafe ? 'SAFE' : 'ROAD';
   let dir = Math.random() < 0.5 ? 1 : -1;
   
-  // Velocità calibrata con progressione graduale e mai eccessiva
-  let baseSpeed = (0.35 + Math.min((level - 1) * 0.08, 0.75));
-  let vTypes = Object.values(PREMIERE_CLIPS);
-  let trackLabel = r % 5 === 0 ? "V3" : r % 5 === 1 ? "V2" : r % 5 === 2 ? "V1" : r % 5 === 3 ? "A1" : "A2";
+  // Calcolo della velocità dinamica bilanciata e mai impossibile
+  let baseSpeed = 0.38 + Math.min((laneLevelIndex - 1) * 0.09, 0.85);
+
+  // Selezione UNICA del blocco per l'INTERA riga in base al livello di traccia
+  let selectedBlockType = BLOCK_TYPES.A_ROLL;
+  if (laneLevelIndex === 2) selectedBlockType = BLOCK_TYPES.SPEED_RAMP;
+  else if (laneLevelIndex === 3) selectedBlockType = BLOCK_TYPES.LUMETRI;
+  else if (laneLevelIndex === 4) selectedBlockType = BLOCK_TYPES.PROXY_FADE;
+  else if (laneLevelIndex >= 5) {
+    let types = [BLOCK_TYPES.SPEED_RAMP, BLOCK_TYPES.LUMETRI, BLOCK_TYPES.PROXY_FADE, BLOCK_TYPES.OFFLINE_CORRUPT];
+    selectedBlockType = types[Math.floor(Math.random() * types.length)];
+  }
 
   let laneObj = {
     type: laneType,
-    trackLabel: isSafe ? "SAFE" : trackLabel,
+    levelNumber: laneLevelIndex,
+    trackLabel: isSafe ? "SAFE" : `V${laneLevelIndex}`,
     bg: isSafe ? '#1b2333' : '#141416',
     dir,
-    speed: baseSpeed,
+    baseSpeed,
+    blockType: selectedBlockType,
     objects: [],
     pickups: []
   };
 
   if (laneType === 'ROAD') {
     let x = TRACK_HEADER_W - CELL_SIZE * 2;
-    // Spazio minimo GARANTITO tra le clip per garantire sempre il passaggio!
-    let minGap = CELL_SIZE * Math.max(3.5, 5.5 - Math.min((level - 1) * 0.2, 1.5));
+    // Spazio GARANTITO di passaggio tra le clip
+    let minGap = CELL_SIZE * Math.max(3.6, 5.8 - Math.min((laneLevelIndex - 1) * 0.2, 1.8));
 
     do {
-      x += CELL_SIZE * (1.2 + Math.random() * 1.5) + minGap;
+      x += CELL_SIZE * (1.2 + Math.random() * 1.4) + minGap;
       if (x < CANVAS_W + CELL_SIZE * 2) {
-        let vType = vTypes[Math.floor(Math.random() * vTypes.length)];
-        let widthFactor = Math.min(2.4, vType.wMult);
+        let widthFactor = Math.min(2.3, selectedBlockType.wMult);
         laneObj.objects.push({
           x,
-          type: vType,
+          type: selectedBlockType,
           w: widthFactor * CELL_SIZE
         });
       }
     } while (x < CANVAS_W + CELL_SIZE * 2);
-  } else if (Math.random() < 0.35) {
+  } else if (Math.random() < 0.40) {
     let keys = Object.keys(PICKUP_TYPES);
     let key = keys[Math.floor(Math.random() * keys.length)];
     laneObj.pickups.push({
@@ -641,6 +679,9 @@ function createNewLane(isInitialSetup = false, r = 0) {
 function startInfiniteScroll() {
   activeLanes = [];
   visualScrollOffset = 0;
+  totalLanesGenerated = 0;
+  currentLevel = 1;
+  maxReachedLevel = 1;
   
   for (let r = 0; r < ROWS; r++) {
     activeLanes.push(createNewLane(true, r));
@@ -663,7 +704,6 @@ function startGame() {
   currentTheme = CHARACTERS[CHARACTER_LIST[selectedCharIndex]];
   score = 0;
   lives = 3;
-  level = 1;
   startInfiniteScroll();
   gameState = 'playing';
   playSound('pickup');
@@ -678,7 +718,7 @@ function executePlayerStep(dx, dy) {
     player.gy = ngy;
 
     if (dy < 0 && player.gy < 6) scrollWorldDown();
-    else if (dy < 0) score += Math.floor(12 * level * currentTheme.scoreMult * player.tempScoreMult);
+    else if (dy < 0) score += Math.floor(12 * currentLevel * currentTheme.scoreMult * player.tempScoreMult);
 
     playSound('cross');
   }
@@ -689,7 +729,6 @@ function updatePlayer() {
   if (player.invTimer > 0) player.invTimer--;
   if (player.guardTimer > 0) player.guardTimer--;
 
-  // GESTIONE MOVIMENTO REGOLATA (EVITA PASSI TROPPO VELOCI O RAGGIUNGIMENTO CONTINUO)
   if (moveCooldown > 0) {
     moveCooldown--;
   } else {
@@ -712,7 +751,6 @@ function updatePlayer() {
 
     if (dx !== 0 || dy !== 0) {
       executePlayerStep(dx, dy);
-      // Cooldown fisso e confortevole per un controllo preciso
       moveCooldown = Math.max(9, Math.floor(12 / (currentTheme.speed * player.speedMult)));
     }
   }
@@ -723,15 +761,17 @@ function updatePlayer() {
 
 function scrollWorldDown() {
   activeLanes.pop();
-  activeLanes.unshift(createNewLane(false));
+  let newLane = createNewLane(false);
+  activeLanes.unshift(newLane);
   player.gy++;
   visualScrollOffset -= CELL_SIZE;
   
-  score += Math.floor(18 * level * currentTheme.scoreMult * player.tempScoreMult);
+  score += Math.floor(18 * currentLevel * currentTheme.scoreMult * player.tempScoreMult);
 
-  let nextLevelThreshold = level * 750;
-  if (score >= nextLevelThreshold) {
-    level++;
+  // Controllo Avanzamento Livello Traccia
+  if (newLane.levelNumber > maxReachedLevel) {
+    maxReachedLevel = newLane.levelNumber;
+    showLevelPopup(maxReachedLevel, newLane.blockType);
   }
 }
 
@@ -741,8 +781,19 @@ function updateVehicles() {
 
   activeLanes.forEach(lane => {
     if (lane.type === 'ROAD') {
+      // CALCOLO DEI COMPORTAMENTI DINAMICI DELLE CLIP
+      let currentSpeed = lane.baseSpeed;
+
+      if (lane.blockType.id === 'SPEED_RAMP') {
+        // Variazione di velocità ritmica (Accelerazione/Rallentamento)
+        currentSpeed *= (0.6 + 0.8 * (Math.sin(frame * 0.06) + 1) / 2);
+      } else if (lane.blockType.id === 'OFFLINE_CORRUPT') {
+        // Movimento a scatti intermittenti
+        if (Math.floor(frame / 20) % 3 === 0) currentSpeed = 0;
+      }
+
       lane.objects.forEach(obj => {
-        obj.x += lane.speed * lane.dir;
+        obj.x += currentSpeed * lane.dir;
         if (lane.dir > 0 && obj.x > CANVAS_W + obj.w) obj.x = TRACK_HEADER_W - obj.w;
         else if (lane.dir < 0 && obj.x < TRACK_HEADER_W - obj.w) obj.x = CANVAS_W + obj.w;
       });
@@ -799,6 +850,11 @@ function checkCollisions() {
   let lane = activeLanes[player.gy];
 
   if (lane && lane.type === 'ROAD') {
+    // Se la clip Proxy è completamente trasparente in questo frame, permette il passaggio!
+    if (lane.blockType.id === 'PROXY_FADE' && Math.floor(frame / 30) % 2 === 0) {
+      return;
+    }
+
     lane.objects.forEach(obj => {
       let oLeft = obj.x, oRight = obj.x + obj.w;
       let pLeft = playerX - player.w / 2, pRight = playerX + player.w / 2;
@@ -860,9 +916,11 @@ function drawGameWorld() {
     }
   });
 
+  /* RENDER BLOCCHI CLIP CON EFFETTI SPECIALI */
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'ROAD') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
+
       lane.objects.forEach(obj => {
         let x = obj.x;
         let blockW = obj.w;
@@ -871,6 +929,12 @@ function drawGameWorld() {
         if (x + blockW < TRACK_HEADER_W) return;
 
         ctx.save();
+
+        // COMPORTAMENTO PROXY: DISSOLVENZA TRASPARENTE
+        if (lane.blockType.id === 'PROXY_FADE' && Math.floor(frame / 30) % 2 === 0) {
+          ctx.globalAlpha = 0.25;
+        }
+
         ctx.beginPath();
         ctx.rect(x + 1, y + 1, blockW - 2, blockH);
         ctx.clip();
@@ -878,7 +942,12 @@ function drawGameWorld() {
         ctx.fillStyle = obj.type.bg;
         ctx.fillRect(x + 1, y + 1, blockW - 2, blockH);
 
-        ctx.fillStyle = obj.type.topBar || '#00ff66';
+        // COMPORTAMENTO LUMETRI: FLASHING GLITCH COLOR
+        let topBarCol = obj.type.topBar || '#00ff66';
+        if (lane.blockType.id === 'LUMETRI' && Math.floor(frame / 12) % 2 === 0) {
+          topBarCol = '#00f3ff';
+        }
+        ctx.fillStyle = topBarCol;
         ctx.fillRect(x + 1, y + 1, blockW - 2, 3);
 
         ctx.strokeStyle = obj.type.border;
@@ -908,13 +977,15 @@ function drawGameWorld() {
     }
   });
 
+  // SIDEBAR TRACK HEADER CON LIVELLI V1, V2, V3...
   activeLanes.forEach((lane, r) => {
     let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
     ctx.fillStyle = '#1c1c24';
     ctx.fillRect(0, y, TRACK_HEADER_W, CELL_SIZE);
     ctx.strokeStyle = '#2a2a38';
     ctx.strokeRect(0, y, TRACK_HEADER_W, CELL_SIZE);
-    ctx.fillStyle = '#8a8a95';
+
+    ctx.fillStyle = lane.type === 'SAFE' ? '#00ff66' : '#00f3ff';
     ctx.font = 'bold 11px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -997,7 +1068,7 @@ function drawHUD() {
 
   ctx.fillStyle = '#00ffcc';
   ctx.font = 'bold 12px monospace';
-  ctx.fillText(`LVL: ${level} | REC: ${highScore}`, CANVAS_W - 12, 18);
+  ctx.fillText(`TRACCIA: V${currentLevel} | REC: ${highScore}`, CANVAS_W - 12, 18);
 
   ctx.fillStyle = '#ff0055';
   ctx.font = 'bold 14px monospace';
@@ -1154,7 +1225,7 @@ function drawScreens() {
     ctx.fillText('  da clip corrotte e tracce sfasate!', boxX + 35, boxY + 212);
 
     ctx.fillStyle = '#00ff66';
-    ctx.fillText('• Risali le tracce V1, V2 e V3.', boxX + 35, boxY + 260);
+    ctx.fillText('• Risali le tracce V1, V2, V3, V4...', boxX + 35, boxY + 260);
     ctx.fillText('  Colleziona Auto-Save e Proxy 2X!', boxX + 35, boxY + 282);
     ctx.fillText('  Porta in salvo il progetto finale!', boxX + 35, boxY + 304);
 
@@ -1184,7 +1255,7 @@ function drawScreens() {
     ctx.fillStyle = '#00f3ff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
     ctx.fillText('1. EVITA GLI OSTACOLI CLIP 🚫', boxX + 32, boxY + 86);
     ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif';
-    ctx.fillText('Schiva Media Offline 🔴, GPU Crash, Lumetri', boxX + 32, boxY + 110);
+    ctx.fillText('Schiva Media Offline 🔴, Speed Ramps, Lumetri', boxX + 32, boxY + 110);
     ctx.fillText('Color e clip sfasate lungo la Timeline!', boxX + 32, boxY + 132);
 
     ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 20, boxY + 185, boxW - 40, 115);
@@ -1252,7 +1323,6 @@ function drawScreens() {
     return;
   }
 
-  /* RE-LAYOUT SCREEN SELEZIONE PERSONAGGI COMPLETO E PULITO */
   if (gameState === 'CHAR_SELECT') {
     let boxW = 390, boxH = 510;
     let boxX = (CANVAS_W - boxW) / 2, boxY = 45;
@@ -1261,17 +1331,14 @@ function drawScreens() {
 
     drawCyberPanel(boxX, boxY, boxW, boxH, c.primary);
 
-    // Titolo
     ctx.fillStyle = c.primary;
     ctx.font = '900 18px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('🎬 SELEZIONA VIDEOMAKER', CANVAS_W / 2, boxY + 35);
 
-    // Area Immagine e Freccette Laterali
     let imgW = 160, imgH = 160;
     let imgX = (CANVAS_W - imgW) / 2, imgY = boxY + 55;
 
-    // Pulsante Freccia Sinistra
     ctx.fillStyle = '#181824';
     ctx.fillRect(boxX + 16, imgY + 50, 44, 60);
     ctx.strokeStyle = c.primary;
@@ -1281,7 +1348,6 @@ function drawScreens() {
     ctx.font = '900 24px monospace';
     ctx.fillText('◄', boxX + 38, imgY + 86);
 
-    // Pulsante Freccia Destra
     ctx.fillStyle = '#181824';
     ctx.fillRect(boxX + boxW - 60, imgY + 50, 44, 60);
     ctx.strokeStyle = c.primary;
@@ -1289,7 +1355,6 @@ function drawScreens() {
     ctx.fillStyle = c.primary;
     ctx.fillText('►', boxX + boxW - 38, imgY + 86);
 
-    // Box Ritratto Personaggio
     ctx.fillStyle = '#0a0a10';
     ctx.fillRect(imgX, imgY, imgW, imgH);
 
@@ -1305,14 +1370,12 @@ function drawScreens() {
     ctx.lineWidth = 2;
     ctx.strokeRect(imgX, imgY, imgW, imgH);
 
-    // Badge REC
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.fillRect(imgX + 5, imgY + 5, 60, 16);
     ctx.fillStyle = '#00ff66';
     ctx.font = 'bold 9px monospace';
     ctx.fillText('● REC 4K', imgX + 35, imgY + 16);
 
-    // Nome e Ruolo
     ctx.fillStyle = c.primary;
     ctx.font = '900 22px -apple-system, sans-serif';
     ctx.fillText(c.name, CANVAS_W / 2, boxY + 242);
@@ -1321,7 +1384,6 @@ function drawScreens() {
     ctx.font = 'bold 12px sans-serif';
     ctx.fillText(c.subtitle, CANVAS_W / 2, boxY + 264);
 
-    // Scheda Skill / Perke
     ctx.fillStyle = '#0a0a10';
     ctx.fillRect(boxX + 25, boxY + 282, boxW - 50, 85);
     ctx.strokeStyle = '#2a2a38';
@@ -1334,7 +1396,6 @@ function drawScreens() {
     ctx.fillStyle = '#ff0055';
     ctx.fillText(c.perkMalus, CANVAS_W / 2, boxY + 342);
 
-    // Indicatori di Selezione (Pallini)
     let dotSpacing = 16;
     let startX = CANVAS_W / 2 - ((CHARACTER_LIST.length - 1) * dotSpacing) / 2;
     for (let i = 0; i < CHARACTER_LIST.length; i++) {
@@ -1344,12 +1405,52 @@ function drawScreens() {
       ctx.fill();
     }
 
-    // BOTTONE DI CONFERMA CHIARO E SEPARATO SUL FONDO
     ctx.fillStyle = c.primary;
     ctx.fillRect(boxX + 30, boxY + 425, boxW - 60, 52);
     ctx.fillStyle = '#000000';
     ctx.font = '900 15px monospace';
     ctx.fillText(`GIOCA CON ${c.name} ►`, CANVAS_W / 2, boxY + 457);
+    return;
+  }
+
+  /* POP-UP MANUALE DI AVANZAMENTO LIVELLO */
+  if (gameState === 'LEVEL_POPUP') {
+    drawGameWorld();
+    drawHUD();
+
+    let boxW = 370, boxH = 270;
+    let boxX = (CANVAS_W - boxW) / 2, boxY = (CANVAS_H - boxH) / 2 - 20;
+
+    drawCyberPanel(boxX, boxY, boxW, boxH, '#00f3ff');
+
+    ctx.fillStyle = '#00f3ff';
+    ctx.font = '900 18px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(levelModalData.title, CANVAS_W / 2, boxY + 42);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(levelModalData.desc, CANVAS_W / 2, boxY + 80);
+
+    ctx.fillStyle = '#0a0a12';
+    ctx.fillRect(boxX + 20, boxY + 105, boxW - 40, 75);
+    ctx.strokeStyle = '#ffea00';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(boxX + 20, boxY + 105, boxW - 40, 75);
+
+    ctx.fillStyle = '#ffea00';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText('COMPORTAMENTO BLOCCHI:', CANVAS_W / 2, boxY + 128);
+
+    ctx.fillStyle = '#00ff66';
+    ctx.font = '12px sans-serif';
+    ctx.fillText(levelModalData.blockInfo, CANVAS_W / 2, boxY + 155);
+
+    ctx.fillStyle = '#00f3ff';
+    ctx.fillRect(boxX + 30, boxY + 200, boxW - 60, 48);
+    ctx.fillStyle = '#000';
+    ctx.font = '900 14px monospace';
+    ctx.fillText('CONTINUA MONTAGGIO ►', CANVAS_W / 2, boxY + 230);
     return;
   }
 
@@ -1403,7 +1504,7 @@ function drawScreens() {
 
     ctx.fillStyle = '#00f3ff';
     ctx.font = 'bold 13px monospace';
-    ctx.fillText(`RECORD ATTUALE: ${highScore}`, CANVAS_W / 2, boxY + 225);
+    ctx.fillText(`TRACCIA MASSIMA: V${maxReachedLevel} | REC: ${highScore}`, CANVAS_W / 2, boxY + 225);
 
     ctx.fillStyle = Math.floor(frame / 30) % 2 === 0 ? '#ff0055' : '#ffea00';
     ctx.fillRect(boxX + 35, boxY + 295, boxW - 70, 52);
@@ -1424,24 +1525,26 @@ canvas.addEventListener('pointerdown', e => {
     return;
   }
 
+  if (gameState === 'LEVEL_POPUP') {
+    gameState = 'playing';
+    return;
+  }
+
   if (gameState === 'CHAR_SELECT') {
     let boxW = 390;
     let boxX = (CANVAS_W - boxW) / 2;
     let imgY = 100;
 
-    // Click su Freccia Sinistra
     if (x >= boxX + 10 && x <= boxX + 70 && y >= imgY + 40 && y <= imgY + 120) {
       selectedCharIndex = (selectedCharIndex - 1 + CHARACTER_LIST.length) % CHARACTER_LIST.length;
       playSound('cross');
       return;
     }
-    // Click su Freccia Destra
     if (x >= boxX + boxW - 70 && x <= boxX + boxW - 10 && y >= imgY + 40 && y <= imgY + 120) {
       selectedCharIndex = (selectedCharIndex + 1) % CHARACTER_LIST.length;
       playSound('cross');
       return;
     }
-    // Click su Bottone "GIOCA CON ..." (Parte inferiore)
     if (y >= 450) {
       startGame();
       return;
@@ -1476,6 +1579,11 @@ function bindDirBtn(id, dirKey) {
 
     if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(gameState)) {
       advanceMenuState();
+      return;
+    }
+
+    if (gameState === 'LEVEL_POPUP') {
+      gameState = 'playing';
       return;
     }
 
@@ -1523,6 +1631,8 @@ window.addEventListener('keydown', e => {
 
   if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(gameState)) {
     if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
+  } else if (gameState === 'LEVEL_POPUP') {
+    if (e.code === 'Space' || e.code === 'Enter') gameState = 'playing';
   } else if (gameState === 'CHAR_SELECT') {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
       selectedCharIndex = (selectedCharIndex - 1 + CHARACTER_LIST.length) % CHARACTER_LIST.length;
