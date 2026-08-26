@@ -891,7 +891,6 @@ function renderStep() {
 
 function renderChoiceGrid(options, onSelectCallback) {
     choiceGrid.innerHTML = "";
-    choiceGrid.scrollTop = 0; // Garantisce che l'elenco parta sempre dalla prima opzione in alto
     let selectedVal = "";
 
     options.forEach((optText, index) => {
@@ -914,11 +913,18 @@ function renderChoiceGrid(options, onSelectCallback) {
 
         choiceGrid.appendChild(btn);
     });
+
+    // Reset forzato dello scroll al primo elemento in alto
+    requestAnimationFrame(() => {
+        choiceGrid.scrollTop = 0;
+    });
+    setTimeout(() => {
+        choiceGrid.scrollTop = 0;
+    }, 10);
 }
 
 function renderAvatarGrid() {
     avatarGrid.innerHTML = "";
-    avatarGrid.scrollTop = 0; // Garantisce che la griglia delle teste parta sempre dall'inizio
     const fragment = document.createDocumentFragment();
 
     AVATAR_LIST.forEach((src) => {
@@ -938,6 +944,14 @@ function renderAvatarGrid() {
     });
 
     avatarGrid.appendChild(fragment);
+
+    // Reset forzato dello scroll al primo elemento in alto
+    requestAnimationFrame(() => {
+        avatarGrid.scrollTop = 0;
+    });
+    setTimeout(() => {
+        avatarGrid.scrollTop = 0;
+    }, 10);
 }
 
 async function advanceStep() {
@@ -977,18 +991,24 @@ async function advanceStep() {
             listInfoTitle.innerText = stepData.infoText || "qualcosa che ti rappresenta";
             renderChoiceGrid(stepData.options, (val) => { tempActivity = val; });
             choiceGrid.style.display = "flex";
+            choiceGrid.scrollTop = 0;
+            setTimeout(() => { choiceGrid.scrollTop = 0; }, 10);
             stepBtn.innerText = stepData.btn || "CONFERMA SCELTA ►";
         } else if (stepData.type === "choice_role") {
             fullCoverBox.style.display = "flex";
             listInfoTitle.innerText = stepData.infoText || "chi sei tu veramente?";
             renderChoiceGrid(stepData.options, (val) => { tempRole = val; });
             choiceGrid.style.display = "flex";
+            choiceGrid.scrollTop = 0;
+            setTimeout(() => { choiceGrid.scrollTop = 0; }, 10);
             stepBtn.innerText = stepData.btn || "CONFERMA SCELTA ►";
         } else if (stepData.type === "avatar") {
             fullCoverBox.style.display = "flex";
             listInfoTitle.innerText = stepData.infoText || "che faccia hai?";
             renderAvatarGrid();
             avatarGrid.style.display = "grid";
+            avatarGrid.scrollTop = 0;
+            setTimeout(() => { avatarGrid.scrollTop = 0; }, 10);
             stepBtn.innerText = stepData.btn || "SCEGLI QUESTA TESTA ►";
         }
         return;
