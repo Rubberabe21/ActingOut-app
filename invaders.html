@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#060212">
 <title>Feedback Invaders - Agency Arcade</title>
 
+<!-- SDK Supabase per salvataggio Cloud -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <!-- Gestione Audio Centralizzata (Web Audio API) -->
 <script src="audioManager.js"></script>
 
@@ -423,6 +426,14 @@
 </div>
 
 <script>
+// --- INIZIALIZZAZIONE SUPABASE ---
+const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
+let supabaseClient = null;
+if (window.supabase) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
@@ -624,31 +635,55 @@ const charList = ['TOMMI', 'GIAMPA', 'BRETTO'];
 let charSelectIndex = 0;
 let currentBoss = CHARACTERS.TOMMI;
 
-function saveScore(finalScore) {
+async function saveScore(finalScore) {
   if (finalScore > hiScore) {
     hiScore = finalScore;
     localStorage.setItem('invaders_highScore', hiScore);
   }
-  if (finalScore > 0) {
-    let curUser = JSON.parse(localStorage.getItem('arcade_current_user'));
-    if (curUser) {
-      curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
-      curUser.stats.feedbackInvaders = (curUser.stats.feedbackInvaders || 0) + finalScore;
-      localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
+  if (finalScore <= 0) return;
 
-      if (!curUser.username.startsWith("GUEST_")) {
-        let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
-        if (users[curUser.username]) {
-          users[curUser.username].stats = curUser.stats;
-          localStorage.setItem('arcade_users', JSON.stringify(users));
-        }
+  let rawUser = localStorage.getItem('arcade_current_user');
+  if (!rawUser) return;
+
+  let curUser = JSON.parse(rawUser);
+  if (!curUser.stats) {
+    curUser.stats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
+  }
+
+  const gameKey = 'feedbackInvaders';
+  if (finalScore > (curUser.stats[gameKey] || 0)) {
+    curUser.stats[gameKey] = finalScore;
+  }
+  curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
+
+  // 1. Salvataggio Locale
+  localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
+
+  let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
+  if (users[curUser.username]) {
+    users[curUser.username].stats = curUser.stats;
+    localStorage.setItem('arcade_users', JSON.stringify(users));
+  }
+
+  // 2. Salvataggio Cloud su Supabase
+  if (supabaseClient && curUser.username && !curUser.username.startsWith("GUEST_")) {
+    try {
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ stats: curUser.stats })
+        .eq('username', curUser.username);
+
+      if (error) {
+        console.warn("Errore aggiornamento Supabase:", error.message);
       }
+    } catch (e) {
+      console.warn("Connessione Supabase fallita:", e);
     }
   }
 }
 
-function exitGame(finalScore) {
-  saveScore(finalScore);
+async function exitGame(finalScore) {
+  await saveScore(finalScore);
   window.location.href = 'index.html';
 }
 
