@@ -2140,8 +2140,31 @@ function draw() {
   ctx.restore();
 }
 
-function loop() { update(); draw(); requestAnimationFrame(loop); }
-loop();
+// --- FIXED TIMESTEP LOOP (60 FPS UNIFORMI SU TUTTI I DISPOSITIVI) ---
+let lastTime = 0;
+const FIXED_STEP = 1000 / 60; // 16.66ms esatti per passo logico
+let accumulator = 0;
+
+function loop(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  let deltaTime = timestamp - lastTime;
+  lastTime = timestamp;
+
+  // Previene salti enormi o blocco della fisica se l'app va in background
+  if (deltaTime > 250) deltaTime = 250;
+
+  accumulator += deltaTime;
+
+  while (accumulator >= FIXED_STEP) {
+    update();
+    accumulator -= FIXED_STEP;
+  }
+
+  draw();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>

@@ -789,7 +789,7 @@ repeat: -1
 });
 
 let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
-let startX = (!isNaN(savedX) && savedX > 0) ? savedX : Math.floor(worldWidth / 3);
+let startX = (!isNaN(savedX) && savedX > 200) ? savedX : Math.floor(worldWidth / 3);
 
 this.player = this.physics.add.sprite(startX, floorY, 'player');
 this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
