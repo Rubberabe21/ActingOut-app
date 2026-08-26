@@ -485,9 +485,9 @@ btnMenuTop.onclick = () => {
   state = 'COVER';
 };
 
-btnExitTop.onclick = () => {
+btnExitTop.onclick = async () => {
   getAC();
-  exitGame();
+  await exitGame();
 };
 
 const ASSETS = {
@@ -1452,7 +1452,7 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-function saveScore() {
+async function saveScore() {
     try {
         if (score > highScore) {
             highScore = score;
@@ -1466,26 +1466,42 @@ function saveScore() {
         let rawUser = localStorage.getItem('arcade_current_user');
         if (!rawUser) return;
         let u = JSON.parse(rawUser);
-        if (u && u.stats) {
-            u.stats.pixelPunch = (u.stats.pixelPunch || 0) + score;
-            u.stats.gamesPlayed = (u.stats.gamesPlayed || 0) + 1;
-            localStorage.setItem('arcade_current_user', JSON.stringify(u));
+        if (!u.stats) {
+            u.stats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
+        }
 
-            if (u.username && !u.username.startsWith("GUEST_")) {
-                let rawUsers = localStorage.getItem('arcade_users');
-                let users = rawUsers ? JSON.parse(rawUsers) : {};
-                if (users[u.username]) {
-                    users[u.username].stats = u.stats;
-                    localStorage.setItem('arcade_users', JSON.stringify(users));
+        const gameKey = 'pixelPunch';
+        if (score > (u.stats[gameKey] || 0)) {
+            u.stats[gameKey] = score;
+        }
+        u.stats.gamesPlayed = (u.stats.gamesPlayed || 0) + 1;
+
+        // 1. Aggiorna sessione locale
+        localStorage.setItem('arcade_current_user', JSON.stringify(u));
+
+        // 2. Salvataggio Cloud su Supabase
+        if (supabaseClient && u.username && !u.username.startsWith("GUEST_")) {
+            try {
+                const { error } = await supabaseClient
+                    .from('profiles')
+                    .update({ stats: u.stats })
+                    .eq('username', u.username);
+
+                if (error) {
+                    console.warn("Errore aggiornamento Supabase:", error.message);
                 }
+            } catch (e) {
+                console.warn("Connessione Supabase fallita:", e);
             }
         }
-    } catch(e) {}
+    } catch(e) {
+        console.warn("Errore salvataggio punteggio:", e);
+    }
 }
 
-function exitGame() {
+async function exitGame() {
     if (gameTimerInterval) clearInterval(gameTimerInterval);
-    saveScore();
+    await saveScore();
     window.location.href = 'index.html';
 }
 

@@ -747,7 +747,7 @@ const FILE_BLOCK_TYPES = [
 async function saveScore(finalScore) {
   if (finalScore > hiScore) {
     hiScore = finalScore;
-    localStorage.setItem('cyberRun_highScore', hiScore);
+    localStorage.setItem('cyberRun_highScore', hiScore.toString());
   }
   if (finalScore <= 0) return;
 
@@ -765,14 +765,8 @@ async function saveScore(finalScore) {
   }
   curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
 
-  // 1. Salvataggio Locale
+  // 1. Aggiorna la sessione attiva
   localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
-
-  let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
-  if (users[curUser.username]) {
-    users[curUser.username].stats = curUser.stats;
-    localStorage.setItem('arcade_users', JSON.stringify(users));
-  }
 
   // 2. Salvataggio Cloud su Supabase
   if (supabaseClient && curUser.username && !curUser.username.startsWith("GUEST_")) {
@@ -2150,7 +2144,6 @@ function loop(timestamp) {
   let deltaTime = timestamp - lastTime;
   lastTime = timestamp;
 
-  // Previene salti enormi o blocco della fisica se l'app va in background
   if (deltaTime > 250) deltaTime = 250;
 
   accumulator += deltaTime;

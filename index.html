@@ -589,7 +589,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
 
 let supabaseClient = null;
 if (window.supabase) {
-supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 const AVATAR_LIST = Array.from({ length: 102 }, (_, i) => `assets/avatars/testa${i + 1}.png`);
@@ -626,41 +626,52 @@ gl_FragColor = texColor * outTint;
 }
 
 class AuthManager {
-constructor() {
-this.currentUser = null;
-this.init();
-}
+  constructor() {
+    this.currentUser = null;
+    this.init();
+  }
 
-init() {
-if (!localStorage.getItem('arcade_users')) {
-localStorage.setItem('arcade_users', JSON.stringify({}));
-}
+  init() {
+    const savedUser = localStorage.getItem('arcade_current_user');
+    if (savedUser) {
+      this.currentUser = JSON.parse(savedUser);
+      if (!this.currentUser.stats) this.currentUser.stats = {};
+      this.syncWithSupabase();
+    } else {
+      window.location.replace('./start.html');
+    }
+  }
 
-const savedUser = localStorage.getItem('arcade_current_user');
-if (savedUser) {
-this.currentUser = JSON.parse(savedUser);
-if (!this.currentUser.stats) this.currentUser.stats = {};
-if (this.currentUser.stats.feedbackInvaders === undefined) this.currentUser.stats.feedbackInvaders = 0;
-if (this.currentUser.stats.cyberRun === undefined) this.currentUser.stats.cyberRun = 0;
-if (this.currentUser.stats.pixelPunch === undefined) this.currentUser.stats.pixelPunch = 0;
-if (this.currentUser.stats.deadlineDrive === undefined) this.currentUser.stats.deadlineDrive = 0;
-} else {
-window.location.replace('./start.html');
-}
-}
+  // Sincronizza SEMPRE il profilo e le stats correnti direttamente da Supabase Cloud
+  async syncWithSupabase() {
+    if (!this.currentUser || !this.currentUser.username || this.currentUser.username.startsWith("GUEST_")) return;
+    if (!supabaseClient) return;
 
-getUsers() {
-return JSON.parse(localStorage.getItem('arcade_users')) || {};
-}
+    try {
+      let { data, error } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('username', this.currentUser.username)
+        .maybeSingle();
 
-saveUsers(users) {
-localStorage.setItem('arcade_users', JSON.stringify(users));
-}
+      if (data && !error) {
+        this.currentUser.avatar = data.avatar || this.currentUser.avatar;
+        this.currentUser.role = data.role || this.currentUser.role;
+        this.currentUser.activity = data.activity || this.currentUser.activity;
+        this.currentUser.stats = data.stats || this.currentUser.stats;
 
-logout() {
-localStorage.removeItem('arcade_current_user');
-window.location.replace('./start.html');
-}
+        localStorage.setItem('arcade_current_user', JSON.stringify(this.currentUser));
+        updateHeaderDOM();
+      }
+    } catch (e) {
+      console.warn("Impossibile sincronizzare Supabase live:", e);
+    }
+  }
+
+  logout() {
+    localStorage.removeItem('arcade_current_user');
+    window.location.replace('./start.html');
+  }
 }
 
 const auth = new AuthManager();
@@ -808,7 +819,7 @@ repeat: -1,
 ease: 'Sine.easeInOut'
 });
 
-updateHeaderDOM();
+auth.syncWithSupabase();
 
 this.cabinets = [
 { x: 1290, y: cabY, badgeX: 1296, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
@@ -1278,8 +1289,11 @@ const game = new Phaser.Game(config);
 
 let currentLBGameKey = 'feedbackInvaders';
 
-function openProfileModal() {
+async function openProfileModal() {
 if (!auth.currentUser) return;
+
+// Sincronizzazione live prima di aprire la modale
+await auth.syncWithSupabase();
 
 let s = auth.currentUser.stats || {};
 
@@ -1351,14 +1365,13 @@ saveBtn.disabled = true;
 saveBtn.innerText = "SALVATAGGIO...";
 
 let updatedAvatar = hasAvatarChange ? selectedAvatarForEdit : auth.currentUser.avatar;
-let updatedPass = hasPassChange ? newPass : (auth.getUsers()[auth.currentUser.username] ? auth.getUsers()[auth.currentUser.username].password : null);
 
-// 1. Aggiornamento Supabase
+// 1. Aggiornamento Supabase Cloud
 if (supabaseClient && auth.currentUser.username && !auth.currentUser.username.startsWith("GUEST_")) {
 try {
 let updateData = {};
 if (hasAvatarChange) updateData.avatar = updatedAvatar;
-if (hasPassChange) updateData.password = updatedPass;
+if (hasPassChange) updateData.password = newPass;
 
 const { error } = await supabaseClient
 .from('profiles')
@@ -1371,16 +1384,9 @@ console.warn("Connessione Supabase fallita:", e);
 }
 }
 
-// 2. Aggiornamento Locale
+// 2. Aggiornamento Sessione
 auth.currentUser.avatar = updatedAvatar;
 localStorage.setItem('arcade_current_user', JSON.stringify(auth.currentUser));
-
-let users = auth.getUsers();
-if (users[auth.currentUser.username]) {
-users[auth.currentUser.username].avatar = updatedAvatar;
-if (hasPassChange) users[auth.currentUser.username].password = updatedPass;
-auth.saveUsers(users);
-}
 
 passInput.value = "";
 saveBtn.disabled = false;
@@ -1398,6 +1404,7 @@ document.getElementById('leaderboard-modal').style.display = 'flex';
 await fetchLeaderboardFromSupabase(currentLBGameKey);
 }
 
+// Lettura e ordinamento diretta da SupabaseProfiles per la Classifica Mondiale
 async function fetchLeaderboardFromSupabase(gameKey) {
 currentLBGameKey = gameKey;
 
@@ -1407,11 +1414,10 @@ let activeTabBtn = document.getElementById('tab-' + gameKey);
 if (activeTabBtn) activeTabBtn.classList.add('active');
 
 const listEl = document.getElementById('lb-records-list');
-listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Caricamento classifiche...</span></div>';
+listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Caricamento classifiche Supabase...</span></div>';
 
 let records = [];
 
-// Lettura Classifica Globale da SupabaseProfiles (campo jsonb 'stats')
 if (supabaseClient) {
 try {
 let { data, error } = await supabaseClient
@@ -1420,32 +1426,24 @@ let { data, error } = await supabaseClient
 
 if (!error && data) {
 data.forEach(r => {
-let sc = (r.stats && r.stats[gameKey]) ? parseInt(r.stats[gameKey]) : 0;
-if (sc > 0) {
-records.push({ username: r.username, score: sc });
+let scoreVal = 0;
+if (r.stats && typeof r.stats === 'object') {
+scoreVal = parseInt(r.stats[gameKey]) || 0;
+} else if (typeof r.stats === 'string') {
+try {
+let parsed = JSON.parse(r.stats);
+scoreVal = parseInt(parsed[gameKey]) || 0;
+} catch(e){}
+}
+if (scoreVal > 0) {
+records.push({ username: r.username, score: scoreVal });
 }
 });
+} else if (error) {
+console.error("Errore query Supabase:", error.message);
 }
 } catch (e) {
 console.warn("Supabase non raggiungibile.");
-}
-}
-
-// Fallback locale se Supabase è offline o vuoto
-if (records.length === 0) {
-let users = auth.getUsers();
-for (let uname in users) {
-let sc = users[uname].stats ? (users[uname].stats[gameKey] || 0) : 0;
-if (sc > 0) {
-records.push({ username: uname, score: sc });
-}
-}
-
-if (auth.currentUser && auth.currentUser.stats) {
-let mySc = auth.currentUser.stats[gameKey] || 0;
-if (mySc > 0 && !records.some(r => r.username === auth.currentUser.username)) {
-records.push({ username: auth.currentUser.username, score: mySc });
-}
 }
 }
 

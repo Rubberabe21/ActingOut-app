@@ -539,9 +539,9 @@ btnMenuTop.onclick = () => {
   state = 'COVER';
 };
 
-btnExitTop.onclick = () => {
+btnExitTop.onclick = async () => {
   getAC();
-  exitGame(score);
+  await exitGame(score);
 };
 
 // --- PRE-CARICAMENTO ASSETS PNG ---
@@ -638,7 +638,7 @@ let currentBoss = CHARACTERS.TOMMI;
 async function saveScore(finalScore) {
   if (finalScore > hiScore) {
     hiScore = finalScore;
-    localStorage.setItem('invaders_highScore', hiScore);
+    localStorage.setItem('invaders_highScore', hiScore.toString());
   }
   if (finalScore <= 0) return;
 
@@ -656,14 +656,8 @@ async function saveScore(finalScore) {
   }
   curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
 
-  // 1. Salvataggio Locale
+  // 1. Aggiorna la sessione attiva
   localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
-
-  let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
-  if (users[curUser.username]) {
-    users[curUser.username].stats = curUser.stats;
-    localStorage.setItem('arcade_users', JSON.stringify(users));
-  }
 
   // 2. Salvataggio Cloud su Supabase
   if (supabaseClient && curUser.username && !curUser.username.startsWith("GUEST_")) {
@@ -2020,8 +2014,30 @@ function draw() {
   ctx.restore();
 }
 
-function loop() { update(); draw(); requestAnimationFrame(loop); }
-loop();
+// --- FIXED TIMESTEP LOOP (60 FPS UNIFORMI SU TUTTI I DISPOSITIVI) ---
+let lastTime = 0;
+const FIXED_STEP = 1000 / 60; // 16.66ms esatti per passo logico
+let accumulator = 0;
+
+function loop(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  let deltaTime = timestamp - lastTime;
+  lastTime = timestamp;
+
+  if (deltaTime > 250) deltaTime = 250;
+
+  accumulator += deltaTime;
+
+  while (accumulator >= FIXED_STEP) {
+    update();
+    accumulator -= FIXED_STEP;
+  }
+
+  draw();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
