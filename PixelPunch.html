@@ -49,12 +49,12 @@
     transform: translateX(-50%);
     width: 100vw;
     height: 100svh;
-    max-width: 500px;
+    max-width: 480px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: max(env(safe-area-inset-top), 2px) 4px max(env(safe-area-inset-bottom), 4px) 4px;
+    padding: max(env(safe-area-inset-top), 2px) 2px max(env(safe-area-inset-bottom), 2px) 2px;
     background: #060212 !important;
     overflow: hidden;
   }
@@ -125,7 +125,7 @@
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    aspect-ratio: 420 / 600;
+    aspect-ratio: 420 / 620;
     border: 3px solid #00ffff !important;
     box-shadow: 0 0 22px rgba(0, 255, 255, 0.5);
     border-radius: 12px;
@@ -346,7 +346,7 @@
 const cvs = document.getElementById('game');
 const ctx = cvs.getContext('2d');
 cvs.width = 420; 
-cvs.height = 600;
+cvs.height = 620;
 
 function draw80sBox(c, x, y, w, h, borderColor, bgCol, borderWidth = 3) {
   c.fillStyle = bgCol;
@@ -617,17 +617,17 @@ const BAD_NOTIFS = [
 ];
 
 const gridPads = [
-    { id: 0, x: 12,  y: 85,  w: 124, h: 153, keyLabel: "1 / Q" },
-    { id: 1, x: 148, y: 85,  w: 124, h: 153, keyLabel: "2 / W" },
-    { id: 2, x: 284, y: 85,  w: 124, h: 153, keyLabel: "3 / E" },
+    { id: 0, x: 10,  y: 86,  w: 126, h: 162, keyLabel: "1 / Q" },
+    { id: 1, x: 147, y: 86,  w: 126, h: 162, keyLabel: "2 / W" },
+    { id: 2, x: 284, y: 86,  w: 126, h: 162, keyLabel: "3 / E" },
 
-    { id: 3, x: 12,  y: 248, w: 124, h: 153, keyLabel: "4 / A" },
-    { id: 4, x: 148, y: 248, w: 124, h: 153, keyLabel: "5 / S" },
-    { id: 5, x: 284, y: 248, w: 124, h: 153, keyLabel: "6 / D" },
+    { id: 3, x: 10,  y: 260, w: 126, h: 162, keyLabel: "4 / A" },
+    { id: 4, x: 147, y: 260, w: 126, h: 162, keyLabel: "5 / S" },
+    { id: 5, x: 284, y: 260, w: 126, h: 162, keyLabel: "6 / D" },
 
-    { id: 6, x: 12,  y: 411, w: 124, h: 153, keyLabel: "7 / Z" },
-    { id: 7, x: 148, y: 411, w: 124, h: 153, keyLabel: "8 / X" },
-    { id: 8, x: 284, y: 411, w: 124, h: 153, keyLabel: "9 / C" }
+    { id: 6, x: 10,  y: 434, w: 126, h: 162, keyLabel: "7 / Z" },
+    { id: 7, x: 147, y: 434, w: 126, h: 162, keyLabel: "8 / X" },
+    { id: 8, x: 284, y: 434, w: 126, h: 162, keyLabel: "9 / C" }
 ].map(p => ({
     ...p,
     active: false,
@@ -978,56 +978,54 @@ function draw() {
             ctx.drawImage(ASSETS.COVER, 0, 0, W, H);
         } else {
             ctx.fillStyle = '#080810'; ctx.fillRect(0, 0, W, H);
-            ctx.fillStyle = '#ffea00'; ctx.font = '900 30px Courier New'; ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffea00'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
             ctx.fillText('PIXEL PUNCH', W / 2, 200);
             ctx.fillStyle = '#ff0055'; ctx.font = '900 18px Courier New';
             ctx.fillText('REVISION KILLER \'84', W / 2, 235);
         }
 
-        draw80sBox(ctx, 35, H - 75, W - 70, 46, '#ffea00', '#101020', 3);
+        draw80sBox(ctx, 20, H - 75, W - 40, 48, '#ffea00', '#101020', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
-            ctx.fillStyle = '#ffea00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
-            ctx.fillText('★ PRESS START TO PLAY ★', W / 2, H - 47);
+            ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('★ PRESS START TO PLAY ★', W / 2, H - 46);
         }
         drawCRTOverlay();
         ctx.restore();
         return;
     }
 
-    // --- STORIA (MISSION BRIEFING ACCATTIVANTE E GRANDE) ---
+    // --- STORIA (MISSION BRIEFING ESTESO A TUTTO SCHERMO) ---
     if (state === 'STORY') {
-        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
-        
-        draw80sBox(ctx, 10, 10, W - 20, H - 20, '#00ffff', '#0b0b1e', 4);
+        draw80sBox(ctx, 4, 4, W - 8, H - 8, '#00ffff', '#0b0b1e', 3);
 
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('★ MISSION BRIEFING ★', W / 2, 42);
 
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('IRIS, CRISTINA & RACHELE:', W / 2, 70);
-        ctx.fillText('LE INARRESTABILI PRODUCER', W / 2, 88);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('IRIS, CRISTINA & RACHELE:', W / 2, 72);
+        ctx.fillText('LE INARRESTABILI PRODUCER', W / 2, 92);
         
-        draw80sBox(ctx, 20, 102, W - 40, 175, '#00ffff', '#0e1630', 3);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('⚡ L\'Agenzia è sotto attacco!', W / 2, 126);
-        ctx.fillText('I clienti inviano mail furiose:', W / 2, 148);
-        ctx.fillText('"Logo più grande!", "Lavoro ieri!"', W / 2, 170);
-        ctx.fillText('"Fallo verde!", "Urgente ASAP!"', W / 2, 192);
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 13px Courier New';
-        ctx.fillText('Lo stress sta per raggiungere', W / 2, 222);
-        ctx.fillText('il 100% di BURNOUT FATALE!', W / 2, 242);
+        draw80sBox(ctx, 16, 110, W - 32, 190, '#00ffff', '#0e1630', 3);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('⚡ L\'Agenzia è sotto attacco!', W / 2, 138);
+        ctx.fillText('I clienti inviano mail furiose:', W / 2, 162);
+        ctx.fillText('"Logo più grande!", "Lavoro ieri!"', W / 2, 186);
+        ctx.fillText('"Fallo verde!", "Urgente ASAP!"', W / 2, 210);
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
+        ctx.fillText('Lo stress sta per raggiungere', W / 2, 244);
+        ctx.fillText('il 100% di BURNOUT FATALE!', W / 2, 268);
 
-        draw80sBox(ctx, 20, 290, W - 40, 135, '#ff0055', '#1e0818', 3);
-        ctx.fillStyle = '#00ffff'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('🎯 IL TUO COMPITO:', W / 2, 314);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New';
-        ctx.fillText('Distruggi i ticket pendenti,', W / 2, 340);
-        ctx.fillText('schiva le trappole dei clienti', W / 2, 362);
-        ctx.fillText('e salva la consegna dal crash!', W / 2, 384);
+        draw80sBox(ctx, 16, 315, W - 32, 145, '#ff0055', '#1e0818', 3);
+        ctx.fillStyle = '#00ffff'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('🎯 IL TUO COMPITO:', W / 2, 342);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New';
+        ctx.fillText('Distruggi i ticket pendenti,', W / 2, 370);
+        ctx.fillText('schiva le trappole dei clienti', W / 2, 394);
+        ctx.fillText('e salva la consegna dal crash!', W / 2, 418);
 
-        draw80sBox(ctx, 30, H - 65, W - 60, 44, '#ffea00', '#181028', 3);
+        draw80sBox(ctx, 20, H - 68, W - 40, 48, '#ffea00', '#181028', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
-            ctx.fillStyle = '#ffea00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
             ctx.fillText('PREMI PER CONTINUARE ►', W / 2, H - 38);
         }
         drawCRTOverlay();
@@ -1037,26 +1035,24 @@ function draw() {
 
     // --- REGOLE (PERFETTAMENTE CENTRATE E SENZA EMOJI NEI TITOLI) ---
     if (state === 'RULES') {
-        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
+        draw80sBox(ctx, 4, 4, W - 8, H - 8, '#ffea00', '#0c0c1a', 3);
 
-        draw80sBox(ctx, 10, 10, W - 20, H - 20, '#ffea00', '#0c0c1a', 3);
-
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('★ HOW TO PLAY ★', W / 2, 38);
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('★ HOW TO PLAY ★', W / 2, 40);
 
         // BOX 1: EVITA IL BURNOUT
-        draw80sBox(ctx, 20, 52, W - 40, 80, '#ff0055', '#180a18', 2);
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('1. EVITA IL BURNOUT!', W / 2, 70);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('Colpisci i ticket prima che scadano.', W / 2, 90);
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('STRESS al 100% = GAME OVER!', W / 2, 110);
+        draw80sBox(ctx, 16, 54, W - 32, 85, '#ff0055', '#180a18', 2);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('1. EVITA IL BURNOUT!', W / 2, 74);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 12px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('Colpisci i ticket prima che scadano.', W / 2, 96);
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('STRESS al 100% = GAME OVER!', W / 2, 118);
 
         // BOX 2: TICKET & POTENZIAMENTI
-        draw80sBox(ctx, 20, 142, W - 40, 180, '#00ffff', '#0a1628', 2);
-        ctx.fillStyle = '#00ffff'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('2. TIPOLOGIE DI TICKET', W / 2, 162);
+        draw80sBox(ctx, 16, 150, W - 32, 195, '#00ffff', '#0a1628', 2);
+        ctx.fillStyle = '#00ffff'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('2. TIPOLOGIE DI TICKET', W / 2, 172);
 
         let items = [
             { label: '🔴 ROSSI (1 Tap)', desc: '+100 PTS', col: '#ff0055' },
@@ -1066,30 +1062,30 @@ function draw() {
             { label: '🌴 FERIE', desc: 'Pausa & -20% STRESS', col: '#00ffff' }
         ];
 
-        let lineY = 186;
+        let lineY = 198;
         items.forEach(it => {
-            ctx.fillStyle = it.col; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
+            ctx.fillStyle = it.col; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
             ctx.fillText(`${it.label} ► ${it.desc}`, W / 2, lineY);
-            lineY += 22;
+            lineY += 24;
         });
 
         // BOX 3: TRAPPOLE
-        draw80sBox(ctx, 20, 332, W - 40, 110, '#ff0055', '#1a0810', 2);
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('3. TRAPPOLE DA EVITARE!', W / 2, 352);
+        draw80sBox(ctx, 16, 356, W - 32, 120, '#ff0055', '#1a0810', 2);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('3. TRAPPOLE DA EVITARE!', W / 2, 378);
 
-        ctx.fillStyle = '#00ff66'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('🟢 VERDE (APPROVATO)', W / 2, 376);
-        ctx.fillStyle = '#ff5577'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('🖤 NERO (FILE CORROTTO)', W / 2, 396);
+        ctx.fillStyle = '#00ff66'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('🟢 VERDE (APPROVATO)', W / 2, 404);
+        ctx.fillStyle = '#ff5577'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('🖤 NERO (FILE CORROTTO)', W / 2, 426);
 
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('NON TOCARLI: +12% STRESS!', W / 2, 422);
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('NON TOCARLI: +12% STRESS!', W / 2, 452);
 
         // PULSANTE AZIONE INFERIORE
-        draw80sBox(ctx, 30, H - 64, W - 60, 42, '#ffea00', '#101020', 3);
+        draw80sBox(ctx, 20, H - 68, W - 40, 48, '#ffea00', '#101020', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
-            ctx.fillStyle = '#ffea00'; ctx.font = '900 15px Courier New'; ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
             ctx.fillText('PREMI PER CONTINUARE ►', W / 2, H - 38);
         }
         drawCRTOverlay();
@@ -1099,20 +1095,18 @@ function draw() {
 
     // --- SELEZIONE PERSONAGGIO (CREATIVO: "SCEGLI PRODUCER") ---
     if (state === 'CHAR_SELECT') {
-        ctx.fillStyle = 'rgba(8, 8, 16, 0.98)'; ctx.fillRect(0, 0, W, H);
-
         let key = charList[charSelectIndex];
         let c = CHARACTERS[key];
 
-        draw80sBox(ctx, 10, 10, W - 20, H - 20, c.primary, '#0c0c1a', 4);
+        draw80sBox(ctx, 4, 4, W - 8, H - 8, c.primary, '#0c0c1a', 4);
 
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 22px Courier New'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 24px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('★ SCEGLI PRODUCER ★', W / 2, 42);
 
-        let frameX = W / 2 - 75;
-        let frameY = 60;
-        let frameW = 150;
-        let frameH = 150;
+        let frameX = W / 2 - 80;
+        let frameY = 58;
+        let frameW = 160;
+        let frameH = 160;
 
         draw80sBox(ctx, frameX, frameY, frameW, frameH, c.primary, '#101020', 3);
 
@@ -1125,34 +1119,34 @@ function draw() {
             ctx.restore();
         }
 
-        ctx.fillStyle = c.primary; ctx.font = '900 26px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText(c.name, W / 2, 238);
+        ctx.fillStyle = c.primary; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(c.name, W / 2, 248);
 
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText(c.subtitle, W / 2, 260);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 15px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(c.subtitle, W / 2, 272);
 
-        draw80sBox(ctx, 20, 285, W - 40, 135, '#333355', '#141428', 3);
+        draw80sBox(ctx, 16, 295, W - 32, 150, '#333355', '#141428', 3);
 
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText(c.perkBonusTitle, W / 2, 314);
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 17px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(c.perkBonusTitle, W / 2, 326);
         
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText(c.perkBonusDesc, W / 2, 340);
+        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 14px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText(c.perkBonusDesc, W / 2, 356);
 
         ctx.fillStyle = '#00ffff'; ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText(`Ferie Speciali: ${c.ferieSec}s Relax`, W / 2, 372);
+        ctx.fillText(`Ferie Speciali: ${c.ferieSec}s Relax`, W / 2, 390);
 
         ctx.fillStyle = '#ffea00'; ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText(`Moltiplicatore Punti: x${c.scoreMult || 1.0}`, W / 2, 394);
+        ctx.fillText(`Moltiplicatore Punti: x${c.scoreMult || 1.0}`, W / 2, 414);
 
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 38px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('◄', 30, 135);
-        ctx.fillText('►', W - 30, 135);
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 42px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('◄', 30, 138);
+        ctx.fillText('►', W - 30, 138);
 
-        draw80sBox(ctx, 30, H - 68, W - 60, 44, c.primary, '#101020', 3);
+        draw80sBox(ctx, 20, H - 68, W - 40, 48, c.primary, '#101020', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
-            ctx.fillStyle = c.primary; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
-            ctx.fillText('INIZIA PARTITA ►', W / 2, H - 41);
+            ctx.fillStyle = c.primary; ctx.font = '900 17px Courier New'; ctx.textAlign = 'center';
+            ctx.fillText('INIZIA PARTITA ►', W / 2, H - 38);
         }
         drawCRTOverlay();
         ctx.restore();
@@ -1167,8 +1161,8 @@ function draw() {
         draw80sBox(ctx, padX, padY, p.w, p.h, p.active ? '#ffffff' : '#28283c', currentTheme.padBg, 3);
 
         ctx.fillStyle = '#00ffff';
-        ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'left';
-        ctx.fillText(p.keyLabel, padX + 8, padY + 16);
+        ctx.font = '900 12px Courier New'; ctx.textAlign = 'left';
+        ctx.fillText(p.keyLabel, padX + 8, padY + 18);
 
         if (p.active) {
             let bgCol = '#ff0055';
@@ -1180,15 +1174,15 @@ function draw() {
             else if (p.type === 'GOLDEN') { bgCol = '#ffaa00'; }
             else if (p.type === 'DOUBLE') { bgCol = '#d000ff'; }
 
-            draw80sBox(ctx, padX + 4, padY + 22, p.w - 8, p.h - 26, '#ffffff', bgCol, 2);
+            draw80sBox(ctx, padX + 4, padY + 24, p.w - 8, p.h - 28, '#ffffff', bgCol, 2);
 
             let timerPct = p.timer / p.maxTimer;
             ctx.fillStyle = 'rgba(0,0,0,0.5)';
             ctx.fillRect(padX + 5, padY + p.h - 8, (p.w - 10) * (1 - timerPct), 4);
 
-            // Scritte BIANCHE ingrandite a 14px con contorno leggero e pulito per massima visibilità
+            // Scritte BIANCHE ingrandite a 15px con bordo leggero per massima visibilità
             ctx.save();
-            ctx.font = '900 14px "Courier New", monospace';
+            ctx.font = '900 15px "Courier New", monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
@@ -1196,11 +1190,11 @@ function draw() {
             ctx.lineWidth = 2.5;
             ctx.fillStyle = '#ffffff';
 
-            ctx.strokeText(p.line1, padX + p.w / 2, padY + 66);
-            ctx.fillText(p.line1, padX + p.w / 2, padY + 66);
+            ctx.strokeText(p.line1, padX + p.w / 2, padY + 72);
+            ctx.fillText(p.line1, padX + p.w / 2, padY + 72);
 
-            ctx.strokeText(p.line2, padX + p.w / 2, padY + 88);
-            ctx.fillText(p.line2, padX + p.w / 2, padY + 88);
+            ctx.strokeText(p.line2, padX + p.w / 2, padY + 96);
+            ctx.fillText(p.line2, padX + p.w / 2, padY + 96);
             ctx.restore();
         }
     });
@@ -1225,37 +1219,37 @@ function draw() {
 
     floatingTexts.forEach(ft => {
         ctx.save(); ctx.globalAlpha = Math.max(0, ft.alpha); ctx.fillStyle = ft.color;
-        ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
+        ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
         ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
     });
 
     if (ferieActive) {
-        draw80sBox(ctx, 30, 240, 360, 70, '#ffffff', '#00ffff', 3);
-        ctx.fillStyle = '#000000'; ctx.font = '900 17px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('🌴 VACATION RELAX! 🌴', cvs.width / 2, 270);
-        ctx.font = 'bold 13px Courier New';
-        ctx.fillText(`PAUSA REVISIONI (${ferieTimer}s)`, cvs.width / 2, 294);
+        draw80sBox(ctx, 20, 240, 380, 75, '#ffffff', '#00ffff', 3);
+        ctx.fillStyle = '#000000'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
+        ctx.fillText('🌴 VACATION RELAX! 🌴', cvs.width / 2, 272);
+        ctx.font = 'bold 14px Courier New';
+        ctx.fillText(`PAUSA REVISIONI (${ferieTimer}s)`, cvs.width / 2, 296);
     }
 
-    draw80sBox(ctx, 0, 0, cvs.width, 76, currentTheme.primary, '#080816', 3);
+    draw80sBox(ctx, 0, 0, cvs.width, 80, currentTheme.primary, '#080816', 3);
 
-    ctx.fillStyle = currentTheme.primary; ctx.font = '900 13px Courier New'; ctx.textAlign = 'left';
-    ctx.fillText(`1P: ${currentTheme.name}`, 10, 18);
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 13px Courier New';
-    ctx.fillText(`SCORE: ${score}`, 10, 34);
-    ctx.fillStyle = '#00ffff'; ctx.font = 'bold 10px Courier New';
-    ctx.fillText(`HIGH: ${highScore}`, 10, 48);
+    ctx.fillStyle = currentTheme.primary; ctx.font = '900 14px Courier New'; ctx.textAlign = 'left';
+    ctx.fillText(`1P: ${currentTheme.name}`, 10, 20);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New';
+    ctx.fillText(`SCORE: ${score}`, 10, 38);
+    ctx.fillStyle = '#00ffff'; ctx.font = 'bold 11px Courier New';
+    ctx.fillText(`HIGH: ${highScore}`, 10, 52);
 
     if (combo > 1) {
-        ctx.fillStyle = '#00ffff'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'right';
-        ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 18);
+        ctx.fillStyle = '#00ffff'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'right';
+        ctx.fillText(`COMBO x${combo}!`, cvs.width - 10, 20);
     }
 
     let stressWidth = 400;
     let stressX = 10;
-    let stressY = 54;
+    let stressY = 56;
     ctx.fillStyle = '#04040a';
-    ctx.fillRect(stressX, stressY, stressWidth, 16);
+    ctx.fillRect(stressX, stressY, stressWidth, 18);
     
     let currentStressPct = Math.min(100, Math.max(0, stress)) / 100;
     
@@ -1267,19 +1261,19 @@ function draw() {
         if (s < filledSegments) {
             ctx.fillStyle = s > 15 ? '#ff0055' : (s > 8 ? '#ffea00' : '#00ff66');
             if (currentStressPct >= 0.75 && Math.floor(frame / 12) % 2 === 0) ctx.fillStyle = '#ffffff';
-            ctx.fillRect(stressX + 2 + (s * segWidth), stressY + 2, segWidth - 2, 12);
+            ctx.fillRect(stressX + 2 + (s * segWidth), stressY + 2, segWidth - 2, 14);
         } else {
             ctx.fillStyle = '#141424';
-            ctx.fillRect(stressX + 2 + (s * segWidth), stressY + 2, segWidth - 2, 12);
+            ctx.fillRect(stressX + 2 + (s * segWidth), stressY + 2, segWidth - 2, 14);
         }
     }
     
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
-    ctx.strokeRect(stressX, stressY, stressWidth, 16);
+    ctx.strokeRect(stressX, stressY, stressWidth, 18);
 
-    ctx.fillStyle = '#ffffff'; ctx.font = '900 10px Courier New'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffffff'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
     let stressStatusLabel = currentStressPct >= 0.75 ? '⚠️ WARNING: OVERHEAT!' : `STRESS GAUGE: ${Math.floor(stress)}%`;
-    ctx.fillText(stressStatusLabel, cvs.width / 2, stressY + 12);
+    ctx.fillText(stressStatusLabel, cvs.width / 2, stressY + 13);
 
     if (state === 'PAUSE') {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, cvs.width, cvs.height);
@@ -1366,7 +1360,7 @@ cvs.addEventListener('pointerdown', (e) => {
                 hitAny = true;
             }
         });
-        if (!hitAny && y < 76) {
+        if (!hitAny && y < 80) {
             state = 'PAUSE';
         }
         return;

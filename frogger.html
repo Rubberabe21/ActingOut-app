@@ -468,13 +468,12 @@ function playSound(type) {
       osc.frequency.linearRampToValueAtTime(40, ac.currentTime + .35);
       gain.gain.setValueAtTime(.65, ac.currentTime);
       osc.start(); osc.stop(ac.currentTime + .35);
-    } else if (type === 'levelup') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, ac.currentTime);
-      osc.frequency.setValueAtTime(660, ac.currentTime + .08);
-      osc.frequency.setValueAtTime(880, ac.currentTime + .16);
-      gain.gain.setValueAtTime(.60, ac.currentTime);
-      osc.start(); osc.stop(ac.currentTime + .28);
+    } else if (type === 'alarm') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(800, ac.currentTime);
+      osc.frequency.setValueAtTime(400, ac.currentTime + .15);
+      gain.gain.setValueAtTime(.65, ac.currentTime);
+      osc.start(); osc.stop(ac.currentTime + .30);
     }
   } catch (e) {}
 }
@@ -487,6 +486,7 @@ const imgLuca = new Image();   imgLuca.src = 'assets/frogger/luca.png';
 
 const ASSETS = { COVER: imgCover };
 
+/* DESCRIZIONI DEI PERSONAGGI AGGIORNATE */
 const CHARACTERS = {
   GIULIA: {
     id: 'GIULIA', name: "GIULIA", subtitle: "Lead Video Editor",
@@ -499,13 +499,13 @@ const CHARACTERS = {
     primary: "#ffd700", img: imgTobi, speed: 1.15, scoreMult: 0.9
   },
   DAVE: {
-    id: 'DAVE', name: "DAVE", subtitle: "Focused Director",
-    perkBonus: "BONUS: Autorità (+30% Punteggio)", perkMalus: "MALUS: Passo Pesante (-15% Velocità)",
+    id: 'DAVE', name: "DAVE", subtitle: "Video maker Senior",
+    perkBonus: "BONUS: Esperienza (+30% Punteggio)", perkMalus: "MALUS: Passo Pesante (-15% Velocità)",
     primary: "#ff0055", img: imgDave, speed: 0.85, scoreMult: 1.3
   },
   LUCA: {
-    id: 'LUCA', name: "LUCA", subtitle: "VFX Artist Whiz",
-    perkBonus: "BONUS: VFX Master (+15% Punti)", perkMalus: "MALUS: Sensibilità Media",
+    id: 'LUCA', name: "LUCA", subtitle: "Multitasking Operator",
+    perkBonus: "BONUS: Multitasking (+15% Punti)", perkMalus: "MALUS: Troppi Render Attivi",
     primary: "#ffaa00", img: imgLuca, speed: 1.05, scoreMult: 1.15
   }
 };
@@ -514,27 +514,21 @@ const CHARACTER_LIST = ['GIULIA', 'TOBI', 'DAVE', 'LUCA'];
 let selectedCharIndex = 0;
 let currentTheme = CHARACTERS.GIULIA;
 
-/* DEFINIZIONE BLOCCHI CON COMPORTAMENTI UNICI */
 const BLOCK_TYPES = {
   A_ROLL: {
-    id: 'A_ROLL', label: 'A001_C004', bg: '#2b52a1', border: '#5682e8', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.2,
-    desc: 'Clip Standard: Movimento costante e regolare.'
+    id: 'A_ROLL', label: 'A001_C004', bg: '#2b52a1', border: '#5682e8', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.2
   },
   SPEED_RAMP: {
-    id: 'SPEED_RAMP', label: 'SPEED RAMP ⚡', bg: '#7f22a7', border: '#b842df', textCol: '#ffffff', topBar: '#ff0055', wMult: 2.3,
-    desc: 'Speed Ramp: Accelera e rallenta ritmicamente!'
+    id: 'SPEED_RAMP', label: 'SPEED RAMP ⚡', bg: '#7f22a7', border: '#b842df', textCol: '#ffffff', topBar: '#ff0055', wMult: 2.3
   },
   LUMETRI: {
-    id: 'LUMETRI', label: 'LUMETRI COLOR 🎨', bg: '#a11b43', border: '#e64273', textCol: '#ffffff', topBar: '#ffee00', wMult: 2.1,
-    desc: 'Lumetri Glitch: Esegue flash cromatici di disturbo.'
+    id: 'LUMETRI', label: 'LUMETRI COLOR 🎨', bg: '#a11b43', border: '#e64273', textCol: '#ffffff', topBar: '#ffee00', wMult: 2.1
   },
   PROXY_FADE: {
-    id: 'PROXY_FADE', label: 'PROXY 50% 🎬', bg: '#147b85', border: '#23b3be', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.4,
-    desc: 'Proxy Fade: Diventa semitrasparente. Sfrutta il ritmo!'
+    id: 'PROXY_FADE', label: 'PROXY 50% 🎬', bg: '#147b85', border: '#23b3be', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.4
   },
   OFFLINE_CORRUPT: {
-    id: 'OFFLINE_CORRUPT', label: 'OFFLINE 🔴', bg: '#8b0000', border: '#ff3333', textCol: '#ffffff', topBar: '#ff0000', wMult: 2.2,
-    desc: 'Corrupt Offline: Movimento a scatti intermittenti.'
+    id: 'OFFLINE_CORRUPT', label: 'OFFLINE 🔴', bg: '#8b0000', border: '#ff3333', textCol: '#ffffff', topBar: '#ff0000', wMult: 2.2
   }
 };
 
@@ -559,7 +553,11 @@ let visualScrollOffset = 0;
 let activeLanes = [];
 let particles = [];
 
-let levelModalData = { title: '', desc: '', blockInfo: '' };
+/* VAR PER GESTIONE CANCELLAZIONE TIMELINE DAL BASSO */
+let panicModeActive = false;
+let hasSeenPanicPopup = false;
+let voidGy = ROWS + 2; // Riga da cui parte la cancellazione rossa
+let voidTimer = 0;
 
 let player = {
   gx: Math.floor(COLS / 2),
@@ -594,39 +592,23 @@ function advanceMenuState() {
     gameState = 'CHAR_SELECT';
   } else if (gameState === 'CHAR_SELECT') {
     startGame();
-  } else if (gameState === 'LEVEL_POPUP') {
+  } else if (gameState === 'PANIC_POPUP') {
     gameState = 'playing';
   } else if (gameState === 'gameover') {
     gameState = 'CHAR_SELECT';
   }
 }
 
-function showLevelPopup(lvl, blockType) {
-  currentLevel = lvl;
-  playSound('levelup');
-  levelModalData = {
-    title: `🎬 TIMELINE TRACK V${lvl}`,
-    desc: `Hai raggiunto il livello di traccia V${lvl}!`,
-    blockInfo: blockType ? blockType.desc : 'Mantieni il ritmo lungo la Timeline!'
-  };
-  gameState = 'LEVEL_POPUP';
-}
-
-/* GENERAZIONE CORSIE E TRACCE CON RIGHE MONO-TIPO E LIVELLI V1, V2, V3... */
 function createNewLane(isInitialSetup = false, r = 0) {
   totalLanesGenerated++;
   
-  // Ogni livello occupa un blocco di 5 corsie (4 ostacoli + 1 SAFE checkpoint)
   let laneLevelIndex = Math.max(1, Math.floor(totalLanesGenerated / 5) + 1);
   let isSafe = (totalLanesGenerated % 5 === 0) || (isInitialSetup && (r === 0 || r === ROWS - 1 || r === ROWS - 2));
 
   let laneType = isSafe ? 'SAFE' : 'ROAD';
   let dir = Math.random() < 0.5 ? 1 : -1;
-  
-  // Calcolo della velocità dinamica bilanciata e mai impossibile
   let baseSpeed = 0.38 + Math.min((laneLevelIndex - 1) * 0.09, 0.85);
 
-  // Selezione UNICA del blocco per l'INTERA riga in base al livello di traccia
   let selectedBlockType = BLOCK_TYPES.A_ROLL;
   if (laneLevelIndex === 2) selectedBlockType = BLOCK_TYPES.SPEED_RAMP;
   else if (laneLevelIndex === 3) selectedBlockType = BLOCK_TYPES.LUMETRI;
@@ -650,7 +632,6 @@ function createNewLane(isInitialSetup = false, r = 0) {
 
   if (laneType === 'ROAD') {
     let x = TRACK_HEADER_W - CELL_SIZE * 2;
-    // Spazio GARANTITO di passaggio tra le clip
     let minGap = CELL_SIZE * Math.max(3.6, 5.8 - Math.min((laneLevelIndex - 1) * 0.2, 1.8));
 
     do {
@@ -682,6 +663,11 @@ function startInfiniteScroll() {
   totalLanesGenerated = 0;
   currentLevel = 1;
   maxReachedLevel = 1;
+
+  panicModeActive = false;
+  hasSeenPanicPopup = false;
+  voidGy = ROWS + 3;
+  voidTimer = 0;
   
   for (let r = 0; r < ROWS; r++) {
     activeLanes.push(createNewLane(true, r));
@@ -765,13 +751,27 @@ function scrollWorldDown() {
   activeLanes.unshift(newLane);
   player.gy++;
   visualScrollOffset -= CELL_SIZE;
+
+  // Se la cancellazione dal basso è attiva, lo scorrimento verso l'alto la spinge indietro
+  if (voidGy < ROWS + 3) {
+    voidGy++;
+  }
   
   score += Math.floor(18 * currentLevel * currentTheme.scoreMult * player.tempScoreMult);
 
-  // Controllo Avanzamento Livello Traccia
   if (newLane.levelNumber > maxReachedLevel) {
     maxReachedLevel = newLane.levelNumber;
-    showLevelPopup(maxReachedLevel, newLane.blockType);
+    currentLevel = maxReachedLevel;
+  }
+
+  // ATTIVAZIONE DELLA TIMELINE IMPAZZITA (ATTIVATA AL LIVELLO V3)
+  if (maxReachedLevel >= 3 && !panicModeActive) {
+    panicModeActive = true;
+    playSound('alarm');
+    if (!hasSeenPanicPopup) {
+      hasSeenPanicPopup = true;
+      gameState = 'PANIC_POPUP';
+    }
   }
 }
 
@@ -779,16 +779,29 @@ function updateVehicles() {
   visualScrollOffset += (0 - visualScrollOffset) * 0.25;
   if (Math.abs(visualScrollOffset) < 0.1) visualScrollOffset = 0;
 
+  // GESTIONE AVANZAMENTO VOID ROSSO DAL BASSO IN PANIC MODE
+  if (panicModeActive && gameState === 'playing') {
+    voidTimer++;
+    if (voidTimer >= 110) { // Ogni ~1.8 secondi sale di 1 riga
+      voidTimer = 0;
+      if (voidGy > 1) {
+        voidGy--;
+      }
+    }
+
+    // Se il giocatore viene preso dalla riga di cancellazione rossa -> Morte!
+    if (player.gy >= voidGy) {
+      hitPlayer();
+    }
+  }
+
   activeLanes.forEach(lane => {
     if (lane.type === 'ROAD') {
-      // CALCOLO DEI COMPORTAMENTI DINAMICI DELLE CLIP
       let currentSpeed = lane.baseSpeed;
 
       if (lane.blockType.id === 'SPEED_RAMP') {
-        // Variazione di velocità ritmica (Accelerazione/Rallentamento)
         currentSpeed *= (0.6 + 0.8 * (Math.sin(frame * 0.06) + 1) / 2);
       } else if (lane.blockType.id === 'OFFLINE_CORRUPT') {
-        // Movimento a scatti intermittenti
         if (Math.floor(frame / 20) % 3 === 0) currentSpeed = 0;
       }
 
@@ -850,7 +863,6 @@ function checkCollisions() {
   let lane = activeLanes[player.gy];
 
   if (lane && lane.type === 'ROAD') {
-    // Se la clip Proxy è completamente trasparente in questo frame, permette il passaggio!
     if (lane.blockType.id === 'PROXY_FADE' && Math.floor(frame / 30) % 2 === 0) {
       return;
     }
@@ -875,7 +887,7 @@ function hitPlayer() {
   } else {
     let respawnGy = ROWS - 2;
     for (let r = player.gy; r < ROWS; r++) {
-      if (activeLanes[r] && activeLanes[r].type === 'SAFE') {
+      if (activeLanes[r] && activeLanes[r].type === 'SAFE' && r < voidGy) {
         respawnGy = r;
         break;
       }
@@ -916,7 +928,6 @@ function drawGameWorld() {
     }
   });
 
-  /* RENDER BLOCCHI CLIP CON EFFETTI SPECIALI */
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'ROAD') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
@@ -930,7 +941,6 @@ function drawGameWorld() {
 
         ctx.save();
 
-        // COMPORTAMENTO PROXY: DISSOLVENZA TRASPARENTE
         if (lane.blockType.id === 'PROXY_FADE' && Math.floor(frame / 30) % 2 === 0) {
           ctx.globalAlpha = 0.25;
         }
@@ -942,7 +952,6 @@ function drawGameWorld() {
         ctx.fillStyle = obj.type.bg;
         ctx.fillRect(x + 1, y + 1, blockW - 2, blockH);
 
-        // COMPORTAMENTO LUMETRI: FLASHING GLITCH COLOR
         let topBarCol = obj.type.topBar || '#00ff66';
         if (lane.blockType.id === 'LUMETRI' && Math.floor(frame / 12) % 2 === 0) {
           topBarCol = '#00f3ff';
@@ -977,15 +986,33 @@ function drawGameWorld() {
     }
   });
 
+  /* RENDER CANCELLAZIONE TIMELINE ROSSA DAL BASSO (VOID ZONE) */
+  activeLanes.forEach((lane, r) => {
+    let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
+    if (r >= voidGy) {
+      ctx.fillStyle = 'rgba(255, 0, 85, 0.85)';
+      ctx.fillRect(0, y, CANVAS_W, CELL_SIZE);
+      ctx.strokeStyle = '#ffea00';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(0, y, CANVAS_W, CELL_SIZE);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('░░░ TIMELINE CANCELLATA ✖ ░░░', CANVAS_W / 2 + 20, y + CELL_SIZE / 2);
+    }
+  });
+
   // SIDEBAR TRACK HEADER CON LIVELLI V1, V2, V3...
   activeLanes.forEach((lane, r) => {
     let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
-    ctx.fillStyle = '#1c1c24';
+    ctx.fillStyle = r >= voidGy ? '#8b0000' : '#1c1c24';
     ctx.fillRect(0, y, TRACK_HEADER_W, CELL_SIZE);
     ctx.strokeStyle = '#2a2a38';
     ctx.strokeRect(0, y, TRACK_HEADER_W, CELL_SIZE);
 
-    ctx.fillStyle = lane.type === 'SAFE' ? '#00ff66' : '#00f3ff';
+    ctx.fillStyle = r >= voidGy ? '#ffffff' : (lane.type === 'SAFE' ? '#00ff66' : '#00f3ff');
     ctx.font = 'bold 11px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -1006,6 +1033,19 @@ function drawGameWorld() {
   ctx.stroke();
 
   drawSinglePlayer();
+
+  // BANNER DI AVVISO IN GIOCO (SENZA FERMARE IL GIOCO DOPO LA PRIMA VOLTA)
+  if (panicModeActive) {
+    if (Math.floor(frame / 20) % 2 === 0) {
+      ctx.fillStyle = 'rgba(255, 0, 85, 0.9)';
+      ctx.fillRect(TRACK_HEADER_W, HUD_HEIGHT, CANVAS_W - TRACK_HEADER_W, 18);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⚠️ WARNING: LA TIMELINE SI CANCELLA! SALI!', (CANVAS_W + TRACK_HEADER_W) / 2, HUD_HEIGHT + 9);
+    }
+  }
 }
 
 function drawSinglePlayer() {
@@ -1413,44 +1453,52 @@ function drawScreens() {
     return;
   }
 
-  /* POP-UP MANUALE DI AVANZAMENTO LIVELLO */
-  if (gameState === 'LEVEL_POPUP') {
+  /* POP-UP GRANDE UNICO PER ATTIVAZIONE TIMELINE IMPAZZITA (PRIMA VOLTA) */
+  if (gameState === 'PANIC_POPUP') {
     drawGameWorld();
     drawHUD();
 
-    let boxW = 370, boxH = 270;
+    let boxW = 380, boxH = 310;
     let boxX = (CANVAS_W - boxW) / 2, boxY = (CANVAS_H - boxH) / 2 - 20;
 
-    drawCyberPanel(boxX, boxY, boxW, boxH, '#00f3ff');
+    drawCyberPanel(boxX, boxY, boxW, boxH, '#ff0055');
 
-    ctx.fillStyle = '#00f3ff';
-    ctx.font = '900 18px monospace';
+    ctx.fillStyle = '#ff0055';
+    ctx.font = '900 20px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(levelModalData.title, CANVAS_W / 2, boxY + 42);
+    ctx.shadowColor = '#ff0055';
+    ctx.shadowBlur = 10;
+    ctx.fillText('⚠️ TIMELINE IMPAZZITA! ⚠️', CANVAS_W / 2, boxY + 42);
+    ctx.shadowBlur = 0;
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 13px sans-serif';
-    ctx.fillText(levelModalData.desc, CANVAS_W / 2, boxY + 80);
+    ctx.fillText('IL PROGETTO SI STA AUTO-DISTRUGGENDO!', CANVAS_W / 2, boxY + 75);
 
     ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(boxX + 20, boxY + 105, boxW - 40, 75);
+    ctx.fillRect(boxX + 20, boxY + 100, boxW - 40, 120);
     ctx.strokeStyle = '#ffea00';
     ctx.lineWidth = 1;
-    ctx.strokeRect(boxX + 20, boxY + 105, boxW - 40, 75);
+    ctx.strokeRect(boxX + 20, boxY + 100, boxW - 40, 120);
 
     ctx.fillStyle = '#ffea00';
-    ctx.font = 'bold 11px monospace';
-    ctx.fillText('COMPORTAMENTO BLOCCHI:', CANVAS_W / 2, boxY + 128);
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText('NUOVO PERICOLO DAL BASSO:', CANVAS_W / 2, boxY + 125);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('La timeline si sta CANCELLANDO dal basso!', CANVAS_W / 2, boxY + 152);
+    ctx.fillText('Se la scia ROSSA ti raggiunge SEI MORTO.', CANVAS_W / 2, boxY + 174);
 
     ctx.fillStyle = '#00ff66';
-    ctx.font = '12px sans-serif';
-    ctx.fillText(levelModalData.blockInfo, CANVAS_W / 2, boxY + 155);
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText('SALI IL PIÙ IN FRETTA POSSIBILE!', CANVAS_W / 2, boxY + 200);
 
-    ctx.fillStyle = '#00f3ff';
-    ctx.fillRect(boxX + 30, boxY + 200, boxW - 60, 48);
-    ctx.fillStyle = '#000';
-    ctx.font = '900 14px monospace';
-    ctx.fillText('CONTINUA MONTAGGIO ►', CANVAS_W / 2, boxY + 230);
+    ctx.fillStyle = '#ff0055';
+    ctx.fillRect(boxX + 30, boxY + 240, boxW - 60, 48);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 15px monospace';
+    ctx.fillText('HO CAPITO, SALI! ►', CANVAS_W / 2, boxY + 270);
     return;
   }
 
@@ -1525,7 +1573,7 @@ canvas.addEventListener('pointerdown', e => {
     return;
   }
 
-  if (gameState === 'LEVEL_POPUP') {
+  if (gameState === 'PANIC_POPUP') {
     gameState = 'playing';
     return;
   }
@@ -1582,7 +1630,7 @@ function bindDirBtn(id, dirKey) {
       return;
     }
 
-    if (gameState === 'LEVEL_POPUP') {
+    if (gameState === 'PANIC_POPUP') {
       gameState = 'playing';
       return;
     }
@@ -1631,7 +1679,7 @@ window.addEventListener('keydown', e => {
 
   if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(gameState)) {
     if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
-  } else if (gameState === 'LEVEL_POPUP') {
+  } else if (gameState === 'PANIC_POPUP') {
     if (e.code === 'Space' || e.code === 'Enter') gameState = 'playing';
   } else if (gameState === 'CHAR_SELECT') {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
