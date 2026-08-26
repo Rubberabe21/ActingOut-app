@@ -605,7 +605,7 @@ npcVideo.addEventListener('play', () => {
 const AVATAR_LIST = Array.from({ length: 102 }, (_, i) => `assets/avatars/testa${i + 1}.png`);
 
 const DIALOGUE_STEPS = [
-    { text: "Ehi! Non so se ti ricordi di me… sono Giovannone.", type: "none", btn: "AVANTI ►" },
+    { text: "Ehi! Non so se ti ricordi di me… sono Giovannone…", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "... ...", type: "none", btn: "AVANTI ►" },
     { text: "... ... ...", type: "none", btn: "AVANTI ►" },
@@ -698,9 +698,9 @@ const DIALOGUE_STEPS = [
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "A controllare che vada tutto bene.", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Non è che non sto lavorando eh.", type: "none", btn: "AVANTI ►" },
+    { text: "Non è che non sto lavorando eh…", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sono una persona molto impegnata io.", type: "none", btn: "AVANTI ►" },
+    { text: "Sono una persona molto impegnata io…", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Direi che qui abbiamo finito… se speravi di scegliere tra 3 pokemon hai sbagliato gioco", type: "none", btn: "AVANTI ►" },
     { text: "ci vediamo dall'altra parte.", type: "none", btn: "AVANTI ►" },
@@ -745,6 +745,7 @@ function renderLandingButtons() {
         btnContinue.innerText = "CONTINUA ►";
         btnContinue.onclick = () => {
             sessionStorage.setItem('arcade_session_active', 'true');
+            localStorage.setItem('arcade_player_x', '200');
             window.location.replace("index.html");
         };
 
@@ -819,6 +820,7 @@ document.getElementById('login-submit-btn').onclick = async () => {
 
     if (loggedUser) {
         localStorage.setItem('arcade_current_user', JSON.stringify(loggedUser));
+        localStorage.setItem('arcade_player_x', '200');
         sessionStorage.setItem('arcade_session_active', 'true');
         window.location.replace("index.html");
     } else {
@@ -889,6 +891,7 @@ function renderStep() {
 
 function renderChoiceGrid(options, onSelectCallback) {
     choiceGrid.innerHTML = "";
+    choiceGrid.scrollTop = 0; // Garantisce che l'elenco parta sempre dalla prima opzione in alto
     let selectedVal = "";
 
     options.forEach((optText, index) => {
@@ -915,6 +918,7 @@ function renderChoiceGrid(options, onSelectCallback) {
 
 function renderAvatarGrid() {
     avatarGrid.innerHTML = "";
+    avatarGrid.scrollTop = 0; // Garantisce che la griglia delle teste parta sempre dall'inizio
     const fragment = document.createDocumentFragment();
 
     AVATAR_LIST.forEach((src) => {
@@ -1052,9 +1056,11 @@ async function advanceStep() {
             stats: defaultStats 
         };
         localStorage.setItem('arcade_current_user', JSON.stringify(newUser));
+        localStorage.setItem('arcade_player_x', '200');
 
     } else if (stepData.type === "finish") {
         sessionStorage.setItem('arcade_session_active', 'true');
+        localStorage.setItem('arcade_player_x', '200');
         window.location.replace("index.html"); 
         return;
     }
@@ -1066,6 +1072,7 @@ async function advanceStep() {
         renderStep();
     } else {
         sessionStorage.setItem('arcade_session_active', 'true');
+        localStorage.setItem('arcade_player_x', '200');
         window.location.replace("index.html"); 
     }
 }
