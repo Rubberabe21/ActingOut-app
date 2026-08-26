@@ -486,7 +486,6 @@ const imgLuca = new Image();   imgLuca.src = 'assets/frogger/luca.png';
 
 const ASSETS = { COVER: imgCover };
 
-/* DESCRIZIONI DEI PERSONAGGI AGGIORNATE */
 const CHARACTERS = {
   GIULIA: {
     id: 'GIULIA', name: "GIULIA", subtitle: "Lead Video Editor",
@@ -499,7 +498,7 @@ const CHARACTERS = {
     primary: "#ffd700", img: imgTobi, speed: 1.15, scoreMult: 0.9
   },
   DAVE: {
-    id: 'DAVE', name: "DAVE", subtitle: "Video maker Senior",
+    id: 'DAVE', name: "DAVE", subtitle: "VideoMaker Senior",
     perkBonus: "BONUS: Esperienza (+30% Punteggio)", perkMalus: "MALUS: Passo Pesante (-15% Velocità)",
     primary: "#ff0055", img: imgDave, speed: 0.85, scoreMult: 1.3
   },
@@ -553,11 +552,14 @@ let visualScrollOffset = 0;
 let activeLanes = [];
 let particles = [];
 
-/* VAR PER GESTIONE CANCELLAZIONE TIMELINE DAL BASSO */
+/* VAR PER GESTIONE ONDATE PANICO (AVVIA DA LIVELLO V15) */
 let panicModeActive = false;
 let hasSeenPanicPopup = false;
-let voidGy = ROWS + 2; // Riga da cui parte la cancellazione rossa
-let voidTimer = 0;
+let panicWaveCount = 0;
+let panicTimer = 0; // Frame rimanenti per l'ondata attiva
+let panicCooldown = 0; // Cooldown tra un'ondata e l'altra
+let voidGy = ROWS + 3; // Riga rossa di cancellazione
+let voidStepTimer = 0;
 
 let player = {
   gx: Math.floor(COLS / 2),
@@ -597,6 +599,17 @@ function advanceMenuState() {
   } else if (gameState === 'gameover') {
     gameState = 'CHAR_SELECT';
   }
+}
+
+function startPanicWave() {
+  panicWaveCount++;
+  // La 1° ondata dura 20 sec (1200 frame). Le successive aumentano di 5 sec (300 frame) alla volta!
+  let durationSec = 20 + (panicWaveCount - 1) * 5;
+  panicTimer = durationSec * 60;
+  panicModeActive = true;
+  voidGy = ROWS + 2;
+  voidStepTimer = 0;
+  playSound('alarm');
 }
 
 function createNewLane(isInitialSetup = false, r = 0) {
@@ -666,8 +679,11 @@ function startInfiniteScroll() {
 
   panicModeActive = false;
   hasSeenPanicPopup = false;
+  panicWaveCount = 0;
+  panicTimer = 0;
+  panicCooldown = 0;
   voidGy = ROWS + 3;
-  voidTimer = 0;
+  voidStepTimer = 0;
   
   for (let r = 0; r < ROWS; r++) {
     activeLanes.push(createNewLane(true, r));
@@ -752,7 +768,6 @@ function scrollWorldDown() {
   player.gy++;
   visualScrollOffset -= CELL_SIZE;
 
-  // Se la cancellazione dal basso è attiva, lo scorrimento verso l'alto la spinge indietro
   if (voidGy < ROWS + 3) {
     voidGy++;
   }
@@ -764,13 +779,13 @@ function scrollWorldDown() {
     currentLevel = maxReachedLevel;
   }
 
-  // ATTIVAZIONE DELLA TIMELINE IMPAZZITA (ATTIVATA AL LIVELLO V3)
-  if (maxReachedLevel >= 3 && !panicModeActive) {
-    panicModeActive = true;
-    playSound('alarm');
+  // LA PRIMA ONDATA SCATTA SOLO DOPO IL LIVELLO 15 (V15)
+  if (maxReachedLevel >= 15 && !panicModeActive && panicCooldown <= 0) {
     if (!hasSeenPanicPopup) {
       hasSeenPanicPopup = true;
       gameState = 'PANIC_POPUP';
+    } else {
+      startPanicWave();
     }
   }
 }
@@ -779,19 +794,33 @@ function updateVehicles() {
   visualScrollOffset += (0 - visualScrollOffset) * 0.25;
   if (Math.abs(visualScrollOffset) < 0.1) visualScrollOffset = 0;
 
-  // GESTIONE AVANZAMENTO VOID ROSSO DAL BASSO IN PANIC MODE
+  // GESTIONE ONDATA PANICO CON TIMER E COOLDOWN
   if (panicModeActive && gameState === 'playing') {
-    voidTimer++;
-    if (voidTimer >= 110) { // Ogni ~1.8 secondi sale di 1 riga
-      voidTimer = 0;
-      if (voidGy > 1) {
-        voidGy--;
-      }
+    panicTimer--;
+
+    // Avanzamento riga rossa dal basso
+    voidStepTimer++;
+    if (voidStepTimer >= 100) {
+      voidStepTimer = 0;
+      if (voidGy > 1) voidGy--;
     }
 
-    // Se il giocatore viene preso dalla riga di cancellazione rossa -> Morte!
+    // Se il giocatore finisce dentro la riga rossa -> Perde una vita!
     if (player.gy >= voidGy) {
       hitPlayer();
+    }
+
+    // FINE ONDATA PANICO: La timeline si riassesta!
+    if (panicTimer <= 0) {
+      panicModeActive = false;
+      panicCooldown = 15 * 60; // 15 secondi di pace prima della prossima ondata
+      voidGy = ROWS + 3;
+    }
+  } else if (panicCooldown > 0 && gameState === 'playing') {
+    panicCooldown--;
+    // Avvia automaticamente l'ondata successiva al termine del cooldown
+    if (panicCooldown <= 0 && maxReachedLevel >= 15) {
+      startPanicWave();
     }
   }
 
@@ -803,6 +832,15 @@ function updateVehicles() {
         currentSpeed *= (0.6 + 0.8 * (Math.sin(frame * 0.06) + 1) / 2);
       } else if (lane.blockType.id === 'OFFLINE_CORRUPT') {
         if (Math.floor(frame / 20) % 3 === 0) currentSpeed = 0;
+      }
+
+      // DURANTE L'ONDATA PANICO: I BLOCCI FANNO MOVIMENTI STRANI E INATTESI!
+      if (panicModeActive) {
+        currentSpeed *= 1.35; // Aumento velocità generale
+        // Scatti improvvisi e vibrazioni imprevedibili
+        if (Math.random() < 0.04) {
+          currentSpeed *= -0.5; // Inversione istantanea a scatto!
+        }
       }
 
       lane.objects.forEach(obj => {
@@ -928,6 +966,7 @@ function drawGameWorld() {
     }
   });
 
+  /* RENDER BLOCCHI CLIP (STILE CATTIVO/ALTERATO DURANTE PANIC MODE) */
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'ROAD') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
@@ -949,27 +988,34 @@ function drawGameWorld() {
         ctx.rect(x + 1, y + 1, blockW - 2, blockH);
         ctx.clip();
 
-        ctx.fillStyle = obj.type.bg;
+        // COLORI CATTIVI DURANTE PANIC MODE
+        if (panicModeActive) {
+          ctx.fillStyle = (Math.floor(frame / 10) % 2 === 0) ? '#4a0000' : '#700030';
+        } else {
+          ctx.fillStyle = obj.type.bg;
+        }
         ctx.fillRect(x + 1, y + 1, blockW - 2, blockH);
 
         let topBarCol = obj.type.topBar || '#00ff66';
-        if (lane.blockType.id === 'LUMETRI' && Math.floor(frame / 12) % 2 === 0) {
+        if (panicModeActive) {
+          topBarCol = (Math.floor(frame / 6) % 2 === 0) ? '#ff0055' : '#ffea00';
+        } else if (lane.blockType.id === 'LUMETRI' && Math.floor(frame / 12) % 2 === 0) {
           topBarCol = '#00f3ff';
         }
         ctx.fillStyle = topBarCol;
         ctx.fillRect(x + 1, y + 1, blockW - 2, 3);
 
-        ctx.strokeStyle = obj.type.border;
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = panicModeActive ? '#ff00ff' : obj.type.border;
+        ctx.lineWidth = panicModeActive ? 2 : 1.5;
         ctx.strokeRect(x + 1, y + 1, blockW - 2, blockH);
 
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(x + 4, y + 6, 16, 14);
-        ctx.fillStyle = '#00f3ff';
+        ctx.fillStyle = panicModeActive ? '#ff0055' : '#00f3ff';
         ctx.font = '900 9px monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('FX', x + 12, y + 13);
+        ctx.fillText(panicModeActive ? 'ERR' : 'FX', x + 12, y + 13);
 
         ctx.fillStyle = obj.type.textCol || '#ffffff';
         ctx.font = '900 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -978,7 +1024,8 @@ function drawGameWorld() {
         
         let maxTextW = blockW - 28;
         if (maxTextW > 10) {
-          ctx.fillText(obj.type.label, x + 24, y + blockH / 2 + 1, maxTextW);
+          let labelText = panicModeActive ? '⚠ CORRUPTED' : obj.type.label;
+          ctx.fillText(labelText, x + 24, y + blockH / 2 + 1, maxTextW);
         }
 
         ctx.restore();
@@ -986,11 +1033,11 @@ function drawGameWorld() {
     }
   });
 
-  /* RENDER CANCELLAZIONE TIMELINE ROSSA DAL BASSO (VOID ZONE) */
+  /* CANCELLAZIONE TIMELINE ROSSA DAL BASSO */
   activeLanes.forEach((lane, r) => {
     let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
     if (r >= voidGy) {
-      ctx.fillStyle = 'rgba(255, 0, 85, 0.85)';
+      ctx.fillStyle = 'rgba(255, 0, 85, 0.88)';
       ctx.fillRect(0, y, CANVAS_W, CELL_SIZE);
       ctx.strokeStyle = '#ffea00';
       ctx.lineWidth = 1;
@@ -1034,17 +1081,16 @@ function drawGameWorld() {
 
   drawSinglePlayer();
 
-  // BANNER DI AVVISO IN GIOCO (SENZA FERMARE IL GIOCO DOPO LA PRIMA VOLTA)
+  // BANNER CON TIMER DURATION DELL'ONDATA ATTIVA
   if (panicModeActive) {
-    if (Math.floor(frame / 20) % 2 === 0) {
-      ctx.fillStyle = 'rgba(255, 0, 85, 0.9)';
-      ctx.fillRect(TRACK_HEADER_W, HUD_HEIGHT, CANVAS_W - TRACK_HEADER_W, 18);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 10px monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('⚠️ WARNING: LA TIMELINE SI CANCELLA! SALI!', (CANVAS_W + TRACK_HEADER_W) / 2, HUD_HEIGHT + 9);
-    }
+    let secLeft = Math.ceil(panicTimer / 60);
+    ctx.fillStyle = 'rgba(255, 0, 85, 0.95)';
+    ctx.fillRect(TRACK_HEADER_W, HUD_HEIGHT, CANVAS_W - TRACK_HEADER_W, 20);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`⚠️ ONDATA PANICO #${panicWaveCount}! TIMELINE IMPAZZITA: ${secLeft}s`, (CANVAS_W + TRACK_HEADER_W) / 2, HUD_HEIGHT + 10);
   }
 }
 
@@ -1453,52 +1499,53 @@ function drawScreens() {
     return;
   }
 
-  /* POP-UP GRANDE UNICO PER ATTIVAZIONE TIMELINE IMPAZZITA (PRIMA VOLTA) */
+  /* POP-UP SPIEGAZIONE PRIMA ONDATA A V15 */
   if (gameState === 'PANIC_POPUP') {
     drawGameWorld();
     drawHUD();
 
-    let boxW = 380, boxH = 310;
+    let boxW = 380, boxH = 320;
     let boxX = (CANVAS_W - boxW) / 2, boxY = (CANVAS_H - boxH) / 2 - 20;
 
     drawCyberPanel(boxX, boxY, boxW, boxH, '#ff0055');
 
     ctx.fillStyle = '#ff0055';
-    ctx.font = '900 20px monospace';
+    ctx.font = '900 19px monospace';
     ctx.textAlign = 'center';
     ctx.shadowColor = '#ff0055';
     ctx.shadowBlur = 10;
-    ctx.fillText('⚠️ TIMELINE IMPAZZITA! ⚠️', CANVAS_W / 2, boxY + 42);
+    ctx.fillText('⚠️ TRACCIA V15: PANICO! ⚠️', CANVAS_W / 2, boxY + 40);
     ctx.shadowBlur = 0;
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 13px sans-serif';
-    ctx.fillText('IL PROGETTO SI STA AUTO-DISTRUGGENDO!', CANVAS_W / 2, boxY + 75);
+    ctx.fillText('LA TIMELINE ENTRA IN OVERHEAT!', CANVAS_W / 2, boxY + 72);
 
     ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(boxX + 20, boxY + 100, boxW - 40, 120);
+    ctx.fillRect(boxX + 20, boxY + 95, boxW - 40, 135);
     ctx.strokeStyle = '#ffea00';
     ctx.lineWidth = 1;
-    ctx.strokeRect(boxX + 20, boxY + 100, boxW - 40, 120);
+    ctx.strokeRect(boxX + 20, boxY + 95, boxW - 40, 135);
 
     ctx.fillStyle = '#ffea00';
-    ctx.font = 'bold 12px monospace';
-    ctx.fillText('NUOVO PERICOLO DAL BASSO:', CANVAS_W / 2, boxY + 125);
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText('ONDATE DI CANCELLAZIONE TEMPORIZZATE:', CANVAS_W / 2, boxY + 118);
 
     ctx.fillStyle = '#ffffff';
     ctx.font = '12px sans-serif';
-    ctx.fillText('La timeline si sta CANCELLANDO dal basso!', CANVAS_W / 2, boxY + 152);
-    ctx.fillText('Se la scia ROSSA ti raggiunge SEI MORTO.', CANVAS_W / 2, boxY + 174);
+    ctx.fillText('1. La prima ondata durerà 20 SECONDI.', CANVAS_W / 2, boxY + 142);
+    ctx.fillText('2. La sequenza si CANCELLA dal basso!', CANVAS_W / 2, boxY + 164);
+    ctx.fillText('3. I blocchi fanno movimenti STRANI e folli.', CANVAS_W / 2, boxY + 186);
 
     ctx.fillStyle = '#00ff66';
     ctx.font = 'bold 12px monospace';
-    ctx.fillText('SALI IL PIÙ IN FRETTA POSSIBILE!', CANVAS_W / 2, boxY + 200);
+    ctx.fillText('RESISTI FINO ALLA FINE DELL\'ONDATA!', CANVAS_W / 2, boxY + 212);
 
     ctx.fillStyle = '#ff0055';
-    ctx.fillRect(boxX + 30, boxY + 240, boxW - 60, 48);
+    ctx.fillRect(boxX + 30, boxY + 248, boxW - 60, 48);
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 15px monospace';
-    ctx.fillText('HO CAPITO, SALI! ►', CANVAS_W / 2, boxY + 270);
+    ctx.fillText('INIZIA PRIMA ONDATA ►', CANVAS_W / 2, boxY + 278);
     return;
   }
 
@@ -1575,6 +1622,7 @@ canvas.addEventListener('pointerdown', e => {
 
   if (gameState === 'PANIC_POPUP') {
     gameState = 'playing';
+    startPanicWave();
     return;
   }
 
@@ -1632,6 +1680,7 @@ function bindDirBtn(id, dirKey) {
 
     if (gameState === 'PANIC_POPUP') {
       gameState = 'playing';
+      startPanicWave();
       return;
     }
 
@@ -1680,7 +1729,10 @@ window.addEventListener('keydown', e => {
   if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(gameState)) {
     if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
   } else if (gameState === 'PANIC_POPUP') {
-    if (e.code === 'Space' || e.code === 'Enter') gameState = 'playing';
+    if (e.code === 'Space' || e.code === 'Enter') {
+      gameState = 'playing';
+      startPanicWave();
+    }
   } else if (gameState === 'CHAR_SELECT') {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
       selectedCharIndex = (selectedCharIndex - 1 + CHARACTER_LIST.length) % CHARACTER_LIST.length;
