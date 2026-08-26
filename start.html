@@ -619,12 +619,13 @@ const DIALOGUE_STEPS = [
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Perché sì…", type: "none", btn: "AVANTI ►" },
     { text: "Parliamo un attimo di te.", type: "none", btn: "AVANTI ►" },
-    { text: "Chi sei? dammi un nome.", type: "username", placeholder: "NOME UTENTE", btn: "CONFERMA NOME ►" },
+    { text: "Chi sei? dammi un nome.", type: "username", placeholder: "NOME UTENTE", promptBtn: "INSERISCI NOME ►", btn: "CONFERMA NOME ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { 
-        text: "Che fai nella vita che ti rappresenta, oltre a disturbarmi?", 
+        text: "ok, dimmi qualcosa che fai nella vita che ti rappresenta, oltre a disturbarmi ovviamente", 
         type: "choice_activity", 
-        infoText: "SELEZIONA LA TUA ATTIVITÀ NELL'ELENCO",
+        infoText: "qualcosa che ti rappresenta",
+        promptBtn: "SCEGLI ATTIVITÀ ►",
         options: [
             "Controllo il frigorifero anche se so già cosa c'è dentro",
             "Entro in una stanza e dimentico perché ci sono entrato",
@@ -654,7 +655,8 @@ const DIALOGUE_STEPS = [
     { 
         text: "Tu cosa sei?", 
         type: "choice_role", 
-        infoText: "SELEZIONA IL TUO RUOLO NELL'ELENCO",
+        infoText: "chi sei tu veramente?",
+        promptBtn: "SCEGLI RUOLO ►",
         options: [
             "Un collega",
             "Un amico",
@@ -676,7 +678,7 @@ const DIALOGUE_STEPS = [
     { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "E soprattutto…", type: "none", btn: "AVANTI ►" },
-    { text: "non mi ricordo che faccia hai", type: "avatar", infoText: "SCEGLI IL TUO AVATAR TRA LE TESTE", btn: "SCEGLI QUESTA TESTA ►" },
+    { text: "non mi ricordo che faccia hai", type: "avatar", infoText: "che faccia hai?", promptBtn: "SCEGLI AVATAR ►", btn: "SCEGLI QUESTA TESTA ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Non ti preoccupare.", type: "none", btn: "AVANTI ►" },
     { text: "Non ti disturbo ancora per molto.", type: "none", btn: "AVANTI ►" },
@@ -688,7 +690,7 @@ const DIALOGUE_STEPS = [
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Dai.", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Inserisci una password ora.", type: "password", placeholder: "PASSWORD", btn: "SALVA PASSWORD ►" },
+    { text: "Inserisci una password ora.", type: "password", placeholder: "PASSWORD", promptBtn: "INSERISCI PASSWORD ►", btn: "SALVA PASSWORD ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "Io intanto resto qui.", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
@@ -825,6 +827,7 @@ document.getElementById('login-submit-btn').onclick = async () => {
 };
 
 let currentStepIdx = 0;
+let stepPhase = 'dialogue'; // 'dialogue' oppure 'input'
 let tempUsername = "";
 let tempPassword = "";
 let tempAvatar = AVATAR_LIST[0];
@@ -838,6 +841,7 @@ function startOnboarding() {
     onboardingScreen.style.display = "flex";
     homeMenuBtn.style.display = "flex";
     currentStepIdx = 0;
+    stepPhase = 'dialogue';
 
     if (npcVideo.paused) {
         npcVideo.play().catch(() => {});
@@ -852,6 +856,7 @@ function renderStep() {
         autoAdvanceTimeout = null;
     }
 
+    stepPhase = 'dialogue';
     const stepData = DIALOGUE_STEPS[currentStepIdx];
     inputField.style.display = "none";
     fullCoverBox.style.display = "none";
@@ -862,13 +867,12 @@ function renderStep() {
     centerStageBox.style.display = "flex";
     npcStageBox.style.display = "flex";
 
-    if (stepData.type === "username" || stepData.type === "password") {
-        centerStageBox.appendChild(inputField);
+    // Testo del bottone durante o subito dopo la battuta parlata
+    if (stepData.type === "username" || stepData.type === "password" || stepData.type === "choice_activity" || stepData.type === "choice_role" || stepData.type === "avatar") {
+        stepBtn.innerText = stepData.promptBtn || "CONTINUA ►";
     } else {
-        document.getElementById('input-group').insertBefore(inputField, stepBtn);
+        stepBtn.innerText = stepData.btn || "AVANTI ►";
     }
-
-    stepBtn.innerText = stepData.btn || "AVANTI ►";
 
     const isDotsOnly = /^\.+$|^\s*$/.test(stepData.text.trim().replace(/\s/g, ''));
 
@@ -880,39 +884,6 @@ function renderStep() {
             }, 500);
             return;
         }
-
-        setTimeout(() => {
-            if (stepData.type === "username") {
-                inputField.style.display = "block";
-                inputField.className = "arcade-input arcade-input-bottom";
-                inputField.type = "text";
-                inputField.placeholder = stepData.placeholder;
-                inputField.maxLength = 12;
-                inputField.focus();
-            } else if (stepData.type === "password") {
-                inputField.style.display = "block";
-                inputField.className = "arcade-input arcade-input-bottom";
-                inputField.type = "password";
-                inputField.placeholder = stepData.placeholder;
-                inputField.maxLength = 20;
-                inputField.focus();
-            } else if (stepData.type === "choice_activity") {
-                fullCoverBox.style.display = "flex";
-                listInfoTitle.innerText = stepData.infoText || "SELEZIONA UN'OPZIONE";
-                renderChoiceGrid(stepData.options, (val) => { tempActivity = val; });
-                choiceGrid.style.display = "flex";
-            } else if (stepData.type === "choice_role") {
-                fullCoverBox.style.display = "flex";
-                listInfoTitle.innerText = stepData.infoText || "SELEZIONA UN'OPZIONE";
-                renderChoiceGrid(stepData.options, (val) => { tempRole = val; });
-                choiceGrid.style.display = "flex";
-            } else if (stepData.type === "avatar") {
-                fullCoverBox.style.display = "flex";
-                listInfoTitle.innerText = stepData.infoText || "SCEGLI IL TUO AVATAR";
-                renderAvatarGrid();
-                avatarGrid.style.display = "grid";
-            }
-        }, 300);
     }, isDotsOnly);
 }
 
@@ -975,6 +946,51 @@ async function advanceStep() {
 
     const stepData = DIALOGUE_STEPS[currentStepIdx];
 
+    // FASE 1: Il personaggio ha parlato, l'utente clicca il bottone per far uscire l'input o la lista
+    if (stepPhase === 'dialogue' && ["username", "password", "choice_activity", "choice_role", "avatar"].includes(stepData.type)) {
+        stepPhase = 'input';
+
+        if (stepData.type === "username") {
+            centerStageBox.appendChild(inputField);
+            inputField.style.display = "block";
+            inputField.className = "arcade-input arcade-input-bottom";
+            inputField.type = "text";
+            inputField.placeholder = stepData.placeholder;
+            inputField.maxLength = 12;
+            inputField.focus();
+            stepBtn.innerText = stepData.btn || "CONFERMA NOME ►";
+        } else if (stepData.type === "password") {
+            centerStageBox.appendChild(inputField);
+            inputField.style.display = "block";
+            inputField.className = "arcade-input arcade-input-bottom";
+            inputField.type = "password";
+            inputField.placeholder = stepData.placeholder;
+            inputField.maxLength = 20;
+            inputField.focus();
+            stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
+        } else if (stepData.type === "choice_activity") {
+            fullCoverBox.style.display = "flex";
+            listInfoTitle.innerText = stepData.infoText || "qualcosa che ti rappresenta";
+            renderChoiceGrid(stepData.options, (val) => { tempActivity = val; });
+            choiceGrid.style.display = "flex";
+            stepBtn.innerText = stepData.btn || "CONFERMA SCELTA ►";
+        } else if (stepData.type === "choice_role") {
+            fullCoverBox.style.display = "flex";
+            listInfoTitle.innerText = stepData.infoText || "chi sei tu veramente?";
+            renderChoiceGrid(stepData.options, (val) => { tempRole = val; });
+            choiceGrid.style.display = "flex";
+            stepBtn.innerText = stepData.btn || "CONFERMA SCELTA ►";
+        } else if (stepData.type === "avatar") {
+            fullCoverBox.style.display = "flex";
+            listInfoTitle.innerText = stepData.infoText || "che faccia hai?";
+            renderAvatarGrid();
+            avatarGrid.style.display = "grid";
+            stepBtn.innerText = stepData.btn || "SCEGLI QUESTA TESTA ►";
+        }
+        return;
+    }
+
+    // FASE 2: L'utente conferma l'input/scelta e salva o avanza al prossimo passo
     if (stepData.type === "username") {
         const val = inputField.value.trim();
         if (!val) { alert("Inserisci un nome utente!"); return; }
@@ -1044,6 +1060,8 @@ async function advanceStep() {
     }
 
     currentStepIdx++;
+    stepPhase = 'dialogue';
+
     if (currentStepIdx < DIALOGUE_STEPS.length) {
         renderStep();
     } else {
