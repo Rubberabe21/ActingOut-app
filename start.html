@@ -159,6 +159,7 @@
             gap: 12px;
         }
 
+        /* Sfondo con Sfumatura e Bordi Sopra/Sotto Nero Pieno (#000000) */
         #onboarding-screen {
             display: none;
             flex-direction: column;
@@ -166,8 +167,8 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            padding: max(env(safe-area-inset-top), 20px) 16px max(env(safe-area-inset-bottom), 16px) 16px;
-            background-color: #000000;
+            padding: max(env(safe-area-inset-top), 16px) 16px max(env(safe-area-inset-bottom), 16px) 16px;
+            background: linear-gradient(180deg, #000000 0%, #000000 12%, #1a0826 40%, #0a1028 65%, #000000 88%, #000000 100%);
             position: relative;
         }
 
@@ -175,10 +176,10 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             width: 100%;
-            gap: 8px;
+            gap: 6px;
             min-height: 0;
             position: relative;
             z-index: 10;
@@ -248,16 +249,14 @@
             width: 100%;
             overflow: hidden;
             flex-shrink: 0;
-            margin-top: 10px;
+            margin-top: 6px;
+            margin-bottom: 4px;
         }
         
-        /* Personaggio sempre al centro dello schermo */
         #npc-canvas {
-            width: 260px;
-            max-width: 75vw;
-            max-height: 230px;
+            width: 170px;
+            max-width: 50vw;
             height: auto;
-            object-fit: contain;
             background: transparent;
             image-rendering: pixelated;
         }
@@ -284,16 +283,15 @@
             font-weight: bold;
         }
 
-        /* Input in ALTO nello schermo sopra la nuvoletta */
-        .arcade-input-top {
+        .arcade-input-bottom {
             width: 100%;
-            padding: 14px;
-            margin-bottom: 12px;
+            padding: 12px 14px;
+            margin-top: 4px;
             background: #04040a;
             border: 2px solid #ffff00 !important;
             color: #ffff00 !important;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
             text-align: center;
             font-weight: bold;
@@ -314,7 +312,6 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
-        /* Elenchi ingranditi a copertura TOTALE del personaggio */
         .full-cover-container {
             position: absolute;
             top: max(env(safe-area-inset-top), 10px);
@@ -484,7 +481,6 @@
             </div>
         </div>
 
-        <!-- CONTENITORE COPERTURA TOTALE PER ELENCHI -->
         <div id="full-cover-box" class="full-cover-container" style="display: none;">
             <div class="list-info-header" id="list-info-title">SELEZIONA UN'OPZIONE</div>
             <div id="choice-grid" class="choice-grid" style="display: none;"></div>
@@ -509,7 +505,6 @@ if (window.supabase) {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-// Logo Animation with Chroma Key Green Screen Removal (#3DFF03)
 const logoVideo = document.getElementById('logo-video');
 const logoCanvas = document.getElementById('logo-canvas');
 const logoCtx = logoCanvas.getContext('2d', { willReadFrequently: true });
@@ -562,31 +557,38 @@ if (logoVideo) {
     logoVideo.play().catch(() => {});
 }
 
-// --- RIMOZIONE GREEN SCREEN #3DFF03 PER PERSONAGGIO.MP4 ---
 const npcVideo = document.getElementById('giovannone-video');
 const npcCanvas = document.getElementById('npc-canvas');
 const npcCtx = npcCanvas.getContext('2d', { willReadFrequently: true });
 
-npcCanvas.width = 260;
-npcCanvas.height = 230;
-
 function processNpcFrame() {
     if (npcVideo && !npcVideo.paused && !npcVideo.ended) {
         if (npcVideo.videoWidth && npcVideo.videoHeight) {
+            if (npcCanvas.width !== npcVideo.videoWidth || npcCanvas.height !== npcVideo.videoHeight) {
+                npcCanvas.width = npcVideo.videoWidth;
+                npcCanvas.height = npcVideo.videoHeight;
+            }
+
             npcCtx.drawImage(npcVideo, 0, 0, npcCanvas.width, npcCanvas.height);
             try {
                 let frame = npcCtx.getImageData(0, 0, npcCanvas.width, npcCanvas.height);
                 let data = frame.data;
-                for (let i = 0; i < data.length; i += 4) {
+                let len = data.length;
+
+                for (let i = 0; i < len; i += 4) {
                     let r = data[i];
                     let g = data[i + 1];
                     let b = data[i + 2];
 
-                    let dist = Math.sqrt((r - 61) * (r - 61) + (g - 255) * (g - 255) + (b - 3) * (b - 3));
-                    if (dist < 140 || (g > 120 && g > r * 1.2 && g > b * 1.2)) {
+                    let dist = Math.hypot(r - 61, g - 255, b - 3);
+
+                    if (dist < 145 || (g > 110 && g > r * 1.15 && g > b * 1.15)) {
                         data[i + 3] = 0;
-                    } else if (g > r && g > b && g > 140) {
-                        data[i + 1] = Math.max(r, b);
+                    } else {
+                        let maxRB = Math.max(r, b);
+                        if (g > maxRB) {
+                            data[i + 1] = maxRB;
+                        }
                     }
                 }
                 npcCtx.putImageData(frame, 0, 0);
@@ -872,65 +874,61 @@ function renderStep() {
     avatarGrid.style.display = "none";
     inputField.value = "";
 
-    // Il personaggio resta al centro di base
     centerStageBox.style.display = "flex";
     npcStageBox.style.display = "flex";
 
-    // Posizionamento Input SOPRA la nuvoletta (in alto nello schermo)
     if (stepData.type === "username" || stepData.type === "password") {
-        centerStageBox.insertBefore(inputField, speechBubbleBox);
+        centerStageBox.appendChild(inputField);
     } else {
         document.getElementById('input-group').insertBefore(inputField, stepBtn);
     }
 
     stepBtn.innerText = stepData.btn || "AVANTI ►";
 
-    typeWriter(stepData.text, () => {
-        const isDotsOnly = /^\.+$|^\s*$/.test(stepData.text.trim().replace(/\s/g, ''));
+    const isDotsOnly = /^\.+$|^\s*$/.test(stepData.text.trim().replace(/\s/g, ''));
 
+    typeWriter(stepData.text, () => {
         if (isDotsOnly && stepData.type === "none") {
+            stepBtn.disabled = true; // Mantiene il pulsante disabilitato durante i puntini
             autoAdvanceTimeout = setTimeout(() => {
                 advanceStep();
-            }, 1000);
+            }, 500); // Avanzamento automatico a 0.5 secondi
             return;
         }
 
         setTimeout(() => {
             if (stepData.type === "username") {
                 inputField.style.display = "block";
-                inputField.className = "arcade-input arcade-input-top";
+                inputField.className = "arcade-input arcade-input-bottom";
                 inputField.type = "text";
                 inputField.placeholder = stepData.placeholder;
                 inputField.maxLength = 12;
                 inputField.focus();
             } else if (stepData.type === "password") {
                 inputField.style.display = "block";
-                inputField.className = "arcade-input arcade-input-top";
+                inputField.className = "arcade-input arcade-input-bottom";
                 inputField.type = "password";
                 inputField.placeholder = stepData.placeholder;
                 inputField.maxLength = 20;
                 inputField.focus();
             } else if (stepData.type === "choice_activity") {
-                // Copre totalmente il personaggio durante la scelta dall'elenco
                 fullCoverBox.style.display = "flex";
                 listInfoTitle.innerText = stepData.infoText || "SELEZIONA UN'OPZIONE";
                 renderChoiceGrid(stepData.options, (val) => { tempActivity = val; });
                 choiceGrid.style.display = "flex";
             } else if (stepData.type === "choice_role") {
-                // Copre totalmente il personaggio durante la scelta dall'elenco
                 fullCoverBox.style.display = "flex";
                 listInfoTitle.innerText = stepData.infoText || "SELEZIONA UN'OPZIONE";
                 renderChoiceGrid(stepData.options, (val) => { tempRole = val; });
                 choiceGrid.style.display = "flex";
             } else if (stepData.type === "avatar") {
-                // Copre totalmente il personaggio durante la scelta dell'avatar
                 fullCoverBox.style.display = "flex";
                 listInfoTitle.innerText = stepData.infoText || "SCEGLI IL TUO AVATAR";
                 renderAvatarGrid();
                 avatarGrid.style.display = "grid";
             }
         }, 300);
-    });
+    }, isDotsOnly);
 }
 
 function renderChoiceGrid(options, onSelectCallback) {
@@ -1075,7 +1073,7 @@ async function advanceStep() {
 
 stepBtn.onclick = advanceStep;
 
-function typeWriter(text, onComplete) {
+function typeWriter(text, onComplete, isDotsOnly = false) {
     isTyping = true;
     stepBtn.disabled = true;
 
@@ -1090,10 +1088,14 @@ function typeWriter(text, onComplete) {
             setTimeout(type, speed);
         } else {
             if (onComplete) onComplete();
-            setTimeout(() => {
+            if (!isDotsOnly) {
+                setTimeout(() => {
+                    isTyping = false;
+                    stepBtn.disabled = false;
+                }, 300);
+            } else {
                 isTyping = false;
-                stepBtn.disabled = false;
-            }, 300);
+            }
         }
     }
     type();
