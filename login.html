@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Login - Agency Arcade</title>
+
+    <!-- SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        *, *:focus, *:active, button, input, div, a {
+        *, *:focus, *:active, button, input, select, div, a {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
@@ -16,86 +20,146 @@
             touch-action: manipulation;
             font-family: 'Courier New', Courier, monospace;
         }
+        
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #030305 !important;
+            background-color: #030308 !important;
             display: flex;
             justify-content: center;
             align-items: center;
         }
+
         #login-wrapper {
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 360px;
-            max-height: 740px;
-            box-shadow: none !important;
+            max-width: 400px;
+            max-height: 760px;
             background: #060612 !important;
-            border: none !important;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
         }
+
         .auth-box {
             width: 100%;
-            background: #090918;
-            border: 2px solid #ff0055 !important;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4) !important;
-            border-radius: 14px;
-            padding: 24px;
+            background: #0a0a1a;
+            border: 3px solid #ff0055 !important;
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.45) !important;
+            border-radius: 16px;
+            padding: 20px 16px;
             text-align: center;
-            color: #fff;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 95vh;
+            overflow-y: auto;
         }
+
         .auth-box h2 {
-            margin: 0 0 16px 0;
-            color: #ffff00;
+            margin: 0;
+            color: #ffea00;
             font-size: 18px;
-            letter-spacing: 1px;
-            text-shadow: 0 0 8px #ffff00;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 10px rgba(255, 234, 0, 0.6);
+            text-transform: uppercase;
         }
-        .auth-input {
+
+        .subtitle-text {
+            color: #00ffff;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: -4px;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: left;
+        }
+
+        .field-label {
+            font-size: 10px;
+            font-weight: 900;
+            color: #00ffff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .auth-input, .auth-select {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            background: #04040a;
-            border: 1px solid #ff0055 !important;
-            color: #ffff00 !important;
-            border-radius: 6px;
+            padding: 10px 12px;
+            background: #04040c;
+            border: 2px solid #00ffff !important;
+            color: #ffea00 !important;
+            border-radius: 8px;
             font-size: 13px;
+            font-weight: 900;
             outline: none;
             text-align: center;
+            letter-spacing: 0.5px;
+            box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.15);
         }
+
+        .auth-select {
+            text-align-last: center;
+            cursor: pointer;
+        }
+
+        .auth-input::placeholder {
+            color: #555577;
+            font-weight: normal;
+        }
+
         .auth-btn {
             width: 100%;
             padding: 12px;
-            margin-top: 6px;
-            background: #ff0055 !important;
-            color: #fff !important;
-            border: none !important;
-            border-radius: 6px;
-            font-weight: bold;
+            margin-top: 4px;
+            background: linear-gradient(180deg, #ff0055 0%, #a3003b 100%) !important;
+            color: #ffffff !important;
+            border: 2px solid #ffffff !important;
+            border-radius: 8px;
+            font-weight: 900;
             font-size: 13px;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6) !important;
+            box-shadow: 0 0 14px rgba(255, 0, 85, 0.6) !important;
+            letter-spacing: 1px;
         }
+
         .auth-btn:active { transform: scale(0.96); }
+
         .btn-guest {
-            background: #222233 !important;
-            border: 1px solid #ff0055 !important;
-            color: #ffffff !important;
-            margin-top: 10px;
+            background: #121224 !important;
+            border: 2px solid #00ffff !important;
+            color: #00ffff !important;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3) !important;
+            font-size: 12px;
+            margin-top: 0;
         }
+
         .auth-toggle {
-            margin-top: 14px;
             font-size: 11px;
+            font-weight: bold;
             color: #ff0055 !important;
             cursor: pointer;
             text-decoration: underline;
+            margin-top: 2px;
+            transition: color 0.2s;
+        }
+
+        .auth-toggle:hover {
+            color: #ffea00 !important;
         }
 
         .crt-overlay {
@@ -104,10 +168,11 @@
             pointer-events: none;
             z-index: 99;
             background: 
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.005), rgba(0, 0, 255, 0.01));
             background-size: 100% 4px, 6px 100%;
-            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.3);
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -116,16 +181,75 @@
 <div id="login-wrapper">
     <div class="auth-box">
         <h2 id="auth-title">LOGIN GIOCATORE</h2>
-        <input type="text" id="auth-username" class="auth-input" placeholder="NOME UTENTE" maxlength="12">
-        <input type="password" id="auth-password" class="auth-input" placeholder="PASSWORD">
-        <button id="auth-submit-btn" class="auth-btn">ENTRA</button>
-        <button id="auth-guest-btn" class="auth-btn btn-guest">GIOCA COME OSPITE</button>
-        <div id="auth-toggle-btn" class="auth-toggle">Non hai un account? Registrati</div>
+        <div class="subtitle-text" id="auth-subtitle">Inserisci le tue credenziali</div>
+
+        <div class="field-group">
+            <span class="field-label">NOME UTENTE</span>
+            <input type="text" id="auth-username" class="auth-input" placeholder="ES. PLAYER1" maxlength="12" autocomplete="off">
+        </div>
+
+        <div class="field-group">
+            <span class="field-label">PASSWORD</span>
+            <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" maxlength="20">
+        </div>
+
+        <!-- Campi visibili solo in Registrazione -->
+        <div class="field-group" id="group-activity" style="display: none;">
+            <span class="field-label">CHE FAI IN AGENZIA?</span>
+            <select id="auth-activity" class="auth-select">
+                <option value="Lavoro duramente">Lavoro duramente</option>
+                <option value="Mangio continuamente snack">Mangio continuamente snack</option>
+                <option value="Fingo di digitare sulla tastiera">Fingo di digitare sulla tastiera</option>
+                <option value="Bevo il quinto caffè del giorno">Bevo il quinto caffè del giorno</option>
+                <option value="Accumulo 80 schede aperte nel browser">Accumulo 80 schede aperte nel browser</option>
+                <option value="Pianifico la conquista del mondo">Pianifico la conquista del mondo</option>
+                <option value="Sguardo fisso al monitor per sembrare occupato">Sguardo fisso al monitor</option>
+                <option value="Combatto contro uno strano bug">Combatto contro uno strano bug</option>
+                <option value="Cerco di capire che lavoro sto facendo">Cerco di capire che lavoro faccio</option>
+            </select>
+        </div>
+
+        <div class="field-group" id="group-role" style="display: none;">
+            <span class="field-label">TU COSA SEI?</span>
+            <select id="auth-role" class="auth-select">
+                <option value="Un collega">Un collega</option>
+                <option value="Un amico">Un amico</option>
+                <option value="Un cliente">Un cliente</option>
+                <option value="Un conoscente">Un conoscente</option>
+                <option value="Uno che Conosce uno che lavora qui">Uno che conosce uno qui</option>
+                <option value="Un corriere">Un corriere</option>
+                <option value="Un infiltrato">Un infiltrato</option>
+                <option value="Un investigatore privato">Un investigatore privato</option>
+                <option value="Un alieno sotto copertura">Un alieno sotto copertura</option>
+                <option value="Un'IA che ha preso un corpo umano">Un'IA con corpo umano</option>
+            </select>
+        </div>
+
+        <button id="auth-submit-btn" class="auth-btn">ENTRA IN ARCADE ►</button>
+        <button id="auth-guest-btn" class="auth-btn btn-guest">GIOCA COME OSPITE 👾</button>
+
+        <div id="auth-toggle-btn" class="auth-toggle">Non hai un account? Registrati qui</div>
     </div>
     <div class="crt-overlay"></div>
 </div>
 
 <script>
+const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq"; 
+
+let supabaseClient = null;
+if (window.supabase) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+const DEFAULT_STATS = { 
+    gamesPlayed: 0, 
+    feedbackInvaders: 0, 
+    cyberRun: 0, 
+    pixelPunch: 0, 
+    deadlineDrive: 0 
+};
+
 class AuthManagerPage {
     constructor() {
         this.isRegisterMode = false;
@@ -139,75 +263,180 @@ class AuthManagerPage {
     }
 
     getUsers() {
-        return JSON.parse(localStorage.getItem('arcade_users')) || {};
+        try {
+            return JSON.parse(localStorage.getItem('arcade_users')) || {};
+        } catch(e) { return {}; }
     }
 
     saveUsers(users) {
         localStorage.setItem('arcade_users', JSON.stringify(users));
     }
 
-    register(username, password) {
+    async register(username, password, activity, role) {
+        const randomAvatar = `assets/avatars/testa${Math.floor(Math.random() * 102) + 1}.png`;
+
+        if (supabaseClient) {
+            try {
+                let { data } = await supabaseClient
+                    .from('profiles')
+                    .select('username')
+                    .eq('username', username)
+                    .maybeSingle();
+
+                if (data) {
+                    return { success: false, msg: "Nome utente già registrato sul Cloud!" };
+                }
+
+                const { error } = await supabaseClient.from('profiles').upsert({
+                    username: username,
+                    password: password,
+                    avatar: randomAvatar,
+                    activity: activity,
+                    role: role,
+                    stats: DEFAULT_STATS
+                });
+
+                if (error) {
+                    console.warn("Registrazione Supabase fallita, proseguo in locale:", error.message);
+                }
+            } catch (e) {
+                console.warn("Errore connessione Supabase:", e);
+            }
+        }
+
         let users = this.getUsers();
-        if (users[username]) return { success: false, msg: "Nome utente esistente!" };
+        if (users[username]) return { success: false, msg: "Nome utente già esistente in locale!" };
+
         users[username] = {
             password: password,
-            stats: { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, neonBlast: 0 }
+            avatar: randomAvatar,
+            activity: activity,
+            role: role,
+            stats: { ...DEFAULT_STATS }
         };
         this.saveUsers(users);
-        const currentUser = { username: username, stats: users[username].stats };
+
+        const currentUser = { 
+            username: username, 
+            avatar: randomAvatar,
+            activity: activity,
+            role: role,
+            stats: users[username].stats 
+        };
         localStorage.setItem('arcade_current_user', JSON.stringify(currentUser));
+        sessionStorage.setItem('arcade_session_active', 'true');
         return { success: true };
     }
 
-    login(username, password) {
-        let users = this.getUsers();
-        if (!users[username] || users[username].password !== password) {
-            return { success: false, msg: "Credenziali errate!" };
+    async login(username, password) {
+        let loggedUser = null;
+
+        if (supabaseClient) {
+            try {
+                let { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('password', password)
+                    .maybeSingle();
+
+                if (data) {
+                    loggedUser = {
+                        username: data.username,
+                        avatar: data.avatar || "assets/avatars/testa1.png",
+                        activity: data.activity || "",
+                        role: data.role || "",
+                        stats: data.stats || { ...DEFAULT_STATS }
+                    };
+                }
+            } catch (e) { console.warn("Supabase non disponibile:", e); }
         }
-        const currentUser = { username: username, stats: users[username].stats };
-        localStorage.setItem('arcade_current_user', JSON.stringify(currentUser));
-        return { success: true };
+
+        if (!loggedUser) {
+            let users = this.getUsers();
+            if (users[username] && users[username].password === password) {
+                loggedUser = {
+                    username: username,
+                    avatar: users[username].avatar || "assets/avatars/testa1.png",
+                    activity: users[username].activity || "",
+                    role: users[username].role || "",
+                    stats: users[username].stats || { ...DEFAULT_STATS }
+                };
+            }
+        }
+
+        if (loggedUser) {
+            localStorage.setItem('arcade_current_user', JSON.stringify(loggedUser));
+            sessionStorage.setItem('arcade_session_active', 'true');
+            return { success: true };
+        } else {
+            return { success: false, msg: "Credenziali errate o utente non trovato!" };
+        }
     }
 
     loginAsGuest() {
-        const currentUser = {
-            username: "GUEST_" + Math.floor(Math.random() * 900 + 100),
-            stats: { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, neonBlast: 0 }
+        const guestUser = {
+            username: "GUEST_" + Math.floor(Math.random() * 9000 + 1000),
+            avatar: "assets/avatars/testa1.png",
+            activity: "In esplorazione arcade",
+            role: "Ospite VIP",
+            stats: { ...DEFAULT_STATS }
         };
-        localStorage.setItem('arcade_current_user', JSON.stringify(currentUser));
+        localStorage.setItem('arcade_current_user', JSON.stringify(guestUser));
+        sessionStorage.setItem('arcade_session_active', 'true');
     }
 }
 
 const authPage = new AuthManagerPage();
 
 const authTitle = document.getElementById('auth-title');
+const authSubtitle = document.getElementById('auth-subtitle');
 const authUsername = document.getElementById('auth-username');
 const authPassword = document.getElementById('auth-password');
+const authActivity = document.getElementById('auth-activity');
+const authRole = document.getElementById('auth-role');
+const groupActivity = document.getElementById('group-activity');
+const groupRole = document.getElementById('group-role');
 const authSubmitBtn = document.getElementById('auth-submit-btn');
 const authGuestBtn = document.getElementById('auth-guest-btn');
 const authToggleBtn = document.getElementById('auth-toggle-btn');
 
 authToggleBtn.addEventListener('click', () => {
     authPage.isRegisterMode = !authPage.isRegisterMode;
+    
     authTitle.innerText = authPage.isRegisterMode ? "REGISTRAZIONE" : "LOGIN GIOCATORE";
-    authSubmitBtn.innerText = authPage.isRegisterMode ? "REGISTRATI" : "ENTRA";
-    authToggleBtn.innerText = authPage.isRegisterMode ? "Hai già un account? Accedi" : "Non hai un account? Registrati";
+    authSubtitle.innerText = authPage.isRegisterMode ? "Crea un nuovo profilo Arcade" : "Inserisci le tue credenziali";
+    authSubmitBtn.innerText = authPage.isRegisterMode ? "REGISTRATI ORA ►" : "ENTRA IN ARCADE ►";
+    authToggleBtn.innerText = authPage.isRegisterMode ? "Hai già un account? Accedi qui" : "Non hai un account? Registrati qui";
+
+    groupActivity.style.display = authPage.isRegisterMode ? "flex" : "none";
+    groupRole.style.display = authPage.isRegisterMode ? "flex" : "none";
 });
 
-authSubmitBtn.addEventListener('click', () => {
+authSubmitBtn.addEventListener('click', async () => {
     const user = authUsername.value.trim();
     const pass = authPassword.value.trim();
+    const activity = authActivity.value;
+    const role = authRole.value;
 
     if (!user || !pass) {
         alert("Inserisci Nome Utente e Password!");
         return;
     }
 
-    let res = authPage.isRegisterMode ? authPage.register(user, pass) : authPage.login(user, pass);
+    authSubmitBtn.disabled = true;
+    authSubmitBtn.innerText = "CARICAMENTO...";
+
+    let res = authPage.isRegisterMode 
+        ? await authPage.register(user, pass, activity, role) 
+        : await authPage.login(user, pass);
+
     if (res.success) {
         window.location.href = 'index.html';
     } else {
         alert(res.msg);
+        authSubmitBtn.disabled = false;
+        authSubmitBtn.innerText = authPage.isRegisterMode ? "REGISTRATI ORA ►" : "ENTRA IN ARCADE ►";
     }
 });
 

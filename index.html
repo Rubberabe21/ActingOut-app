@@ -21,7 +21,7 @@
 <script src="audioManager.js"></script>
 
 <style>
-*, *:focus, *:active, canvas, button, input, div, a {
+*, *:focus, *:active, canvas, button, input, select, div, a {
 box-sizing: border-box;
 user-select: none;
 -webkit-user-select: none;
@@ -145,43 +145,48 @@ padding: 16px;
 
 .auth-box {
 width: 100%;
-max-width: 320px;
+max-width: 360px;
+max-height: 90vh;
+overflow-y: auto;
 background: #090918;
 border: 2px solid #ff0055 !important;
-box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+box-shadow: 0 0 25px rgba(255, 0, 85, 0.45);
 border-radius: 14px;
 padding: 18px;
 text-align: center;
 color: #fff;
 }
 
+/* TESSERA AGENZIA PROFILO */
 .profile-card-header {
-background: linear-gradient(90deg, #150520, #051525);
-border: 1px solid #ff0055 !important;
-border-radius: 10px;
-padding: 10px;
-margin-bottom: 12px;
+background: linear-gradient(135deg, #150520 0%, #081028 100%);
+border: 2px solid #00f3ff !important;
+box-shadow: 0 0 12px rgba(0, 243, 255, 0.3);
+border-radius: 12px;
+padding: 12px;
+margin-bottom: 14px;
+text-align: left;
 }
 
 .profile-avatar-row {
 display: flex;
 align-items: center;
-gap: 10px;
-text-align: left;
+gap: 12px;
 }
 
 .profile-avatar {
-width: 44px;
-height: 44px;
-background: #250515;
+width: 54px;
+height: 54px;
+background: #050515;
 border: 2px solid #ff0055 !important;
 border-radius: 50%;
 display: flex;
 justify-content: center;
 align-items: center;
-font-size: 22px;
-box-shadow: 0 0 10px #ff0055;
+font-size: 26px;
+box-shadow: 0 0 12px #ff0055;
 overflow: hidden;
+flex-shrink: 0;
 }
 
 .profile-avatar img {
@@ -190,87 +195,151 @@ height: 100%;
 object-fit: cover;
 }
 
-.profile-rank-title {
-color: #ffff00;
-font-size: 11px;
-font-weight: bold;
-letter-spacing: 1px;
-}
-
-.profile-username {
-color: #ffffff;
-font-size: 15px;
-font-weight: bold;
-}
-
-.xp-bar-container {
-width: 100%;
-background: #04040a;
-border: 1px solid #ff0055 !important;
-height: 10px;
-border-radius: 5px;
-margin-top: 8px;
+.profile-info-col {
+display: flex;
+flex-direction: column;
+gap: 3px;
 overflow: hidden;
 }
 
-.xp-bar-fill {
-height: 100%;
-background: linear-gradient(90deg, #ffff00, #ff0055);
-width: 0%;
-box-shadow: 0 0 8px #ff0055;
-transition: width 0.4s ease;
+.profile-username {
+color: #ffea00;
+font-size: 16px;
+font-weight: 900;
+letter-spacing: 1px;
+text-shadow: 0 0 6px rgba(255, 234, 0, 0.5);
 }
 
-.badges-row {
-display: flex;
-justify-content: space-around;
-background: #04040a;
-border: 1px dashed rgba(255, 0, 85, 0.4) !important;
-border-radius: 8px;
-padding: 8px;
-margin-bottom: 12px;
+.profile-role-tag {
+color: #00f3ff;
+font-size: 11px;
+font-weight: bold;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
 
-.badge-item {
-font-size: 18px;
-filter: grayscale(1);
-opacity: 0.3;
-transition: all 0.3s;
+.profile-activity-tag {
+color: #ffffff;
+font-size: 10px;
+opacity: 0.85;
+line-height: 1.2;
 }
 
-.badge-item.unlocked {
-filter: grayscale(0);
-opacity: 1;
-transform: scale(1.1);
+.section-title {
+color: #ffea00;
+font-size: 12px;
+font-weight: 900;
+letter-spacing: 1px;
+margin-bottom: 8px;
+text-align: left;
+text-transform: uppercase;
+border-bottom: 1px solid rgba(255, 234, 0, 0.3);
+padding-bottom: 4px;
 }
 
-.stats-grid {
+/* LIBRERIA GIOCHI CON COPERTINE */
+.library-grid {
 display: grid;
 grid-template-columns: 1fr 1fr;
-gap: 6px;
-margin-bottom: 12px;
+gap: 8px;
+margin-bottom: 14px;
 }
 
-.stat-card {
+.game-cartridge {
 background: #04040a;
-border: 1px solid rgba(255, 0, 85, 0.4) !important;
+border: 1.5px solid #ff0055 !important;
 border-radius: 8px;
-padding: 8px 4px;
-text-align: center;
+padding: 6px;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 4px;
+box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
 }
 
-.stat-card .val {
-color: #ffff00;
-font-size: 13px;
+.cart-cover {
+width: 100%;
+aspect-ratio: 1;
+object-fit: cover;
+border-radius: 6px;
+border: 1px solid #333;
+}
+
+.cart-title {
+color: #ffffff;
+font-size: 10px;
 font-weight: bold;
-}
-
-.stat-card .lbl {
-color: #ff0055;
-font-size: 8px;
-margin-top: 2px;
 text-transform: uppercase;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+width: 100%;
+}
+
+.cart-score {
+color: #00f3ff;
+font-size: 11px;
+font-weight: 900;
+}
+
+/* SEZIONE MODIFICA PROFILO */
+.edit-profile-box {
+background: #050512;
+border: 1.5px solid #00f3ff !important;
+border-radius: 10px;
+padding: 10px;
+margin-bottom: 10px;
+text-align: left;
+}
+
+.edit-subtitle {
+color: #00f3ff;
+font-size: 10px;
 font-weight: bold;
+margin-bottom: 6px;
+text-transform: uppercase;
+}
+
+.avatar-picker-grid {
+display: grid;
+grid-template-columns: repeat(5, 1fr);
+gap: 6px;
+max-height: 130px;
+overflow-y: auto;
+padding: 4px;
+background: #000;
+border: 1px solid #333;
+border-radius: 6px;
+margin-bottom: 8px;
+}
+
+.avatar-pick-item {
+width: 100%;
+aspect-ratio: 1;
+border: 1.5px solid #333;
+border-radius: 6px;
+cursor: pointer;
+object-fit: cover;
+background: #111;
+}
+
+.avatar-pick-item.selected {
+border-color: #ff0055 !important;
+box-shadow: 0 0 8px #ff0055;
+transform: scale(1.05);
+}
+
+.pass-edit-input {
+width: 100%;
+padding: 8px;
+background: #0a0a14;
+border: 1px solid #ff0055 !important;
+color: #ffea00 !important;
+border-radius: 6px;
+font-size: 12px;
+outline: none;
+text-align: center;
 }
 
 .tab-selector {
@@ -285,10 +354,11 @@ background: #101528;
 border: 1px solid #ff0055 !important;
 color: #ffffff;
 font-size: 9px;
-padding: 5px 6px;
+padding: 6px 4px;
 border-radius: 6px;
 cursor: pointer;
 font-weight: bold;
+flex: 1;
 }
 
 .tab-btn.active {
@@ -303,7 +373,7 @@ display: flex;
 flex-direction: column;
 gap: 6px;
 margin: 10px 0;
-max-height: 190px;
+max-height: 210px;
 overflow-y: auto;
 text-align: left;
 }
@@ -335,7 +405,7 @@ white-space: nowrap;
 }
 
 .leaderboard-row .score-val {
-color: #ffff00;
+color: #00f3ff;
 font-size: 11px;
 font-weight: bold;
 }
@@ -406,68 +476,76 @@ sessionStorage.removeItem('arcade_session_active');
 </button>
 </div>
 
-<!-- PROFILE -->
+<!-- PROFILO GIOCATORE CON LIBRERIA GIOCHI E MODIFICA -->
 <div id="profile-modal" class="auth-overlay" style="display: none;">
 <div class="auth-box">
+
 <div class="profile-card-header">
 <div class="profile-avatar-row">
-<div class="profile-avatar" id="profile-avatar-box">
-👾
+<div class="profile-avatar" id="profile-avatar-box">👾</div>
+<div class="profile-info-col">
+<div id="profile-username" class="profile-username">PLAYER_1</div>
+<div id="profile-role" class="profile-role-tag">RUOLO: N/D</div>
+<div id="profile-activity" class="profile-activity-tag">ATTIVITÀ: N/D</div>
 </div>
-<div>
-<div id="profile-rank" class="profile-rank-title">
-ROOKIE 🐣
-</div>
-<div id="profile-username" class="profile-username">
-PLAYER_1
-</div>
-</div>
-</div>
-<div class="xp-bar-container">
-<div id="profile-xp-fill" class="xp-bar-fill"></div>
 </div>
 </div>
 
-<div class="badges-row">
-<span id="badge-1" class="badge-item" title="Prima partita">🕹️</span>
-<span id="badge-2" class="badge-item" title="100+ Punti">🔥</span>
-<span id="badge-3" class="badge-item" title="500+ Punti">⚡</span>
-<span id="badge-4" class="badge-item" title="Retro King">👑</span>
+<div class="section-title">LIBRERIA GIOCHI 🎮</div>
+<div class="library-grid">
+<div class="game-cartridge">
+<img src="assets/invaders/copertina.png" class="cart-cover" alt="Invaders">
+<div class="cart-title">INVADERS</div>
+<div class="cart-score" id="stat-invaders">0 PTS</div>
+</div>
+<div class="game-cartridge">
+<img src="assets/pacman/copertina.png" class="cart-cover" alt="File Bomber">
+<div class="cart-title">FILE BOMBER</div>
+<div class="cart-score" id="stat-cyber">0 PTS</div>
+</div>
+<div class="game-cartridge">
+<img src="assets/PixelPunch/copertina.png" class="cart-cover" alt="Pixel Punch">
+<div class="cart-title">PIXEL PUNCH</div>
+<div class="cart-score" id="stat-punch">0 PTS</div>
+</div>
+<div class="game-cartridge">
+<img src="assets/frogger/copertina.png" class="cart-cover" alt="Deadline Drive">
+<div class="cart-title">DEADLINE DRIVE</div>
+<div class="cart-score" id="stat-dodge">0 PTS</div>
+</div>
 </div>
 
-<div class="stats-grid">
-<div class="stat-card">
-<div class="val" id="stat-invaders">0 PTS</div>
-<div class="lbl">👾 Invaders</div>
-</div>
-<div class="stat-card">
-<div class="val" id="stat-cyber">0 PTS</div>
-<div class="lbl">💣 File Bomber</div>
-</div>
-<div class="stat-card">
-<div class="val" id="stat-punch">0 PTS</div>
-<div class="lbl">🥊 Pixel Punch</div>
-</div>
-<div class="stat-card">
-<div class="val" id="stat-dodge">0 PTS</div>
-<div class="lbl">🚗 Deadline Drive</div>
-</div>
+<button id="toggle-edit-btn" class="auth-btn" style="background:#181836; border:1px solid #00f3ff !important; color:#00f3ff; margin-bottom:8px;">
+⚙️ MODIFICA AVATAR / PASSWORD
+</button>
+
+<div id="edit-profile-box" class="edit-profile-box" style="display:none;">
+<div class="edit-subtitle">CAMBIA AVATAR</div>
+<div id="avatar-picker-grid" class="avatar-picker-grid"></div>
+
+<div class="edit-subtitle">CAMBIA PASSWORD</div>
+<input type="password" id="edit-password-input" class="pass-edit-input" placeholder="NUOVA PASSWORD (MIN 4 CARATTERI)">
+
+<button id="save-profile-changes-btn" class="auth-btn" style="background:#00f3ff; color:#000; margin-top:8px;">
+SALVA MODIFICHE ►
+</button>
 </div>
 
 <button id="profile-close-btn" class="auth-btn">
 TORNA AL GIOCO
 </button>
 
-<button id="profile-logout-btn" class="auth-btn" style="background:#550022; margin-top:8px;">
+<button id="profile-logout-btn" class="auth-btn" style="background:#550022; margin-top:6px;">
 LOGOUT / CAMBIA UTENTE
 </button>
+
 </div>
 </div>
 
-<!-- LEADERBOARD -->
+<!-- LEADERBOARD CLASSIFICA MONDIALE -->
 <div id="leaderboard-modal" class="auth-overlay" style="display: none;">
 <div class="auth-box">
-<h2 style="color:#ff0055;">
+<h2 style="color:#ff0055; margin-bottom:12px; font-size:16px;">
 🌍 CLASSIFICA MONDIALE
 </h2>
 
@@ -476,7 +554,7 @@ LOGOUT / CAMBIA UTENTE
 INVADERS
 </button>
 <button class="tab-btn" id="tab-cyberRun" onclick="switchLBTab('cyberRun')">
-FILE BOMBER
+BOMBER
 </button>
 <button class="tab-btn" id="tab-pixelPunch" onclick="switchLBTab('pixelPunch')">
 PUNCH
@@ -514,6 +592,9 @@ if (window.supabase) {
 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
+const AVATAR_LIST = Array.from({ length: 102 }, (_, i) => `assets/avatars/testa${i + 1}.png`);
+let selectedAvatarForEdit = "";
+
 class GreenKeyPipeline extends Phaser.Renderer.WebGL.Pipelines.SinglePipeline {
 constructor(game) {
 super({
@@ -532,7 +613,6 @@ float diff = distance(texColor.rgb, keyColor);
 if (diff < 0.44) {
 discard;
 } else {
-// GREEN SPILL SUPPRESSION (Rimuove il contorno verde residuo dai bordi)
 float maxRB = max(texColor.r, texColor.b);
 if (texColor.g > maxRB) {
 texColor.g = mix(texColor.g, maxRB, 0.85);
@@ -575,21 +655,6 @@ return JSON.parse(localStorage.getItem('arcade_users')) || {};
 
 saveUsers(users) {
 localStorage.setItem('arcade_users', JSON.stringify(users));
-}
-
-getRankInfo() {
-let totalPts = 0;
-if (this.currentUser) {
-let s = this.currentUser.stats;
-totalPts = (s.feedbackInvaders || 0) + (s.cyberRun || 0) + (s.pixelPunch || 0) + (s.deadlineDrive || 0);
-}
-
-if (totalPts >= 1000) return { title: "RETRO KING 👑", level: 5, xpPct: 100 };
-if (totalPts >= 500) return { title: "ARCADE HERO ⚡", level: 4, xpPct: (totalPts - 500) / 5 };
-if (totalPts >= 200) return { title: "PRO GAMER 👾", level: 3, xpPct: (totalPts - 200) / 3 };
-if (totalPts >= 100) return { title: "CHALLENGER 🕹️", level: 2, xpPct: (totalPts - 100) };
-
-return { title: "ROOKIE 🐣", level: 1, xpPct: totalPts };
 }
 
 logout() {
@@ -761,7 +826,6 @@ sprite.gameData = cab;
 this.cabinetSprites.push(sprite);
 });
 
-// SCHEDA INFO SU 3 LIVELLI (Titolo, Record, Pulsante)
 this.infoBox = this.add.container(0, 0).setDepth(80);
 this.boxBg = this.add.graphics();
 
@@ -792,13 +856,11 @@ this.boxActionText.setText(actionText);
 
 this.boxBg.clear();
 if (recordText) {
-// Layout su 3 Livelli (Cabinati dei giochi)
 this.boxBg.fillStyle(0x050515, 0.95);
 this.boxBg.lineStyle(2, 0xff0055, 1);
 this.boxBg.fillRoundedRect(-105, -36, 210, 72, 12);
 this.boxBg.strokeRoundedRect(-105, -36, 210, 72, 12);
 
-// Sottile linea divisoria neon
 this.boxBg.lineStyle(1, 0xff0055, 0.35);
 this.boxBg.lineBetween(-90, 8, 90, 8);
 
@@ -810,7 +872,6 @@ this.boxActionText.setPosition(0, 20);
 this.infoBox.setSize(210, 72);
 this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-105, -36, 210, 72), Phaser.Geom.Rectangle.Contains);
 } else {
-// Layout compatto su 2 Livelli (NPC e Tasti Standard)
 this.boxBg.fillStyle(0x050515, 0.95);
 this.boxBg.lineStyle(2, 0xff0055, 1);
 this.boxBg.fillRoundedRect(-95, -24, 190, 48, 10);
@@ -1221,11 +1282,10 @@ function openProfileModal() {
 if (!auth.currentUser) return;
 
 let s = auth.currentUser.stats || {};
-let rank = auth.getRankInfo();
 
 document.getElementById('profile-username').innerText = auth.currentUser.username;
-document.getElementById('profile-rank').innerText = rank.title;
-document.getElementById('profile-xp-fill').style.width = rank.xpPct + '%';
+document.getElementById('profile-role').innerText = "RUOLO: " + (auth.currentUser.role || "Membro Studio");
+document.getElementById('profile-activity').innerText = "ATTIVITÀ: " + (auth.currentUser.activity || "In esplorazione");
 
 const avatarBox = document.getElementById('profile-avatar-box');
 if (auth.currentUser.avatar) {
@@ -1239,8 +1299,98 @@ document.getElementById('stat-cyber').innerText = (s.cyberRun || 0).toLocaleStri
 document.getElementById('stat-punch').innerText = (s.pixelPunch || 0).toLocaleString() + " PTS";
 document.getElementById('stat-dodge').innerText = (s.deadlineDrive || 0).toLocaleString() + " PTS";
 
+selectedAvatarForEdit = auth.currentUser.avatar || AVATAR_LIST[0];
+renderAvatarPickerGrid();
+
 document.getElementById('profile-modal').style.display = 'flex';
 }
+
+function renderAvatarPickerGrid() {
+const grid = document.getElementById('avatar-picker-grid');
+if (!grid) return;
+grid.innerHTML = "";
+const fragment = document.createDocumentFragment();
+
+AVATAR_LIST.forEach((src) => {
+const img = document.createElement('img');
+img.src = src;
+img.loading = "lazy";
+img.className = `avatar-pick-item ${src === selectedAvatarForEdit ? 'selected' : ''}`;
+img.onerror = function() { this.style.display = 'none'; };
+
+img.onclick = function() {
+selectedAvatarForEdit = src;
+grid.querySelectorAll('.avatar-pick-item').forEach(el => el.classList.remove('selected'));
+this.classList.add('selected');
+};
+fragment.appendChild(img);
+});
+
+grid.appendChild(fragment);
+}
+
+document.getElementById('toggle-edit-btn').addEventListener('click', () => {
+const box = document.getElementById('edit-profile-box');
+box.style.display = box.style.display === 'none' ? 'block' : 'none';
+});
+
+document.getElementById('save-profile-changes-btn').addEventListener('click', async () => {
+const passInput = document.getElementById('edit-password-input');
+const newPass = passInput.value.trim();
+
+let hasAvatarChange = selectedAvatarForEdit && selectedAvatarForEdit !== auth.currentUser.avatar;
+let hasPassChange = newPass.length >= 4;
+
+if (!hasAvatarChange && !hasPassChange) {
+alert("Nessuna modifica effettuata o password troppo corta (min 4 caratteri)!");
+return;
+}
+
+const saveBtn = document.getElementById('save-profile-changes-btn');
+saveBtn.disabled = true;
+saveBtn.innerText = "SALVATAGGIO...";
+
+let updatedAvatar = hasAvatarChange ? selectedAvatarForEdit : auth.currentUser.avatar;
+let updatedPass = hasPassChange ? newPass : (auth.getUsers()[auth.currentUser.username] ? auth.getUsers()[auth.currentUser.username].password : null);
+
+// 1. Aggiornamento Supabase
+if (supabaseClient && auth.currentUser.username && !auth.currentUser.username.startsWith("GUEST_")) {
+try {
+let updateData = {};
+if (hasAvatarChange) updateData.avatar = updatedAvatar;
+if (hasPassChange) updateData.password = updatedPass;
+
+const { error } = await supabaseClient
+.from('profiles')
+.update(updateData)
+.eq('username', auth.currentUser.username);
+
+if (error) console.warn("Errore aggiornamento Supabase:", error.message);
+} catch (e) {
+console.warn("Connessione Supabase fallita:", e);
+}
+}
+
+// 2. Aggiornamento Locale
+auth.currentUser.avatar = updatedAvatar;
+localStorage.setItem('arcade_current_user', JSON.stringify(auth.currentUser));
+
+let users = auth.getUsers();
+if (users[auth.currentUser.username]) {
+users[auth.currentUser.username].avatar = updatedAvatar;
+if (hasPassChange) users[auth.currentUser.username].password = updatedPass;
+auth.saveUsers(users);
+}
+
+passInput.value = "";
+saveBtn.disabled = false;
+saveBtn.innerText = "SALVA MODIFICHE ►";
+document.getElementById('edit-profile-box').style.display = 'none';
+
+updateHeaderDOM();
+openProfileModal();
+alert("Profilo aggiornato con successo!");
+});
 
 async function openLeaderboardModal(gameKey) {
 if (gameKey) currentLBGameKey = gameKey;
@@ -1261,21 +1411,27 @@ listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Caric
 
 let records = [];
 
+// Lettura Classifica Globale da SupabaseProfiles (campo jsonb 'stats')
 if (supabaseClient) {
 try {
 let { data, error } = await supabaseClient
-.from('leaderboard')
-.select('username, score')
-.eq('game_key', gameKey)
-.order('score', { ascending: false })
-.limit(10);
+.from('profiles')
+.select('username, stats');
 
-if (!error && data) records = data;
+if (!error && data) {
+data.forEach(r => {
+let sc = (r.stats && r.stats[gameKey]) ? parseInt(r.stats[gameKey]) : 0;
+if (sc > 0) {
+records.push({ username: r.username, score: sc });
+}
+});
+}
 } catch (e) {
 console.warn("Supabase non raggiungibile.");
 }
 }
 
+// Fallback locale se Supabase è offline o vuoto
 if (records.length === 0) {
 let users = auth.getUsers();
 for (let uname in users) {
@@ -1291,9 +1447,11 @@ if (mySc > 0 && !records.some(r => r.username === auth.currentUser.username)) {
 records.push({ username: auth.currentUser.username, score: mySc });
 }
 }
-
-records.sort((a, b) => b.score - a.score);
 }
+
+// Ordinamento decrescente
+records.sort((a, b) => b.score - a.score);
+records = records.slice(0, 10);
 
 if (records.length === 0) {
 listEl.innerHTML = '<div class="leaderboard-row"><span class="player-name">Nessun record registrato per questo gioco!</span></div>';
