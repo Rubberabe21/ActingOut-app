@@ -550,6 +550,8 @@ const ASSETS = {
   "BRIEF CONFUSO": new Image(), "FEEDBACK EXTRA": new Image(), "LOGO PIÙ GRANDE": new Image(),
   "SCADENZA IERI": new Image(), "RENDER CRASH": new Image(), "FATTURA SCADUTA": new Image(),
   "CALL ALLE 18": new Image(), "BUDGET ZERO": new Image(), "MICRO-MANAGEMENT": new Image(),
+  "PROMPT ERRORE": new Image(), "METEO AVVERSO": new Image(), "OVERTIME NOTTURNO": new Image(),
+  "NOTIFICA SLACK": new Image(), "FINAL_V2_DEF.PDF": new Image(), "PREVENTIVO BASSISSIMO": new Image(),
   BOSS_1: new Image(), BOSS_2: new Image(), BOSS_3: new Image(), BOSS_4: new Image(), BOSS_5: new Image()
 };
 
@@ -568,6 +570,13 @@ ASSETS["FATTURA SCADUTA"].src = 'assets/invaders/fattura.png';
 ASSETS["CALL ALLE 18"].src = 'assets/invaders/call.png';
 ASSETS["BUDGET ZERO"].src = 'assets/invaders/budget.png';
 ASSETS["MICRO-MANAGEMENT"].src = 'assets/invaders/micromanagement.png';
+
+ASSETS["PROMPT ERRORE"].src = 'assets/invaders/prompt.png';
+ASSETS["METEO AVVERSO"].src = 'assets/invaders/meteo.png';
+ASSETS["OVERTIME NOTTURNO"].src = 'assets/invaders/overnight.png';
+ASSETS["NOTIFICA SLACK"].src = 'assets/invaders/notifiche.png';
+ASSETS["FINAL_V2_DEF.PDF"].src = 'assets/invaders/pdf.png';
+ASSETS["PREVENTIVO BASSISSIMO"].src = 'assets/invaders/preventivo.png';
 
 ASSETS.BOSS_1.src = 'assets/invaders/boss1.png';
 ASSETS.BOSS_2.src = 'assets/invaders/boss2.png';
@@ -1131,19 +1140,19 @@ class Enemy {
     this.shootTimer = Math.floor(Math.random() * 60);
     this.t = 0;
 
-    this.tier = wave <= 10 ? 1 : wave <= 20 ? 2 : 3;
+    this.tier = wave <= 10 ? 1 : wave <= 20 ? 2 : wave <= 30 ? 3 : wave <= 40 ? 4 : 5;
 
     switch (type) {
       case 'grunt':   
-        this.hp = 1; this.maxHp = 1; this.w = 38; this.h = 38; this.points = 100; 
+        this.hp = 1 + Math.floor(this.tier / 3); this.maxHp = this.hp; this.w = 38; this.h = 38; this.points = 100 * this.tier; 
         this.canShoot = false;
         break;
       case 'shooter': 
-        this.hp = 2 + (this.tier > 1 ? 1 : 0); this.maxHp = this.hp; this.w = 42; this.h = 42; this.points = 200; 
+        this.hp = 2 + (this.tier > 1 ? Math.floor(this.tier / 2) : 0); this.maxHp = this.hp; this.w = 42; this.h = 42; this.points = 200 * this.tier; 
         this.canShoot = true;  
         break;
       case 'tank':    
-        this.hp = 4 + (this.tier * 2); this.maxHp = this.hp; this.w = 50; this.h = 50; this.points = 500; 
+        this.hp = 4 + (this.tier * 2); this.maxHp = this.hp; this.w = 50; this.h = 50; this.points = 500 * this.tier; 
         this.canShoot = true;  
         break;
     }
@@ -1153,36 +1162,42 @@ class Enemy {
 
   setupTheme() {
     if (this.tier === 1) {
-      if (this.type === 'grunt')       { this.name = "BRIEF CONFUSO"; this.color = "#ff0055"; }
+      if (this.type === 'grunt')        { this.name = "BRIEF CONFUSO"; this.color = "#ff0055"; }
       else if (this.type === 'shooter'){ this.name = "FEEDBACK EXTRA"; this.color = "#ffaa00"; }
       else if (this.type === 'tank')   { this.name = "LOGO PIÙ GRANDE"; this.color = "#aa00ff"; }
     } else if (this.tier === 2) {
-      if (this.type === 'grunt')       { this.name = "SCADENZA IERI"; this.color = "#00ffcc"; }
+      if (this.type === 'grunt')        { this.name = "SCADENZA IERI"; this.color = "#00ffcc"; }
       else if (this.type === 'shooter'){ this.name = "RENDER CRASH"; this.color = "#ff3300"; }
       else if (this.type === 'tank')   { this.name = "FATTURA SCADUTA"; this.color = "#e60000"; }
-    } else {
-      if (this.type === 'grunt')       { this.name = "CALL ALLE 18"; this.color = "#ffff00"; }
+    } else if (this.tier === 3) {
+      if (this.type === 'grunt')        { this.name = "CALL ALLE 18"; this.color = "#ffff00"; }
       else if (this.type === 'shooter'){ this.name = "BUDGET ZERO"; this.color = "#ff00aa"; }
       else if (this.type === 'tank')   { this.name = "MICRO-MANAGEMENT"; this.color = "#00ff00"; }
+    } else if (this.tier === 4) {
+      if (this.type === 'grunt')        { this.name = "PROMPT ERRORE"; this.color = "#00ff66"; }
+      else if (this.type === 'shooter'){ this.name = "METEO AVVERSO"; this.color = "#ffea00"; }
+      else if (this.type === 'tank')   { this.name = "OVERTIME NOTTURNO"; this.color = "#9900ff"; }
+    } else {
+      if (this.type === 'grunt')        { this.name = "NOTIFICA SLACK"; this.color = "#ff0055"; }
+      else if (this.type === 'shooter'){ this.name = "FINAL_V2_DEF.PDF"; this.color = "#e60055"; }
+      else if (this.type === 'tank')   { this.name = "PREVENTIVO BASSISSIMO"; this.color = "#ff6600"; }
     }
   }
 
   update() {
     this.t++;
-    // BILANCIATO GENERALE: Velocità di discesa ridotta su tutte le 50 ondate
-    const speed = 0.8 + wave * 0.05;
-    if (this.type === 'grunt')       { this.y += speed;       this.x += Math.sin(this.t * 0.04) * 1.5; }
+    const speed = 0.8 + wave * 0.04;
+    if (this.type === 'grunt')        { this.y += speed;       this.x += Math.sin(this.t * 0.04) * 1.5; }
     else if (this.type === 'shooter') { this.y += speed * 0.6;  this.x += Math.sin(this.t * 0.03 + this.x) * 1.8; }
     else if (this.type === 'tank')    { this.y += speed * 0.4;  this.x += Math.cos(this.t * 0.02) * 1.2; }
 
     this.x = Math.max(this.w / 2, Math.min(W - this.w / 2, this.x));
     if (this.y > H + 50) this.dead = true;
 
-    // BILANCIATO GENERALE: Frequenza di sparo umana anche nelle ondate avanzate
     if (this.canShoot) {
       this.shootTimer--;
       if (this.shootTimer <= 0) {
-        this.shootTimer = Math.max(55, 120 - wave * 1.5);
+        this.shootTimer = Math.max(45, 120 - wave * 1.5);
         const dx = player.x - this.x, dy = player.y - this.y;
         const dist = Math.hypot(dx, dy) || 1, spd = 2.5 + wave * 0.05;
         enemyBullets.push(new Bullet(this.x, this.y + this.h / 2, (dx/dist)*spd, (dy/dist)*spd, this.color, 6, 6));
@@ -1197,7 +1212,7 @@ class Enemy {
       this.dead = true; score += this.points;
       spawnExplosion(this.x, this.y, this.color, 18);
       sfxEnemyExplode();
-      if (Math.random() < 0.15) spawnDrop(this.x, this.y); // Aumentato a 15% per aiutare la sopravvivenza
+      if (Math.random() < 0.15) spawnDrop(this.x, this.y);
     } else { sfxEnemyHit(); }
   }
 
@@ -1269,7 +1284,6 @@ class Boss {
 
     if (--this.attackCooldown <= 0) {
       if (this.bossIndex === 1) {
-        // BOSS 1: 8 proiettili a velocità gestibile
         this.attackCooldown = Math.max(50, 80 - wave * 0.8);
         const count = 8;
         const offset = (this.timer * 0.15);
@@ -1278,7 +1292,6 @@ class Boss {
           enemyBullets.push(new Bullet(this.x, this.y + 20, Math.cos(angle) * 2.8, Math.sin(angle) * 2.8, this.color, 8, 8));
         }
       } else if (this.bossIndex === 2) {
-        // BOSS 2: Velocità e ampiezza sparo ridotte per schivate fluide
         this.attackCooldown = Math.max(45, 75 - wave * 0.8);
         let dx = player.x - this.x, dy = player.y - this.y, d = Math.hypot(dx, dy) || 1;
         enemyBullets.push(new Bullet(this.x, this.y + 40, (dx / d) * 4.2, (dy / d) * 4.2, '#ff0055', 10, 10));
@@ -1287,7 +1300,6 @@ class Boss {
           enemyBullets.push(new Bullet(this.x, this.y + 40, Math.cos(baseAngle + off) * 3.5, Math.sin(baseAngle + off) * 3.5, '#ffea00', 7, 7));
         });
       } else if (this.bossIndex === 3) {
-        // BOSS 3: Muro di proiettili con varchi più ampi per consentire il passaggio
         this.attackCooldown = Math.max(50, 85 - wave * 1.0);
         for (let bx = 50; bx <= W - 50; bx += 70) {
           if (Math.abs(bx - player.x) > 45 || Math.random() < 0.20) {
@@ -1295,12 +1307,10 @@ class Boss {
           }
         }
       } else if (this.bossIndex === 4) {
-        // BOSS 4: Rallentata la spazzata continua
         this.attackCooldown = Math.max(16, 26 - Math.floor(wave * 0.15));
         let sweepAngle = Math.sin(this.timer * 0.10) * 0.65 + (Math.PI / 2);
         enemyBullets.push(new Bullet(this.x, this.y + 45, Math.cos(sweepAngle) * 4.2, Math.sin(sweepAngle) * 4.2, '#ffaa00', 6, 12));
       } else if (this.bossIndex === 5) {
-        // BOSS 5: Boss finale sfidante ma non imbattibile
         this.attackCooldown = Math.max(45, 75 - wave * 1.0);
         for (let i = 0; i < 8; i++) {
           let a = (Math.PI * 2 / 8) * i + (Math.random() * 0.15);
@@ -1342,7 +1352,6 @@ class Boss {
     let x = this.x, y = this.y;
     ctx.save();
 
-    // BARRA DELLA VITA E NOME FISSI IN ALTO
     ctx.fillStyle = 'rgba(10, 6, 26, 0.9)';
     ctx.fillRect(W / 2 - 140, 45, 280, 40);
     ctx.strokeStyle = '#ffffff';
@@ -1362,7 +1371,6 @@ class Boss {
     ctx.lineWidth = 1;
     ctx.strokeRect(W / 2 - 120, 65, 240, 12);
 
-    // SPRITE DEL BOSS
     const bossImg = ASSETS[`BOSS_${this.bossIndex}`];
     if (bossImg && bossImg.complete && bossImg.naturalWidth !== 0) {
       ctx.drawImage(bossImg, x - this.w / 2, y - this.h / 2, this.w, this.h);
@@ -1404,7 +1412,7 @@ function getBossNameByWave(w) {
 }
 
 function buildWave(w) {
-  let newTier = w <= 10 ? 1 : w <= 20 ? 2 : 3;
+  let newTier = w <= 10 ? 1 : w <= 20 ? 2 : w <= 30 ? 3 : w <= 40 ? 4 : 5;
   if (w === 1 || newTier !== currentTier) {
     currentTier = newTier;
     state = 'ERA_INTRO';
@@ -1618,9 +1626,14 @@ function drawEraLegend() {
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  let title = currentTier === 1 ? "ERA 1: BRIEF & FEEDBACK" : currentTier === 2 ? "ERA 2: RENDER & SCADENZE" : "ERA 3: CAOS CORPORATE";
+  let title = currentTier === 1 ? "ERA 1: BRIEF & FEEDBACK" : 
+              currentTier === 2 ? "ERA 2: RENDER & SCADENZE" : 
+              currentTier === 3 ? "ERA 3: CAOS CORPORATE" :
+              currentTier === 4 ? "ERA 4: CAOS TECH & SOFTWARE" :
+              "ERA 5: APOCALISSE CONSEGNA";
+
   ctx.fillStyle = '#ffea00';
-  ctx.font = '900 22px "Courier New", monospace';
+  ctx.font = '900 20px "Courier New", monospace';
   ctx.textAlign = 'center';
   ctx.fillText(title, W / 2, 110);
 
@@ -1636,10 +1649,18 @@ function drawEraLegend() {
     { code: "[BASE]", name: "SCADENZA IERI", desc: "Velocità di discesa aumentata", col: "#00ffcc" },
     { code: "[ATK]",  name: "RENDER CRASH", desc: "Sparo diretto a puntamento mirato", col: "#ff3300" },
     { code: "[TANK]", name: "FATTURA SCADUTA", desc: "Super barriera protettiva heavy", col: "#e60000" }
-  ] : [
+  ] : currentTier === 3 ? [
     { code: "[BASE]", name: "CALL ALLE 18", desc: "Traiettoria a zig-zag serrata", col: "#ffff00" },
     { code: "[ATK]",  name: "BUDGET ZERO", desc: "Sparo rapido ad alto impatto", col: "#ff00aa" },
     { code: "[TANK]", name: "MICRO-MANAGEMENT", desc: "Ultra resistenza & controllo area", col: "#00ff00" }
+  ] : currentTier === 4 ? [
+    { code: "[BASE]", name: "PROMPT ERRORE", desc: "Avanzata rapida in linea retta", col: "#00ff66" },
+    { code: "[ATK]",  name: "METEO AVVERSO", desc: "Scarica proiettili elettrici", col: "#ffea00" },
+    { code: "[TANK]", name: "OVERTIME NOTTURNO", desc: "Alto assorbimento colpi su ore piccole", col: "#9900ff" }
+  ] : [
+    { code: "[BASE]", name: "NOTIFICA SLACK", desc: "Sciami veloci per sopraffare il campo", col: "#ff0055" },
+    { code: "[ATK]",  name: "FINAL_V2_DEF.PDF", desc: "Rilascia glitch letali a distanza", col: "#e60055" },
+    { code: "[TANK]", name: "PREVENTIVO BASSISSIMO", desc: "Crea barriere e rallenta la flotta", col: "#ff6600" }
   ];
 
   legendList.forEach((item, idx) => {
@@ -1667,11 +1688,11 @@ function drawEraLegend() {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = item.col;
-    ctx.font = 'bold 17px "Courier New", monospace';
+    ctx.font = 'bold 16px "Courier New", monospace';
     ctx.fillText(item.name, 110, boxY + 38);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '14px "Courier New", monospace';
+    ctx.font = '13px "Courier New", monospace';
     ctx.fillText(item.desc, 110, boxY + 68);
   });
 
@@ -2021,7 +2042,7 @@ function draw() {
 
 // --- FIXED TIMESTEP LOOP (60 FPS UNIFORMI SU TUTTI I DISPOSITIVI) ---
 let lastTime = 0;
-const FIXED_STEP = 1000 / 60; // 16.66ms esatti per passo logico
+const FIXED_STEP = 1000 / 60;
 let accumulator = 0;
 
 function loop(timestamp) {
