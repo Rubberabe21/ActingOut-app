@@ -286,14 +286,14 @@
       <div class="modal-title">📖 REGOLE DI GIOCO</div>
 
       <div class="info-card" style="border-color:#ff0055;">
-        <h4 style="color:#ff0055;">1. EVITA IL BURNOUT! 💀</h4>
+        <h4 style="color:#ff0055;">1. EVITA IL BURNOUT!</h4>
         <p>• Colpisci i ticket prima che scadano.</p>
         <p>• Ogni errore o ritardo alza lo STRESS.</p>
         <p style="color:#ffea00; font-weight:900;">• Al 100% di Stress il server va in CRASH!</p>
       </div>
 
       <div class="info-card" style="border-color:#00ffff;">
-        <h4 style="color:#00ffff;">2. TIPOLOGIE DI TICKET 🕹️</h4>
+        <h4 style="color:#00ffff;">2. TIPOLOGIE DI TICKET</h4>
         <p>• <span style="color:#ff0055; font-weight:900;">🔴 ROSSI</span> (1 Tap): +100 PTS</p>
         <p>• <span style="color:#d000ff; font-weight:900;">🟣 VIOLA</span> (2 Tap): +250 PTS</p>
         <p>• <span style="color:#ffea00; font-weight:900;">☕ CAFFÈ</span> / <span style="color:#ffea00; font-weight:900;">🌟 VIP</span>: +300/500 PTS & -STRESS</p>
@@ -301,7 +301,7 @@
       </div>
 
       <div class="info-card" style="border-color:#ff0055;">
-        <h4 style="color:#ff0055;">3. TRAPPOLE DA EVITARE! ⚠️</h4>
+        <h4 style="color:#ff0055;">3. TRAPPOLE DA EVITARE!</h4>
         <p>• <span style="color:#00ff66; font-weight:900;">🟢 VERDE</span> (APPROVATO) & <span style="color:#ff0055; font-weight:900;">🖤 NERO</span> (CORROTTO)</p>
         <p style="color:#ff0055; font-weight:900;">NON TOCARLI: +12% STRESS!</p>
       </div>
@@ -1047,7 +1047,7 @@ function draw() {
         // BOX 1: EVITA IL BURNOUT
         draw80sBox(ctx, 20, 52, W - 40, 80, '#ff0055', '#180a18', 2);
         ctx.fillStyle = '#ff0055'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('1. EVITA IL BURNOUT! 💀', W / 2, 70);
+        ctx.fillText('1. EVITA IL BURNOUT!', W / 2, 70);
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('Colpisci i ticket prima che scadano.', W / 2, 90);
         ctx.fillStyle = '#ffea00'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
@@ -1056,7 +1056,7 @@ function draw() {
         // BOX 2: TICKET & POTENZIAMENTI
         draw80sBox(ctx, 20, 142, W - 40, 180, '#00ffff', '#0a1628', 2);
         ctx.fillStyle = '#00ffff'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('2. TICKET & POTENZIAMENTI 🕹️', W / 2, 162);
+        ctx.fillText('2. TIPOLOGIE DI TICKET', W / 2, 162);
 
         let items = [
             { label: '🔴 ROSSI (1 Tap)', desc: '+100 PTS', col: '#ff0055' },
@@ -1076,7 +1076,7 @@ function draw() {
         // BOX 3: TRAPPOLE
         draw80sBox(ctx, 20, 332, W - 40, 110, '#ff0055', '#1a0810', 2);
         ctx.fillStyle = '#ff0055'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 352);
+        ctx.fillText('3. TRAPPOLE DA EVITARE!', W / 2, 352);
 
         ctx.fillStyle = '#00ff66'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('🟢 VERDE (APPROVATO)', W / 2, 376);
@@ -1187,19 +1187,19 @@ function draw() {
             ctx.fillStyle = 'rgba(0,0,0,0.5)';
             ctx.fillRect(padX + 5, padY + p.h - 8, (p.w - 10) * (1 - timerPct), 4);
 
-            // Testo nitido con hard shadow 1px
+            // Testo nitido ingrandito (14px) con hard shadow 1px
             ctx.save();
-            ctx.font = '900 12px "Courier New", monospace';
+            ctx.font = '900 14px "Courier New", monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
             ctx.shadowOffsetX = 1;
             ctx.shadowOffsetY = 1;
             ctx.shadowBlur = 0;
 
             ctx.fillStyle = txtCol;
-            ctx.fillText(p.line1, padX + p.w / 2, padY + 60);
+            ctx.fillText(p.line1, padX + p.w / 2, padY + 58);
             ctx.fillText(p.line2, padX + p.w / 2, padY + 78);
             ctx.restore();
         }
