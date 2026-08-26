@@ -642,7 +642,6 @@ class AuthManager {
     }
   }
 
-  // Sincronizza SEMPRE il profilo e le stats correnti direttamente da Supabase Cloud
   async syncWithSupabase() {
     if (!this.currentUser || !this.currentUser.username || this.currentUser.username.startsWith("GUEST_")) return;
     if (!supabaseClient) return;
@@ -799,8 +798,9 @@ frameRate: 8,
 repeat: -1
 });
 
+// POSIZIONE DI PARTENZA: Se primo ingresso, si posiziona a X=278 (al centro tra Gabri e Pierri)
 let savedX = parseFloat(localStorage.getItem('arcade_player_x'));
-let startX = (!isNaN(savedX) && savedX > 200) ? savedX : Math.floor(worldWidth / 3);
+let startX = (!isNaN(savedX) && savedX > 0) ? savedX : 278;
 
 this.player = this.physics.add.sprite(startX, floorY, 'player');
 this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
@@ -857,6 +857,29 @@ this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
 this.keyEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
 this.setupTouchControls(vWidth, vHeight);
+
+// VERIFICA PRIMO INGRESSO NEL GIOCO -> MOSTRA NUVOLETTA INTRODUZIONE
+if (!localStorage.getItem('arcade_hub_intro_seen')) {
+  localStorage.setItem('arcade_hub_intro_seen', 'true');
+  this.startIntroDialogue();
+}
+}
+
+startIntroDialogue() {
+this.infoBox.setVisible(false);
+this.isDialogueOpen = true;
+this.dialogueIndex = 0;
+this.activeSpeaker = 'intro';
+this.npcLines = [
+"È una giornata come tutte le altre qua in ACTING OUT.",
+"Video da montare, grafiche da chiudere, consegne che incombono.",
+"Ma oggi c’è qualcosa di diverso.",
+"Da qualche parte nello studio sono comparsi quattro cabinati.",
+"E a quanto pare… qualcuno ha già iniziato a fare sul serio con i punteggi.",
+"Il lavoro può aspettare... ... ...  La classifica no."
+];
+this.showDialogueLine();
+this.dialogueContainer.setVisible(true);
 }
 
 showInfoCard(x, y, title, recordText, actionText) {
@@ -1003,7 +1026,10 @@ this.dialoguePrompt.setPosition(210 / 2 - 25, boxH / 2 - 12);
 let targetX = this.npc.x;
 let targetY = this.npc.y;
 
-if (this.activeSpeaker === 'gabri') {
+if (this.activeSpeaker === 'intro') {
+targetX = this.player.x;
+targetY = this.player.y;
+} else if (this.activeSpeaker === 'gabri') {
 targetX = this.gabri.x;
 targetY = this.gabri.y;
 } else if (this.activeSpeaker === 'pierri') {
@@ -1186,6 +1212,13 @@ if (this.isDialogueOpen) {
 this.player.setVelocityX(0);
 this.player.play('idle', true);
 this.infoBox.setVisible(false);
+
+// Se la nuvoletta è agganciata al giocatore (intro), aggiorna la sua posizione X mentre lo schermo scorre
+if (this.activeSpeaker === 'intro') {
+let boxH = this.dialogueText.height + 40;
+if (boxH < 70) boxH = 70;
+this.dialogueContainer.setPosition(this.player.x, this.player.y - 210 - boxH / 2);
+}
 return;
 }
 
@@ -1292,7 +1325,6 @@ let currentLBGameKey = 'feedbackInvaders';
 async function openProfileModal() {
 if (!auth.currentUser) return;
 
-// Sincronizzazione live prima di aprire la modale
 await auth.syncWithSupabase();
 
 let s = auth.currentUser.stats || {};
@@ -1366,7 +1398,6 @@ saveBtn.innerText = "SALVATAGGIO...";
 
 let updatedAvatar = hasAvatarChange ? selectedAvatarForEdit : auth.currentUser.avatar;
 
-// 1. Aggiornamento Supabase Cloud
 if (supabaseClient && auth.currentUser.username && !auth.currentUser.username.startsWith("GUEST_")) {
 try {
 let updateData = {};
@@ -1384,7 +1415,6 @@ console.warn("Connessione Supabase fallita:", e);
 }
 }
 
-// 2. Aggiornamento Sessione
 auth.currentUser.avatar = updatedAvatar;
 localStorage.setItem('arcade_current_user', JSON.stringify(auth.currentUser));
 
@@ -1404,7 +1434,6 @@ document.getElementById('leaderboard-modal').style.display = 'flex';
 await fetchLeaderboardFromSupabase(currentLBGameKey);
 }
 
-// Lettura e ordinamento diretta da SupabaseProfiles per la Classifica Mondiale
 async function fetchLeaderboardFromSupabase(gameKey) {
 currentLBGameKey = gameKey;
 
@@ -1447,7 +1476,6 @@ console.warn("Supabase non raggiungibile.");
 }
 }
 
-// Ordinamento decrescente
 records.sort((a, b) => b.score - a.score);
 records = records.slice(0, 10);
 

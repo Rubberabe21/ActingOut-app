@@ -713,12 +713,6 @@ function getSavedUser() {
     } catch(e) { return null; }
 }
 
-function getUsers() {
-    try {
-        return JSON.parse(localStorage.getItem('arcade_users')) || {};
-    } catch(e) { return {}; }
-}
-
 const landingScreen = document.getElementById('landing-screen');
 const onboardingScreen = document.getElementById('onboarding-screen');
 const loginModal = document.getElementById('login-modal');
@@ -809,25 +803,16 @@ document.getElementById('login-submit-btn').onclick = async () => {
                 .eq('password', pVal)
                 .maybeSingle();
 
-            if (data) {
+            if (data && !error) {
                 loggedUser = {
                     username: data.username,
                     avatar: data.avatar || "assets/avatars/testa1.png",
+                    activity: data.activity || "",
+                    role: data.role || "",
                     stats: data.stats || defaultStats
                 };
             }
         } catch (e) { console.warn("Errore login Supabase:", e); }
-    }
-
-    if (!loggedUser) {
-        let users = getUsers();
-        if (users[uVal] && users[uVal].password === pVal) {
-            loggedUser = {
-                username: uVal,
-                avatar: users[uVal].avatar || "assets/avatars/testa1.png",
-                stats: users[uVal].stats || defaultStats
-            };
-        }
     }
 
     if (loggedUser) {
@@ -835,7 +820,7 @@ document.getElementById('login-submit-btn').onclick = async () => {
         sessionStorage.setItem('arcade_session_active', 'true');
         window.location.replace("index.html");
     } else {
-        alert("Credenziali errate o utente non trovato!");
+        alert("Credenziali errate o utente non trovato su Supabase!");
     }
 };
 
@@ -889,10 +874,10 @@ function renderStep() {
 
     typeWriter(stepData.text, () => {
         if (isDotsOnly && stepData.type === "none") {
-            stepBtn.disabled = true; // Mantiene il pulsante disabilitato durante i puntini
+            stepBtn.disabled = true;
             autoAdvanceTimeout = setTimeout(() => {
                 advanceStep();
-            }, 500); // Avanzamento automatico a 0.5 secondi
+            }, 500);
             return;
         }
 
@@ -997,12 +982,15 @@ async function advanceStep() {
         if (supabaseClient) {
             try {
                 let { data } = await supabaseClient.from('profiles').select('username').eq('username', val).maybeSingle();
-                if (data) { alert("Nome utente già esistente!"); return; }
-            } catch (e) {}
+                if (data) { alert("Nome utente già esistente sul Cloud!"); return; }
+            } catch (e) {
+                console.warn("Errore verifica username Supabase:", e);
+            }
+        } else {
+            alert("Connessione a Supabase non disponibile!");
+            return;
         }
 
-        let users = getUsers();
-        if (users[val]) { alert("Nome utente già esistente!"); return; }
         tempUsername = val;
 
     } else if (stepData.type === "choice_activity") {
@@ -1035,17 +1023,10 @@ async function advanceStep() {
                 alert("Errore durante il salvataggio su Supabase!");
                 return;
             }
+        } else {
+            alert("Connessione a Supabase non disponibile!");
+            return;
         }
-
-        let users = getUsers();
-        users[tempUsername] = { 
-            password: tempPassword, 
-            avatar: tempAvatar, 
-            activity: tempActivity,
-            role: tempRole,
-            stats: defaultStats 
-        };
-        localStorage.setItem('arcade_users', JSON.stringify(users));
 
         const newUser = { 
             username: tempUsername, 
