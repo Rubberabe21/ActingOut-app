@@ -415,16 +415,16 @@
 
       <div class="info-card" style="border-color:#00ffcc;">
         <h4 style="color:#00ffcc;">🎨 LAURA - Senior Designer</h4>
-        <p style="display:block;">• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Render Master (+1 Gomma & +1 Raggio Warp)</p>
-        <p style="display:block;">• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Precisione Senior (-5% Velocità corsa)</p>
+        <p style="display:block;">• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Controllo Multi-Gomma (2 Bombe simultanee)</p>
+        <p style="display:block;">• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Raggio Contenuto (Esplosione Livello 1)</p>
         <p style="display:block;">• Moltiplicatore Punti: x1.0</p>
       </div>
 
       <div class="info-card" style="border-color:#ffd700;">
         <h4 style="color:#ffd700;">🎨 GUIDO - Junior Designer</h4>
-        <p style="display:block;">• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Agilità Junior (+20% Vel. & +15% PTS)</p>
-        <p style="display:block;">• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Bozza Iniziale (1 Gomma & Raggio Base)</p>
-        <p style="display:block;">• Moltiplicatore Punti: x1.15</p>
+        <p style="display:block;">• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Super Warp Brush (Esplosione Livello 2)</p>
+        <p style="display:block;">• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Singola Bozza (1 Sola Bomba simultanea)</p>
+        <p style="display:block;">• Moltiplicatore Punti: x1.15 | Velocità +15%</p>
       </div>
 
       <button class="close-modal-btn" id="btnClosePerks">◄ TORNA ALLE OPZIONI</button>
@@ -699,34 +699,34 @@ const CHARACTERS = {
     id: 'LAURA',
     name: "LAURA",
     role: "Senior Graphic Designer",
-    perkBonusTitle: "BONUS: Render Master",
-    perkBonusDesc: "+1 Gomma | +1 Raggio Warp",
-    perkMalusTitle: "MALUS: Precisione Senior",
-    perkMalusDesc: "-5% Velocità di Corsa",
+    perkBonusTitle: "BONUS: Controllo Multi-Gomma",
+    perkBonusDesc: "2 Bombe Simultanee (Frequenza +)",
+    perkMalusTitle: "MALUS: Raggio Contenuto",
+    perkMalusDesc: "Potenza Esplosione Base (Liv. 1)",
     primary: "#00ffcc",
     wallCol: "#00aaff",
     portrait: ASSETS.LAURA,
     movImg: ASSETS.MOV_LAURA,
-    speed: 2.1,
+    speed: 2.2,
     baseBombs: 2,
-    baseRange: 2,
+    baseRange: 1,
     scoreMult: 1.0
   },
   GUIDO: {
     id: 'GUIDO',
     name: "GUIDO",
     role: "Junior Graphic Designer",
-    perkBonusTitle: "BONUS: Agilità Junior",
-    perkBonusDesc: "+20% Velocità | +15% Punti",
-    perkMalusTitle: "MALUS: Bozza Iniziale",
-    perkMalusDesc: "1 Gomma & Raggio Base",
+    perkBonusTitle: "BONUS: Super Warp Brush",
+    perkBonusDesc: "Esplosione Potenziata (Raggio Liv. 2)",
+    perkMalusTitle: "MALUS: Singola Bozza",
+    perkMalusDesc: "1 Sola Gomma Simultanea",
     primary: "#ffd700",
     wallCol: "#ffaa00",
     portrait: ASSETS.GUIDO,
     movImg: ASSETS.MOV_GUIDO,
-    speed: 2.6,
+    speed: 2.5,
     baseBombs: 1,
-    baseRange: 1,
+    baseRange: 2,
     scoreMult: 1.15
   }
 };
@@ -765,10 +765,8 @@ async function saveScore(finalScore) {
   }
   curUser.stats.gamesPlayed = (curUser.stats.gamesPlayed || 0) + 1;
 
-  // 1. Aggiorna la sessione attiva
   localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
 
-  // 2. Salvataggio Cloud su Supabase
   if (supabaseClient && curUser.username && !curUser.username.startsWith("GUEST_")) {
     try {
       const { error } = await supabaseClient
@@ -1057,11 +1055,9 @@ function loadLevel() {
   for (let r = 0; r < ROWS; r++) {
     map[r] = []; blockData[r] = [];
     for (let c = 0; c < COLS; c++) {
-      // Bordi esterni indistruttibili
       if (r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1) {
         map[r][c] = 1; blockData[r][c] = null;
       } 
-      // Nei livelli Boss, rimuoviamo i pilastri interni fisso per creare una grande arena aperta in cui il Boss 2x2 si muove liberamente!
       else if (!isBossLevel && (r % 2 === 0 && c % 2 === 0)) {
         map[r][c] = 1; blockData[r][c] = null;
       } else if ((r <= 2 && c <= 2) || (r >= ROWS - 3 && c >= COLS - 3)) {
@@ -1087,7 +1083,6 @@ function loadLevel() {
     let bossEra = Math.min(5, Math.floor(level / 10));
     let bossHp = 10 + (bossEra - 1) * 5;
 
-    // Pulisci l'area centrale per lo spawn del Boss
     for (let br = 5; br <= 8; br++) {
       for (let bc = 5; bc <= 8; bc++) {
         map[br][bc] = 0;
@@ -1195,7 +1190,7 @@ function triggerExplosion(b) {
             score += Math.floor(blk.pts * currentBoss.scoreMult);
             if (Math.random() < blk.dropChance) {
               let types = ['BOMB_UP', 'FIRE_UP', 'SPEED_UP', 'COFFEE', 'COMMAND_Z'];
-              let weights = [0.25, 0.25, 0.20, 0.20, 0.10]; // 10% di possibilità per Command-Z
+              let weights = [0.25, 0.25, 0.20, 0.20, 0.10];
               let rand = Math.random(), sum = 0, pickedType = types[0];
               for (let t = 0; t < types.length; t++) {
                 sum += weights[t];
@@ -1305,17 +1300,14 @@ function updateEnemies() {
 
     let moveSpeed = e.speed;
 
-    // PATTERN DIVERSIFICATI PER I BOSS 2x2
     if (e.isBoss) {
-      // Boss Era 3: Jumper / Burst
       if (e.era === 3) {
         e.burstTimer = (e.burstTimer || 0) + 1;
         if (e.burstTimer > 100) {
-          moveSpeed *= 2.0; // Scatto improvviso!
+          moveSpeed *= 2.0;
           if (e.burstTimer > 130) e.burstTimer = 0;
         }
       }
-      // Boss Era 4 & 5: Inseguimento diretto del player
       else if (e.era >= 4) {
         let pGx = Math.floor(player.x / CELL_SIZE);
         let pGy = Math.floor(player.y / CELL_SIZE);
@@ -1341,8 +1333,7 @@ function updateEnemies() {
             for (let dc = 0; dc < 2; dc++) {
               let checkC = ngx + dc, checkR = ngy + dr;
               if (checkC < 0 || checkC >= COLS || checkR < 0 || checkR >= ROWS) return false;
-              if (map[checkR][checkC] === 1) return false; // Muro fisso
-              // Se Boss Era 2 (Kernel Panic) incontra un blocco distrutto, lo demolisce nel suo percorso!
+              if (map[checkR][checkC] === 1) return false;
               if (e.era === 2 && map[checkR][checkC] === 2) {
                 map[checkR][checkC] = 0; blockData[checkR][checkC] = null;
                 playSound('hit_block');
@@ -2038,7 +2029,7 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#ffea00'; ctx.font = '900 28px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('IN PAUSA', W / 2, H / 2 - 15);
-    ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 13px Courier New';
+    ctx.fillStyle = '#00f3ff'; ctx.font = 'bold 13px Courier New';
     ctx.fillText('TOCCA IL GIOCO PER RIPRENDERE', W / 2, H / 2 + 20);
     return;
   }
@@ -2047,8 +2038,10 @@ function drawScreens() {
     ctx.fillStyle = 'rgba(0,0,0,0.88)'; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = currentBoss.primary; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
     ctx.fillText('GAME OVER 💀', W / 2, H / 2 - 35);
-    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px Courier New'; ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + 10);
-    ctx.fillStyle = '#ff0055'; ctx.font = '14px Courier New'; ctx.fillText(`RECORD: ${hiScore}`, W / 2, H / 2 + 40);
+    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 18px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + 10);
+    ctx.fillStyle = '#ff0055'; ctx.font = '14px Courier New';
+    ctx.fillText(`RECORD: ${hiScore}`, W / 2, H / 2 + 40);
     ctx.fillStyle = Math.floor(frame / 30) % 2 === 0 ? '#fff' : currentBoss.primary;
     ctx.font = '900 14px Courier New'; ctx.fillText('TOCCA PER RIPROVARE', W / 2, H / 2 + 90);
   }
@@ -2136,7 +2129,7 @@ function draw() {
 
 // --- FIXED TIMESTEP LOOP (60 FPS UNIFORMI SU TUTTI I DISPOSITIVI) ---
 let lastTime = 0;
-const FIXED_STEP = 1000 / 60; // 16.66ms esatti per passo logico
+const FIXED_STEP = 1000 / 60;
 let accumulator = 0;
 
 function loop(timestamp) {
