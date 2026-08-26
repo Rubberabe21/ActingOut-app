@@ -498,12 +498,12 @@ const CHARACTERS = {
     primary: "#ffd700", img: imgTobi, speed: 1.15, scoreMult: 0.9
   },
   DAVE: {
-    id: 'DAVE', name: "DAVE", subtitle: "VideoMaker Senior",
+    id: 'DAVE', name: "DAVE", subtitle: "Editor Senior (Il più anziano)",
     perkBonus: "BONUS: Esperienza (+30% Punteggio)", perkMalus: "MALUS: Passo Pesante (-15% Velocità)",
     primary: "#ff0055", img: imgDave, speed: 0.85, scoreMult: 1.3
   },
   LUCA: {
-    id: 'LUCA', name: "LUCA", subtitle: "Multitasking Operator",
+    id: 'LUCA', name: "LUCA", subtitle: "VFX Artist (Multitasking Pro)",
     perkBonus: "BONUS: Multitasking (+15% Punti)", perkMalus: "MALUS: Troppi Render Attivi",
     primary: "#ffaa00", img: imgLuca, speed: 1.05, scoreMult: 1.15
   }
@@ -513,21 +513,34 @@ const CHARACTER_LIST = ['GIULIA', 'TOBI', 'DAVE', 'LUCA'];
 let selectedCharIndex = 0;
 let currentTheme = CHARACTERS.GIULIA;
 
+/* BLOCCHI DIVERSIFICATI (9 TIPI CON DIMENSIONI, COLORI E COMPORTAMENTI UNICI) */
 const BLOCK_TYPES = {
   A_ROLL: {
     id: 'A_ROLL', label: 'A001_C004', bg: '#2b52a1', border: '#5682e8', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.2
   },
   SPEED_RAMP: {
-    id: 'SPEED_RAMP', label: 'SPEED RAMP ⚡', bg: '#7f22a7', border: '#b842df', textCol: '#ffffff', topBar: '#ff0055', wMult: 2.3
+    id: 'SPEED_RAMP', label: 'SPEED ⚡', bg: '#7f22a7', border: '#b842df', textCol: '#ffffff', topBar: '#ff0055', wMult: 2.3
   },
   LUMETRI: {
-    id: 'LUMETRI', label: 'LUMETRI COLOR 🎨', bg: '#a11b43', border: '#e64273', textCol: '#ffffff', topBar: '#ffee00', wMult: 2.1
+    id: 'LUMETRI', label: 'LUMETRI 🎨', bg: '#a11b43', border: '#e64273', textCol: '#ffffff', topBar: '#ffee00', wMult: 2.1
   },
   PROXY_FADE: {
-    id: 'PROXY_FADE', label: 'PROXY 50% 🎬', bg: '#147b85', border: '#23b3be', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.4
+    id: 'PROXY_FADE', label: 'PROXY 🎬', bg: '#147b85', border: '#23b3be', textCol: '#ffffff', topBar: '#00ff66', wMult: 2.4
   },
   OFFLINE_CORRUPT: {
     id: 'OFFLINE_CORRUPT', label: 'OFFLINE 🔴', bg: '#8b0000', border: '#ff3333', textCol: '#ffffff', topBar: '#ff0000', wMult: 2.2
+  },
+  AUDIO_WAVE: {
+    id: 'AUDIO_WAVE', label: 'WAVE 🎵', bg: '#005f73', border: '#0a9396', textCol: '#e0f2fe', topBar: '#94d2bd', wMult: 1.4
+  },
+  NESTED_SEQ: {
+    id: 'NESTED_SEQ', label: 'NEST_SEQ 📦', bg: '#ca6702', border: '#ee9b00', textCol: '#ffffff', topBar: '#e9d8a6', wMult: 3.2
+  },
+  TITLER_CG: {
+    id: 'TITLER_CG', label: 'TITLE 📝', bg: '#9d0208', border: '#dc2f02', textCol: '#ffffff', topBar: '#ffba08', wMult: 1.3
+  },
+  TRANSITION_X: {
+    id: 'TRANSITION_X', label: 'DISSOLVE 🔀', bg: '#4a154b', border: '#7b2cbf', textCol: '#ffffff', topBar: '#00fff5', wMult: 1.7
   }
 };
 
@@ -556,8 +569,8 @@ let particles = [];
 let panicModeActive = false;
 let hasSeenPanicPopup = false;
 let panicWaveCount = 0;
-let panicTimer = 0; // Frame rimanenti per l'ondata attiva
-let panicCooldown = 0; // Cooldown tra un'ondata e l'altra
+let panicTimer = 0;
+let panicCooldown = 0; // Cooldown lungo tra le ondate
 let voidGy = ROWS + 3; // Riga rossa di cancellazione
 let voidStepTimer = 0;
 
@@ -603,7 +616,7 @@ function advanceMenuState() {
 
 function startPanicWave() {
   panicWaveCount++;
-  // La 1° ondata dura 20 sec (1200 frame). Le successive aumentano di 5 sec (300 frame) alla volta!
+  // La 1° ondata dura 20 sec (1200 frame). Le successive aumentano di 5 sec (300 frame)
   let durationSec = 20 + (panicWaveCount - 1) * 5;
   panicTimer = durationSec * 60;
   panicModeActive = true;
@@ -622,12 +635,17 @@ function createNewLane(isInitialSetup = false, r = 0) {
   let dir = Math.random() < 0.5 ? 1 : -1;
   let baseSpeed = 0.38 + Math.min((laneLevelIndex - 1) * 0.09, 0.85);
 
+  // SELEZIONE UNICA DEL BLOCCO PER L'INTERA CORSA IN BASE AL LIVELLO
   let selectedBlockType = BLOCK_TYPES.A_ROLL;
   if (laneLevelIndex === 2) selectedBlockType = BLOCK_TYPES.SPEED_RAMP;
   else if (laneLevelIndex === 3) selectedBlockType = BLOCK_TYPES.LUMETRI;
   else if (laneLevelIndex === 4) selectedBlockType = BLOCK_TYPES.PROXY_FADE;
-  else if (laneLevelIndex >= 5) {
-    let types = [BLOCK_TYPES.SPEED_RAMP, BLOCK_TYPES.LUMETRI, BLOCK_TYPES.PROXY_FADE, BLOCK_TYPES.OFFLINE_CORRUPT];
+  else if (laneLevelIndex === 5) selectedBlockType = BLOCK_TYPES.AUDIO_WAVE;
+  else if (laneLevelIndex === 6) selectedBlockType = BLOCK_TYPES.NESTED_SEQ;
+  else if (laneLevelIndex === 7) selectedBlockType = BLOCK_TYPES.TITLER_CG;
+  else if (laneLevelIndex === 8) selectedBlockType = BLOCK_TYPES.TRANSITION_X;
+  else if (laneLevelIndex >= 9) {
+    let types = Object.values(BLOCK_TYPES);
     selectedBlockType = types[Math.floor(Math.random() * types.length)];
   }
 
@@ -645,12 +663,12 @@ function createNewLane(isInitialSetup = false, r = 0) {
 
   if (laneType === 'ROAD') {
     let x = TRACK_HEADER_W - CELL_SIZE * 2;
-    let minGap = CELL_SIZE * Math.max(3.6, 5.8 - Math.min((laneLevelIndex - 1) * 0.2, 1.8));
+    let minGap = CELL_SIZE * Math.max(3.5, 5.8 - Math.min((laneLevelIndex - 1) * 0.2, 1.8));
 
     do {
-      x += CELL_SIZE * (1.2 + Math.random() * 1.4) + minGap;
+      x += CELL_SIZE * (1.1 + Math.random() * 1.3) + minGap;
       if (x < CANVAS_W + CELL_SIZE * 2) {
-        let widthFactor = Math.min(2.3, selectedBlockType.wMult);
+        let widthFactor = Math.min(3.2, selectedBlockType.wMult);
         laneObj.objects.push({
           x,
           type: selectedBlockType,
@@ -794,13 +812,15 @@ function updateVehicles() {
   visualScrollOffset += (0 - visualScrollOffset) * 0.25;
   if (Math.abs(visualScrollOffset) < 0.1) visualScrollOffset = 0;
 
-  // GESTIONE ONDATA PANICO CON TIMER E COOLDOWN
+  // GESTIONE ONDATA PANICO CON TIMER E COOLDOWN ALLUNGATO
   if (panicModeActive && gameState === 'playing') {
     panicTimer--;
 
-    // Avanzamento riga rossa dal basso
+    // LA CANCELLAZIONE ROSSA ORA SALE PIÙ VELOCEMENTE PER CREARE VERO PANICO!
+    // Più l'ondata è alta, più sale rapida (da 40 frame fino a 25 frame per riga)
+    let voidStepDelay = Math.max(25, 42 - Math.min(panicWaveCount * 3, 17));
     voidStepTimer++;
-    if (voidStepTimer >= 100) {
+    if (voidStepTimer >= voidStepDelay) {
       voidStepTimer = 0;
       if (voidGy > 1) voidGy--;
     }
@@ -810,15 +830,14 @@ function updateVehicles() {
       hitPlayer();
     }
 
-    // FINE ONDATA PANICO: La timeline si riassesta!
+    // FINE ONDATA PANICO: La timeline si riassesta e scatta un lungo cooldown
     if (panicTimer <= 0) {
       panicModeActive = false;
-      panicCooldown = 15 * 60; // 15 secondi di pace prima della prossima ondata
+      panicCooldown = 35 * 60; // 35 SECONDI DI TREGUA TRA LE ONDATE (Più distanziate!)
       voidGy = ROWS + 3;
     }
   } else if (panicCooldown > 0 && gameState === 'playing') {
     panicCooldown--;
-    // Avvia automaticamente l'ondata successiva al termine del cooldown
     if (panicCooldown <= 0 && maxReachedLevel >= 15) {
       startPanicWave();
     }
@@ -828,18 +847,28 @@ function updateVehicles() {
     if (lane.type === 'ROAD') {
       let currentSpeed = lane.baseSpeed;
 
+      // Comportamenti specifici dei blocchi
       if (lane.blockType.id === 'SPEED_RAMP') {
         currentSpeed *= (0.6 + 0.8 * (Math.sin(frame * 0.06) + 1) / 2);
       } else if (lane.blockType.id === 'OFFLINE_CORRUPT') {
         if (Math.floor(frame / 20) % 3 === 0) currentSpeed = 0;
+      } else if (lane.blockType.id === 'AUDIO_WAVE') {
+        currentSpeed *= (0.8 + 0.5 * Math.sin(frame * 0.12));
+      } else if (lane.blockType.id === 'TITLER_CG') {
+        if (Math.floor(frame / 15) % 4 === 0) currentSpeed *= 1.6;
       }
 
-      // DURANTE L'ONDATA PANICO: I BLOCCI FANNO MOVIMENTI STRANI E INATTESI!
+      // L'IMPAZZIRE DEI PEZZI INCREMENTA AD OGNI ONDATA!
       if (panicModeActive) {
-        currentSpeed *= 1.35; // Aumento velocità generale
-        // Scatti improvvisi e vibrazioni imprevedibili
-        if (Math.random() < 0.04) {
-          currentSpeed *= -0.5; // Inversione istantanea a scatto!
+        // La velocità aumenta progressivamente ad ogni ondata
+        let speedMultiplier = 1.3 + (panicWaveCount * 0.15);
+        currentSpeed *= speedMultiplier;
+
+        // La probabilità di scatti, vibrazioni e inversioni cresce ad ogni ondata
+        let glitchChance = Math.min(0.18, 0.04 + (panicWaveCount * 0.03));
+        if (Math.random() < glitchChance) {
+          let crazyFactor = -0.6 - (panicWaveCount * 0.12);
+          currentSpeed *= crazyFactor; // Scatto o inversione brusca!
         }
       }
 
@@ -966,7 +995,7 @@ function drawGameWorld() {
     }
   });
 
-  /* RENDER BLOCCHI CLIP (STILE CATTIVO/ALTERATO DURANTE PANIC MODE) */
+  /* RENDER BLOCCHI CLIP CON DIMENSIONI E TESTI DINAMICI */
   activeLanes.forEach((lane, r) => {
     if (lane.type === 'ROAD') {
       let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
@@ -988,9 +1017,10 @@ function drawGameWorld() {
         ctx.rect(x + 1, y + 1, blockW - 2, blockH);
         ctx.clip();
 
-        // COLORI CATTIVI DURANTE PANIC MODE
+        // COLORI CATTIVI ED INTENSIFICATI IN BASE ALL'ONDATA
         if (panicModeActive) {
-          ctx.fillStyle = (Math.floor(frame / 10) % 2 === 0) ? '#4a0000' : '#700030';
+          let flashRate = Math.max(3, 10 - panicWaveCount);
+          ctx.fillStyle = (Math.floor(frame / flashRate) % 2 === 0) ? '#5a0000' : '#800030';
         } else {
           ctx.fillStyle = obj.type.bg;
         }
@@ -998,7 +1028,7 @@ function drawGameWorld() {
 
         let topBarCol = obj.type.topBar || '#00ff66';
         if (panicModeActive) {
-          topBarCol = (Math.floor(frame / 6) % 2 === 0) ? '#ff0055' : '#ffea00';
+          topBarCol = (Math.floor(frame / 4) % 2 === 0) ? '#ff0055' : '#ffea00';
         } else if (lane.blockType.id === 'LUMETRI' && Math.floor(frame / 12) % 2 === 0) {
           topBarCol = '#00f3ff';
         }
@@ -1009,23 +1039,29 @@ function drawGameWorld() {
         ctx.lineWidth = panicModeActive ? 2 : 1.5;
         ctx.strokeRect(x + 1, y + 1, blockW - 2, blockH);
 
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(x + 4, y + 6, 16, 14);
-        ctx.fillStyle = panicModeActive ? '#ff0055' : '#00f3ff';
-        ctx.font = '900 9px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(panicModeActive ? 'ERR' : 'FX', x + 12, y + 13);
+        // Icona FX adattata alle dimensioni
+        if (blockW >= CELL_SIZE * 1.5) {
+          ctx.fillStyle = 'rgba(0,0,0,0.5)';
+          ctx.fillRect(x + 4, y + 6, 16, 14);
+          ctx.fillStyle = panicModeActive ? '#ff0055' : '#00f3ff';
+          ctx.font = '900 9px monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(panicModeActive ? 'ERR' : 'FX', x + 12, y + 13);
+        }
 
+        // TESTO FORMATTATO E ADATTATO PER STARE ANCHE SUI BLOCCHI PICCOLI
         ctx.fillStyle = obj.type.textCol || '#ffffff';
-        ctx.font = '900 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        let fontSize = blockW < CELL_SIZE * 1.6 ? 9 : 11;
+        ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         
-        let maxTextW = blockW - 28;
-        if (maxTextW > 10) {
-          let labelText = panicModeActive ? '⚠ CORRUPTED' : obj.type.label;
-          ctx.fillText(labelText, x + 24, y + blockH / 2 + 1, maxTextW);
+        let textXOffset = blockW >= CELL_SIZE * 1.5 ? 24 : 6;
+        let maxTextW = blockW - textXOffset - 4;
+        if (maxTextW > 8) {
+          let labelText = panicModeActive ? '⚠️ERR' : obj.type.label;
+          ctx.fillText(labelText, x + textXOffset, y + blockH / 2 + 1, maxTextW);
         }
 
         ctx.restore();
@@ -1033,11 +1069,11 @@ function drawGameWorld() {
     }
   });
 
-  /* CANCELLAZIONE TIMELINE ROSSA DAL BASSO */
+  /* CANCELLAZIONE TIMELINE ROSSA VELOCE DAL BASSO */
   activeLanes.forEach((lane, r) => {
     let y = r * CELL_SIZE + HUD_HEIGHT + visualScrollOffset;
     if (r >= voidGy) {
-      ctx.fillStyle = 'rgba(255, 0, 85, 0.88)';
+      ctx.fillStyle = 'rgba(255, 0, 85, 0.90)';
       ctx.fillRect(0, y, CANVAS_W, CELL_SIZE);
       ctx.strokeStyle = '#ffea00';
       ctx.lineWidth = 1;
@@ -1081,7 +1117,7 @@ function drawGameWorld() {
 
   drawSinglePlayer();
 
-  // BANNER CON TIMER DURATION DELL'ONDATA ATTIVA
+  // BANNER CON TIMER DURATION E LIVELLO DI INTENSITÀ DELL'ONDATA
   if (panicModeActive) {
     let secLeft = Math.ceil(panicTimer / 60);
     ctx.fillStyle = 'rgba(255, 0, 85, 0.95)';
@@ -1090,7 +1126,7 @@ function drawGameWorld() {
     ctx.font = '900 10px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`⚠️ ONDATA PANICO #${panicWaveCount}! TIMELINE IMPAZZITA: ${secLeft}s`, (CANVAS_W + TRACK_HEADER_W) / 2, HUD_HEIGHT + 10);
+    ctx.fillText(`⚡ ONDATA #${panicWaveCount} (INTENSITÀ x${panicWaveCount}) - ${secLeft}s`, (CANVAS_W + TRACK_HEADER_W) / 2, HUD_HEIGHT + 10);
   }
 }
 
@@ -1534,8 +1570,8 @@ function drawScreens() {
     ctx.fillStyle = '#ffffff';
     ctx.font = '12px sans-serif';
     ctx.fillText('1. La prima ondata durerà 20 SECONDI.', CANVAS_W / 2, boxY + 142);
-    ctx.fillText('2. La sequenza si CANCELLA dal basso!', CANVAS_W / 2, boxY + 164);
-    ctx.fillText('3. I blocchi fanno movimenti STRANI e folli.', CANVAS_W / 2, boxY + 186);
+    ctx.fillText('2. La sequenza si CANCELLA VELOCE!', CANVAS_W / 2, boxY + 164);
+    ctx.fillText('3. I blocchi aumentano follia ogni ondata.', CANVAS_W / 2, boxY + 186);
 
     ctx.fillStyle = '#00ff66';
     ctx.font = 'bold 12px monospace';
