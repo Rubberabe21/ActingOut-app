@@ -52,12 +52,12 @@
     transform: translateX(-50%);
     width: 100vw;
     height: 100svh;
-    max-width: 440px;
+    max-width: 100vw;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 10px) 8px;
+    padding: max(env(safe-area-inset-top), 2px) 2px max(env(safe-area-inset-bottom), 2px) 2px;
     background: #060212 !important;
     overflow: hidden;
   }
@@ -73,7 +73,7 @@
   }
   .header-title {
     color: #00f0ff !important;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
     text-shadow: 0 0 6px #00f0ff !important;
     letter-spacing: 1px;
@@ -82,7 +82,7 @@
 
   .header-btns-right {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
   }
 
@@ -90,13 +90,15 @@
     background: #1a0836;
     border: 1.5px solid #ffea00 !important;
     color: #ffea00 !important;
-    padding: 4px 7px;
+    padding: 6px 0;
     font-family: 'Courier New', monospace;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
     box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
+    width: 78px;
+    text-align: center;
   }
   .opt-btn:active { transform: scale(0.92); }
 
@@ -115,19 +117,21 @@
   #canvas-container {
     position: relative;
     width: 100%;
+    height: 100%;
     flex: 1 1 auto;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     min-height: 0;
-    margin: 2px 0;
+    margin: 0;
   }
   canvas {
+    width: 100%;
+    height: 100%;
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain;
-    aspect-ratio: 338 / 434;
+    object-fit: fill !important;
     border: 2px solid #00f0ff !important;
     box-shadow: 0 0 15px rgba(0,240,255,0.4) !important;
     image-rendering: pixelated;
@@ -320,9 +324,9 @@
   <div class="top-header">
     <span class="header-title">FILE BOMBER</span>
     <div class="header-btns-right">
-      <button class="opt-btn" id="btnMenuTop">🏠 MENU</button>
-      <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
-      <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+      <button class="opt-btn" id="btnMenuTop">MENU</button>
+      <button class="opt-btn" id="btnExitTop">ESCI</button>
+      <button class="opt-btn" id="btnOpenSettings">OPZIONI</button>
     </div>
   </div>
 

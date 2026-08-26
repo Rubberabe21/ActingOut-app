@@ -21,13 +21,11 @@ const AudioManager = (function () {
   let musicMuted = localStorage.getItem('audio_music_muted') === 'true';
   let sfxMuted = localStorage.getItem('audio_sfx_muted') === 'true';
 
-  // Ritorna l'UNICO AudioContext globale per tutta l'app
+  // Crea l'UNICO motore audio per tutto
   function getContext() {
     if (!audioCtx) {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
-        audioCtx = new AudioContextClass();
-      }
+      if (AudioContextClass) audioCtx = new AudioContextClass();
     }
     if (audioCtx && !bgmGainNode) {
       bgmGainNode = audioCtx.createGain();
@@ -42,17 +40,19 @@ const AudioManager = (function () {
     return audioCtx;
   }
 
-  // Sblocco istantaneo hardware per iOS al primo tocco
-  function unlock() {
+  // SBLOCCO AGGRESSIVO (Forzatura Motore Audio iOS)
+  async function forceUnlock() {
+    if (isUnlocked) return;
     const ctx = getContext();
     if (!ctx) return;
 
     if (ctx.state === 'suspended') {
-      ctx.resume();
+      try { await ctx.resume(); } catch (e) {}
     }
 
-    if (!isUnlocked) {
+    if (ctx.state === 'running') {
       try {
+        // Buffer silenzioso che inganna l'iPhone e accende lo speaker
         const buffer = ctx.createBuffer(1, 1, 22050);
         const source = ctx.createBufferSource();
         source.buffer = buffer;
@@ -60,12 +60,28 @@ const AudioManager = (function () {
         source.start(0);
         isUnlocked = true;
       } catch (e) {}
-    }
 
-    if (bgmBuffer && !bgmSourceNode && !musicMuted) {
-      playBGM();
+      // Se il file audio è già scaricato, fallo partire ORA
+      if (bgmBuffer && !bgmSourceNode && !musicMuted) {
+        playBGM();
+      }
     }
   }
+
+  // Intercetta QUALUNQUE azione sullo schermo
+  const unlockEvents = ['touchstart', 'touchend', 'pointerdown', 'pointerup', 'click', 'scroll', 'keydown'];
+  unlockEvents.forEach(evt => {
+    window.addEventListener(evt, () => {
+      if (!isUnlocked || (audioCtx && audioCtx.state === 'suspended')) forceUnlock();
+    }, { capture: true, passive: true });
+  });
+
+  // AUTO-PINGER: Tenta di forzare l'avvio ogni mezzo secondo in background
+  setInterval(() => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  }, 500);
 
   async function loadBGM() {
     const path = window.location.pathname;
@@ -80,18 +96,21 @@ const AudioManager = (function () {
       const ctx = getContext();
       bgmBuffer = await ctx.decodeAudioData(data);
 
-      if (isUnlocked || (ctx && ctx.state === 'running')) {
+      // Tenta di avviare immediatamente non appena finisce il download
+      if ((isUnlocked || ctx.state === 'running') && !musicMuted) {
         playBGM();
       }
     } catch (e) {
-      console.warn("Errore BGM:", e);
+      console.warn("Errore caricamento BGM:", e);
     }
   }
 
   function playBGM() {
     const ctx = getContext();
     if (!ctx || !bgmBuffer || musicMuted) return;
-    stopBGM();
+    
+    // Evita sovrapposizioni
+    if (bgmSourceNode) return; 
 
     try {
       bgmSourceNode = ctx.createBufferSource();
@@ -99,11 +118,12 @@ const AudioManager = (function () {
       bgmSourceNode.loop = true;
       bgmSourceNode.connect(bgmGainNode);
 
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
+      // FORZA il resume prima di fare start
+      if (ctx.state === 'suspended') ctx.resume();
       bgmSourceNode.start(0);
-    } catch (e) {}
+    } catch (e) {
+      bgmSourceNode = null;
+    }
   }
 
   function stopBGM() {
@@ -132,19 +152,12 @@ const AudioManager = (function () {
       sfxSource.buffer = sfxBuffers[sfxFilePath];
       sfxSource.connect(sfxGainNode);
 
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
+      if (ctx.state === 'suspended') ctx.resume();
       sfxSource.start(0);
     } catch (e) {}
   }
 
-  // Intercetta subito qualsiasi primo tocco sullo schermo
-  ['touchstart', 'touchend', 'pointerdown', 'mousedown', 'keydown', 'click'].forEach(evt => {
-    window.addEventListener(evt, unlock, { capture: true, passive: true });
-    document.addEventListener(evt, unlock, { capture: true, passive: true });
-  });
-
+  // Caricamento immediato al caricamento del DOM
   window.addEventListener('DOMContentLoaded', loadBGM);
 
   const stopAll = () => {
@@ -154,18 +167,22 @@ const AudioManager = (function () {
 
   window.addEventListener('pagehide', stopAll);
   window.addEventListener('beforeunload', stopAll);
+  
+  // Riavvia automaticamente la musica se l'app viene messa in background e poi riaperta
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       stopAll();
-    } else if (audioCtx && audioCtx.state === 'suspended' && isUnlocked) {
-      audioCtx.resume();
-      if (!musicMuted && bgmBuffer && !bgmSourceNode) playBGM();
+    } else {
+      if (audioCtx && isUnlocked) {
+        audioCtx.resume();
+        if (!musicMuted && bgmBuffer && !bgmSourceNode) playBGM();
+      }
     }
   });
 
   return {
     getContext,
-    unlock,
+    forceUnlock,
     playSFX,
     getSfxDestination: () => { getContext(); return sfxGainNode; },
     toggleMusic: (force) => {
@@ -175,6 +192,7 @@ const AudioManager = (function () {
         bgmGainNode.gain.setValueAtTime(musicMuted ? 0 : VOLUMES.bgm, audioCtx.currentTime);
       }
       if (!musicMuted && !bgmSourceNode && bgmBuffer) playBGM();
+      if (musicMuted && bgmSourceNode) stopBGM();
       return musicMuted;
     },
     toggleSFX: (force) => {
