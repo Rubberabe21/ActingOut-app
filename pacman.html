@@ -294,15 +294,23 @@
   }
   .info-card p {
     margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .info-card p:last-child {
     margin-bottom: 0;
   }
+  .icon-inline {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
 </style>
 </head>
 <body>
-
-<audio id="bgMusic" src="assets/pacman/music_pacman.mp3" loop autoplay playsinline style="display:none;"></audio>
 
 <div id="game-wrapper">
   <div class="top-header">
@@ -340,11 +348,6 @@
       </div>
 
       <div class="option-item">
-        <span class="option-label">MUSICA DI SOTTOFONDO</span>
-        <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
-      </div>
-
-      <div class="option-item">
         <span class="option-label">EFFETTI SONORI (SFX)</span>
         <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
       </div>
@@ -366,22 +369,23 @@
 
       <div class="info-card" style="border-color:#ffea00;">
         <h4 style="color:#ffea00;">1. PULISCI FILE CORROTTI</h4>
-        <p>• Distruggi i blocchi file: <span style="color:#88c0ff;">.JPG</span> (1 HP), <span style="color:#00ffaa;">.PNG</span> (1 HP), <span style="color:#3388ff;">.PSD</span> (2 HP), <span style="color:#ffaa00;">.AI</span> (2 HP), <span style="color:#ff5577;">.PDF</span> (3 HP).</p>
+        <p style="display:block;">• Distruggi i blocchi file: <span style="color:#88c0ff;">.JPG</span> (1 HP), <span style="color:#00ffaa;">.PNG</span> (1 HP), <span style="color:#3388ff;">.PSD</span> (2 HP), <span style="color:#ffaa00;">.AI</span> (2 HP), <span style="color:#ff5577;">.PDF</span> (3 HP).</p>
       </div>
 
       <div class="info-card" style="border-color:#00ffcc;">
         <h4 style="color:#00ffcc;">2. NEMICI BASE E CORAZZATI</h4>
-        <p>• <span style="color:#ff007f; font-weight:bold;">Nemici Base</span>: 1 Colpo per eliminarli.</p>
-        <p>• <span style="color:#ffaa00; font-weight:bold;">Nemici Corazzati</span>: 2 Colpi, colore speciale e barra vita.</p>
-        <p>• <span style="color:#ff0055; font-weight:bold;">Mega Boss 2x2</span> ogni 10 livelli (10+ HP).</p>
+        <p style="display:block;">• <span style="color:#ff007f; font-weight:bold;">Nemici Base</span>: 1 Colpo per eliminarli.</p>
+        <p style="display:block;">• <span style="color:#ffaa00; font-weight:bold;">Nemici Corazzati</span>: 2 Colpi, colore speciale e barra vita.</p>
+        <p style="display:block;">• <span style="color:#ff0055; font-weight:bold;">Mega Boss 2x2</span> ogni 10 livelli (10+ HP e pattern dinamici).</p>
       </div>
 
       <div class="info-card" style="border-color:#ff0055;">
         <h4 style="color:#ff0055;">3. POTENZIAMENTI DISPONIBILI</h4>
-        <p>• 💣 <span style="color:#ff0055; font-weight:bold;">Gomma Vettoriale</span>: +1 Bomba simultanea</p>
-        <p>• 🔥 <span style="color:#ffaa00; font-weight:bold;">Warp Brush</span>: +1 Raggio d'esplosione</p>
-        <p>• 👟 <span style="color:#00ffcc; font-weight:bold;">Acceleratore Iterazione</span>: +20% Velocità</p>
-        <p>• ☕ <span style="color:#ffea00; font-weight:bold;">Cache Punti Layers</span>: +300 Punti Extra</p>
+        <p><img src="assets/pacman/bomba.png" class="icon-inline" alt="Bomba"> <span style="color:#ff0055; font-weight:bold;">Gomma Vettoriale</span>: +1 Bomba simultanea</p>
+        <p><img src="assets/pacman/fuoco.png" class="icon-inline" alt="Fuoco"> <span style="color:#ffaa00; font-weight:bold;">Warp Brush</span>: +1 Raggio d'esplosione</p>
+        <p><img src="assets/pacman/scarpa.png" class="icon-inline" alt="Scarpa"> <span style="color:#00ffcc; font-weight:bold;">Acceleratore Iterazione</span>: +20% Velocità</p>
+        <p><img src="assets/pacman/caffe.png" class="icon-inline" alt="Caffè"> <span style="color:#ffea00; font-weight:bold;">Cache Punti Layers</span>: +300 Punti Extra</p>
+        <p><img src="assets/pacman/cuore.png" class="icon-inline" alt="Cuore"> <span style="color:#ff0055; font-weight:bold;">Command - Z (Cuore del Tempo)</span>: +1 Vita Extra per rimediare agli errori!</p>
       </div>
 
       <button class="close-modal-btn" id="btnCloseRules">◄ TORNA ALLE OPZIONI</button>
@@ -395,16 +399,16 @@
 
       <div class="info-card" style="border-color:#00ffcc;">
         <h4 style="color:#00ffcc;">🎨 LAURA - Senior Designer</h4>
-        <p>• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Render Master (+1 Gomma & +1 Raggio Warp)</p>
-        <p>• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Precisione Senior (-5% Velocità corsa)</p>
-        <p>• Moltiplicatore Punti: x1.0</p>
+        <p style="display:block;">• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Render Master (+1 Gomma & +1 Raggio Warp)</p>
+        <p style="display:block;">• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Precisione Senior (-5% Velocità corsa)</p>
+        <p style="display:block;">• Moltiplicatore Punti: x1.0</p>
       </div>
 
       <div class="info-card" style="border-color:#ffd700;">
         <h4 style="color:#ffd700;">🎨 GUIDO - Junior Designer</h4>
-        <p>• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Agilità Junior (+20% Vel. & +15% PTS)</p>
-        <p>• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Bozza Iniziale (1 Gomma & Raggio Base)</p>
-        <p>• Moltiplicatore Punti: x1.15</p>
+        <p style="display:block;">• <span style="color:#ffea00; font-weight:bold;">BONUS:</span> Agilità Junior (+20% Vel. & +15% PTS)</p>
+        <p style="display:block;">• <span style="color:#ff0055; font-weight:bold;">MALUS:</span> Bozza Iniziale (1 Gomma & Raggio Base)</p>
+        <p style="display:block;">• Moltiplicatore Punti: x1.15</p>
       </div>
 
       <button class="close-modal-btn" id="btnClosePerks">◄ TORNA ALLE OPZIONI</button>
@@ -428,33 +432,7 @@ canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
 
 let joySensitivity = parseFloat(localStorage.getItem('cyberRun_joySens')) || 1.0;
-let musicEnabled = localStorage.getItem('cyberRun_music') !== 'false';
 let sfxEnabled = localStorage.getItem('cyberRun_sfx') !== 'false';
-
-const bgMusic = document.getElementById('bgMusic');
-bgMusic.volume = 0.4;
-
-function playBgMusic() {
-  if (musicEnabled && bgMusic.paused) {
-    let p = bgMusic.play();
-    if (p !== undefined) p.catch(() => {});
-  }
-}
-
-playBgMusic();
-window.addEventListener('DOMContentLoaded', playBgMusic);
-window.addEventListener('load', playBgMusic);
-['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
-  window.addEventListener(evt, playBgMusic, { once: true, capture: true });
-});
-
-function updateMusicState() {
-  if (musicEnabled) {
-    playBgMusic();
-  } else {
-    bgMusic.pause();
-  }
-}
 
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
@@ -463,7 +441,6 @@ const btnExitTop = document.getElementById('btnExitTop');
 const btnMenuTop = document.getElementById('btnMenuTop');
 const sensSlider = document.getElementById('sensSlider');
 const sensValText = document.getElementById('sensValText');
-const btnToggleMusic = document.getElementById('btnToggleMusic');
 const btnToggleSfx = document.getElementById('btnToggleSfx');
 
 const btnOpenRules = document.getElementById('btnOpenRules');
@@ -478,9 +455,6 @@ sensSlider.value = joySensitivity;
 sensValText.innerText = joySensitivity.toFixed(2) + 'x';
 
 function renderOptionButtons() {
-  btnToggleMusic.className = `toggle-btn ${musicEnabled ? 'active' : ''}`;
-  btnToggleMusic.innerText = musicEnabled ? 'ON 🎵' : 'OFF 🔇';
-
   btnToggleSfx.className = `toggle-btn ${sfxEnabled ? 'active' : ''}`;
   btnToggleSfx.innerText = sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
 }
@@ -492,13 +466,6 @@ sensSlider.oninput = () => {
   localStorage.setItem('cyberRun_joySens', joySensitivity);
 };
 
-btnToggleMusic.onclick = () => {
-  musicEnabled = !musicEnabled;
-  localStorage.setItem('cyberRun_music', musicEnabled);
-  renderOptionButtons();
-  updateMusicState();
-};
-
 btnToggleSfx.onclick = () => {
   sfxEnabled = !sfxEnabled;
   localStorage.setItem('cyberRun_sfx', sfxEnabled);
@@ -508,7 +475,6 @@ btnToggleSfx.onclick = () => {
 btnOpenSettings.onclick = () => {
   if (state === 'playing') {
     state = 'PAUSE';
-    updateMusicState();
   }
   settingsModal.style.display = 'flex';
 };
@@ -519,7 +485,6 @@ btnCloseSettings.onclick = () => {
   if (state === 'PAUSE') {
     state = 'playing';
   }
-  updateMusicState();
 };
 
 btnOpenRules.onclick = () => {
@@ -549,7 +514,6 @@ btnMenuTop.onclick = () => {
   powerups = [];
   enemies = [];
   state = 'COVER';
-  updateMusicState();
 };
 
 btnExitTop.onclick = () => {
@@ -568,6 +532,7 @@ const ASSETS = {
   FUOCO: new Image(),
   SCARPA: new Image(),
   CAFFE: new Image(),
+  CUORE: new Image(),
   MOSTRI: [],
   BOSSI: []
 };
@@ -582,6 +547,7 @@ ASSETS.BOMBA.src = 'assets/pacman/bomba.png';
 ASSETS.FUOCO.src = 'assets/pacman/fuoco.png';
 ASSETS.SCARPA.src = 'assets/pacman/scarpa.png';
 ASSETS.CAFFE.src = 'assets/pacman/caffe.png';
+ASSETS.CUORE.src = 'assets/pacman/cuore.png';
 
 for (let i = 1; i <= 5; i++) {
   const imgM = new Image();
@@ -611,7 +577,7 @@ const ERAS_INFO = [
     storyBoss: [
       "Un Loop Infinito blocca il rendering!",
       "La bozza gigante resiste a 10 colpi.",
-      "Distruggilo per accedere al server!"
+      "Patrolling lineare continuo ad alta stabilità!"
     ]
   },
   { 
@@ -629,8 +595,8 @@ const ERAS_INFO = [
     ],
     storyBoss: [
       "Kernel Panic! Schermata blu imminente.",
-      "Errore fatale che minaccia l'archivio.",
-      "Usa le gomme prima del crash totale!"
+      "Spazza via i blocchi corrotti al suo passaggio!",
+      "Supera ogni ostacolo per travolgerti!"
     ]
   },
   { 
@@ -648,7 +614,7 @@ const ERAS_INFO = [
     ],
     storyBoss: [
       "Il blocco Tofu vuoto e gigante è qui!",
-      "Il terrore dei tipografi ostruisce tutto.",
+      "Esegue scatti improvvisi e cariche rapide!",
       "Fallo saltare prima della stampa!"
     ]
   },
@@ -666,9 +632,9 @@ const ERAS_INFO = [
       "I Ram Eater rossi sono ultra-veloci!"
     ],
     storyBoss: [
-      "La Girandola congelante blocca la RAM!",
-      "Un vortice infinito blocca la consegna.",
-      "Colpisci duro per liberare lo studio!"
+      "La Girandola congelante ti punta costantemente!",
+      "Cerca la coordinata del grafico sul canvas.",
+      "Non fermarti mai per non farti intrappolare!"
     ]
   },
   { 
@@ -685,9 +651,9 @@ const ERAS_INFO = [
       "Cancella il caos pre-consegna!"
     ],
     storyBoss: [
-      "Il timer segna 00:00! Crash Finale!",
-      "L'ultimo ostacolo per salvare il lavoro.",
-      "Usa ogni gomma a disposizione e salva lo studio!"
+      "Il timer segna 00:00! Crash Finale Ultra!",
+      "Velocità folle e inseguimento spietato.",
+      "Usa ogni Command-Z e salva lo studio!"
     ]
   }
 ];
@@ -768,7 +734,6 @@ function saveScore(finalScore) {
 
 function exitGame(finalScore) {
   saveScore(finalScore);
-  bgMusic.pause();
   window.location.href = 'index.html';
 }
 
@@ -804,7 +769,6 @@ function getAC() {
     }
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
   } catch(e) {}
-  playBgMusic();
   return audioCtx;
 }
 
@@ -909,7 +873,6 @@ document.addEventListener('keydown', e => {
   }
   else if ((e.code === 'KeyP' || e.code === 'Escape') && (state === 'playing' || state === 'PAUSE')) {
     state = state === 'playing' ? 'PAUSE' : 'playing';
-    updateMusicState();
   }
   else if (state === 'playing' && (e.code === 'Space' || e.code === 'KeyZ')) {
     placeBomb();
@@ -1016,7 +979,6 @@ function startGame() {
   currentEraIndex = 1;
   loadLevel();
   state = 'ERA_INTRO';
-  updateMusicState();
 }
 
 function loadLevel() {
@@ -1038,14 +1000,18 @@ function loadLevel() {
   for (let r = 0; r < ROWS; r++) {
     map[r] = []; blockData[r] = [];
     for (let c = 0; c < COLS; c++) {
-      if (r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1 || (r % 2 === 0 && c % 2 === 0)) {
+      // Bordi esterni indistruttibili
+      if (r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1) {
+        map[r][c] = 1; blockData[r][c] = null;
+      } 
+      // Nei livelli Boss, rimuoviamo i pilastri interni fisso per creare una grande arena aperta in cui il Boss 2x2 si muove liberamente!
+      else if (!isBossLevel && (r % 2 === 0 && c % 2 === 0)) {
         map[r][c] = 1; blockData[r][c] = null;
       } else if ((r <= 2 && c <= 2) || (r >= ROWS - 3 && c >= COLS - 3)) {
         map[r][c] = 0; blockData[r][c] = null;
-      } else if (isBossLevel && (r >= 5 && r <= 9 && c >= 4 && c <= 8)) {
-        map[r][c] = 0; blockData[r][c] = null;
       } else {
-        if (Math.random() < (0.50 + Math.min(level * 0.005, 0.20))) {
+        let spawnChance = isBossLevel ? 0.25 : (0.50 + Math.min(level * 0.005, 0.20));
+        if (Math.random() < spawnChance) {
           map[r][c] = 2;
           let pool = level <= 10 ? [FILE_BLOCK_TYPES[0], FILE_BLOCK_TYPES[1]] :
                      level <= 20 ? [FILE_BLOCK_TYPES[0], FILE_BLOCK_TYPES[1], FILE_BLOCK_TYPES[2]] :
@@ -1063,6 +1029,17 @@ function loadLevel() {
   if (isBossLevel) {
     let bossEra = Math.min(5, Math.floor(level / 10));
     let bossHp = 10 + (bossEra - 1) * 5;
+
+    // Pulisci l'area centrale per lo spawn del Boss
+    for (let br = 5; br <= 8; br++) {
+      for (let bc = 5; bc <= 8; bc++) {
+        map[br][bc] = 0;
+        blockData[br][bc] = null;
+      }
+    }
+
+    let bSpeed = 0.9 + bossEra * 0.12;
+
     enemies.push({
       isBoss: true,
       era: bossEra,
@@ -1072,8 +1049,9 @@ function loadLevel() {
       y: 7 * CELL_SIZE,
       dirX: 1, dirY: 0,
       hp: bossHp, maxHp: bossHp,
-      speed: 0.9 + bossEra * 0.15,
-      hitTimer: 0
+      speed: bSpeed,
+      hitTimer: 0,
+      burstTimer: 0
     });
   } else {
     let emptyCells = [];
@@ -1159,8 +1137,14 @@ function triggerExplosion(b) {
             map[cgy][cgx] = 0; blockData[cgy][cgx] = null;
             score += Math.floor(blk.pts * currentBoss.scoreMult);
             if (Math.random() < blk.dropChance) {
-              let types = ['BOMB_UP', 'FIRE_UP', 'SPEED_UP', 'COFFEE'];
-              powerups.push({ gx: cgx, gy: cgy, type: types[Math.floor(Math.random() * types.length)] });
+              let types = ['BOMB_UP', 'FIRE_UP', 'SPEED_UP', 'COFFEE', 'COMMAND_Z'];
+              let weights = [0.25, 0.25, 0.20, 0.20, 0.10]; // 10% di possibilità per Command-Z
+              let rand = Math.random(), sum = 0, pickedType = types[0];
+              for (let t = 0; t < types.length; t++) {
+                sum += weights[t];
+                if (rand < sum) { pickedType = types[t]; break; }
+              }
+              powerups.push({ gx: cgx, gy: cgy, type: pickedType });
             }
           } else {
             playSound('hit_block');
@@ -1250,6 +1234,9 @@ function updatePlayer() {
       else if (pw.type === 'FIRE_UP') player.bombRange++;
       else if (pw.type === 'SPEED_UP') player.speed += 0.35;
       else if (pw.type === 'COFFEE') score += Math.floor(300 * currentBoss.scoreMult);
+      else if (pw.type === 'COMMAND_Z') {
+        lives = Math.min(5, lives + 1);
+      }
       powerups.splice(i, 1);
     }
   }
@@ -1259,13 +1246,37 @@ function updateEnemies() {
   enemies.forEach(e => {
     if (e.hitTimer && e.hitTimer > 0) e.hitTimer--;
 
+    let moveSpeed = e.speed;
+
+    // PATTERN DIVERSIFICATI PER I BOSS 2x2
+    if (e.isBoss) {
+      // Boss Era 3: Jumper / Burst
+      if (e.era === 3) {
+        e.burstTimer = (e.burstTimer || 0) + 1;
+        if (e.burstTimer > 100) {
+          moveSpeed *= 2.0; // Scatto improvviso!
+          if (e.burstTimer > 130) e.burstTimer = 0;
+        }
+      }
+      // Boss Era 4 & 5: Inseguimento diretto del player
+      else if (e.era >= 4) {
+        let pGx = Math.floor(player.x / CELL_SIZE);
+        let pGy = Math.floor(player.y / CELL_SIZE);
+        if (Math.random() < 0.05) {
+          if (pGx > e.gx) e.dirX = 1; else if (pGx < e.gx) e.dirX = -1;
+          if (pGy > e.gy) e.dirY = 1; else if (pGy < e.gy) e.dirY = -1;
+        }
+      }
+    }
+
     let targetX = (e.gx + (e.isBoss ? 1 : 0.5)) * CELL_SIZE;
     let targetY = (e.gy + (e.isBoss ? 1 : 0.5)) * CELL_SIZE;
     let dist = Math.hypot(targetX - e.x, targetY - e.y);
 
-    if (dist <= e.speed) {
+    if (dist <= moveSpeed) {
       e.x = targetX; e.y = targetY;
       let dirs = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+      
       let valid = dirs.filter(d => {
         let ngx = e.gx + d.x, ngy = e.gy + d.y;
         if (e.isBoss) {
@@ -1273,7 +1284,14 @@ function updateEnemies() {
             for (let dc = 0; dc < 2; dc++) {
               let checkC = ngx + dc, checkR = ngy + dr;
               if (checkC < 0 || checkC >= COLS || checkR < 0 || checkR >= ROWS) return false;
-              if (map[checkR][checkC] !== 0) return false;
+              if (map[checkR][checkC] === 1) return false; // Muro fisso
+              // Se Boss Era 2 (Kernel Panic) incontra un blocco distrutto, lo demolisce nel suo percorso!
+              if (e.era === 2 && map[checkR][checkC] === 2) {
+                map[checkR][checkC] = 0; blockData[checkR][checkC] = null;
+                playSound('hit_block');
+              } else if (map[checkR][checkC] !== 0) {
+                return false;
+              }
             }
           }
           return true;
@@ -1286,12 +1304,12 @@ function updateEnemies() {
 
       let forwardValid = valid.filter(d => !(d.x === -e.dirX && d.y === -e.dirY));
       let chosenDir = forwardValid.length > 0 ? forwardValid[Math.floor(Math.random() * forwardValid.length)] :
-                        valid.length > 0 ? valid[Math.floor(Math.random() * valid.length)] : { x: 0, y: 0 };
+                      valid.length > 0 ? valid[Math.floor(Math.random() * valid.length)] : { x: 0, y: 0 };
 
       e.dirX = chosenDir.x; e.dirY = chosenDir.y;
       e.gx += e.dirX; e.gy += e.dirY;
     } else {
-      e.x += e.dirX * e.speed; e.y += e.dirY * e.speed;
+      e.x += e.dirX * moveSpeed; e.y += e.dirY * moveSpeed;
     }
 
     if (player.invTimer <= 0 && state === 'playing') {
@@ -1336,7 +1354,7 @@ function updateBombsAndExplosions() {
               if (e.hp <= 0) {
                 score += Math.floor(2500 * e.era * currentBoss.scoreMult);
                 enemies.splice(eIdx, 1);
-                powerups.push({ gx: cell.gx, gy: cell.gy, type: 'BOMB_UP' });
+                powerups.push({ gx: cell.gx, gy: cell.gy, type: 'COMMAND_Z' });
                 powerups.push({ gx: Math.max(1, cell.gx - 1), gy: cell.gy, type: 'FIRE_UP' });
               }
             }
@@ -1471,6 +1489,7 @@ function drawSinglePowerup(pw) {
   else if (pw.type === 'FIRE_UP') { imgAsset = ASSETS.FUOCO; fallbackEmoji = '🔥'; }
   else if (pw.type === 'SPEED_UP') { imgAsset = ASSETS.SCARPA; fallbackEmoji = '👟'; }
   else if (pw.type === 'COFFEE') { imgAsset = ASSETS.CAFFE; fallbackEmoji = '☕'; }
+  else if (pw.type === 'COMMAND_Z') { imgAsset = ASSETS.CUORE; fallbackEmoji = '❤️'; }
 
   if (imgAsset && imgAsset.complete && imgAsset.naturalWidth !== 0) {
     ctx.drawImage(imgAsset, px - size / 2, py - size / 2, size, size);
@@ -1598,21 +1617,25 @@ function drawSingleEnemy(e) {
 
 function drawHeart(c, x, y, size) {
   c.save();
-  c.fillStyle = '#ff0055';
-  c.shadowColor = '#ff0055';
-  c.shadowBlur = 6;
-  c.beginPath();
-  let topCurveHeight = size * 0.35;
-  c.moveTo(x, y + topCurveHeight);
-  c.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight);
-  c.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + size, x, y + size);
-  c.bezierCurveTo(x, y + size, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight);
-  c.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
-  c.closePath();
-  c.fill();
-  c.strokeStyle = '#ffffff';
-  c.lineWidth = 1;
-  c.stroke();
+  if (ASSETS.CUORE && ASSETS.CUORE.complete && ASSETS.CUORE.naturalWidth !== 0) {
+    c.drawImage(ASSETS.CUORE, x - size / 2, y, size, size);
+  } else {
+    c.fillStyle = '#ff0055';
+    c.shadowColor = '#ff0055';
+    c.shadowBlur = 6;
+    c.beginPath();
+    let topCurveHeight = size * 0.35;
+    c.moveTo(x, y + topCurveHeight);
+    c.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight);
+    c.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + size, x, y + size);
+    c.bezierCurveTo(x, y + size, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight);
+    c.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
+    c.closePath();
+    c.fill();
+    c.strokeStyle = '#ffffff';
+    c.lineWidth = 1;
+    c.stroke();
+  }
   c.restore();
 }
 
@@ -1724,7 +1747,7 @@ function drawScreens() {
     ctx.fillText('03. RACCOGLI POTENZIAMENTI', W / 2, 215);
     ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
     ctx.fillText('Aumenta raggio, bombe e velocità', W / 2, 233);
-    ctx.fillText('scavando tra i file dello studio.', W / 2, 249);
+    ctx.fillText('o usa Command-Z per guadagnare vite!', W / 2, 249);
 
     ctx.fillStyle = '#ffd700'; ctx.font = '900 13px Courier New';
     ctx.fillText('04. CONTROLLI GUIDA', W / 2, 280);
@@ -1741,41 +1764,42 @@ function drawScreens() {
   if (state === 'POWERUPS_INFO') {
     ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 20px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('MODULI & POTENZIAMENTI', W / 2, 40);
+    ctx.fillStyle = '#ffea00'; ctx.font = '900 18px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('MODULI & POTENZIAMENTI', W / 2, 32);
 
     const items = [
       { key: 'BOMBA', title: 'GOMMA VETTORIALE', desc: '+1 Gomma (Cancella Blocchi)', col: '#ff0055' },
       { key: 'FUOCO', title: 'WARP BRUSH', desc: '+1 Raggio Esplosione', col: '#ffaa00' },
       { key: 'SCARPA', title: 'ACCELERATORE ITERAZIONE', desc: '+20% Vel. Elaborazione', col: '#00ffcc' },
-      { key: 'CAFFE', title: 'CACHE PUNTI LAYERS', desc: '+300 Punti Extra Layers', col: '#ffd700' }
+      { key: 'CAFFE', title: 'CACHE PUNTI LAYERS', desc: '+300 Punti Extra Layers', col: '#ffd700' },
+      { key: 'CUORE', title: 'COMMAND - Z', desc: 'Cuore del Tempo (+1 Vita)', col: '#ff007f' }
     ];
 
     items.forEach((item, idx) => {
-      let boxY = 62 + (idx * 68);
+      let boxY = 48 + (idx * 56);
       ctx.fillStyle = '#101228'; ctx.beginPath();
-      ctx.roundRect(14, boxY, W - 28, 58, 10); ctx.fill();
-      ctx.strokeStyle = item.col; ctx.lineWidth = 2; ctx.stroke();
+      ctx.roundRect(14, boxY, W - 28, 50, 8); ctx.fill();
+      ctx.strokeStyle = item.col; ctx.lineWidth = 1.5; ctx.stroke();
 
       let imgAsset = ASSETS[item.key];
       if (imgAsset && imgAsset.complete && imgAsset.naturalWidth !== 0) {
-        ctx.drawImage(imgAsset, 32, boxY + 13, 32, 32);
+        ctx.drawImage(imgAsset, 24, boxY + 11, 28, 28);
       } else {
-        ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        let fallbackEmoji = item.key === 'BOMBA' ? '💣' : item.key === 'FUOCO' ? '🔥' : item.key === 'SCARPA' ? '👟' : '☕';
-        ctx.fillText(fallbackEmoji, 48, boxY + 29);
+        ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        let fallbackEmoji = item.key === 'BOMBA' ? '💣' : item.key === 'FUOCO' ? '🔥' : item.key === 'SCARPA' ? '👟' : item.key === 'CAFFE' ? '☕' : '❤️';
+        ctx.fillText(fallbackEmoji, 38, boxY + 25);
       }
 
-      ctx.fillStyle = item.col; ctx.font = 'bold 13px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillText(item.title, 72, boxY + 26);
+      ctx.fillStyle = item.col; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(item.title, 62, boxY + 20);
 
-      ctx.fillStyle = '#ffffff'; ctx.font = '11px Courier New';
-      ctx.fillText(item.desc, 72, boxY + 44);
+      ctx.fillStyle = '#ffffff'; ctx.font = '10px Courier New';
+      ctx.fillText(item.desc, 62, boxY + 36);
     });
 
     if (Math.floor(frame / 40) % 2 === 0) {
       ctx.fillStyle = '#ffea00'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
-      ctx.fillText('CONTINUA ►', W / 2, H - 20);
+      ctx.fillText('CONTINUA ►', W / 2, H - 15);
     }
     return;
   }
@@ -1828,26 +1852,22 @@ function drawScreens() {
     return;
   }
 
-  // --- SCHERMATA ERA_INTRO INGRANDITA E CON SCHEDE SPAZIOSE ---
   if (state === 'ERA_INTRO') {
     ctx.save();
     ctx.fillStyle = 'rgba(6, 2, 18, 0.96)'; ctx.fillRect(0, 0, W, H);
 
-    // Riquadro principale esterno espanso
     ctx.fillStyle = '#0e051b'; ctx.beginPath(); ctx.roundRect(10, 10, W - 20, H - 20, 14); ctx.fill();
     ctx.strokeStyle = '#ffea00'; ctx.lineWidth = 2.5; ctx.stroke();
 
     let eraData = ERAS_INFO[currentEraIndex - 1];
     let isBossLvl = (level % 10 === 0);
 
-    // Intestazione Stage
     ctx.fillStyle = '#ffea00'; ctx.font = '900 16px Courier New'; ctx.textAlign = 'center';
     ctx.fillText(`STAGE ${level}/50`, W / 2, 34);
 
     ctx.fillStyle = eraData.colBase; ctx.font = 'bold 13px Courier New';
     ctx.fillText(eraData.name, W / 2, 54);
 
-    // Box descrizione storia dell'Era
     let storyBoxX = 20, storyBoxY = 66, storyBoxW = W - 40, storyBoxH = 68;
     ctx.fillStyle = '#140a28'; ctx.beginPath(); ctx.roundRect(storyBoxX, storyBoxY, storyBoxW, storyBoxH, 8); ctx.fill();
     ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 1.5; ctx.stroke();
@@ -1890,7 +1910,6 @@ function drawScreens() {
       ctx.fillText(`RESISTENZA: ${bossHp} COLPI ESPLOSIVI`, W / 2, bossCardY + 122);
 
     } else {
-      // Due schede affiancate con spaziatura perfetta
       let cardW = 138, cardH = 142;
       let card1X = 22, cardY = 146;
       let card2X = W - 22 - cardW;
@@ -1898,7 +1917,6 @@ function drawScreens() {
       let mImg = ASSETS.MOSTRI[currentEraIndex];
       let imgSize = 42;
 
-      // Card 1: BASE
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(card1X, cardY, cardW, cardH, 10); ctx.fill();
       ctx.strokeStyle = eraData.colBase; ctx.lineWidth = 2; ctx.stroke();
 
@@ -1918,7 +1936,6 @@ function drawScreens() {
       ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 10px Courier New';
       ctx.fillText("+200 PUNTI", card1X + cardW / 2, cardY + 112);
 
-      // Card 2: CORAZZATO
       ctx.fillStyle = '#160a2c'; ctx.beginPath(); ctx.roundRect(card2X, cardY, cardW, cardH, 10); ctx.fill();
       ctx.strokeStyle = eraData.colTough; ctx.lineWidth = 2; ctx.stroke();
 
@@ -1942,15 +1959,12 @@ function drawScreens() {
       ctx.fillText("+350 PUNTI", card2X + cardW / 2, cardY + 112);
     }
 
-    // Moltiplicatore
     ctx.fillStyle = '#00ffcc'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
     ctx.fillText(`MOLTIPLICATORE PERSONAGGIO: x${currentBoss.scoreMult}`, W / 2, 308);
 
-    // Consiglio
     ctx.fillStyle = '#ffea00'; ctx.font = '10px Courier New';
     ctx.fillText('⚡ Piazza le bombe con cura prima che ti circondino!', W / 2, 328);
 
-    // Pulsante Avvia Stage Risaltato
     let btnW = 220, btnH = 36, btnX = (W - btnW) / 2, btnY = 354;
     ctx.fillStyle = (Math.floor(frame / 30) % 2 === 0) ? '#ffea00' : '#ffd700';
     ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 8); ctx.fill();
@@ -2013,13 +2027,11 @@ canvas.addEventListener('pointerdown', e => {
 
   if (state === 'playing') {
     state = 'PAUSE';
-    updateMusicState();
     return;
   }
 
   if (state === 'PAUSE') {
     state = 'playing';
-    updateMusicState();
   }
 
   if (state === 'gameover') {
