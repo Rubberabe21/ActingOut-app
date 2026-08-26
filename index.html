@@ -366,47 +366,28 @@ z-index: 99;
 background:
 linear-gradient(
 rgba(18, 16, 16, 0) 50%,
-rgba(0, 0, 0, 0.25) 50%
+rgba(0, 0, 0, 0.12) 50%
 ),
 linear-gradient(
 90deg,
-rgba(255, 0, 0, 0.02),
-rgba(0, 255, 0, 0.01),
-rgba(0, 0, 255, 0.02)
+rgba(255, 0, 0, 0.01),
+rgba(0, 255, 0, 0.005),
+rgba(0, 0, 255, 0.01)
 );
 background-size: 100% 4px, 6px 100%;
-box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
+box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.3);
+opacity: 0.5;
 }
 </style>
 </head>
 
 <body>
 
-<!-- AUDIO HUB -->
-<audio id="hubMusic" src="assets/hub/music_hub.mp3" loop autoplay playsinline style="display:none;"></audio>
-
 <script>
 if (!sessionStorage.getItem('arcade_session_active')) {
 window.location.replace('./start.html');
 } else {
 sessionStorage.removeItem('arcade_session_active');
-}
-
-// AVVIO AUTOMATICO MUSICA
-const hubMusic = document.getElementById('hubMusic');
-if (hubMusic) {
-hubMusic.volume = 0.4;
-function playHubMusic() {
-if (hubMusic.paused) {
-hubMusic.play().catch(() => {});
-}
-}
-playHubMusic();
-window.addEventListener('DOMContentLoaded', playHubMusic);
-window.addEventListener('load', playHubMusic);
-['pointerdown', 'touchstart', 'mousedown', 'keydown', 'click'].forEach(evt => {
-window.addEventListener(evt, playHubMusic, { capture: true });
-});
 }
 </script>
 
