@@ -678,7 +678,7 @@ const floorY = 589;
 const gabriY = 581;
 const npcY = 587;
 const cabY = 566;
-this.cabBadgeY = 370;
+this.cabBadgeY = 350;
 
 this.gabri = this.add.video(115, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
 if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
@@ -746,10 +746,10 @@ ease: 'Sine.easeInOut'
 updateHeaderDOM();
 
 this.cabinets = [
-{ x: 1290, y: cabY, badgeX: 1290, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
-{ x: 1414, y: cabY, badgeX: 1414, badgeY: this.cabBadgeY, title: "FILE BOMBER", key: "cyberRun", type: "game", url: "./pacman.html" },
-{ x: 1538, y: cabY, badgeX: 1538, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
-{ x: 1670, y: cabY, badgeX: 1670, badgeY: this.cabBadgeY, title: "DEADLINE DRIVE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
+{ x: 1290, y: cabY, badgeX: 1296, badgeY: this.cabBadgeY, title: "FEEDBACK INVADERS", key: "feedbackInvaders", type: "game", url: "./invaders.html" },
+{ x: 1414, y: cabY, badgeX: 1421, badgeY: this.cabBadgeY, title: "FILE BOMBER", key: "cyberRun", type: "game", url: "./pacman.html" },
+{ x: 1538, y: cabY, badgeX: 1542, badgeY: this.cabBadgeY, title: "PIXEL PUNCH", key: "pixelPunch", type: "game", url: "./PixelPunch.html" },
+{ x: 1670, y: cabY, badgeX: 1662, badgeY: this.cabBadgeY, title: "DEADLINE DRIVE", key: "deadlineDrive", type: "game", url: "./frogger.html" },
 { x: 2460, y: cabY, badgeX: 2460, badgeY: this.cabBadgeY, title: "CLASSIFICHE MONDIALI", key: "leaderboard", type: "leaderboard", url: null }
 ];
 
@@ -761,23 +761,15 @@ sprite.gameData = cab;
 this.cabinetSprites.push(sprite);
 });
 
+// SCHEDA INFO SU 3 LIVELLI (Titolo, Record, Pulsante)
 this.infoBox = this.add.container(0, 0).setDepth(80);
-let boxBg = this.add.graphics();
-boxBg.fillStyle(0x050515, 0.95);
-boxBg.lineStyle(2, 0xff0055, 1);
-boxBg.fillRoundedRect(-95, -24, 190, 48, 10);
-boxBg.strokeRoundedRect(-95, -24, 190, 48, 10);
+this.boxBg = this.add.graphics();
 
-this.boxTitleText = this.add.text(0, -10, "", { font: "bold 12px monospace", fill: "#ffff00", align: "center" }).setOrigin(0.5);
-this.boxActionText = this.add.text(0, 10, "GIOCA 🕹️", { font: "bold 12px monospace", fill: "#ff0055", align: "center" }).setOrigin(0.5);
+this.boxTitleText = this.add.text(0, 0, "", { font: "bold 12px monospace", fill: "#ffff00", align: "center" }).setOrigin(0.5);
+this.boxRecordText = this.add.text(0, 0, "", { font: "bold 10px monospace", fill: "#00f3ff", align: "center" }).setOrigin(0.5);
+this.boxActionText = this.add.text(0, 0, "", { font: "900 11px monospace", fill: "#ff0055", align: "center" }).setOrigin(0.5);
 
-this.infoBox.add([boxBg, this.boxTitleText, this.boxActionText]);
-this.infoBox.setSize(190, 48);
-this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-95, -24, 190, 48), Phaser.Geom.Rectangle.Contains);
-this.infoBox.on('pointerdown', (pointer, localX, localY, event) => {
-if (event) event.stopPropagation();
-this.interact();
-});
+this.infoBox.add([this.boxBg, this.boxTitleText, this.boxRecordText, this.boxActionText]);
 this.infoBox.setVisible(false);
 
 this.createDialogueSystem();
@@ -790,6 +782,49 @@ this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
 this.keyEsc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
 this.setupTouchControls(vWidth, vHeight);
+}
+
+showInfoCard(x, y, title, recordText, actionText) {
+this.infoBox.setPosition(x, y);
+this.boxTitleText.setText(title);
+this.boxRecordText.setText(recordText || "");
+this.boxActionText.setText(actionText);
+
+this.boxBg.clear();
+if (recordText) {
+// Layout su 3 Livelli (Cabinati dei giochi)
+this.boxBg.fillStyle(0x050515, 0.95);
+this.boxBg.lineStyle(2, 0xff0055, 1);
+this.boxBg.fillRoundedRect(-105, -36, 210, 72, 12);
+this.boxBg.strokeRoundedRect(-105, -36, 210, 72, 12);
+
+// Sottile linea divisoria neon
+this.boxBg.lineStyle(1, 0xff0055, 0.35);
+this.boxBg.lineBetween(-90, 8, 90, 8);
+
+this.boxTitleText.setPosition(0, -21);
+this.boxRecordText.setPosition(0, -5);
+this.boxRecordText.setVisible(true);
+this.boxActionText.setPosition(0, 20);
+
+this.infoBox.setSize(210, 72);
+this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-105, -36, 210, 72), Phaser.Geom.Rectangle.Contains);
+} else {
+// Layout compatto su 2 Livelli (NPC e Tasti Standard)
+this.boxBg.fillStyle(0x050515, 0.95);
+this.boxBg.lineStyle(2, 0xff0055, 1);
+this.boxBg.fillRoundedRect(-95, -24, 190, 48, 10);
+this.boxBg.strokeRoundedRect(-95, -24, 190, 48, 10);
+
+this.boxTitleText.setPosition(0, -10);
+this.boxRecordText.setVisible(false);
+this.boxActionText.setPosition(0, 10);
+
+this.infoBox.setSize(190, 48);
+this.infoBox.setInteractive(new Phaser.Geom.Rectangle(-95, -24, 190, 48), Phaser.Geom.Rectangle.Contains);
+}
+
+this.infoBox.setVisible(true);
 }
 
 createDialogueSystem() {
@@ -1105,50 +1140,32 @@ this.interact();
 let activeCabinet = null;
 
 if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gabri.x, this.gabri.y) < 70) {
-this.infoBox.setPosition(this.gabri.x, this.cabBadgeY);
-this.boxTitleText.setText("Gabri");
-this.boxActionText.setText("PARLA 💬");
-this.infoBox.setVisible(true);
+this.showInfoCard(this.gabri.x, this.cabBadgeY, "Gabri", null, "PARLA 💬");
 return;
 }
 
 if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.pierri.x, this.pierri.y) < 70) {
-this.infoBox.setPosition(this.pierri.x, this.cabBadgeY);
-this.boxTitleText.setText("Pierri");
-this.boxActionText.setText("PARLA 💬");
-this.infoBox.setVisible(true);
+this.showInfoCard(this.pierri.x, this.cabBadgeY, "Pierri", null, "PARLA 💬");
 return;
 }
 
 if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y) < 70) {
-this.infoBox.setPosition(this.npc.x, this.cabBadgeY);
-this.boxTitleText.setText("Giovannone");
-this.boxActionText.setText("PARLA 💬");
-this.infoBox.setVisible(true);
+this.showInfoCard(this.npc.x, this.cabBadgeY, "Giovannone", null, "PARLA 💬");
 return;
 }
 
 if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.morena.x, this.morena.y) < 70) {
-this.infoBox.setPosition(this.morena.x, this.cabBadgeY);
-this.boxTitleText.setText("Morena");
-this.boxActionText.setText("PARLA 💬");
-this.infoBox.setVisible(true);
+this.showInfoCard(this.morena.x, this.cabBadgeY, "Morena", null, "PARLA 💬");
 return;
 }
 
 if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.raffa.x, this.raffa.y) < 70) {
-this.infoBox.setPosition(this.raffa.x, this.cabBadgeY);
-this.boxTitleText.setText("Raffa");
-this.boxActionText.setText("PARLA 💬");
-this.infoBox.setVisible(true);
+this.showInfoCard(this.raffa.x, this.cabBadgeY, "Raffa", null, "PARLA 💬");
 return;
 }
 
 if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.scintu.x, this.scintu.y) < 70) {
-this.infoBox.setPosition(this.scintu.x, this.cabBadgeY);
-this.boxTitleText.setText("Scintu");
-this.boxActionText.setText("PARLA 💬");
-this.infoBox.setVisible(true);
+this.showInfoCard(this.scintu.x, this.cabBadgeY, "Scintu", null, "PARLA 💬");
 return;
 }
 
@@ -1161,19 +1178,15 @@ break;
 
 if (activeCabinet) {
 let data = activeCabinet.gameData;
-this.infoBox.setPosition(data.badgeX, data.badgeY);
-this.boxTitleText.setText(data.title);
 
 if (data.type === "leaderboard") {
-this.boxActionText.setText("VEDI RECORD 🏆");
+this.showInfoCard(data.badgeX, data.badgeY, data.title, "🌍 GLOBAL RANKINGS", "VEDI RECORD 🏆");
 } else {
 let myRecord = (auth.currentUser && auth.currentUser.stats)
 ? (auth.currentUser.stats[data.key] || 0)
 : 0;
-this.boxActionText.setText(`REC: ${myRecord} PTS | GIOCA 🕹️`);
+this.showInfoCard(data.badgeX, data.badgeY, data.title, `🏆 BEST: ${myRecord.toLocaleString()} PTS`, "PREMI PER GIOCARE 🕹️");
 }
-
-this.infoBox.setVisible(true);
 } else {
 this.infoBox.setVisible(false);
 }
