@@ -82,7 +82,7 @@
   
   .header-btns-right {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
   }
 
@@ -90,13 +90,15 @@
     background: #1a0836;
     border: 1.5px solid #ffea00 !important;
     color: #ffea00 !important;
-    padding: 4px 7px;
+    padding: 5px 0;
     font-family: 'Courier New', monospace;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
     box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
+    width: 78px;
+    text-align: center;
   }
   .opt-btn:active { transform: scale(0.92); }
   
@@ -310,9 +312,9 @@
   <div class="top-header">
     <span class="header-title">FEEDBACK INVADERS</span>
     <div class="header-btns-right">
-      <button class="opt-btn" id="btnMenuTop">🏠 MENU</button>
-      <button class="opt-btn" id="btnExitTop">◄ ESCI</button>
-      <button class="opt-btn" id="btnOpenSettings">⚙️ OPZIONI</button>
+      <button class="opt-btn" id="btnMenuTop">MENU</button>
+      <button class="opt-btn" id="btnExitTop">ESCI</button>
+      <button class="opt-btn" id="btnOpenSettings">OPZIONI</button>
     </div>
   </div>
 
@@ -325,7 +327,7 @@
       <div class="joystick-knob" id="joyKnob"></div>
     </div>
 
-    <div class="fire-btn" id="btnFire">🔥</div>
+    <div class="fire-btn" id="btnFire"></div>
   </div>
 
   <!-- MODALE OPZIONI PRINCIPALE -->
