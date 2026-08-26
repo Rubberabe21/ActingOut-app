@@ -716,7 +716,6 @@ function spawnTicket() {
         return;
     }
 
-    // Probabilità Ferie ridotta dal 10% al 3%
     if (rand < 0.03) {
         target.type = 'FERIE';
         target.hp = 1;
@@ -1049,7 +1048,7 @@ function draw() {
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('Colpisci i ticket prima che scadano.', W / 2, 96);
         ctx.fillText('Ogni errore alza lo STRESS.', W / 2, 114);
-        ctx.fillStyle = '#ffea00'; ctx.font = '900 11px Courier New';
+        ctx.fillStyle = '#ffea00'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('Al 100% di Stress è GAME OVER!', W / 2, 134);
 
         // 2. TICKET BUONI
@@ -1057,47 +1056,21 @@ function draw() {
         ctx.fillText('2. TIPOLOGIE DI TICKET 🕹️', W / 2, 172);
         draw80sBox(ctx, 20, 182, W - 40, 122, '#00ffff', '#0a1628', 2);
 
-        let tY = 202;
-        let centerX = W / 2;
-
-        ctx.fillStyle = '#ff0055';
-        ctx.beginPath(); ctx.arc(centerX - 95, tY - 3, 5, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('ROSSI (1 Tap): +100 PTS', centerX + 10, tY);
-
-        tY += 20;
-        ctx.fillStyle = '#d000ff';
-        ctx.beginPath(); ctx.arc(centerX - 95, tY - 3, 5, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('VIOLA (2 Tap): +250 PTS', centerX + 10, tY);
-
-        tY += 20;
-        if (ASSETS.CAFFE && ASSETS.CAFFE.complete && ASSETS.CAFFE.naturalWidth !== 0) {
-            ctx.drawImage(ASSETS.CAFFE, centerX - 105, tY - 10, 14, 14);
-        } else {
-            ctx.fillStyle = '#ffea00'; ctx.font = '11px sans-serif'; ctx.fillText('☕', centerX - 98, tY);
-        }
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('CAFFÈ & VIP: -STRESS & PTS', centerX + 10, tY);
-
-        tY += 20;
-        ctx.fillStyle = '#00ffff'; ctx.font = '11px sans-serif'; ctx.fillText('🌴', centerX - 98, tY);
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('FERIE: Pausa & -20% STRESS', centerX + 10, tY);
+        ctx.fillText('🔴 ROSSI (1 Tap): +100 PTS', W / 2, 202);
+        ctx.fillText('🟣 VIOLA (2 Tap): +250 PTS', W / 2, 224);
+        ctx.fillText('☕ CAFFÈ & VIP: -STRESS & PTS', W / 2, 246);
+        ctx.fillText('🌴 FERIE: Pausa & -20% STRESS', W / 2, 268);
 
         // 3. TRAPPOLE
         ctx.fillStyle = '#ff0055'; ctx.font = '900 14px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('3. TRAPPOLE DA EVITARE! ⚠️', W / 2, 324);
-        draw80sBox(ctx, 20, 334, W - 40, 80, '#ff0055', '#1a0810', 2);
+        draw80sBox(ctx, 20, 334, W - 40, 78, '#ff0055', '#1a0810', 2);
 
-        let trY = 356;
-        ctx.fillStyle = '#00ff66';
-        ctx.beginPath(); ctx.arc(centerX - 120, trY - 3, 5, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('VERDE (APPROVATO) & NERO (CORROTTO)', centerX + 10, trY);
-
+        ctx.fillText('🟢 VERDE (OK) & 🖤 NERO (CORROTTO)', W / 2, 356);
         ctx.fillStyle = '#ff0055'; ctx.font = '900 11px Courier New'; ctx.textAlign = 'center';
-        ctx.fillText('NON TOCARLI: +12% STRESS!', W / 2, 388);
+        ctx.fillText('NON TOCARLI: +12% STRESS!', W / 2, 378);
 
         draw80sBox(ctx, 35, H - 58, W - 70, 38, '#ffea00', '#101020', 3);
         if (Math.floor(frame / 35) % 2 === 0) {
@@ -1186,11 +1159,11 @@ function draw() {
             let bgCol = '#ff0055';
             let txtCol = '#ffffff';
 
-            if (p.type === 'FERIE') { bgCol = '#00ffff'; txtCol = '#000000'; }
-            else if (p.type === 'TRAP') { bgCol = '#00ff66'; txtCol = '#000000'; }
+            if (p.type === 'FERIE') { bgCol = '#00ffff'; txtCol = '#050510'; }
+            else if (p.type === 'TRAP') { bgCol = '#00ff66'; txtCol = '#051005'; }
             else if (p.type === 'GLITCH') { bgCol = '#1a0008'; txtCol = '#ff0055'; }
-            else if (p.type === 'COFFEE') { bgCol = '#ffea00'; txtCol = '#000000'; }
-            else if (p.type === 'GOLDEN') { bgCol = '#ffaa00'; txtCol = '#000000'; }
+            else if (p.type === 'COFFEE') { bgCol = '#ffea00'; txtCol = '#101000'; }
+            else if (p.type === 'GOLDEN') { bgCol = '#ffaa00'; txtCol = '#100800'; }
             else if (p.type === 'DOUBLE') { bgCol = '#d000ff'; txtCol = '#ffffff'; }
 
             draw80sBox(ctx, padX + 4, padY + 22, p.w - 8, p.h - 26, '#ffffff', bgCol, 2);
@@ -1199,20 +1172,20 @@ function draw() {
             ctx.fillStyle = 'rgba(0,0,0,0.5)';
             ctx.fillRect(padX + 5, padY + p.h - 8, (p.w - 10) * (1 - timerPct), 4);
 
-            // Testo sui pad ingrandito e nitido
+            // Testo nitido con hard shadow 1px
             ctx.save();
-            ctx.fillStyle = txtCol;
             ctx.font = '900 12px "Courier New", monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 3;
 
-            ctx.strokeText(p.line1, padX + p.w / 2, padY + 62);
-            ctx.fillText(p.line1, padX + p.w / 2, padY + 62);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+            ctx.shadowBlur = 0;
 
-            ctx.strokeText(p.line2, padX + p.w / 2, padY + 80);
-            ctx.fillText(p.line2, padX + p.w / 2, padY + 80);
+            ctx.fillStyle = txtCol;
+            ctx.fillText(p.line1, padX + p.w / 2, padY + 60);
+            ctx.fillText(p.line2, padX + p.w / 2, padY + 78);
             ctx.restore();
         }
     });
