@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#060212">
 <title>Pixel Punch - Revision Killer - Agency Arcade</title>
+
+<!-- Gestione Audio Centralizzata (Web Audio API) -->
+<script src="audioManager.js"></script>
+
 <style>
   * { 
     margin: 0; 
@@ -267,6 +271,11 @@
       <div class="modal-title">⚙️ OPZIONI CABINET</div>
 
       <div class="option-item">
+        <span class="option-label">MUSICA (BGM)</span>
+        <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
+      </div>
+
+      <div class="option-item">
         <span class="option-label">EFFETTI SONORI (SFX)</span>
         <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
       </div>
@@ -383,13 +392,12 @@ function drawImageCover(c, img, dx, dy, dWidth, dHeight) {
   c.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 }
 
-let sfxEnabled = localStorage.getItem('pixelPunch_sfx') !== 'false';
-
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
 const btnExitTop = document.getElementById('btnExitTop');
 const btnMenuTop = document.getElementById('btnMenuTop');
+const btnToggleMusic = document.getElementById('btnToggleMusic');
 const btnToggleSfx = document.getElementById('btnToggleSfx');
 
 const btnOpenRules = document.getElementById('btnOpenRules');
@@ -401,14 +409,24 @@ const btnClosePerks = document.getElementById('btnClosePerks');
 const perksModal = document.getElementById('perksModal');
 
 function renderOptionButtons() {
-  btnToggleSfx.className = `toggle-btn ${sfxEnabled ? 'active' : ''}`;
-  btnToggleSfx.innerText = sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
+  const musicMuted = window.AudioManager ? AudioManager.isMusicMuted() : false;
+  const sfxMuted = window.AudioManager ? AudioManager.isSFXMuted() : false;
+
+  btnToggleMusic.className = `toggle-btn ${!musicMuted ? 'active' : ''}`;
+  btnToggleMusic.innerText = !musicMuted ? 'ON 🎵' : 'OFF 🔇';
+
+  btnToggleSfx.className = `toggle-btn ${!sfxMuted ? 'active' : ''}`;
+  btnToggleSfx.innerText = !sfxMuted ? 'ON 🔊' : 'OFF 🔇';
 }
 renderOptionButtons();
 
+btnToggleMusic.onclick = () => {
+  if (window.AudioManager) AudioManager.toggleMusic();
+  renderOptionButtons();
+};
+
 btnToggleSfx.onclick = () => {
-  sfxEnabled = !sfxEnabled;
-  localStorage.setItem('pixelPunch_sfx', sfxEnabled);
+  if (window.AudioManager) AudioManager.toggleSFX();
   renderOptionButtons();
 };
 
@@ -416,6 +434,7 @@ btnOpenSettings.onclick = () => {
   if (state === 'PLAYING') {
     state = 'PAUSE';
   }
+  renderOptionButtons();
   settingsModal.style.display = 'flex';
 };
 
@@ -541,8 +560,12 @@ function getAC() {
     return audioCtx;
 }
 
+function isSfxAllowed() {
+    return window.AudioManager ? !AudioManager.isSFXMuted() : true;
+}
+
 function playSound(type) {
-    if (!sfxEnabled) return;
+    if (!isSfxAllowed()) return;
     try {
         const ac = getAC();
         if (!ac) return;

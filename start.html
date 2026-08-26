@@ -15,6 +15,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- Gestione Audio Centralizzata (Web Audio API) -->
+    <script src="audioManager.js"></script>
+
     <style>
         *, *:focus, *:active, button, input, div, a {
             box-sizing: border-box;
@@ -570,7 +573,7 @@ const DIALOGUE_STEPS = [
         btn: "CONFERMA SCELTA ►" 
     },
     { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
+    { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrived” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
     { text: "...", type: "none", btn: "AVANTI ►" },
     { text: "E soprattutto…", type: "none", btn: "AVANTI ►" },
     { text: "che faccia mettiamo su questo personaggio?", type: "avatar", btn: "SCEGLI QUESTA TESTA ►" },

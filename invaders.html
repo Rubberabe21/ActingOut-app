@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#060212">
 <title>Feedback Invaders - Agency Arcade</title>
+
+<!-- Gestione Audio Centralizzata (Web Audio API) -->
+<script src="audioManager.js"></script>
+
 <style>
   * { 
     margin: 0; 
@@ -335,6 +339,11 @@
       </div>
 
       <div class="option-item">
+        <span class="option-label">MUSICA (BGM)</span>
+        <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
+      </div>
+
+      <div class="option-item">
         <span class="option-label">EFFETTI SONORI (SFX)</span>
         <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
       </div>
@@ -421,7 +430,6 @@ canvas.width = W;
 canvas.height = H;
 
 let joySensitivity = parseFloat(localStorage.getItem('invaders_joySens')) || 1.0;
-let sfxEnabled = localStorage.getItem('invaders_sfx') !== 'false';
 
 const settingsModal = document.getElementById('settingsModal');
 const btnOpenSettings = document.getElementById('btnOpenSettings');
@@ -430,6 +438,7 @@ const btnExitTop = document.getElementById('btnExitTop');
 const btnMenuTop = document.getElementById('btnMenuTop');
 const sensSlider = document.getElementById('sensSlider');
 const sensValText = document.getElementById('sensValText');
+const btnToggleMusic = document.getElementById('btnToggleMusic');
 const btnToggleSfx = document.getElementById('btnToggleSfx');
 
 const btnOpenRules = document.getElementById('btnOpenRules');
@@ -444,8 +453,14 @@ sensSlider.value = joySensitivity;
 sensValText.innerText = joySensitivity.toFixed(2) + 'x';
 
 function renderOptionButtons() {
-  btnToggleSfx.className = `toggle-btn ${sfxEnabled ? 'active' : ''}`;
-  btnToggleSfx.innerText = sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
+  const musicMuted = window.AudioManager ? AudioManager.isMusicMuted() : false;
+  const sfxMuted = window.AudioManager ? AudioManager.isSFXMuted() : false;
+
+  btnToggleMusic.className = `toggle-btn ${!musicMuted ? 'active' : ''}`;
+  btnToggleMusic.innerText = !musicMuted ? 'ON 🎵' : 'OFF 🔇';
+
+  btnToggleSfx.className = `toggle-btn ${!sfxMuted ? 'active' : ''}`;
+  btnToggleSfx.innerText = !sfxMuted ? 'ON 🔊' : 'OFF 🔇';
 }
 renderOptionButtons();
 
@@ -455,9 +470,13 @@ sensSlider.oninput = () => {
   localStorage.setItem('invaders_joySens', joySensitivity);
 };
 
+btnToggleMusic.onclick = () => {
+  if (window.AudioManager) AudioManager.toggleMusic();
+  renderOptionButtons();
+};
+
 btnToggleSfx.onclick = () => {
-  sfxEnabled = !sfxEnabled;
-  localStorage.setItem('invaders_sfx', sfxEnabled);
+  if (window.AudioManager) AudioManager.toggleSFX();
   renderOptionButtons();
 };
 
@@ -465,6 +484,7 @@ btnOpenSettings.onclick = () => {
   if (state === 'playing') {
     state = 'PAUSE';
   }
+  renderOptionButtons();
   settingsModal.style.display = 'flex';
 };
 
@@ -656,9 +676,13 @@ function getAC() {
   return audioCtx;
 }
 
-// --- EFFETTI SONORI ---
+// --- EFFETTI SONORI (COLLEGATI AD AUDIOMANAGER) ---
+function isSfxAllowed() {
+  return window.AudioManager ? !AudioManager.isSFXMuted() : true;
+}
+
 function sfxShoot() {
-  if (!sfxEnabled) return;
+  if (!isSfxAllowed()) return;
   const ac = getAC(), t = ac.currentTime;
   const osc = ac.createOscillator(), gain = ac.createGain();
   osc.connect(gain); gain.connect(ac.destination);
@@ -670,7 +694,7 @@ function sfxShoot() {
 }
 
 function sfxPowerUp() {
-  if (!sfxEnabled) return;
+  if (!isSfxAllowed()) return;
   const ac = getAC(), t = ac.currentTime;
   const osc = ac.createOscillator(), gain = ac.createGain();
   osc.connect(gain); gain.connect(ac.destination);
@@ -683,7 +707,7 @@ function sfxPowerUp() {
 }
 
 function sfxDebuff() {
-  if (!sfxEnabled) return;
+  if (!isSfxAllowed()) return;
   const ac = getAC(), t = ac.currentTime;
   const osc = ac.createOscillator(), gain = ac.createGain();
   osc.connect(gain); gain.connect(ac.destination);
@@ -695,7 +719,7 @@ function sfxDebuff() {
 }
 
 function sfxEnemyHit() {
-  if (!sfxEnabled) return;
+  if (!isSfxAllowed()) return;
   const ac = getAC(), t = ac.currentTime, dur = 0.06;
   const buf = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate);
   const d = buf.getChannelData(0);
@@ -709,7 +733,7 @@ function sfxEnemyHit() {
 }
 
 function sfxEnemyExplode() {
-  if (!sfxEnabled) return;
+  if (!isSfxAllowed()) return;
   const ac = getAC(), t = ac.currentTime, dur = 0.35;
   const buf = ac.createBuffer(1, Math.ceil(ac.sampleRate * dur), ac.sampleRate);
   const d = buf.getChannelData(0);
@@ -724,7 +748,7 @@ function sfxEnemyExplode() {
 }
 
 function sfxPlayerHit() {
-  if (!sfxEnabled) return;
+  if (!isSfxAllowed()) return;
   const ac = getAC(), t = ac.currentTime;
   const osc = ac.createOscillator(), og = ac.createGain();
   osc.connect(og); og.connect(ac.destination);
@@ -1214,7 +1238,6 @@ class Boss {
 
     if (--this.attackCooldown <= 0) {
       if (this.bossIndex === 1) {
-        // BOSS 1: LOOP REVISIONI INFINITE -> Sparo ad anello circolare rotante
         this.attackCooldown = Math.max(30, 60 - wave * 1.2);
         const count = 10;
         const offset = (this.timer * 0.2);
@@ -1223,7 +1246,6 @@ class Boss {
           enemyBullets.push(new Bullet(this.x, this.y + 20, Math.cos(angle) * 3.5, Math.sin(angle) * 3.5, this.color, 8, 8));
         }
       } else if (this.bossIndex === 2) {
-        // BOSS 2: IL CLIENTE IMPOSSIBILE -> Tripla raffica a puntamento diretto sul player
         this.attackCooldown = Math.max(25, 50 - wave * 1.2);
         let dx = player.x - this.x, dy = player.y - this.y, d = Math.hypot(dx, dy) || 1;
         enemyBullets.push(new Bullet(this.x, this.y + 40, (dx / d) * 5.5, (dy / d) * 5.5, '#ff0055', 10, 10));
@@ -1232,7 +1254,6 @@ class Boss {
           enemyBullets.push(new Bullet(this.x, this.y + 40, Math.cos(baseAngle + off) * 4.5, Math.sin(baseAngle + off) * 4.5, '#ffea00', 7, 7));
         });
       } else if (this.bossIndex === 3) {
-        // BOSS 3: LE TASSE & F24 KILLER -> Pioggia a cortina verticale dall'alto
         this.attackCooldown = Math.max(40, 70 - wave * 1.5);
         for (let bx = 50; bx <= W - 50; bx += 65) {
           if (Math.abs(bx - player.x) > 40 || Math.random() < 0.25) {
@@ -1240,12 +1261,10 @@ class Boss {
           }
         }
       } else if (this.bossIndex === 4) {
-        // BOSS 4: CALL MARATONA DELLE 18:00 -> Sparo a sventagliata rapida e continua
         this.attackCooldown = Math.max(8, 14 - Math.floor(wave * 0.2));
         let sweepAngle = Math.sin(this.timer * 0.12) * 0.7 + (Math.PI / 2);
         enemyBullets.push(new Bullet(this.x, this.y + 45, Math.cos(sweepAngle) * 5.5, Math.sin(sweepAngle) * 5.5, '#ffaa00', 6, 12));
       } else if (this.bossIndex === 5) {
-        // BOSS 5: SERVER CRASH 500 -> Esplosione a stella (Nova) + Mega Laser centrale
         this.attackCooldown = Math.max(35, 65 - wave * 1.5);
         for (let i = 0; i < 8; i++) {
           let a = (Math.PI * 2 / 8) * i + (Math.random() * 0.2);

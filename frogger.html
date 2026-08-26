@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#0a0a0f">
 <title>Deadline Drive - Premiere Pro Timeline Rush</title>
 
+<!-- Gestione Audio Centralizzata (Web Audio API) -->
+<script src="audioManager.js"></script>
+
 <style>
 * {
   margin: 0;
@@ -314,6 +317,11 @@ canvas {
       <div class="modal-title">⚙️ TIMELINE SETTINGS</div>
 
       <div class="option-item">
+        <span class="option-label">MUSICA (BGM)</span>
+        <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
+      </div>
+
+      <div class="option-item">
         <span class="option-label">EFFETTI SONORI (SFX)</span>
         <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
       </div>
@@ -340,7 +348,6 @@ const CANVAS_H = ROWS * CELL_SIZE + HUD_HEIGHT; // 672px
 canvas.width = CANVAS_W;
 canvas.height = CANVAS_H;
 
-let sfxEnabled = localStorage.getItem('deadlineDrive_sfx') !== 'false';
 let audioCtx = null;
 
 function unlockAudio() {
@@ -371,19 +378,30 @@ const btnOpenSettings = document.getElementById('btnOpenSettings');
 const btnCloseSettings = document.getElementById('btnCloseSettings');
 const btnMenuTop = document.getElementById('btnMenuTop');
 const btnExitTop = document.getElementById('btnExitTop');
+const btnToggleMusic = document.getElementById('btnToggleMusic');
 const btnToggleSfx = document.getElementById('btnToggleSfx');
 const btnModalRules = document.getElementById('btnModalRules');
 const btnModalPowerups = document.getElementById('btnModalPowerups');
 
 function renderOptionButtons() {
-  btnToggleSfx.className = `toggle-btn ${sfxEnabled ? 'active' : ''}`;
-  btnToggleSfx.innerText = sfxEnabled ? 'ON 🔊' : 'OFF 🔇';
+  const musicMuted = window.AudioManager ? AudioManager.isMusicMuted() : false;
+  const sfxMuted = window.AudioManager ? AudioManager.isSFXMuted() : false;
+
+  btnToggleMusic.className = `toggle-btn ${!musicMuted ? 'active' : ''}`;
+  btnToggleMusic.innerText = !musicMuted ? 'ON 🎵' : 'OFF 🔇';
+
+  btnToggleSfx.className = `toggle-btn ${!sfxMuted ? 'active' : ''}`;
+  btnToggleSfx.innerText = !sfxMuted ? 'ON 🔊' : 'OFF 🔇';
 }
 renderOptionButtons();
 
+btnToggleMusic.onclick = () => {
+  if (window.AudioManager) AudioManager.toggleMusic();
+  renderOptionButtons();
+};
+
 btnToggleSfx.onclick = () => {
-  sfxEnabled = !sfxEnabled;
-  localStorage.setItem('deadlineDrive_sfx', sfxEnabled);
+  if (window.AudioManager) AudioManager.toggleSFX();
   renderOptionButtons();
 };
 
@@ -391,6 +409,7 @@ btnOpenSettings.onclick = () => {
   if (gameState === 'playing') {
     gameState = 'PAUSE';
   }
+  renderOptionButtons();
   settingsModal.style.display = 'flex';
 };
 
@@ -427,8 +446,12 @@ btnModalPowerups.onclick = () => {
   gameState = 'POWERUPS_INFO';
 };
 
+function isSfxAllowed() {
+  return window.AudioManager ? !AudioManager.isSFXMuted() : true;
+}
+
 function playSound(type) {
-  if (!sfxEnabled) return;
+  if (!isSfxAllowed()) return;
   try {
     const ac = getAC();
     if (!ac) return;
@@ -616,7 +639,6 @@ function advanceMenuState() {
 
 function startPanicWave() {
   panicWaveCount++;
-  // La 1° ondata dura 20 sec (1200 frame). Le successive aumentano di 5 sec (300 frame)
   let durationSec = 20 + (panicWaveCount - 1) * 5;
   panicTimer = durationSec * 60;
   panicModeActive = true;
@@ -635,7 +657,6 @@ function createNewLane(isInitialSetup = false, r = 0) {
   let dir = Math.random() < 0.5 ? 1 : -1;
   let baseSpeed = 0.38 + Math.min((laneLevelIndex - 1) * 0.09, 0.85);
 
-  // SELEZIONE UNICA DEL BLOCCO PER L'INTERA CORSA IN BASE AL LIVELLO
   let selectedBlockType = BLOCK_TYPES.A_ROLL;
   if (laneLevelIndex === 2) selectedBlockType = BLOCK_TYPES.SPEED_RAMP;
   else if (laneLevelIndex === 3) selectedBlockType = BLOCK_TYPES.LUMETRI;
@@ -797,7 +818,6 @@ function scrollWorldDown() {
     currentLevel = maxReachedLevel;
   }
 
-  // LA PRIMA ONDATA SCATTA SOLO DOPO IL LIVELLO 15 (V15)
   if (maxReachedLevel >= 15 && !panicModeActive && panicCooldown <= 0) {
     if (!hasSeenPanicPopup) {
       hasSeenPanicPopup = true;
@@ -812,12 +832,9 @@ function updateVehicles() {
   visualScrollOffset += (0 - visualScrollOffset) * 0.25;
   if (Math.abs(visualScrollOffset) < 0.1) visualScrollOffset = 0;
 
-  // GESTIONE ONDATA PANICO CON TIMER E COOLDOWN ALLUNGATO
   if (panicModeActive && gameState === 'playing') {
     panicTimer--;
 
-    // LA CANCELLAZIONE ROSSA ORA SALE PIÙ VELOCEMENTE PER CREARE VERO PANICO!
-    // Più l'ondata è alta, più sale rapida (da 40 frame fino a 25 frame per riga)
     let voidStepDelay = Math.max(25, 42 - Math.min(panicWaveCount * 3, 17));
     voidStepTimer++;
     if (voidStepTimer >= voidStepDelay) {
@@ -825,15 +842,13 @@ function updateVehicles() {
       if (voidGy > 1) voidGy--;
     }
 
-    // Se il giocatore finisce dentro la riga rossa -> Perde una vita!
     if (player.gy >= voidGy) {
       hitPlayer();
     }
 
-    // FINE ONDATA PANICO: La timeline si riassesta e scatta un lungo cooldown
     if (panicTimer <= 0) {
       panicModeActive = false;
-      panicCooldown = 35 * 60; // 35 SECONDI DI TREGUA TRA LE ONDATE (Più distanziate!)
+      panicCooldown = 35 * 60;
       voidGy = ROWS + 3;
     }
   } else if (panicCooldown > 0 && gameState === 'playing') {
@@ -847,7 +862,6 @@ function updateVehicles() {
     if (lane.type === 'ROAD') {
       let currentSpeed = lane.baseSpeed;
 
-      // Comportamenti specifici dei blocchi
       if (lane.blockType.id === 'SPEED_RAMP') {
         currentSpeed *= (0.6 + 0.8 * (Math.sin(frame * 0.06) + 1) / 2);
       } else if (lane.blockType.id === 'OFFLINE_CORRUPT') {
@@ -858,17 +872,14 @@ function updateVehicles() {
         if (Math.floor(frame / 15) % 4 === 0) currentSpeed *= 1.6;
       }
 
-      // L'IMPAZZIRE DEI PEZZI INCREMENTA AD OGNI ONDATA!
       if (panicModeActive) {
-        // La velocità aumenta progressivamente ad ogni ondata
         let speedMultiplier = 1.3 + (panicWaveCount * 0.15);
         currentSpeed *= speedMultiplier;
 
-        // La probabilità di scatti, vibrazioni e inversioni cresce ad ogni ondata
         let glitchChance = Math.min(0.18, 0.04 + (panicWaveCount * 0.03));
         if (Math.random() < glitchChance) {
           let crazyFactor = -0.6 - (panicWaveCount * 0.12);
-          currentSpeed *= crazyFactor; // Scatto o inversione brusca!
+          currentSpeed *= crazyFactor;
         }
       }
 
@@ -1017,7 +1028,6 @@ function drawGameWorld() {
         ctx.rect(x + 1, y + 1, blockW - 2, blockH);
         ctx.clip();
 
-        // COLORI CATTIVI ED INTENSIFICATI IN BASE ALL'ONDATA
         if (panicModeActive) {
           let flashRate = Math.max(3, 10 - panicWaveCount);
           ctx.fillStyle = (Math.floor(frame / flashRate) % 2 === 0) ? '#5a0000' : '#800030';
@@ -1039,7 +1049,6 @@ function drawGameWorld() {
         ctx.lineWidth = panicModeActive ? 2 : 1.5;
         ctx.strokeRect(x + 1, y + 1, blockW - 2, blockH);
 
-        // Icona FX adattata alle dimensioni
         if (blockW >= CELL_SIZE * 1.5) {
           ctx.fillStyle = 'rgba(0,0,0,0.5)';
           ctx.fillRect(x + 4, y + 6, 16, 14);
@@ -1050,7 +1059,6 @@ function drawGameWorld() {
           ctx.fillText(panicModeActive ? 'ERR' : 'FX', x + 12, y + 13);
         }
 
-        // TESTO FORMATTATO E ADATTATO PER STARE ANCHE SUI BLOCCHI PICCOLI
         ctx.fillStyle = obj.type.textCol || '#ffffff';
         let fontSize = blockW < CELL_SIZE * 1.6 ? 9 : 11;
         ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
@@ -1117,7 +1125,6 @@ function drawGameWorld() {
 
   drawSinglePlayer();
 
-  // BANNER CON TIMER DURATION E LIVELLO DI INTENSITÀ DELL'ONDATA
   if (panicModeActive) {
     let secLeft = Math.ceil(panicTimer / 60);
     ctx.fillStyle = 'rgba(255, 0, 85, 0.95)';
