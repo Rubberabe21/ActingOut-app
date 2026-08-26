@@ -159,7 +159,6 @@
             gap: 12px;
         }
 
-        /* Sfondo con Sfumatura e Bordi Sopra/Sotto Nero Pieno (#000000) */
         #onboarding-screen {
             display: none;
             flex-direction: column;
@@ -300,8 +299,8 @@
 
         .list-info-header {
             background: #120a28;
-            border: 1.5px solid #00f0ff;
-            color: #00f0ff;
+            border: 1.5px solid #00f3ff;
+            color: #00f3ff;
             font-size: 11px;
             font-weight: bold;
             padding: 8px 10px;
@@ -974,7 +973,7 @@ async function advanceStep() {
             inputField.className = "arcade-input arcade-input-bottom";
             inputField.type = "text";
             inputField.placeholder = stepData.placeholder;
-            inputField.maxLength = 12;
+            inputField.maxLength = 20;
             inputField.focus();
             stepBtn.innerText = stepData.btn || "CONFERMA NOME ►";
         } else if (stepData.type === "password") {
@@ -983,7 +982,7 @@ async function advanceStep() {
             inputField.className = "arcade-input arcade-input-bottom";
             inputField.type = "password";
             inputField.placeholder = stepData.placeholder;
-            inputField.maxLength = 20;
+            inputField.maxLength = 100; // Esteso per password lunghe e con caratteri speciali
             inputField.focus();
             stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
         } else if (stepData.type === "choice_activity") {
@@ -1019,18 +1018,29 @@ async function advanceStep() {
         const val = inputField.value.trim();
         if (!val) { alert("Inserisci un nome utente!"); return; }
 
+        stepBtn.disabled = true;
+        stepBtn.innerText = "VERIFICA IN CORSO...";
+
         if (supabaseClient) {
             try {
                 let { data } = await supabaseClient.from('profiles').select('username').eq('username', val).maybeSingle();
-                if (data) { alert("Nome utente già esistente sul Cloud!"); return; }
+                if (data) { 
+                    alert("Nome utente già esistente sul Cloud!"); 
+                    stepBtn.disabled = false;
+                    stepBtn.innerText = stepData.btn || "CONFERMA NOME ►";
+                    return; 
+                }
             } catch (e) {
                 console.warn("Errore verifica username Supabase:", e);
             }
         } else {
             alert("Connessione a Supabase non disponibile!");
+            stepBtn.disabled = false;
+            stepBtn.innerText = stepData.btn || "CONFERMA NOME ►";
             return;
         }
 
+        stepBtn.disabled = false;
         tempUsername = val;
 
     } else if (stepData.type === "choice_activity") {
@@ -1038,9 +1048,12 @@ async function advanceStep() {
     } else if (stepData.type === "choice_role") {
         if (!tempRole) { alert("Seleziona chi sei!"); return; }
     } else if (stepData.type === "password") {
-        const pass = inputField.value.trim();
-        if (!pass) { alert("Inserisci una password!"); return; }
+        const pass = inputField.value; // Mantiene la password esatta compresi punti o caratteri speciali
+        if (!pass || pass.trim().length === 0) { alert("Inserisci una password valida!"); return; }
+
         tempPassword = pass;
+        stepBtn.disabled = true;
+        stepBtn.innerText = "SALVATAGGIO...";
 
         const defaultStats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
 
@@ -1057,14 +1070,20 @@ async function advanceStep() {
 
                 if (error) {
                     alert("Errore registrazione Supabase: " + error.message);
+                    stepBtn.disabled = false;
+                    stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
                     return;
                 }
             } catch (e) {
                 alert("Errore durante il salvataggio su Supabase!");
+                stepBtn.disabled = false;
+                stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
                 return;
             }
         } else {
             alert("Connessione a Supabase non disponibile!");
+            stepBtn.disabled = false;
+            stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
             return;
         }
 
@@ -1077,6 +1096,7 @@ async function advanceStep() {
         };
         localStorage.setItem('arcade_current_user', JSON.stringify(newUser));
         localStorage.setItem('arcade_player_x', '200');
+        stepBtn.disabled = false;
 
     } else if (stepData.type === "finish") {
         sessionStorage.setItem('arcade_session_active', 'true');
