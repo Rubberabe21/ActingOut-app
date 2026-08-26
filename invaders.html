@@ -1951,7 +1951,7 @@ function update() {
   for (const b of playerBullets) b.update();
   for (const b of enemyBullets)  b.update();
   for (const e of enemies)       e.update();
-  for (const d of drops)         d.draw();
+  for (const d of drops)         d.update();
 
   playerBullets = playerBullets.filter(b => !b.dead);
   enemyBullets  = enemyBullets.filter(b => !b.dead);
