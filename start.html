@@ -835,7 +835,18 @@ let tempAvatar = AVATAR_LIST[0];
 let tempActivity = "";
 let tempRole = "";
 let isTyping = false;
+let currentTypeSpeed = 18;
 let autoAdvanceTimeout = null;
+
+// TAP SU AREA VUOTA PER VELOCIZZARE LA DIGITAZIONE DEL TESTO (FAST-FORWARD)
+document.getElementById('onboarding-screen').addEventListener('pointerdown', (e) => {
+    if (e.target.closest('button, input, .choice-btn, .avatar-option, .choice-grid, .avatar-grid')) {
+        return;
+    }
+    if (isTyping) {
+        currentTypeSpeed = 2; // Velocità ultra-rapida al tocco
+    }
+});
 
 function startOnboarding() {
     landingScreen.style.display = "none";
@@ -913,7 +924,6 @@ function renderChoiceGrid(options, onSelectCallback) {
         choiceGrid.appendChild(btn);
     });
 
-    // Reset forzato dello scroll al primo elemento in alto
     requestAnimationFrame(() => {
         choiceGrid.scrollTop = 0;
     });
@@ -944,7 +954,6 @@ function renderAvatarGrid() {
 
     avatarGrid.appendChild(fragment);
 
-    // Reset forzato dello scroll al primo elemento in alto
     requestAnimationFrame(() => {
         avatarGrid.scrollTop = 0;
     });
@@ -982,7 +991,7 @@ async function advanceStep() {
             inputField.className = "arcade-input arcade-input-bottom";
             inputField.type = "password";
             inputField.placeholder = stepData.placeholder;
-            inputField.maxLength = 100; // Esteso per password lunghe e con caratteri speciali
+            inputField.maxLength = 100;
             inputField.focus();
             stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
         } else if (stepData.type === "choice_activity") {
@@ -1048,7 +1057,7 @@ async function advanceStep() {
     } else if (stepData.type === "choice_role") {
         if (!tempRole) { alert("Seleziona chi sei!"); return; }
     } else if (stepData.type === "password") {
-        const pass = inputField.value; // Mantiene la password esatta compresi punti o caratteri speciali
+        const pass = inputField.value;
         if (!pass || pass.trim().length === 0) { alert("Inserisci una password valida!"); return; }
 
         tempPassword = pass;
@@ -1122,16 +1131,16 @@ stepBtn.onclick = advanceStep;
 function typeWriter(text, onComplete, isDotsOnly = false) {
     isTyping = true;
     stepBtn.disabled = true;
+    currentTypeSpeed = 18; // Reset velocità standard per ogni nuova frase
 
     dialogueText.textContent = "";
     let i = 0;
-    const speed = 18;
 
     function type() {
         if (i < text.length) {
             dialogueText.textContent += text.charAt(i);
             i++;
-            setTimeout(type, speed);
+            setTimeout(type, currentTypeSpeed);
         } else {
             if (onComplete) onComplete();
             if (!isDotsOnly) {
