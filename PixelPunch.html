@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#060212">
 <title>Pixel Punch - Revision Killer - Agency Arcade</title>
 
+<!-- SDK Supabase per salvataggio Cloud -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <!-- Gestione Audio Centralizzata (Web Audio API) -->
 <script src="audioManager.js"></script>
 
@@ -353,6 +356,14 @@
 </div>
 
 <script>
+// --- INIZIALIZZAZIONE SUPABASE ---
+const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq";
+let supabaseClient = null;
+if (window.supabase) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 const cvs = document.getElementById('game');
 const ctx = cvs.getContext('2d');
 cvs.width = 420; 
@@ -1089,7 +1100,7 @@ function draw() {
 
         let lineY = 216;
         items.forEach(it => {
-            ctx.fillStyle = it.col; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
+            ctx.fillStyle = it.col; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
             ctx.fillText(`${it.label} ► ${it.desc}`, W / 2, lineY);
             lineY += 28;
         });
@@ -1104,7 +1115,7 @@ function draw() {
         ctx.fillStyle = '#ff5577'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('🖤 NERO (FILE CORROTTO)', W / 2, 472);
 
-        ctx.fillStyle = '#ff0055'; ctx.font = '900 13px Courier New'; ctx.textAlign = 'center';
+        ctx.fillStyle = '#ff0055'; ctx.font = '900 12px Courier New'; ctx.textAlign = 'center';
         ctx.fillText('NON TOCARLI: +12% STRESS!', W / 2, 502);
 
         // PULSANTE AZIONE INFERIORE
@@ -1212,7 +1223,7 @@ function draw() {
             ctx.textBaseline = 'middle';
 
             ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2.5;
             ctx.fillStyle = '#ffffff';
 
             ctx.strokeText(p.line1, padX + p.w / 2, padY + 75);
