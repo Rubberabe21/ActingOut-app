@@ -1,0 +1,28 @@
+
+[functions.migrate-account]
+enabled = true
+verify_jwt = false
+import_map = "./functions/migrate-account/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/migrate-account/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/migrate-account/*.html" ]
+
+[functions.login-account]
+enabled = true
+verify_jwt = false
+import_map = "./functions/login-account/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/login-account/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/login-account/*.html" ]
+
+[functions.register-account]
+enabled = true
+verify_jwt = false
+import_map = "./functions/register-account/deno.json"
+entrypoint = "./functions/register-account/index.ts"

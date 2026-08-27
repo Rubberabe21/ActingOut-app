@@ -1,0 +1,206 @@
+  html {
+    background: #060212 !important;
+  }
+  body {
+    background: #060212 !important;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  #game-wrapper {
+    max-width: 440px;
+    padding: max(env(safe-area-inset-top), 6px) 8px max(env(safe-area-inset-bottom), 10px) 8px;
+    background: #060212 !important;
+  }
+  .header-title {
+    color: #ff0055 !important;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 0 0 6px #ff0055 !important;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+
+  .opt-btn {
+    background: #1a0836;
+    border: 1.5px solid #ffea00 !important;
+    color: #ffea00 !important;
+    padding: 5px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 234, 0, 0.4) !important;
+    width: 78px;
+    text-align: center;
+  }
+  .opt-btn:active { transform: scale(0.92); }
+
+  #btnMenuTop {
+    border-color: #00f0ff !important;
+    color: #00f0ff !important;
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) !important;
+  }
+
+  #btnExitTop {
+    border-color: #ff007f !important;
+    color: #ff007f !important;
+    box-shadow: 0 0 8px rgba(255, 0, 127, 0.3) !important;
+  }
+
+  #canvas-container {
+    overflow: hidden;
+    margin: 2px 0;
+  }
+  canvas {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    aspect-ratio: 3 / 4;
+    border: 2px solid #ff0055 !important;
+    box-shadow: 0 0 15px rgba(255,0,85,0.4) !important;
+    image-rendering: pixelated;
+    background: #060212;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+
+  .control-deck {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    background: #160a2c;
+    border: 2px solid #ffea00 !important;
+    border-radius: 14px;
+    box-shadow: 0 0 15px rgba(255, 234, 0, 0.4) !important;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .joystick-zone {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, #1c0b3b 30%, #0a0318 90%);
+    border: 2.5px solid #ff0055 !important;
+    border-radius: 50%;
+    box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.5), 0 0 12px rgba(255, 0, 85, 0.4) !important;
+    touch-action: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .joystick-knob {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    background: radial-gradient(circle at 35% 35%, #ff007f, #880040);
+    border: 2.5px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #ff007f;
+    pointer-events: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .fire-btn {
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle at 35% 35%, #ff3366, #990026);
+    border: 3px solid #ffffff;
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 900;
+    border-radius: 50%;
+    box-shadow: 0 4px 0 #66001a, 0 0 18px rgba(255, 0, 85, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .fire-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #66001a;
+    background: #ff0033;
+  }
+
+  .modal-overlay {
+    background: rgba(6, 2, 18, 0.95);
+    padding: 16px;
+  }
+  .modal-box {
+    max-width: 320px;
+    background: #0e051b;
+    border: 3px solid #ff0055 !important;
+    box-shadow: 0 0 25px rgba(255, 0, 85, 0.5) !important;
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .modal-title {
+    font-size: 16px;
+    text-shadow: 0 0 8px #ffea00;
+    margin-bottom: 2px;
+  }
+  .option-item {
+    background: #160a2c;
+    padding: 10px;
+    border: 1px solid rgba(255,0,127,0.4);
+  }
+  .option-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #ff0055 !important;
+  }
+  .toggle-btn {
+    padding: 8px;
+    background: #2a144a;
+    border: 2px solid #ff007f;
+    font-weight: bold;
+    font-size: 13px;
+  }
+  .toggle-btn.active {
+    background: #082814;
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+  }
+  .sens-slider {
+    width: 100%;
+    accent-color: #ff007f;
+    cursor: pointer;
+  }
+  .close-modal-btn {
+    padding: 10px;
+    background: linear-gradient(180deg, #ff007f, #a30052);
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.5);
+  }
+
+  .info-card {
+    background: #160a2c;
+    border: 1.5px solid #ff0055;
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #ffffff;
+  }
+  .info-card h4 {
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .info-card p {
+    margin-bottom: 3px;
+  }
+  .info-card p:last-child {
+    margin-bottom: 0;
+  }

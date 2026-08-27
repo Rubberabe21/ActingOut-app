@@ -3,1154 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
     <title>Agency Arcade - Benvenuto</title>
 
     <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="apple-touch-icon" href="assets/icon.png">
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
+
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Gestione Audio Centralizzata (Web Audio API) -->
+    <script src="supabaseClient.js"></script>
     <script src="audioManager.js"></script>
 
-    <style>
-        *, *:focus, *:active, button, input, div, a, select {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent !important;
-            -webkit-touch-callout: none !important;
-            -webkit-focus-ring-color: transparent !important;
-            outline: none !important;
-            touch-action: manipulation;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #000000 !important;
-            position: fixed; 
-        }
-        
-        #app-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000 !important;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .top-home-btn {
-            position: absolute;
-            top: max(env(safe-area-inset-top), 10px);
-            right: 10px;
-            width: 28px;
-            height: 28px;
-            padding: 0;
-            background: #090918;
-            border: 1.5px solid #ff0055 !important;
-            color: #ff0055 !important;
-            font-size: 13px;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            box-shadow: 0 0 8px rgba(255, 0, 85, 0.3) !important;
-            z-index: 250;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            line-height: 1;
-        }
-        .top-home-btn:active {
-            transform: scale(0.9);
-        }
-
-        #landing-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: max(env(safe-area-inset-top), 24px) 24px max(env(safe-area-inset-bottom), 24px) 24px;
-            text-align: center;
-            gap: 12px;
-            background: url('assets/hub/sfondostart.png') no-repeat center center / cover;
-        }
-        .main-logo {
-            width: 250px;
-            height: auto;
-            margin-bottom: 24px;
-            filter: drop-shadow(0 0 15px rgba(255, 0, 85, 0.4));
-            animation: floatLogo 2s ease-in-out infinite alternate;
-        }
-        @keyframes floatLogo {
-            0% { transform: translateY(0px) scale(1); }
-            100% { transform: translateY(-8px) scale(1.02); }
-        }
-        .arcade-main-btn {
-            width: 85%;
-            padding: 14px;
-            background: linear-gradient(180deg, #ff0055 0%, #b3003b 100%);
-            border: 2px solid #ffffff;
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: bold;
-            letter-spacing: 1.2px;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 0 18px rgba(255, 0, 85, 0.5), inset 0 1px 0 rgba(255,255,255,0.4);
-            transition: transform 0.1s;
-        }
-        .arcade-main-btn:active { transform: scale(0.95); }
-        .arcade-secondary-btn {
-            width: 85%;
-            padding: 12px;
-            background: #080808;
-            border: 1.5px solid #ff0055 !important;
-            color: #ffffff !important;
-            font-size: 13px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.2) !important;
-        }
-        .arcade-secondary-btn:active { transform: scale(0.95); }
-
-        #login-modal {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 180;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .login-box {
-            width: 100%;
-            max-width: 310px;
-            background: #090918;
-            border: 2px solid #ff0055;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
-            border-radius: 14px;
-            padding: 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        #onboarding-screen {
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: max(env(safe-area-inset-top), 16px) 16px max(env(safe-area-inset-bottom), 16px) 16px;
-            background: linear-gradient(180deg, #000000 0%, #000000 12%, #1a0826 40%, #0a1028 65%, #000000 88%, #000000 100%);
-            position: relative;
-        }
-
-        .center-stage {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            gap: 6px;
-            min-height: 0;
-            position: relative;
-            z-index: 10;
-        }
-
-        .speech-bubble {
-            position: relative;
-            background: #ffffff;
-            border: 3px solid #ff0055 !important;
-            border-radius: 16px;
-            padding: 12px 14px;
-            color: #000000;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5) !important;
-            width: 100%;
-            z-index: 10;
-        }
-        .speech-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -11px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 11px 9px 0;
-            border-style: solid;
-            border-color: #ffffff transparent;
-            display: block;
-            width: 0;
-            z-index: 2;
-        }
-        .speech-bubble::before {
-            content: '';
-            position: absolute;
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 15px 12px 0;
-            border-style: solid;
-            border-color: #ff0055 transparent !important;
-            display: block;
-            width: 0;
-            z-index: 1;
-        }
-        .npc-title {
-            color: #ff0055;
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            text-align: left;
-        }
-        
-        .dialogue-text {
-            color: #000000;
-            font-size: 13px;
-            line-height: 1.35;
-            font-weight: 800;
-            min-height: 42px;
-            text-align: left;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        .npc-stage {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            overflow: hidden;
-            flex-shrink: 0;
-            margin-top: 6px;
-            margin-bottom: 4px;
-        }
-        
-        #npc-canvas {
-            width: 170px;
-            max-width: 50vw;
-            height: auto;
-            background: transparent;
-            image-rendering: pixelated;
-        }
-
-        .input-group {
-            margin-top: 4px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 20;
-        }
-        
-        .arcade-input {
-            width: 100%;
-            padding: 12px;
-            background: #04040a;
-            border: 2px solid #ff0055 !important;
-            color: #ffff00 !important;
-            border-radius: 8px;
-            font-size: 15px;
-            outline: none;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .arcade-input-bottom {
-            width: 100%;
-            padding: 12px 14px;
-            margin-top: 4px;
-            background: #04040a;
-            border: 2px solid #ffff00 !important;
-            color: #ffff00 !important;
-            border-radius: 10px;
-            font-size: 15px;
-            outline: none;
-            text-align: center;
-            font-weight: bold;
-            box-shadow: 0 0 15px rgba(255, 255, 0, 0.4) !important;
-        }
-
-        .list-info-header {
-            background: #120a28;
-            border: 1.5px solid #00f3ff;
-            color: #00f3ff;
-            font-size: 11px;
-            font-weight: bold;
-            padding: 8px 10px;
-            border-radius: 8px;
-            text-transform: uppercase;
-            text-align: center;
-            letter-spacing: 0.5px;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
-        }
-
-        .full-cover-container {
-            position: absolute;
-            top: max(env(safe-area-inset-top), 10px);
-            left: 12px;
-            right: 12px;
-            bottom: max(env(safe-area-inset-bottom), 65px);
-            background: rgba(6, 6, 18, 0.98);
-            border: 2px solid #ff0055 !important;
-            box-shadow: 0 0 25px rgba(255, 0, 85, 0.6) !important;
-            border-radius: 14px;
-            padding: 14px;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .choice-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 1;
-            overflow-y: auto;
-            width: 100%;
-            padding: 4px;
-            -webkit-overflow-scrolling: touch;
-        }
-        .choice-grid::-webkit-scrollbar {
-            width: 6px;
-        }
-        .choice-grid::-webkit-scrollbar-thumb {
-            background: #ff0055 !important;
-            border-radius: 4px;
-        }
-
-        .choice-btn {
-            padding: 12px 14px;
-            background: #0a0a14;
-            border: 1.5px solid #222238;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.15s ease-in-out;
-            line-height: 1.35;
-        }
-        .choice-btn:active {
-            transform: scale(0.98);
-        }
-        .choice-btn.selected {
-            border-color: #ff0055;
-            background: #200515;
-            color: #ffea00;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
-        }
-
-        .avatar-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            flex: 1;
-            overflow-y: auto;
-            padding: 4px;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
-        .avatar-grid::-webkit-scrollbar {
-            width: 6px;
-        }
-        .avatar-grid::-webkit-scrollbar-track {
-            background: #000000;
-            border-radius: 4px;
-        }
-        .avatar-grid::-webkit-scrollbar-thumb {
-            background: #ff0055 !important;
-            border-radius: 4px;
-            box-shadow: 0 0 8px #ff0055 !important;
-        }
-
-        .avatar-option {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 8px;
-            border: 2px solid #222238;
-            background: #0a0a14;
-            cursor: pointer;
-            object-fit: cover;
-            transition: transform 0.15s ease-in-out, border-color 0.15s ease-in-out;
-        }
-        .avatar-option.selected {
-            border-color: #ff0055 !important;
-            box-shadow: 0 0 12px #ff0055 !important;
-            transform: scale(1.05);
-            z-index: 5;
-        }
-
-        .arcade-next-btn {
-            width: 100%;
-            padding: 12px;
-            background: #ff0055 !important;
-            border: none;
-            color: #ffffff !important;
-            font-size: 13px;
-            font-weight: 900;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 0 12px rgba(255, 0, 85, 0.5) !important;
-            transition: opacity 0.2s ease, transform 0.1s ease;
-            flex-shrink: 0;
-            z-index: 110;
-        }
-        .arcade-next-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none !important;
-        }
-        .arcade-next-btn:active:not(:disabled) { transform: scale(0.96); }
-
-        .crt-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 99;
-            background: 
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 4px, 6px 100%;
-            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
-            opacity: 0.5;
-        }
-    </style>
+    <link rel="stylesheet" href="start.css">
 </head>
+
 <body>
 
 <div id="app-wrapper">
+
     <button id="home-menu-btn" class="top-home-btn">X</button>
 
     <div id="landing-screen">
-        <video id="logo-video" src="assets/hub/logoanimation.mp4" autoplay muted playsinline style="display:none;"></video>
+
+        <video
+            id="logo-video"
+            src="assets/hub/logoanimation.mp4"
+            autoplay
+            muted
+            playsinline
+            style="display:none;">
+        </video>
+
         <canvas id="logo-canvas" class="main-logo"></canvas>
-        <div id="action-buttons-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;"></div>
+
+        <div
+            id="action-buttons-container"
+            style="width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        </div>
+
     </div>
 
+    <!-- LOGIN USATO DIRETTAMENTE DALLA START PAGE -->
     <div id="login-modal">
+
         <div class="login-box">
-            <h3 style="color:#ffff00; font-size:15px; margin-bottom:4px;">LOGIN GIOCATORE</h3>
-            <input type="text" id="login-username-input" class="arcade-input" placeholder="NOME UTENTE" maxlength="12">
-            <input type="password" id="login-password-input" class="arcade-input" placeholder="PASSWORD">
-            <button id="login-submit-btn" class="arcade-main-btn" style="width:100%; padding:10px;">ACCEDI</button>
-            <button id="login-cancel-btn" class="arcade-secondary-btn" style="width:100%;">ANNULLA</button>
+
+            <h3 style="color:#ffff00;font-size:15px;margin-bottom:4px;">
+                LOGIN GIOCATORE
+            </h3>
+
+            <input
+                type="text"
+                id="login-username-input"
+                class="arcade-input"
+                placeholder="NOME UTENTE"
+                maxlength="12"
+                autocomplete="off">
+
+            <input
+                type="password"
+                id="login-password-input"
+                class="arcade-input"
+                placeholder="PASSWORD"
+                autocomplete="off">
+
+            <button
+                id="login-submit-btn"
+                class="arcade-main-btn"
+                style="width:100%;padding:10px;">
+                ACCEDI
+            </button>
+
+            <button
+                id="login-cancel-btn"
+                class="arcade-secondary-btn"
+                style="width:100%;">
+                ANNULLA
+            </button>
+
         </div>
+
     </div>
 
     <div id="onboarding-screen">
+
         <div class="center-stage" id="center-stage-box">
+
             <div class="speech-bubble" id="speech-bubble-box">
+
                 <div class="npc-title">GIOVANNONE</div>
+
                 <div id="dialogue-text" class="dialogue-text"></div>
+
             </div>
 
             <div class="npc-stage" id="npc-stage-box">
-                <video id="giovannone-video" src="assets/hub/personaggio.mp4" autoplay loop muted playsinline style="display:none;"></video>
+
+                <video
+                    id="giovannone-video"
+                    src="assets/hub/personaggio.mp4"
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    style="display:none;">
+                </video>
+
                 <canvas id="npc-canvas"></canvas>
+
             </div>
+
         </div>
 
-        <div id="full-cover-box" class="full-cover-container" style="display: none;">
-            <div class="list-info-header" id="list-info-title">SELEZIONA UN'OPZIONE</div>
-            <div id="choice-grid" class="choice-grid" style="display: none;"></div>
-            <div id="avatar-grid" class="avatar-grid" style="display: none;"></div>
+        <div
+            id="full-cover-box"
+            class="full-cover-container"
+            style="display:none;">
+
+            <div
+                class="list-info-header"
+                id="list-info-title">
+                SELEZIONA UN'OPZIONE
+            </div>
+
+            <div
+                id="choice-grid"
+                class="choice-grid"
+                style="display:none;">
+            </div>
+
+            <div
+                id="avatar-grid"
+                class="avatar-grid"
+                style="display:none;">
+            </div>
+
         </div>
 
         <div id="input-group" class="input-group">
-            <input type="text" id="arcade-input-field" class="arcade-input" autocomplete="off" placeholder="" style="display:none;">
-            <button id="step-btn" class="arcade-next-btn">AVANTI ►</button>
+
+            <input
+                type="text"
+                id="arcade-input-field"
+                class="arcade-input"
+                autocomplete="off"
+                placeholder=""
+                style="display:none;">
+
+            <button
+                id="step-btn"
+                class="arcade-next-btn">
+                AVANTI ►
+            </button>
+
         </div>
+
     </div>
 
     <div class="crt-overlay"></div>
+
 </div>
 
-<script>
-const SUPABASE_URL = "https://bcitueadxwwwouhxawdw.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_GsvCkWy0AtlMpejqT7nsew_Ivhd7hxq"; 
+<script src="start.js"></script>
 
-let supabaseClient = null;
-if (window.supabase) {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
-
-const logoVideo = document.getElementById('logo-video');
-const logoCanvas = document.getElementById('logo-canvas');
-const logoCtx = logoCanvas.getContext('2d', { willReadFrequently: true });
-
-function processLogoFrame() {
-    if (!logoVideo) return;
-
-    if (logoVideo.videoWidth && logoVideo.videoHeight) {
-        if (logoCanvas.width !== logoVideo.videoWidth) {
-            logoCanvas.width = logoVideo.videoWidth;
-            logoCanvas.height = logoVideo.videoHeight;
-        }
-        logoCtx.drawImage(logoVideo, 0, 0, logoCanvas.width, logoCanvas.height);
-        
-        try {
-            let frame = logoCtx.getImageData(0, 0, logoCanvas.width, logoCanvas.height);
-            let data = frame.data;
-            
-            for (let i = 0; i < data.length; i += 4) {
-                let r = data[i];
-                let g = data[i + 1];
-                let b = data[i + 2];
-                
-                let dist = Math.sqrt((r - 61) * (r - 61) + (g - 255) * (g - 255) + (b - 3) * (b - 3));
-                if (dist < 165 || (g > 100 && g > r * 1.25 && g > b * 1.25)) {
-                    data[i + 3] = 0;
-                }
-            }
-            logoCtx.putImageData(frame, 0, 0);
-        } catch (e) {
-            console.error("Errore lettura Canvas:", e);
-        }
-    }
-    
-    if (!logoVideo.ended && !logoVideo.paused) {
-        requestAnimationFrame(processLogoFrame);
-    }
-}
-
-if (logoVideo) {
-    logoVideo.onloadedmetadata = () => {
-        logoVideo.play().catch(err => console.log("Autoplay impedito:", err));
-    };
-    logoVideo.addEventListener('play', () => {
-        requestAnimationFrame(processLogoFrame);
-    });
-    logoVideo.addEventListener('ended', () => {
-        processLogoFrame();
-    });
-    logoVideo.play().catch(() => {});
-}
-
-const npcVideo = document.getElementById('giovannone-video');
-const npcCanvas = document.getElementById('npc-canvas');
-const npcCtx = npcCanvas.getContext('2d', { willReadFrequently: true });
-
-function processNpcFrame() {
-    if (npcVideo && !npcVideo.paused && !npcVideo.ended) {
-        if (npcVideo.videoWidth && npcVideo.videoHeight) {
-            if (npcCanvas.width !== npcVideo.videoWidth || npcCanvas.height !== npcVideo.videoHeight) {
-                npcCanvas.width = npcVideo.videoWidth;
-                npcCanvas.height = npcVideo.videoHeight;
-            }
-
-            npcCtx.drawImage(npcVideo, 0, 0, npcCanvas.width, npcCanvas.height);
-            try {
-                let frame = npcCtx.getImageData(0, 0, npcCanvas.width, npcCanvas.height);
-                let data = frame.data;
-                let len = data.length;
-
-                for (let i = 0; i < len; i += 4) {
-                    let r = data[i];
-                    let g = data[i + 1];
-                    let b = data[i + 2];
-
-                    let dist = Math.hypot(r - 61, g - 255, b - 3);
-
-                    if (dist < 145 || (g > 110 && g > r * 1.15 && g > b * 1.15)) {
-                        data[i + 3] = 0;
-                    } else {
-                        let maxRB = Math.max(r, b);
-                        if (g > maxRB) {
-                            data[i + 1] = maxRB;
-                        }
-                    }
-                }
-                npcCtx.putImageData(frame, 0, 0);
-            } catch (e) {}
-        }
-    }
-    requestAnimationFrame(processNpcFrame);
-}
-
-npcVideo.addEventListener('play', () => {
-    requestAnimationFrame(processNpcFrame);
-});
-
-const AVATAR_LIST = Array.from({ length: 102 }, (_, i) => `assets/avatars/testa${i + 1}.png`);
-
-const DIALOGUE_STEPS = [
-    { text: "Ehi! Non so se ti ricordi di me… sono Giovannone…", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "... ...", type: "none", btn: "AVANTI ►" },
-    { text: "... ... ...", type: "none", btn: "AVANTI ►" },
-    { text: "Va bene… partiamo benissimo.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Comunque, io sono quello che ormai qui dentro ha un ruolo…", type: "none", btn: "AVANTI ►" },
-    { text: "Non chiedermi quale.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Diciamo che gravito.", type: "none", btn: "AVANTI ►" },
-    { text: "E oggi… evidentemente… tocca a te.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Perché sì…", type: "none", btn: "AVANTI ►" },
-    { text: "Parliamo un attimo di te.", type: "none", btn: "AVANTI ►" },
-    { text: "Chi sei? dammi un nome.", type: "username", placeholder: "NOME UTENTE", promptBtn: "INSERISCI NOME ►", btn: "CONFERMA NOME ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { 
-        text: "ok, dimmi qualcosa che fai nella vita che ti rappresenta, oltre a disturbarmi ovviamente", 
-        type: "choice_activity", 
-        infoText: "qualcosa che ti rappresenta",
-        promptBtn: "SCEGLI ATTIVITÀ ►",
-        options: [
-            "Controllo il frigorifero anche se so già cosa c'è dentro",
-            "Entro in una stanza e dimentico perché ci sono entrato",
-            "Cerco il telefono mentre lo tengo in mano",
-            "Rimando la sveglia per la quinta volta",
-            "Controllo di nuovo se ho chiuso la porta",
-            "Mi siedo un attimo e sparisco per mezz'ora",
-            "Entro al supermercato per una cosa e ne esco con dodici",
-            "Guardo il telefono senza avere nessuna notifica",
-            "Mi preparo un caffè e dimentico di berlo",
-            "Esco e torno indietro perché ho dimenticato qualcosa",
-            "Provo a fare qualcosa senza leggere le istruzioni",
-            "Leggo le istruzioni dopo aver fatto un casino",
-            "Mi chiedo cosa mangiare mentre sto già mangiando",
-            "Decido di cambiare vita a partire da lunedì",
-            "Guardo il soffitto e rivaluto tutte le mie scelte",
-            "Mi viene un'idea geniale mentre sto facendo tutt'altro",
-            "Controllo l'ora sul telefono e dimentico immediatamente che ore sono",
-            "Faccio una foto alle cose che probabilmente non riguarderò mai",
-            "Pianifico la conquista del mondo tra due meeting",
-            "Sguardo fisso al monitor per sembrare immerso nei pensieri"
-        ], 
-        btn: "CONFERMA SCELTA ►" 
-    },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Prima di tutto però… una cosa importante.", type: "none", btn: "AVANTI ►" },
-    { 
-        text: "Tu cosa sei?", 
-        type: "choice_role", 
-        infoText: "chi sei tu veramente?",
-        promptBtn: "SCEGLI RUOLO ►",
-        options: [
-            "Un collega",
-            "Un amico",
-            "Un cliente",
-            "Un conoscente",
-            "Uno che è entrato seguendo qualcuno e adesso non sa più come uscire",
-            "Un amico di un amico",
-            "Un collega di un collega",
-            "Uno che “conosce uno che lavora qui”",
-            "Un corriere",
-            "Un infiltrato",
-            "Un investigatore privato",
-            "Un alieno sotto copertura",
-            "Un'intelligenza artificiale che ha preso un corpo umano"
-        ], 
-        btn: "CONFERMA SCELTA ►" 
-    },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sei uno che arriva puntuale… o uno di quelli che scrive “sono quasi arrivato” quando è ancora sotto la doccia?", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "E soprattutto…", type: "none", btn: "AVANTI ►" },
-    { text: "non mi ricordo che faccia hai", type: "avatar", infoText: "che faccia hai?", promptBtn: "SCEGLI AVATAR ►", btn: "SCEGLI QUESTA TESTA ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Non ti preoccupare.", type: "none", btn: "AVANTI ►" },
-    { text: "Non ti disturbo ancora per molto.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Mi bastano un paio di dati.", type: "none", btn: "AVANTI ►" },
-    { text: "Nome… faccia… qualche informazione su di te…", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Insomma, le solite cose che servono per capire con chi abbiamo a che fare.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Dai.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Inserisci una password ora.", type: "password", placeholder: "PASSWORD", promptBtn: "INSERISCI PASSWORD ►", btn: "SALVA PASSWORD ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Io intanto resto qui.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "A supervisionare.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "A controllare che vada tutto bene.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Non è che non sto lavorando eh…", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sono una persona molto impegnata io…", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Direi che qui abbiamo finito… se speravi di scegliere tra 3 pokemon hai sbagliato gioco", type: "none", btn: "AVANTI ►" },
-    { text: "ci vediamo dall'altra parte.", type: "none", btn: "AVANTI ►" },
-    { text: "...", type: "none", btn: "AVANTI ►" },
-    { text: "Sempre che tu sia davvero chi dici di essere.", type: "finish", btn: "ENTRA NELLO STUDIO ►" }
-];
-
-function getSavedUser() {
-    try {
-        const u = localStorage.getItem('arcade_current_user');
-        return u ? JSON.parse(u) : null;
-    } catch(e) { return null; }
-}
-
-const landingScreen = document.getElementById('landing-screen');
-const onboardingScreen = document.getElementById('onboarding-screen');
-const loginModal = document.getElementById('login-modal');
-const actionButtonsContainer = document.getElementById('action-buttons-container');
-const centerStageBox = document.getElementById('center-stage-box');
-const speechBubbleBox = document.getElementById('speech-bubble-box');
-const npcStageBox = document.getElementById('npc-stage-box');
-const homeMenuBtn = document.getElementById('home-menu-btn');
-
-const fullCoverBox = document.getElementById('full-cover-box');
-const listInfoTitle = document.getElementById('list-info-title');
-const dialogueText = document.getElementById('dialogue-text');
-const inputField = document.getElementById('arcade-input-field');
-const choiceGrid = document.getElementById('choice-grid');
-const avatarGrid = document.getElementById('avatar-grid');
-const stepBtn = document.getElementById('step-btn');
-
-function renderLandingButtons() {
-    const currentUser = getSavedUser();
-    const isLoggedIn = currentUser && currentUser.username && !currentUser.username.startsWith("GUEST_");
-
-    actionButtonsContainer.innerHTML = "";
-    homeMenuBtn.style.display = "none";
-
-    if (isLoggedIn) {
-        const btnContinue = document.createElement('button');
-        btnContinue.className = "arcade-main-btn";
-        btnContinue.innerText = "CONTINUA ►";
-        btnContinue.onclick = () => {
-            localStorage.setItem('arcade_player_x', '200');
-            window.location.replace("index.html");
-        };
-
-        const btnLogout = document.createElement('button');
-        btnLogout.className = "arcade-secondary-btn";
-        btnLogout.innerText = "ESCI";
-        btnLogout.onclick = () => {
-            localStorage.removeItem('arcade_current_user');
-            renderLandingButtons();
-        };
-
-        actionButtonsContainer.appendChild(btnContinue);
-        actionButtonsContainer.appendChild(btnLogout);
-    } else {
-        const btnStart = document.createElement('button');
-        btnStart.className = "arcade-main-btn";
-        btnStart.innerText = "INIZIA";
-        btnStart.onclick = () => { startOnboarding(); };
-
-        const btnLogin = document.createElement('button');
-        btnLogin.className = "arcade-secondary-btn";
-        btnLogin.innerText = "ACCEDI / LOGIN";
-        btnLogin.onclick = () => { loginModal.style.display = "flex"; };
-
-        actionButtonsContainer.appendChild(btnStart);
-        actionButtonsContainer.appendChild(btnLogin);
-    }
-}
-
-renderLandingButtons();
-
-homeMenuBtn.onclick = () => {
-    onboardingScreen.style.display = "none";
-    landingScreen.style.display = "flex";
-    homeMenuBtn.style.display = "none";
-    currentStepIdx = 0;
-};
-
-document.getElementById('login-cancel-btn').onclick = () => {
-    loginModal.style.display = "none";
-};
-
-document.getElementById('login-submit-btn').onclick = async () => {
-    const uVal = document.getElementById('login-username-input').value.trim();
-    const pVal = document.getElementById('login-password-input').value.trim();
-
-    if (!uVal || !pVal) { alert("Inserisci Nome Utente e Password!"); return; }
-
-    const defaultStats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
-    let loggedUser = null;
-
-    if (supabaseClient) {
-        try {
-            let { data, error } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('username', uVal)
-                .eq('password', pVal)
-                .maybeSingle();
-
-            if (data && !error) {
-                loggedUser = {
-                    username: data.username,
-                    avatar: data.avatar || "assets/avatars/testa1.png",
-                    activity: data.activity || "",
-                    role: data.role || "",
-                    stats: data.stats || defaultStats
-                };
-            }
-        } catch (e) { console.warn("Errore login Supabase:", e); }
-    }
-
-    if (loggedUser) {
-        localStorage.setItem('arcade_current_user', JSON.stringify(loggedUser));
-        localStorage.setItem('arcade_player_x', '200');
-        window.location.replace("index.html");
-    } else {
-        alert("Credenziali errate o utente non trovato su Supabase!");
-    }
-};
-
-let currentStepIdx = 0;
-let stepPhase = 'dialogue'; // 'dialogue' oppure 'input'
-let tempUsername = "";
-let tempPassword = "";
-let tempAvatar = AVATAR_LIST[0];
-let tempActivity = "";
-let tempRole = "";
-let isTyping = false;
-let currentTypeSpeed = 18;
-let autoAdvanceTimeout = null;
-
-// TAP SU AREA VUOTA PER VELOCIZZARE LA DIGITAZIONE DEL TESTO (FAST-FORWARD)
-document.getElementById('onboarding-screen').addEventListener('pointerdown', (e) => {
-    if (e.target.closest('button, input, .choice-btn, .avatar-option, .choice-grid, .avatar-grid')) {
-        return;
-    }
-    if (isTyping) {
-        currentTypeSpeed = 2; // Velocità ultra-rapida al tocco
-    }
-});
-
-function startOnboarding() {
-    landingScreen.style.display = "none";
-    onboardingScreen.style.display = "flex";
-    homeMenuBtn.style.display = "flex";
-    currentStepIdx = 0;
-    stepPhase = 'dialogue';
-
-    if (npcVideo.paused) {
-        npcVideo.play().catch(() => {});
-    }
-
-    renderStep();
-}
-
-function renderStep() {
-    if (autoAdvanceTimeout) {
-        clearTimeout(autoAdvanceTimeout);
-        autoAdvanceTimeout = null;
-    }
-
-    stepPhase = 'dialogue';
-    const stepData = DIALOGUE_STEPS[currentStepIdx];
-    inputField.style.display = "none";
-    fullCoverBox.style.display = "none";
-    choiceGrid.style.display = "none";
-    avatarGrid.style.display = "none";
-    inputField.value = "";
-
-    centerStageBox.style.display = "flex";
-    npcStageBox.style.display = "flex";
-
-    // Testo del bottone durante o subito dopo la battuta parlata
-    if (stepData.type === "username" || stepData.type === "password" || stepData.type === "choice_activity" || stepData.type === "choice_role" || stepData.type === "avatar") {
-        stepBtn.innerText = stepData.promptBtn || "CONTINUA ►";
-    } else {
-        stepBtn.innerText = stepData.btn || "AVANTI ►";
-    }
-
-    const isDotsOnly = /^\.+$|^\s*$/.test(stepData.text.trim().replace(/\s/g, ''));
-
-    typeWriter(stepData.text, () => {
-        if (isDotsOnly && stepData.type === "none") {
-            stepBtn.disabled = true;
-            autoAdvanceTimeout = setTimeout(() => {
-                advanceStep();
-            }, 500);
-            return;
-        }
-    }, isDotsOnly);
-}
-
-function renderChoiceGrid(options, onSelectCallback) {
-    choiceGrid.innerHTML = "";
-    let selectedVal = "";
-
-    options.forEach((optText, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.innerText = optText;
-
-        if (index === 0) {
-            btn.classList.add('selected');
-            selectedVal = optText;
-            onSelectCallback(selectedVal);
-        }
-
-        btn.onclick = () => {
-            document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            selectedVal = optText;
-            onSelectCallback(selectedVal);
-        };
-
-        choiceGrid.appendChild(btn);
-    });
-
-    requestAnimationFrame(() => {
-        choiceGrid.scrollTop = 0;
-    });
-    setTimeout(() => {
-        choiceGrid.scrollTop = 0;
-    }, 10);
-}
-
-function renderAvatarGrid() {
-    avatarGrid.innerHTML = "";
-    const fragment = document.createDocumentFragment();
-
-    AVATAR_LIST.forEach((src) => {
-        const img = document.createElement('img');
-        img.src = src;
-        img.loading = "lazy";
-        img.className = `avatar-option ${src === tempAvatar ? 'selected' : ''}`;
-        img.onerror = function() { this.style.display = 'none'; };
-
-        img.onclick = function() {
-            tempAvatar = src;
-            const allAvatars = avatarGrid.querySelectorAll('.avatar-option');
-            allAvatars.forEach(el => el.classList.remove('selected'));
-            this.classList.add('selected');
-        };
-        fragment.appendChild(img);
-    });
-
-    avatarGrid.appendChild(fragment);
-
-    requestAnimationFrame(() => {
-        avatarGrid.scrollTop = 0;
-    });
-    setTimeout(() => {
-        avatarGrid.scrollTop = 0;
-    }, 10);
-}
-
-async function advanceStep() {
-    if (autoAdvanceTimeout) {
-        clearTimeout(autoAdvanceTimeout);
-        autoAdvanceTimeout = null;
-    }
-
-    if (isTyping) return;
-
-    const stepData = DIALOGUE_STEPS[currentStepIdx];
-
-    // FASE 1: Il personaggio ha parlato, l'utente clicca il bottone per far uscire l'input o la lista
-    if (stepPhase === 'dialogue' && ["username", "password", "choice_activity", "choice_role", "avatar"].includes(stepData.type)) {
-        stepPhase = 'input';
-
-        if (stepData.type === "username") {
-            centerStageBox.appendChild(inputField);
-            inputField.style.display = "block";
-            inputField.className = "arcade-input arcade-input-bottom";
-            inputField.type = "text";
-            inputField.placeholder = stepData.placeholder;
-            inputField.maxLength = 20;
-            inputField.focus();
-            stepBtn.innerText = stepData.btn || "CONFERMA NOME ►";
-        } else if (stepData.type === "password") {
-            centerStageBox.appendChild(inputField);
-            inputField.style.display = "block";
-            inputField.className = "arcade-input arcade-input-bottom";
-            inputField.type = "password";
-            inputField.placeholder = stepData.placeholder;
-            inputField.maxLength = 100;
-            inputField.focus();
-            stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
-        } else if (stepData.type === "choice_activity") {
-            fullCoverBox.style.display = "flex";
-            listInfoTitle.innerText = stepData.infoText || "qualcosa che ti rappresenta";
-            renderChoiceGrid(stepData.options, (val) => { tempActivity = val; });
-            choiceGrid.style.display = "flex";
-            choiceGrid.scrollTop = 0;
-            setTimeout(() => { choiceGrid.scrollTop = 0; }, 10);
-            stepBtn.innerText = stepData.btn || "CONFERMA SCELTA ►";
-        } else if (stepData.type === "choice_role") {
-            fullCoverBox.style.display = "flex";
-            listInfoTitle.innerText = stepData.infoText || "chi sei tu veramente?";
-            renderChoiceGrid(stepData.options, (val) => { tempRole = val; });
-            choiceGrid.style.display = "flex";
-            choiceGrid.scrollTop = 0;
-            setTimeout(() => { choiceGrid.scrollTop = 0; }, 10);
-            stepBtn.innerText = stepData.btn || "CONFERMA SCELTA ►";
-        } else if (stepData.type === "avatar") {
-            fullCoverBox.style.display = "flex";
-            listInfoTitle.innerText = stepData.infoText || "che faccia hai?";
-            renderAvatarGrid();
-            avatarGrid.style.display = "grid";
-            avatarGrid.scrollTop = 0;
-            setTimeout(() => { avatarGrid.scrollTop = 0; }, 10);
-            stepBtn.innerText = stepData.btn || "SCEGLI QUESTA TESTA ►";
-        }
-        return;
-    }
-
-    // FASE 2: L'utente conferma l'input/scelta e salva o avanza al prossimo passo
-    if (stepData.type === "username") {
-        const val = inputField.value.trim();
-        if (!val) { alert("Inserisci un nome utente!"); return; }
-
-        stepBtn.disabled = true;
-        stepBtn.innerText = "VERIFICA IN CORSO...";
-
-        if (supabaseClient) {
-            try {
-                let { data } = await supabaseClient.from('profiles').select('username').eq('username', val).maybeSingle();
-                if (data) { 
-                    alert("Nome utente già esistente sul Cloud!"); 
-                    stepBtn.disabled = false;
-                    stepBtn.innerText = stepData.btn || "CONFERMA NOME ►";
-                    return; 
-                }
-            } catch (e) {
-                console.warn("Errore verifica username Supabase:", e);
-            }
-        } else {
-            alert("Connessione a Supabase non disponibile!");
-            stepBtn.disabled = false;
-            stepBtn.innerText = stepData.btn || "CONFERMA NOME ►";
-            return;
-        }
-
-        stepBtn.disabled = false;
-        tempUsername = val;
-
-    } else if (stepData.type === "choice_activity") {
-        if (!tempActivity) { alert("Seleziona un'opzione!"); return; }
-    } else if (stepData.type === "choice_role") {
-        if (!tempRole) { alert("Seleziona chi sei!"); return; }
-    } else if (stepData.type === "password") {
-        const pass = inputField.value;
-        if (!pass || pass.trim().length === 0) { alert("Inserisci una password valida!"); return; }
-
-        tempPassword = pass;
-        stepBtn.disabled = true;
-        stepBtn.innerText = "SALVATAGGIO...";
-
-        const defaultStats = { gamesPlayed: 0, feedbackInvaders: 0, cyberRun: 0, pixelPunch: 0, deadlineDrive: 0 };
-
-        if (supabaseClient) {
-            try {
-                const { error } = await supabaseClient.from('profiles').upsert({
-                    username: tempUsername,
-                    password: tempPassword,
-                    avatar: tempAvatar,
-                    activity: tempActivity,
-                    role: tempRole,
-                    stats: defaultStats
-                });
-
-                if (error) {
-                    alert("Errore registrazione Supabase: " + error.message);
-                    stepBtn.disabled = false;
-                    stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
-                    return;
-                }
-            } catch (e) {
-                alert("Errore durante il salvataggio su Supabase!");
-                stepBtn.disabled = false;
-                stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
-                return;
-            }
-        } else {
-            alert("Connessione a Supabase non disponibile!");
-            stepBtn.disabled = false;
-            stepBtn.innerText = stepData.btn || "SALVA PASSWORD ►";
-            return;
-        }
-
-        const newUser = { 
-            username: tempUsername, 
-            avatar: tempAvatar, 
-            activity: tempActivity,
-            role: tempRole,
-            stats: defaultStats 
-        };
-        localStorage.setItem('arcade_current_user', JSON.stringify(newUser));
-        localStorage.setItem('arcade_player_x', '200');
-        stepBtn.disabled = false;
-
-    } else if (stepData.type === "finish") {
-        localStorage.setItem('arcade_player_x', '200');
-        window.location.replace("index.html"); 
-        return;
-    }
-
-    currentStepIdx++;
-    stepPhase = 'dialogue';
-
-    if (currentStepIdx < DIALOGUE_STEPS.length) {
-        renderStep();
-    } else {
-        localStorage.setItem('arcade_player_x', '200');
-        window.location.replace("index.html"); 
-    }
-}
-
-stepBtn.onclick = advanceStep;
-
-function typeWriter(text, onComplete, isDotsOnly = false) {
-    isTyping = true;
-    stepBtn.disabled = true;
-    currentTypeSpeed = 18; // Reset velocità standard per ogni nuova frase
-
-    dialogueText.textContent = "";
-    let i = 0;
-
-    function type() {
-        if (i < text.length) {
-            dialogueText.textContent += text.charAt(i);
-            i++;
-            setTimeout(type, currentTypeSpeed);
-        } else {
-            if (onComplete) onComplete();
-            if (!isDotsOnly) {
-                setTimeout(() => {
-                    isTyping = false;
-                    stepBtn.disabled = false;
-                }, 300);
-            } else {
-                isTyping = false;
-            }
-        }
-    }
-    type();
-}
-</script>
 </body>
 </html>

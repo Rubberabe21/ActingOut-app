@@ -1,0 +1,196 @@
+* {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Courier New', monospace;
+}
+
+html {
+  background: #060609 !important;
+}
+
+body {
+  background: #060609 !important;
+}
+
+#game-wrapper {
+  max-width: 480px;
+  padding: max(env(safe-area-inset-top), 4px) 4px max(env(safe-area-inset-bottom), 6px) 4px;
+  background: #060609 !important;
+}
+
+.top-header {
+  background: linear-gradient(90deg, #111118 0%, #1a1a26 100%);
+  border-radius: 6px;
+  border: 1px solid #00f3ff55;
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.15);
+}
+
+.header-title {
+  color: #00f3ff !important;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .5px;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+  flex: 1;
+  text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
+}
+
+.opt-btn {
+  background: #181824;
+  border: 1.5px solid #ffea00 !important;
+  color: #ffea00 !important;
+  padding: 5px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 234, 0, 0.3) !important;
+  transition: transform 0.1s ease;
+  width: 78px;
+  text-align: center;
+}
+
+.opt-btn:active { transform: scale(0.92); }
+
+#btnMenuTop {
+  border-color: #00f3ff !important;
+  color: #00f3ff !important;
+  box-shadow: 0 0 8px rgba(0, 243, 255, 0.3) !important;
+}
+
+#btnExitTop {
+  border-color: #ff0055 !important;
+  color: #ff0055 !important;
+  box-shadow: 0 0 8px rgba(255, 0, 85, 0.3) !important;
+}
+
+#canvas-container {
+  overflow: hidden;
+  margin: 2px 0;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  aspect-ratio: 468 / 672;
+  border: 2px solid #00f3ff !important;
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.35) !important;
+  background: #101014;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* PULSANTIERA D-PAD T-SHAPE */
+.control-deck {
+  width: 100%;
+  max-width: 320px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 48px);
+  gap: 6px;
+  padding: 6px;
+  background: linear-gradient(180deg, #14141d 0%, #0b0b10 100%);
+  border: 2px solid #00f3ff !important;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 243, 255, 0.25) !important;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.dir-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(180deg, #00b4d8 0%, #0077b6 100%);
+  border: 2px solid #90e0ef;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #003554, 0 3px 8px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  font-family: 'Courier New', monospace;
+  transition: transform 0.05s ease, background 0.1s ease;
+}
+
+.dir-btn span {
+  font-size: 16px;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.dir-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #003554, 0 2px 4px rgba(0,0,0,0.4);
+  background: linear-gradient(180deg, #0077b6 0%, #005f73 100%);
+}
+
+#btnUp { grid-column: 2; grid-row: 1; }
+#btnLeft { grid-column: 1; grid-row: 2; }
+#btnDown { grid-column: 2; grid-row: 2; }
+#btnRight { grid-column: 3; grid-row: 2; }
+
+.modal-overlay {
+  background: rgba(6, 6, 10, 0.95);
+  padding: 16px;
+}
+
+.modal-box {
+  max-width: 340px;
+  background: #14141e;
+  border: 2px solid #00f3ff !important;
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.4) !important;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.modal-title {
+  font-size: 15px;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(255, 234, 0, 0.5);
+}
+
+.option-item {
+  background: #0a0a10;
+  padding: 8px;
+  border: 1px solid #00f3ff44;
+}
+
+.option-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: #00f3ff !important;
+  font-family: 'Courier New', monospace;
+}
+
+.toggle-btn {
+  padding: 7px;
+  background: #1e1e2a;
+  border: 1.5px solid #ff0055;
+  font-weight: bold;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+}
+
+.toggle-btn.active {
+  background: #0a2414;
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+}
+
+.close-modal-btn {
+  padding: 9px;
+  background: linear-gradient(90deg, #00f3ff 0%, #00a8ff 100%);
+  border: none;
+  color: #000;
+  font-weight: 900;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+}
