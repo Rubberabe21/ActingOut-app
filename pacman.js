@@ -200,13 +200,22 @@ function saveStoryAndExit() {
   modeMenuIndex = 0; state = 'MODE_SELECT';
 }
 
-// MULTIPLAYER VS
+// MULTIPLAYER VS CONFIGURATION
 const VS_SLOTS = [
-  { color: 'red', label: 'ROSSO', corner: 'ALTO SX', gx: 1, gy: 1, hex: '#ff3344' },
-  { color: 'yellow', label: 'GIALLO', corner: 'ALTO DX', gx: COLS - 2, gy: 1, hex: '#ffea00' },
-  { color: 'blue', label: 'BASSO SX', gx: 1, gy: ROWS - 2, hex: '#3399ff' },
-  { color: 'green', label: 'VERDE', corner: 'BASSO DX', gx: COLS - 2, gy: ROWS - 2, hex: '#20dd77' }
+  { color: 'red', label: 'P1 ROSSO', corner: 'ALTO SX', gx: 1, gy: 1, hex: '#ff3344' },
+  { color: 'yellow', label: 'P2 GIALLO', corner: 'BASSO DX', gx: COLS - 2, gy: ROWS - 2, hex: '#ffea00' },
+  { color: 'blue', label: 'P3 BLU', corner: 'ALTO DX', gx: COLS - 2, gy: 1, hex: '#3399ff' },
+  { color: 'green', label: 'P4 VERDE', corner: 'BASSO SX', gx: 1, gy: ROWS - 2, hex: '#20dd77' }
 ];
+
+const VS_ROUNDS_OPTIONS = [
+  { label: 'BEST OF 3', target: 2 },
+  { label: 'BEST OF 5', target: 3 },
+  { label: 'BEST OF 10', target: 6 }
+];
+let vsRoundsIndex = 0;
+let vsScores = {};
+let vsCurrentRound = 1;
 
 const VS_MENU_STATES = ['MODE_SELECT', 'VS_MENU', 'VS_JOIN', 'VS_LOBBY', 'VS_WINNER'];
 let gameMode = 'story', modeMenuIndex = 0, vsMenuIndex = 0, vsCharacterIndex = 0;
@@ -240,6 +249,7 @@ async function leaveVSRoom() {
   if (vsChannel && supabaseClient) await supabaseClient.removeChannel(vsChannel);
   vsChannel = null; vsRoomCode = ''; vsHostId = null; vsIsHost = false;
   vsPlayers = {}; vsLocalSlot = null; vsWinnerId = null; vsStatusMessage = '';
+  vsScores = {}; vsCurrentRound = 1;
 }
 
 function sendVSEvent(event, payload) {
@@ -252,7 +262,7 @@ function makeVSPlayer(id, slotIndex, character, username) {
   return {
     id, slotIndex, username, character, color: slot.color,
     x: slot.gx * CELL_SIZE + CELL_SIZE / 2, y: slot.gy * CELL_SIZE + CELL_SIZE / 2,
-    facingLeft: slotIndex === 1 || slotIndex === 3, moving: false, alive: true, ready: false
+    facingLeft: slotIndex === 1 || slotIndex === 2, moving: false, alive: true, ready: false
   };
 }
 
@@ -278,8 +288,8 @@ function assignVSPlayer(request) {
     request.senderId, slotIndex, request.character === 'GUIDO' ? 'GUIDO' : 'LAURA',
     String(request.username || 'PLAYER').slice(0, 12)
   );
-  sendVSEvent('lobby_sync', { targetId: request.senderId, hostId: vsHostId, players: vsPlayers });
-  sendVSEvent('roster_update', { hostId: vsHostId, players: vsPlayers });
+  sendVSEvent('lobby_sync', { targetId: request.senderId, hostId: vsHostId, players: vsPlayers, vsRoundsIndex });
+  sendVSEvent('roster_update', { hostId: vsHostId, players: vsPlayers, vsRoundsIndex });
 }
 
 function handleVSEvent(event, payload) {
@@ -289,14 +299,17 @@ function handleVSEvent(event, payload) {
     vsStatusMessage = 'STANZA PIENA'; leaveVSRoom(); state = 'VS_JOIN'; showVSRoomInput(true);
   } else if (event === 'lobby_sync' && payload.targetId === vsClientId) {
     clearTimeout(vsJoinTimeout); vsHostId = payload.hostId; vsPlayers = payload.players || {};
+    if (payload.vsRoundsIndex !== undefined) vsRoundsIndex = payload.vsRoundsIndex;
     syncVSLocalPlayerFromRoster(); state = 'VS_LOBBY'; vsStatusMessage = 'CONNESSO';
   } else if (event === 'roster_update') {
-    vsHostId = payload.hostId; vsPlayers = payload.players || vsPlayers; syncVSLocalPlayerFromRoster();
+    vsHostId = payload.hostId; vsPlayers = payload.players || vsPlayers;
+    if (payload.vsRoundsIndex !== undefined) vsRoundsIndex = payload.vsRoundsIndex;
+    syncVSLocalPlayerFromRoster();
   } else if (event === 'player_ready') {
     const remote = vsPlayers[payload.senderId];
     if (remote) {
       remote.character = payload.character === 'GUIDO' ? 'GUIDO' : 'LAURA'; remote.ready = !!payload.ready;
-      if (vsIsHost) sendVSEvent('roster_update', { hostId: vsHostId, players: vsPlayers });
+      if (vsIsHost) sendVSEvent('roster_update', { hostId: vsHostId, players: vsPlayers, vsRoundsIndex });
     }
   } else if (event === 'game_start') applyVSGameStart(payload);
   else if (event === 'player_move' && state === 'VS_PLAYING') {
@@ -305,6 +318,7 @@ function handleVSEvent(event, payload) {
   } else if (event === 'place_bomb' && state === 'VS_PLAYING') addVSBomb(payload);
   else if (event === 'bomb_explode' && state === 'VS_PLAYING') explodeVSBomb(payload.bombId, payload.cells);
   else if (event === 'player_hit') eliminateVSPlayer(payload.playerId, payload.attackerId);
+  else if (event === 'round_over') handleVSRoundOver(payload);
   else if (event === 'winner') finishVSGame(payload.winnerId || null);
 }
 
@@ -314,7 +328,7 @@ async function connectVSRoom(code, host) {
   vsRoomCode = code.toUpperCase(); vsIsHost = host; vsHostId = host ? vsClientId : null;
   vsChannel = supabaseClient.channel(`room_${vsRoomCode}`, { config: { broadcast: { self: false }, presence: { key: vsClientId } } });
 
-  ['join_request', 'room_full', 'lobby_sync', 'roster_update', 'player_ready', 'game_start', 'player_move', 'place_bomb', 'bomb_explode', 'player_hit', 'winner']
+  ['join_request', 'room_full', 'lobby_sync', 'roster_update', 'player_ready', 'game_start', 'player_move', 'place_bomb', 'bomb_explode', 'player_hit', 'round_over', 'winner']
     .forEach(ev => vsChannel.on('broadcast', { event: ev }, ({ payload }) => handleVSEvent(ev, payload)));
 
   vsChannel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
@@ -361,31 +375,23 @@ function toggleVSReady() {
   local.character = getVSCharacterKey(); local.ready = !local.ready;
   syncVSLocalPlayerFromRoster();
   sendVSEvent('player_ready', { character: local.character, ready: local.ready });
-  if (vsIsHost) sendVSEvent('roster_update', { hostId: vsHostId, players: vsPlayers });
+  if (vsIsHost) sendVSEvent('roster_update', { hostId: vsHostId, players: vsPlayers, vsRoundsIndex });
 }
 
-// MAPPA MULTIPLAYER IDENTICA ALLA STORIA
 function generateVSMap() {
   const nextMap = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
   const nextBlocks = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-  
-  // Zone sicure nei 4 angoli di spawn dei giocatori
-  const isVSSafe = (r, c) => (
-    (r <= 2 && c <= 2) ||
-    (r <= 2 && c >= COLS - 3) ||
-    (r >= ROWS - 3 && c <= 2) ||
-    (r >= ROWS - 3 && c >= COLS - 3)
-  );
+  const isVSSafe = (r, c) => ((r <= 2 && c <= 2) || (r <= 2 && c >= COLS - 3) || (r >= ROWS - 3 && c <= 2) || (r >= ROWS - 3 && c >= COLS - 3));
 
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       if (r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1 || (r % 2 === 0 && c % 2 === 0)) {
-        nextMap[r][c] = 1; // Muro indistruttibile classico della storia
+        nextMap[r][c] = 1;
       } else if (isVSSafe(r, c)) {
-        nextMap[r][c] = 0; // Spazio vuoto sicuro
+        nextMap[r][c] = 0;
       } else if (Math.random() < 0.55) {
         const type = FILE_BLOCK_TYPES[Math.floor(Math.random() * FILE_BLOCK_TYPES.length)];
-        nextMap[r][c] = 2; // Blocco file distruttibile
+        nextMap[r][c] = 2;
         nextBlocks[r][c] = { ...type, currentHp: type.hp };
       }
     }
@@ -400,16 +406,36 @@ function startVSMatch() {
     vsStatusMessage = roster.length < 2 ? 'SERVONO ALMENO 2 GIOCATORI' : 'TUTTI DEVONO ESSERE PRONTI';
     return;
   }
+  vsScores = {};
+  roster.forEach(p => vsScores[p.id] = 0);
+  vsCurrentRound = 1;
   const layout = generateVSMap();
-  sendVSEvent('game_start', { players: vsPlayers, ...layout });
-  applyVSGameStart({ players: vsPlayers, ...layout });
+  sendVSEvent('game_start', { players: vsPlayers, vsRoundsIndex, vsCurrentRound: 1, vsScores, ...layout });
+  applyVSGameStart({ players: vsPlayers, vsRoundsIndex, vsCurrentRound: 1, vsScores, ...layout });
+}
+
+function startNextVSRound() {
+  if (!vsIsHost) return;
+  vsCurrentRound++;
+  const layout = generateVSMap();
+  sendVSEvent('game_start', { players: vsPlayers, vsRoundsIndex, vsCurrentRound, vsScores, ...layout });
+  applyVSGameStart({ players: vsPlayers, vsRoundsIndex, vsCurrentRound, vsScores, ...layout });
 }
 
 function applyVSGameStart(payload) {
   gameMode = 'vs'; vsPlayers = payload.players || vsPlayers;
+  if (payload.vsRoundsIndex !== undefined) vsRoundsIndex = payload.vsRoundsIndex;
+  if (payload.vsCurrentRound !== undefined) vsCurrentRound = payload.vsCurrentRound;
+  if (payload.vsScores) vsScores = payload.vsScores;
   map = payload.map; blockData = payload.blockData;
   bombs = []; explosions = []; powerups = []; enemies = []; vsWinnerId = null;
-  Object.values(vsPlayers).forEach(i => { i.alive = true; i.moving = false; });
+
+  Object.values(vsPlayers).forEach(p => {
+    const slot = VS_SLOTS[p.slotIndex];
+    p.alive = true; p.moving = false;
+    p.x = slot.gx * CELL_SIZE + CELL_SIZE / 2;
+    p.y = slot.gy * CELL_SIZE + CELL_SIZE / 2;
+  });
   syncVSLocalPlayerFromRoster(); state = 'VS_PLAYING';
 }
 
@@ -473,10 +499,25 @@ function eliminateVSPlayer(playerId) {
 function checkVSWinner() {
   const alive = Object.values(vsPlayers).filter(i => i.alive);
   if (alive.length <= 1 && Object.keys(vsPlayers).length >= 2) {
-    const winnerId = alive[0]?.id || null;
-    if (vsIsHost) sendVSEvent('winner', { winnerId });
-    finishVSGame(winnerId);
+    const roundWinnerId = alive[0]?.id || null;
+    if (roundWinnerId) vsScores[roundWinnerId] = (vsScores[roundWinnerId] || 0) + 1;
+    const targetWins = VS_ROUNDS_OPTIONS[vsRoundsIndex].target;
+
+    if (roundWinnerId && vsScores[roundWinnerId] >= targetWins) {
+      if (vsIsHost) sendVSEvent('winner', { winnerId: roundWinnerId, vsScores });
+      finishVSGame(roundWinnerId);
+    } else {
+      if (vsIsHost) {
+        sendVSEvent('round_over', { roundWinnerId, vsScores });
+        setTimeout(startNextVSRound, 2000);
+      }
+    }
   }
+}
+
+function handleVSRoundOver(payload) {
+  if (payload.vsScores) vsScores = payload.vsScores;
+  playSound('powerup');
 }
 
 function finishVSGame(winnerId) { if (state === 'VS_WINNER') return; vsWinnerId = winnerId; state = 'VS_WINNER'; }
@@ -629,6 +670,10 @@ document.addEventListener('keydown', e => {
     if (['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD'].includes(e.code)) {
       vsCharacterIndex = 1 - vsCharacterIndex;
       const local = vsPlayers[vsClientId]; if (local) { local.character = getVSCharacterKey(); local.ready = false; }
+    }
+    if (vsIsHost && ['ArrowUp', 'ArrowDown', 'KeyW', 'KeyS'].includes(e.code)) {
+      vsRoundsIndex = (vsRoundsIndex + 1) % VS_ROUNDS_OPTIONS.length;
+      sendVSEvent('roster_update', { hostId: vsHostId, players: vsPlayers, vsRoundsIndex });
     }
     if (e.code === 'Space') toggleVSReady();
     if (e.code === 'Enter' && vsIsHost) startVSMatch();
@@ -1111,30 +1156,35 @@ function drawVSJoin() {
 
 function drawVSLobby() {
   ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-  drawCrispText(`STANZA ${vsRoomCode}`, CANVAS_W / 2, 25, '900 21px Courier New', '#00f0ff');
-  drawCrispText('CONDIVIDI QUESTO CODICE', CANVAS_W / 2, 48, '900 9px Courier New', '#ffffff');
+  drawCrispText(`STANZA: ${vsRoomCode}`, CANVAS_W / 2, 22, '900 21px Courier New', '#00f0ff');
+  drawCrispText('CONDIVIDI QUESTO CODICE PER FAR GIOCARE ALTRI', CANVAS_W / 2, 42, '900 9px Courier New', '#ffffff');
 
   const local = vsPlayers[vsClientId];
   if (!local) { drawCrispText(vsStatusMessage || 'CONNESSIONE...', CANVAS_W / 2, 210, '900 15px Courier New', '#ffea00'); return; }
   const slot = VS_SLOTS[local.slotIndex];
-  drawCrispText(`TU SEI ${slot.label}`, CANVAS_W / 2, 73, '900 18px Courier New', slot.hex);
-  drawCrispText(`SPAWN: ${slot.corner}`, CANVAS_W / 2, 94, '900 12px Courier New', '#ffffff');
+  drawCrispText(`RUOLO: ${slot.label} (${slot.corner})`, CANVAS_W / 2, 62, '900 13px Courier New', slot.hex);
 
   const character = CHARACTERS[getVSCharacterKey()];
   if (character.portrait?.complete && character.portrait.naturalWidth) {
-    ctx.save(); ctx.beginPath(); ctx.roundRect(CANVAS_W / 2 - 48, 108, 96, 90, 9); ctx.clip();
-    ctx.drawImage(character.portrait, CANVAS_W / 2 - 48, 108, 96, 90); ctx.restore();
-    ctx.strokeStyle = slot.hex; ctx.lineWidth = 3; ctx.strokeRect(CANVAS_W / 2 - 48, 108, 96, 90);
+    ctx.save(); ctx.beginPath(); ctx.roundRect(CANVAS_W / 2 - 40, 78, 80, 72, 8); ctx.clip();
+    ctx.drawImage(character.portrait, CANVAS_W / 2 - 40, 78, 80, 72); ctx.restore();
+    ctx.strokeStyle = slot.hex; ctx.lineWidth = 2.5; ctx.strokeRect(CANVAS_W / 2 - 40, 78, 80, 72);
   }
-  drawCrispText(`◄ ${character.name} ►`, CANVAS_W / 2, 216, '900 17px Courier New', slot.hex);
+  drawCrispText(`◄ ${character.name} ►`, CANVAS_W / 2, 164, '900 15px Courier New', slot.hex);
+
+  // Selettore Formato Partita (Host Only)
+  const roundOpt = VS_ROUNDS_OPTIONS[vsRoundsIndex];
+  drawVSButton(42, 182, CANVAS_W - 84, 34, `FORMATO: ${roundOpt.label}`, true, '#ffea00');
+  if (vsIsHost) drawCrispText('▲ ▼ FRECCE PER CAMBIARE MODALITÀ', CANVAS_W / 2, 226, '900 8px Courier New', '#ffaa00');
 
   Object.values(vsPlayers).sort((a, b) => a.slotIndex - b.slotIndex).forEach((item, index) => {
     const itemSlot = VS_SLOTS[item.slotIndex];
-    drawCrispText(`${itemSlot.label}: ${item.username} / ${item.character} ${item.ready ? '✓' : '...'}`, 18, 250 + index * 22, '900 10px Courier New', itemSlot.hex, 'left', '#000000', 2);
+    drawCrispText(`${itemSlot.label}: ${item.username} (${item.character}) ${item.ready ? '✓' : '...'}`, 18, 250 + index * 22, '900 10px Courier New', itemSlot.hex, 'left', '#000000', 2);
   });
-  drawCrispText(vsIsHost ? 'SPAZIO: PRONTO  •  INVIO: AVVIA' : 'SPAZIO: PRONTO', CANVAS_W / 2, 360, '900 10px Courier New', '#ffea00');
-  drawCrispText(local.ready ? 'SEI PRONTO ✓' : 'SCEGLI E CONFERMA', CANVAS_W / 2, 386, '900 12px Courier New', local.ready ? '#00ff66' : '#ffffff');
-  if (vsStatusMessage) drawCrispText(vsStatusMessage, CANVAS_W / 2, 410, '900 9px Courier New', '#ff5577');
+
+  drawCrispText(vsIsHost ? 'SPAZIO: PRONTO  •  INVIO: AVVIA PARTITA' : 'SPAZIO: PRONTO', CANVAS_W / 2, 365, '900 10px Courier New', '#ffea00');
+  drawCrispText(local.ready ? 'STATO: PRONTO ✓' : 'CONFERMA QUANDO SEI PRONTO', CANVAS_W / 2, 388, '900 11px Courier New', local.ready ? '#00ff66' : '#ffffff');
+  if (vsStatusMessage) drawCrispText(vsStatusMessage, CANVAS_W / 2, 412, '900 9px Courier New', '#ff5577');
 }
 
 function drawVSPlayer(item) {
@@ -1152,28 +1202,43 @@ function drawVSPlayer(item) {
   drawCrispText(item.username, item.x, py - 21, '900 7px Courier New', VS_SLOTS[item.slotIndex].hex, 'center', '#000000', 2);
 }
 
-// RENDERING GIOCO MULTIPLAYER IDENTICO ALLA STORIA
+// RENDERING HUD IN-GAME MULTIPLAYER PULITO ED ELEGANTE
 function drawVSGame() {
-  drawGameWorld(); // Stesso motore di rendering della mappa storia
-  ctx.fillStyle = '#0a0a22'; ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
-  ctx.strokeStyle = VS_SLOTS[vsLocalSlot || 0].hex; ctx.strokeRect(0, 0, CANVAS_W, HUD_HEIGHT);
-  drawCrispText(`VS ${vsRoomCode}`, 8, 14, '900 11px Courier New', '#ffffff', 'left');
-  drawCrispText(`VIVI ${Object.values(vsPlayers).filter(i => i.alive).length}`, 8, 31, '900 11px Courier New', '#00ffcc', 'left');
-  const local = vsPlayers[vsClientId];
-  if (local) drawCrispText(`${VS_SLOTS[local.slotIndex].label} / ${local.character}`, CANVAS_W - 8, 23, '900 10px Courier New', VS_SLOTS[local.slotIndex].hex, 'right');
+  drawGameWorld();
+
+  ctx.fillStyle = '#060618'; ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
+  ctx.strokeStyle = VS_SLOTS[vsLocalSlot || 0].hex; ctx.lineWidth = 1.5; ctx.strokeRect(0, 0, CANVAS_W, HUD_HEIGHT);
+
+  const activePlayers = Object.values(vsPlayers).filter(i => i.alive).length;
+  const totalPlayers = Object.keys(vsPlayers).length;
+  const opt = VS_ROUNDS_OPTIONS[vsRoundsIndex];
+
+  // Sinistra: Stanza e Sopravvissuti
+  drawCrispText(`STANZA: ${vsRoomCode}`, 10, 16, '900 11px Courier New', '#00f0ff', 'left', '#000000', 2);
+  drawCrispText(`IN VITA: ${activePlayers}/${totalPlayers}`, 10, 32, '900 11px Courier New', '#00ffcc', 'left', '#000000', 2);
+
+  // Centro: Round attuale e Obiettivo
+  drawCrispText(`ROUND ${vsCurrentRound}`, CANVAS_W / 2, 16, '900 13px Courier New', '#ffea00', 'center', '#000000', 2);
+  drawCrispText(`${opt.label} (REC ${opt.target})`, CANVAS_W / 2, 32, '900 10px Courier New', '#ffffff', 'center', '#000000', 2);
+
+  // Destra: Punteggio personale (vittorie accumulate)
+  const myScore = vsScores[vsClientId] || 0;
+  drawCrispText(`VITTORIE TU: ${myScore}`, CANVAS_W - 10, 24, '900 11px Courier New', VS_SLOTS[vsLocalSlot || 0].hex, 'right', '#000000', 2);
+
   Object.values(vsPlayers).forEach(drawVSPlayer);
 }
 
 function drawVSWinner() {
   ctx.fillStyle = '#060212'; ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
   const winner = vsWinnerId ? vsPlayers[vsWinnerId] : null, winnerSlot = winner ? VS_SLOTS[winner.slotIndex] : null;
-  drawCrispText('PARTITA TERMINATA', CANVAS_W / 2, 92, '900 20px Courier New', '#ffffff');
-  drawCrispText(winner ? 'VINCITORE!' : 'PAREGGIO!', CANVAS_W / 2, 145, '900 30px Courier New', winnerSlot?.hex || '#ffea00');
+  drawCrispText('PARTITA TERMINATA', CANVAS_W / 2, 80, '900 20px Courier New', '#ffffff');
+  drawCrispText(winner ? 'VINCITORE MATCH!' : 'PAREGGIO!', CANVAS_W / 2, 130, '900 26px Courier New', winnerSlot?.hex || '#ffea00');
   if (winner) {
-    drawCrispText(winner.username, CANVAS_W / 2, 195, '900 24px Courier New', winnerSlot.hex);
-    drawCrispText(`${winnerSlot.label} • ${winner.character}`, CANVAS_W / 2, 229, '900 13px Courier New', '#ffffff');
+    drawCrispText(winner.username, CANVAS_W / 2, 180, '900 24px Courier New', winnerSlot.hex);
+    drawCrispText(`${winnerSlot.label} • ${winner.character}`, CANVAS_W / 2, 210, '900 13px Courier New', '#ffffff');
+    drawCrispText(`VITTORIE TOTALI: ${vsScores[winner.id] || 0}`, CANVAS_W / 2, 240, '900 14px Courier New', '#00ffcc');
   }
-  drawCrispText('BOMBA PER TORNARE AL MENU', CANVAS_W / 2, 330, '900 12px Courier New', '#00f0ff');
+  drawCrispText('PREMI BOMBA PER TORNARE AL MENU', CANVAS_W / 2, 340, '900 12px Courier New', '#00f0ff');
 }
 
 function drawScreens() {
@@ -1358,7 +1423,10 @@ canvas.addEventListener('pointerdown', e => {
   if (state === 'VS_MENU') { vsMenuIndex = x < CANVAS_W / 2 ? 0 : 1; advanceMenuState(); return; }
   if (state === 'VS_JOIN') { if (y >= 240 && y <= 330) advanceMenuState(); return; }
   if (state === 'VS_LOBBY') {
-    if (y >= 105 && y <= 235) {
+    if (y >= 182 && y <= 216 && vsIsHost) {
+      vsRoundsIndex = (vsRoundsIndex + 1) % VS_ROUNDS_OPTIONS.length;
+      sendVSEvent('roster_update', { hostId: vsHostId, players: vsPlayers, vsRoundsIndex });
+    } else if (y >= 78 && y <= 164) {
       vsCharacterIndex = x < CANVAS_W / 2 ? 0 : 1;
       const local = vsPlayers[vsClientId]; if (local) { local.character = getVSCharacterKey(); local.ready = false; }
     } else toggleVSReady();
