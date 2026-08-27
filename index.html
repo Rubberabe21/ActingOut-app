@@ -621,14 +621,6 @@ opacity: 0.5;
 
 <body>
 
-<script>
-if (!sessionStorage.getItem('arcade_session_active')) {
-window.location.replace('./start.html');
-} else {
-sessionStorage.removeItem('arcade_session_active');
-}
-</script>
-
 <!-- OVERLAY CARICAMENTO INIZIALE STUDIO -->
 <div id="hub-loader">
   <div class="loader-title">CARICAMENTO STUDIO...</div>
@@ -1420,7 +1412,6 @@ if (dist < 60) {
 if (cab.gameData.type === "leaderboard") {
 openLeaderboardModal('feedbackInvaders');
 } else if (cab.gameData.url) {
-sessionStorage.setItem('arcade_session_active', 'true');
 window.location.replace(cab.gameData.url);
 }
 return;

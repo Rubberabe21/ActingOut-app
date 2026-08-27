@@ -558,6 +558,7 @@ let charSelectIndex = 0;
 let currentTheme = CHARACTERS.IRIS;
 let highScore = parseInt(localStorage.getItem('pixelPunch_highScore')) || 0;
 let isNewRecord = false;
+let scoreSavedForCurrentGame = false;
 
 let audioCtx = null;
 function getAC() {
@@ -686,6 +687,7 @@ function selectCharacter(charKey) {
 }
 
 function startMatch() {
+    scoreSavedForCurrentGame = false;
     state = 'PLAYING';
     score = 0;
     stress = 0;
@@ -1453,6 +1455,9 @@ window.addEventListener('keydown', (e) => {
 });
 
 async function saveScore() {
+    if (scoreSavedForCurrentGame) return;
+    scoreSavedForCurrentGame = true;
+
     try {
         if (score > highScore) {
             highScore = score;
@@ -1479,6 +1484,16 @@ async function saveScore() {
         // 1. Aggiorna sessione locale
         localStorage.setItem('arcade_current_user', JSON.stringify(u));
 
+        try {
+            const users = JSON.parse(localStorage.getItem('arcade_users')) || {};
+            if (users[u.username]) {
+                users[u.username].stats = u.stats;
+                localStorage.setItem('arcade_users', JSON.stringify(users));
+            }
+        } catch (e) {
+            console.warn("Errore aggiornamento utenti locali:", e);
+        }
+
         // 2. Salvataggio Cloud su Supabase
         if (supabaseClient && u.username && !u.username.startsWith("GUEST_")) {
             try {
@@ -1501,8 +1516,13 @@ async function saveScore() {
 
 async function exitGame() {
     if (gameTimerInterval) clearInterval(gameTimerInterval);
-    await saveScore();
-    window.location.href = 'index.html';
+    try {
+        await saveScore();
+    } catch (e) {
+        console.warn("Errore durante il salvataggio score:", e);
+    } finally {
+        window.location.href = 'index.html';
+    }
 }
 
 function loop() {

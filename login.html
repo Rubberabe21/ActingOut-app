@@ -324,7 +324,6 @@ class AuthManagerPage {
             stats: users[username].stats 
         };
         localStorage.setItem('arcade_current_user', JSON.stringify(currentUser));
-        sessionStorage.setItem('arcade_session_active', 'true');
         return { success: true };
     }
 
@@ -367,7 +366,6 @@ class AuthManagerPage {
 
         if (loggedUser) {
             localStorage.setItem('arcade_current_user', JSON.stringify(loggedUser));
-            sessionStorage.setItem('arcade_session_active', 'true');
             return { success: true };
         } else {
             return { success: false, msg: "Credenziali errate o utente non trovato!" };
@@ -383,7 +381,6 @@ class AuthManagerPage {
             stats: { ...DEFAULT_STATS }
         };
         localStorage.setItem('arcade_current_user', JSON.stringify(guestUser));
-        sessionStorage.setItem('arcade_session_active', 'true');
     }
 }
 

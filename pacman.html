@@ -755,6 +755,7 @@ const CHARACTERS = {
 const charList = ['LAURA', 'GUIDO'];
 let charSelectIndex = 0;
 let currentBoss = CHARACTERS.LAURA;
+let scoreSavedForCurrentGame = false;
 
 // BLOCCHI FILE DISTRUTTIBILI
 const FILE_BLOCK_TYPES = [
@@ -766,6 +767,9 @@ const FILE_BLOCK_TYPES = [
 ];
 
 async function saveScore(finalScore) {
+  if (scoreSavedForCurrentGame) return;
+  scoreSavedForCurrentGame = true;
+
   if (finalScore > hiScore) {
     hiScore = finalScore;
     localStorage.setItem('cyberRun_highScore', hiScore.toString());
@@ -788,6 +792,16 @@ async function saveScore(finalScore) {
 
   localStorage.setItem('arcade_current_user', JSON.stringify(curUser));
 
+  try {
+    const users = JSON.parse(localStorage.getItem('arcade_users')) || {};
+    if (users[curUser.username]) {
+      users[curUser.username].stats = curUser.stats;
+      localStorage.setItem('arcade_users', JSON.stringify(users));
+    }
+  } catch (e) {
+    console.warn("Errore aggiornamento utenti locali:", e);
+  }
+
   if (supabaseClient && curUser.username && !curUser.username.startsWith("GUEST_")) {
     try {
       const { error } = await supabaseClient
@@ -805,8 +819,13 @@ async function saveScore(finalScore) {
 }
 
 async function exitGame(finalScore) {
-  await saveScore(finalScore);
-  window.location.href = 'index.html';
+  try {
+    await saveScore(finalScore);
+  } catch (e) {
+    console.warn("Errore durante il salvataggio score:", e);
+  } finally {
+    window.location.href = 'index.html';
+  }
 }
 
 let state = 'COVER'; 
@@ -1051,6 +1070,7 @@ let player = {
 };
 
 function startGame() {
+  scoreSavedForCurrentGame = false;
   score = 0; lives = 3; level = 1;
   currentEraIndex = 1;
   loadLevel();

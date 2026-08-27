@@ -743,7 +743,6 @@ function renderLandingButtons() {
         btnContinue.className = "arcade-main-btn";
         btnContinue.innerText = "CONTINUA ►";
         btnContinue.onclick = () => {
-            sessionStorage.setItem('arcade_session_active', 'true');
             localStorage.setItem('arcade_player_x', '200');
             window.location.replace("index.html");
         };
@@ -820,7 +819,6 @@ document.getElementById('login-submit-btn').onclick = async () => {
     if (loggedUser) {
         localStorage.setItem('arcade_current_user', JSON.stringify(loggedUser));
         localStorage.setItem('arcade_player_x', '200');
-        sessionStorage.setItem('arcade_session_active', 'true');
         window.location.replace("index.html");
     } else {
         alert("Credenziali errate o utente non trovato su Supabase!");
@@ -1108,7 +1106,6 @@ async function advanceStep() {
         stepBtn.disabled = false;
 
     } else if (stepData.type === "finish") {
-        sessionStorage.setItem('arcade_session_active', 'true');
         localStorage.setItem('arcade_player_x', '200');
         window.location.replace("index.html"); 
         return;
@@ -1120,7 +1117,6 @@ async function advanceStep() {
     if (currentStepIdx < DIALOGUE_STEPS.length) {
         renderStep();
     } else {
-        sessionStorage.setItem('arcade_session_active', 'true');
         localStorage.setItem('arcade_player_x', '200');
         window.location.replace("index.html"); 
     }

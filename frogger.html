@@ -592,6 +592,7 @@ const PICKUP_TYPES = {
 let gameState = 'COVER';
 let score = 0;
 let highScore = parseInt(localStorage.getItem('deadlineDrive_highScore')) || 0;
+let scoreSavedForCurrentGame = false;
 let lives = 3;
 let currentLevel = 1;
 let maxReachedLevel = 1;
@@ -755,6 +756,7 @@ function resetPlayer() {
 }
 
 function startGame() {
+  scoreSavedForCurrentGame = false;
   currentTheme = CHARACTERS[CHARACTER_LIST[selectedCharIndex]];
   score = 0;
   lives = 3;
@@ -1815,6 +1817,9 @@ function keyPressed(code) {
 }
 
 async function saveScore() {
+  if (scoreSavedForCurrentGame) return;
+  scoreSavedForCurrentGame = true;
+
   try {
     if (score > highScore) {
       highScore = score;
@@ -1865,9 +1870,14 @@ async function saveScore() {
   }
 }
 
-function exitGame() {
-  saveScore();
-  window.location.href = 'index.html';
+async function exitGame() {
+  try {
+    await saveScore();
+  } catch (e) {
+    console.warn("Errore durante il salvataggio score:", e);
+  } finally {
+    window.location.href = 'index.html';
+  }
 }
 
 function update() {
