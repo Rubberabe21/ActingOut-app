@@ -515,7 +515,8 @@ function makeVSPlayer(id, slotIndex, character, username) {
 
 function nextAvailableVSSlot() {
   const occupied = new Set(Object.values(vsPlayers).map(item => item.slotIndex));
-  return VS_SLOTS.findIndex((_, index) => !occupied.has(index));
+  const slotOrder = [0, 3, 1, 2];
+  return slotOrder.find(index => !occupied.has(index)) ?? -1;
 }
 
 function syncVSLocalPlayerFromRoster() {
@@ -685,7 +686,7 @@ function toggleVSReady() {
 }
 
 function generateVSMap() {
-  const variant = [...vsRoomCode].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3;
+  const roomSeed = [...vsRoomCode].reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const nextMap = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
   const nextBlocks = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
   const safe = (r, c) => {
@@ -702,22 +703,19 @@ function generateVSMap() {
         nextMap[r][c] = 1;
       } else if (safe(r, c)) {
         nextMap[r][c] = 0;
+      } else if (r % 2 === 0 && c % 2 === 0) {
+        nextMap[r][c] = 1;
       } else {
-        const cross = variant === 0 && (r === Math.floor(ROWS / 2) || c === Math.floor(COLS / 2));
-        const spiral = variant === 1 && ((r % 4 === 0 && c > 2 && c < COLS - 3) || (c % 4 === 0 && r > 2 && r < ROWS - 3));
-        const islands = variant === 2 && r % 3 === 1 && c % 3 === 1;
-        const classic = r % 2 === 0 && c % 2 === 0;
-        if (classic || cross || spiral || islands) {
-          nextMap[r][c] = 1;
-        } else if ((r * 17 + c * 31 + variant * 7) % 10 < 6) {
-          const type = FILE_BLOCK_TYPES[(r + c + variant) % FILE_BLOCK_TYPES.length];
+        const blockValue = (r * 17 + c * 31 + roomSeed * 7) % 100;
+        if (blockValue < 55) {
+          const type = FILE_BLOCK_TYPES[(r + c + roomSeed) % 2];
           nextMap[r][c] = 2;
           nextBlocks[r][c] = { ...type, currentHp: type.hp };
         }
       }
     }
   }
-  return { map: nextMap, blockData: nextBlocks, variant };
+  return { map: nextMap, blockData: nextBlocks };
 }
 
 function startVSMatch() {
