@@ -605,7 +605,7 @@ document.getElementById(
     const pVal =
         document.getElementById(
             'login-password-input'
-        ).value.trim();
+        ).value;
 
     if (!uVal || !pVal) {
         alert("Inserisci Nome Utente e Password!");
@@ -626,17 +626,43 @@ document.getElementById(
 
         try {
 
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('username', uVal)
-                .eq('password', pVal)
-                .maybeSingle();
+            const response = await fetch(
+                `${SUPABASE_URL}/functions/v1/login-account`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        username: uVal,
+                        password: pVal
+                    })
+                }
+            );
 
-            if (!error && data) {
+            const result = await response.json();
+
+            if (response.ok && result.success && result.session) {
+
+                const { error: sessionError } =
+                    await supabaseClient.auth.setSession({
+                        access_token: result.session.access_token,
+                        refresh_token: result.session.refresh_token
+                    });
+
+                if (sessionError) throw sessionError;
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                    .from('profiles')
+                    .select('username, avatar, activity, role, stats')
+                    .eq('user_id', result.user.id)
+                    .maybeSingle();
+
+                if (error) throw error;
 
                 const defaultStats = {
                     gamesPlayed: 0,
@@ -647,16 +673,24 @@ document.getElementById(
                 };
 
                 loggedUser = {
-                    username: data.username,
+                    username:
+                        data?.username ||
+                        result.user.username ||
+                        uVal,
                     avatar:
-                        data.avatar ||
+                        data?.avatar ||
                         "assets/avatars/testa1.png",
-                    activity: data.activity || "",
-                    role: data.role || "",
+                    activity: data?.activity || "",
+                    role: data?.role || "",
                     stats:
-                        data.stats ||
+                        data?.stats ||
                         defaultStats
                 };
+            } else {
+                throw new Error(
+                    result.error ||
+                    "Credenziali errate o utente non trovato su Supabase!"
+                );
             }
 
         } catch (e) {
@@ -665,6 +699,8 @@ document.getElementById(
                 "Errore login Supabase:",
                 e
             );
+
+            alert(e.message);
         }
     }
 
@@ -684,9 +720,11 @@ document.getElementById(
 
     } else {
 
-        alert(
-            "Credenziali errate o utente non trovato su Supabase!"
-        );
+        if (!supabaseClient) {
+            alert(
+                "Connessione a Supabase non disponibile!"
+            );
+        }
 
         btn.disabled = false;
         btn.innerText = "ACCEDI";
