@@ -392,7 +392,8 @@ function generateVSMap() {
       } else if (Math.random() < 0.55) {
         const type = FILE_BLOCK_TYPES[Math.floor(Math.random() * FILE_BLOCK_TYPES.length)];
         nextMap[r][c] = 2;
-        nextBlocks[r][c] = { ...type, currentHp: type.hp };
+        // In multiplayer tutti i blocchi esplodono con 1 colpo
+        nextBlocks[r][c] = { ...type, hp: 1, currentHp: 1 };
       }
     }
   }
@@ -474,7 +475,18 @@ function explodeVSBomb(bombId, suppliedCells) {
   bomb.exploded = true;
   const cells = suppliedCells || computeVSExplosionCells(bomb);
   cells.forEach(c => {
-    if (map[c.gy]?.[c.gx] === 2) { map[c.gy][c.gx] = 0; blockData[c.gy][c.gx] = null; }
+    if (map[c.gy]?.[c.gx] === 2) {
+      const blk = blockData[c.gy]?.[c.gx];
+      map[c.gy][c.gx] = 0; blockData[c.gy][c.gx] = null;
+      // Generazione powerup in Multiplayer (senza Cuore/COMMAND_Z)
+      if (blk && Math.random() < blk.dropChance) {
+        const types = ['BOMB_UP', 'FIRE_UP', 'SPEED_UP', 'COFFEE'];
+        const weights = [0.30, 0.30, 0.25, 0.15];
+        let rand = Math.random(), sum = 0, picked = types[0];
+        for (let t = 0; t < types.length; t++) { sum += weights[t]; if (rand < sum) { picked = types[t]; break; } }
+        powerups.push({ gx: c.gx, gy: c.gy, type: picked });
+      }
+    }
   });
   explosions.push({ cells, timer: 20, ownerId: bomb.ownerId });
   playSound('explode'); triggerShake(8, 4);
@@ -548,6 +560,24 @@ function updateVSGame() {
   bombs = bombs.filter(b => !b.exploded);
   explosions.forEach(ex => ex.timer--);
   explosions = explosions.filter(ex => ex.timer > 0);
+
+  // Raccolta dei Powerup in Multiplayer per tutti i giocatori presenti
+  Object.values(vsPlayers).forEach(p => {
+    if (!p.alive) return;
+    const pgx = Math.floor(p.x / CELL_SIZE), pgy = Math.floor(p.y / CELL_SIZE);
+    for (let i = powerups.length - 1; i >= 0; i--) {
+      const pw = powerups[i];
+      if (pw && pw.gx === pgx && pw.gy === pgy) {
+        if (p.id === vsClientId) {
+          playSound('powerup');
+          if (pw.type === 'BOMB_UP') player.maxBombs++;
+          else if (pw.type === 'FIRE_UP') player.bombRange++;
+          else if (pw.type === 'SPEED_UP') player.speed += 0.35;
+        }
+        powerups.splice(i, 1);
+      }
+    }
+  });
 }
 
 async function saveScore(finalScore) {
@@ -1172,7 +1202,6 @@ function drawVSLobby() {
   }
   drawCrispText(`◄ ${character.name} ►`, CANVAS_W / 2, 164, '900 15px Courier New', slot.hex);
 
-  // Selettore Formato Partita (Host Only)
   const roundOpt = VS_ROUNDS_OPTIONS[vsRoundsIndex];
   drawVSButton(42, 182, CANVAS_W - 84, 34, `FORMATO: ${roundOpt.label}`, true, '#ffea00');
   if (vsIsHost) drawCrispText('▲ ▼ FRECCE PER CAMBIARE MODALITÀ', CANVAS_W / 2, 226, '900 8px Courier New', '#ffaa00');
@@ -1202,7 +1231,6 @@ function drawVSPlayer(item) {
   drawCrispText(item.username, item.x, py - 21, '900 7px Courier New', VS_SLOTS[item.slotIndex].hex, 'center', '#000000', 2);
 }
 
-// RENDERING HUD IN-GAME MULTIPLAYER PULITO ED ELEGANTE
 function drawVSGame() {
   drawGameWorld();
 
@@ -1213,15 +1241,12 @@ function drawVSGame() {
   const totalPlayers = Object.keys(vsPlayers).length;
   const opt = VS_ROUNDS_OPTIONS[vsRoundsIndex];
 
-  // Sinistra: Stanza e Sopravvissuti
   drawCrispText(`STANZA: ${vsRoomCode}`, 10, 16, '900 11px Courier New', '#00f0ff', 'left', '#000000', 2);
   drawCrispText(`IN VITA: ${activePlayers}/${totalPlayers}`, 10, 32, '900 11px Courier New', '#00ffcc', 'left', '#000000', 2);
 
-  // Centro: Round attuale e Obiettivo
   drawCrispText(`ROUND ${vsCurrentRound}`, CANVAS_W / 2, 16, '900 13px Courier New', '#ffea00', 'center', '#000000', 2);
   drawCrispText(`${opt.label} (REC ${opt.target})`, CANVAS_W / 2, 32, '900 10px Courier New', '#ffffff', 'center', '#000000', 2);
 
-  // Destra: Punteggio personale (vittorie accumulate)
   const myScore = vsScores[vsClientId] || 0;
   drawCrispText(`VITTORIE TU: ${myScore}`, CANVAS_W - 10, 24, '900 11px Courier New', VS_SLOTS[vsLocalSlot || 0].hex, 'right', '#000000', 2);
 
