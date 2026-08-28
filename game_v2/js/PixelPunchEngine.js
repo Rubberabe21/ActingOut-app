@@ -119,7 +119,7 @@
   ];
 
   function getPlayerScale(character) {
-    return character === 'iris' ? ENTITY_SCALE : ENTITY_SCALE * 0.8;
+    return character === 'iris' ? ENTITY_SCALE * 0.75 : ENTITY_SCALE * 0.8;
   }
 
   const ENEMY_FILES = [
@@ -175,13 +175,13 @@
     ['wine_littlelife.png', 'dolci_biglife.png']
   ];
 
-  // ANIMAZIONI RALLENTATE: framerate ridotto su walk (5 fps)
+  // Frame-rate e velocità fisica sono separati: il passo resta leggibile senza rallentare i personaggi.
   const FRAME_MAP = {
-    idle: [0, 1, 7], block: [2, 2, 1], walk: [3, 6, 5], atk: [7, 9, 6],
+    idle: [0, 1, 7], block: [2, 2, 1], walk: [3, 6, 7], atk: [7, 9, 6],
     atk_spec: [10, 12, 6], hurt: [13, 14, 10], ko: [15, 17, 7]
   };
   const ENEMY_FRAME_MAP = {
-    idle: [0, 1, 5], walk: [2, 5, 5], atk: [6, 7, 5], hurt: [8, 8, 10], ko: [9, 11, 7]
+    idle: [0, 1, 5], walk: [2, 5, 7], atk: [6, 7, 5], hurt: [8, 8, 10], ko: [9, 11, 7]
   };
 
   function loadImage(scene, key, path) {
@@ -299,13 +299,13 @@
     
     addTitle(title, color = '#ffea00') { 
       this.pageObjects.add(this.add.text(W / 2, 28, title, { 
-        fontFamily: 'monospace', fontSize: '24px', color, fontStyle: 'bold', stroke: '#000000', strokeThickness: 5 
+        fontFamily: 'monospace', fontSize: '30px', color, fontStyle: 'bold', stroke: '#000000', strokeThickness: 5
       }).setOrigin(0.5)); 
     }
 
     addContinue(label = 'PREMI A PER CONTINUARE ►') {
       const text = this.add.text(W / 2, H - 22, label, { 
-        fontFamily: 'monospace', fontSize: '15px', color: '#00ffcc', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 
+        fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4
       }).setOrigin(0.5);
       this.tweens.add({ targets: text, alpha: 0.35, duration: 520, yoyo: true, repeat: -1 }); 
       this.pageObjects.add(text);
@@ -378,44 +378,40 @@
       this.pageObjects.add(selectTitle);
 
       // Card contenitore principale
-      const cardBg = this.add.rectangle(W / 2, 245, W - 28, 375, 0x0f0821, 0.98).setStrokeStyle(3, p.color);
+      const cardBg = this.add.rectangle(W / 2, 266, W - 28, 426, 0x0f0821, 0.98).setStrokeStyle(3, p.color);
 
-      // Glow + Ritratto grandissimo del personaggio (ingrandito a 220px max)
-      const glow = this.add.ellipse(135, 175, 180, 200, p.color, 0.3);
-      const portrait = fitImage(this.add.image(135, 175, `${p.key}_select`), 190, 220);
+      // Il ritratto è il protagonista della schermata di scelta.
+      const glow = this.add.ellipse(W / 2, 135, 330, 190, p.color, 0.3);
+      const portrait = fitImage(this.add.image(W / 2, 135, `${p.key}_select`), 310, 170);
       this.tweens.add({ targets: glow, alpha: 0.6, scaleX: 1.15, scaleY: 1.15, duration: 800, yoyo: true, repeat: -1 });
 
-      // Intestazione personaggio (Testi grandi)
-      const nameText = this.add.text(240, 68, p.label, { fontFamily: 'monospace', fontSize: '28px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 });
-      const roleText = this.add.text(240, 102, p.role, { fontFamily: 'monospace', fontSize: '14px', color: '#ffea00', fontStyle: 'bold' });
+      const nameText = this.add.text(W / 2, 225, p.label, { fontFamily: 'monospace', fontSize: '32px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 }).setOrigin(0.5);
+      const roleText = this.add.text(W / 2, 257, p.role, { fontFamily: 'monospace', fontSize: '17px', color: '#ffea00', fontStyle: 'bold' }).setOrigin(0.5);
 
-      // Bio del personaggio
-      const bioText = this.add.text(240, 126, p.bio, { fontFamily: 'sans-serif', fontSize: '12px', color: '#dddddd', wordWrap: { width: 245 }, lineSpacing: 3 });
+      const bioText = this.add.text(W / 2, 278, p.bio, { fontFamily: 'sans-serif', fontSize: '14px', color: '#dddddd', align: 'center', wordWrap: { width: W - 70 }, lineSpacing: 3 }).setOrigin(0.5, 0);
 
-      // Box Bonus con testo ingrandito
-      const bonusBox = this.add.rectangle(W / 2, 280, W - 48, 54, 0x0a2416, 0.95).setStrokeStyle(2, 0x00ff88);
-      const bonusTitle = this.add.text(38, 258, 'BONUS', { fontFamily: 'monospace', fontSize: '13px', color: '#00ff88', fontStyle: 'bold' });
-      const bonusDetail = this.add.text(38, 276, p.bonus, { fontFamily: 'sans-serif', fontSize: '12px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
+      const bonusBox = this.add.rectangle(W / 2, 360, W - 48, 58, 0x0a2416, 0.95).setStrokeStyle(2, 0x00ff88);
+      const bonusTitle = this.add.text(38, 337, 'BONUS', { fontFamily: 'monospace', fontSize: '16px', color: '#00ff88', fontStyle: 'bold' });
+      const bonusDetail = this.add.text(38, 357, p.bonus, { fontFamily: 'sans-serif', fontSize: '14px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
 
-      // Box Malus con testo ingrandito
-      const malusBox = this.add.rectangle(W / 2, 350, W - 48, 50, 0x2b0d14, 0.95).setStrokeStyle(2, 0xff4466);
-      const malusTitle = this.add.text(38, 330, 'MALUS', { fontFamily: 'monospace', fontSize: '13px', color: '#ff4466', fontStyle: 'bold' });
-      const malusDetail = this.add.text(38, 347, p.malus, { fontFamily: 'sans-serif', fontSize: '12px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
+      const malusBox = this.add.rectangle(W / 2, 431, W - 48, 50, 0x2b0d14, 0.95).setStrokeStyle(2, 0xff4466);
+      const malusTitle = this.add.text(38, 410, 'MALUS', { fontFamily: 'monospace', fontSize: '16px', color: '#ff4466', fontStyle: 'bold' });
+      const malusDetail = this.add.text(38, 430, p.malus, { fontFamily: 'sans-serif', fontSize: '14px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
 
       // Frecce tattili grandi di selezione laterale
-      const prevBtn = this.add.text(22, 175, '◀', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const prevBtn = this.add.text(28, 135, '◀', { fontFamily: 'monospace', fontSize: '48px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       prevBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex - 1));
 
-      const nextBtn = this.add.text(W - 22, 175, '▶', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const nextBtn = this.add.text(W - 28, 135, '▶', { fontFamily: 'monospace', fontSize: '48px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       nextBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex + 1));
 
       // Indicatori a pallino
       const dotsText = PLAYERS.map((_, i) => i === this.charSelectIndex ? '●' : '○').join('   ');
-      const dots = this.add.text(W / 2, 396, dotsText, { fontFamily: 'monospace', fontSize: '20px', color: '#00ffcc' }).setOrigin(0.5);
+      const dots = this.add.text(W / 2, 470, dotsText, { fontFamily: 'monospace', fontSize: '20px', color: '#00ffcc' }).setOrigin(0.5);
 
       // Bottone Conferma Ingrandito
-      const selectBtn = this.add.rectangle(W / 2, H - 32, W - 48, 44, 0x7028aa, 1).setStrokeStyle(3, 0xffea00).setInteractive({ useHandCursor: true });
-      const selectBtnText = this.add.text(W / 2, H - 32, `SCEGLI ${p.label} (PREMI A) ►`, { fontFamily: 'monospace', fontSize: '16px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+      const selectBtn = this.add.rectangle(W / 2, H - 25, W - 48, 40, 0x7028aa, 1).setStrokeStyle(3, 0xffea00).setInteractive({ useHandCursor: true });
+      const selectBtnText = this.add.text(W / 2, H - 25, `SCEGLI ${p.label} (PREMI A) ►`, { fontFamily: 'monospace', fontSize: '17px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
       
       selectBtn.on('pointerdown', () => {
         playSfx('assets/audio/sfx_select.mp3');
@@ -646,7 +642,7 @@
       this.player.body.setSize(50, 32).setOffset(39, 96).setAllowGravity(false);
       this.player.body.enable = true;
       this.player.body.reset(100, startY);
-      this.player.speed = 150 * (this.playerStats.speedMult || 1.0);
+      this.player.speed = 210 * (this.playerStats.speedMult || 1.0);
       this.player.facing = 1;
       this.player.invulnerableUntil = 0;
       this.bindActorAnimationEvents(this.player, this.character, 17, true);
@@ -660,18 +656,25 @@
       const positions = [350, 780, 1320, 1900, 2470, 3050].map(x => x * BACKGROUND_SCALE);
       positions.forEach((x, i) => {
         const variant = i % 2;
-        const crate = this.crates.create(x, randomMovementY(), `crate_${variant}_whole`).setOrigin(0.5, 1).setDisplaySize(54 * OBJECT_SCALE, 54 * OBJECT_SCALE);
+        const crate = this.crates.create(x, randomMovementY(), `crate_${variant}_whole`).setOrigin(0.5, 1);
         crate.hp = 3; crate.variant = variant;
-        crate.body.setSize(crate.width * 0.7, crate.height * 0.25).setOffset(crate.width * 0.15, crate.height * 0.75);
+        crate.isCoffeeMachine = this.stage === 1 && variant === 0;
+        this.resizeCrate(crate, `crate_${variant}_whole`);
       });
       this.physics.add.collider(this.player, this.crates);
       
-      // Overlap migliorato: funzione di controllo personalizzata con tolleranza verticale/orizzontale amplificata
-      this.physics.add.overlap(this.player, this.pickupGroup, this.collectPickup, (player, pickup) => {
-        const dx = Math.abs(player.x - pickup.x);
-        const dy = Math.abs(player.y - pickup.y);
-        return dx < 50 && dy < 45; // Generosa finestra di interazione
-      }, this);
+      this.physics.add.overlap(this.player, this.pickupGroup, this.collectPickup, undefined, this);
+    }
+
+    resizeCrate(crate, textureKey) {
+      const frame = this.textures.getFrame(textureKey);
+      const maxDimension = 54 * OBJECT_SCALE * (crate.isCoffeeMachine ? 1.15 : 1);
+      const scale = maxDimension / Math.max(frame.width, frame.height);
+      const width = frame.width * scale;
+      const height = frame.height * scale;
+      crate.setDisplaySize(width, height);
+      crate.body.setSize(width * 0.7, Math.max(22, height * 0.25));
+      crate.body.setOffset(width * 0.15, height * 0.75);
     }
 
     createHud() {
@@ -764,6 +767,7 @@
     update(time) {
       if (this.stageEnded || this.isPausedState) return;
       this.updatePlayerMovement();
+      this.collectNearbyPickups();
       this.updateArena();
       this.updateEnemies(time);
       this.updateDepths();
@@ -850,7 +854,7 @@
       enemy.hp = 30 + this.stage * 10; 
       enemy.maxHp = enemy.hp; 
       enemy.damage = 3 + this.stage * 2; 
-      enemy.speed = 36 + this.stage * 4; 
+      enemy.speed = 60 + this.stage * 6;
       enemy.nextAttack = 0; enemy.isBoss = false; enemy.facing = -1;
       enemy.body.setSize(40, 20).setOffset(44, 108);
       this.bindActorAnimationEvents(enemy, `enemy_${number}`, 11);
@@ -870,7 +874,7 @@
       
       boss.setDepth(boss.y);
       boss.hp = 200 + this.stage * 50; boss.maxHp = boss.hp; boss.damage = 18 + this.stage * 3;
-      boss.speed = 35 + this.stage * 2;
+      boss.speed = 55 + this.stage * 3;
       boss.nextAttack = 0; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
       boss.body.setSize(40, 20).setOffset(44, 108);
       this.bindActorAnimationEvents(boss, `boss_${this.stage}`, 17);
@@ -997,10 +1001,12 @@
       playSfx('assets/audio/sfx_crate.mp3');
       crate.hitLock = true; crate.hp -= damage >= 50 ? 2 : 1;
       if (crate.hp <= 0) {
-        const x = crate.x, y = crate.y; crate.setTexture(`crate_${crate.variant}_broken2`);
+        const x = crate.x, y = crate.y; const textureKey = `crate_${crate.variant}_broken2`;
+        crate.setTexture(textureKey); this.resizeCrate(crate, textureKey);
         this.time.delayedCall(180, () => { crate.destroy(); this.maybeDropPickup(x, y, false, true); });
       } else {
-        crate.setTexture(`crate_${crate.variant}_broken1`);
+        const textureKey = `crate_${crate.variant}_broken1`;
+        crate.setTexture(textureKey); this.resizeCrate(crate, textureKey);
         this.time.delayedCall(140, () => { if (crate.active) crate.hitLock = false; });
       }
     }
@@ -1025,20 +1031,34 @@
       const pickup = this.pickupGroup.create(safeX, safeY, key).setOrigin(0.5, 1).setDisplaySize(38 * OBJECT_SCALE, 38 * OBJECT_SCALE);
       pickup.kind = kind; pickup.value = value;
       
-      // Hitbox aumentata (64x54) per garantire una presa immediata ed estesa
-      pickup.body.setSize(64, 54).setOffset(-12, -10);
+      pickup.body.setSize(84, 72).setOffset(-23, -18);
       this.tweens.add({ targets: pickup, y: safeY - 8, duration: 430, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
+
+    collectNearbyPickups() {
+      this.pickupGroup.getChildren().forEach(pickup => {
+        if (!pickup.active || pickup.collecting) return;
+        if (Math.abs(this.player.x - pickup.x) <= 90 && Math.abs(this.player.y - pickup.y) <= 72) {
+          this.collectPickup(this.player, pickup);
+        }
+      });
     }
 
     collectPickup(_player, pickup) {
       if (!pickup.active) return;
+      pickup.collecting = true;
       playSfx('assets/audio/sfx_pickup.mp3');
+      let feedback;
       if (pickup.kind === 'life') {
         const healValue = pickup.value * (this.playerStats.healMult || 1.0);
         this.hp = Math.min(100, this.hp + healValue);
+        feedback = `+${Math.round(healValue)} HP`;
       } else {
         this.score += pickup.value;
+        feedback = `+${pickup.value}`;
       }
+      const text = this.add.text(pickup.x, pickup.y - 38, feedback, { fontFamily: 'monospace', fontSize: '16px', color: pickup.kind === 'life' ? '#55ff88' : '#ffea00', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setDepth(12000);
+      this.tweens.add({ targets: text, y: text.y - 24, alpha: 0, duration: 420, onComplete: () => text.destroy() });
       pickup.destroy(); this.refreshHud();
     }
 
