@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#060212">
-<title>Pixel Punch - Revision Killer - Agency Arcade</title>
+<title>Pixel Punch - Agency Arcade</title>
+
+<!-- Framework Phaser 3 per il motore isolato -->
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 
 <!-- SDK Supabase per salvataggio Cloud -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,7 +17,6 @@
 <script src="arcadeGameShell.js"></script>
 
 <link rel="stylesheet" href="arcadeGame.css">
-
 <link rel="stylesheet" href="PixelPunch.css">
 </head>
 <body>
@@ -30,7 +32,8 @@
   </div>
 
   <div id="canvas-container">
-    <canvas id="game"></canvas>
+    <!-- Contenitore di aggancio per Phaser 3 -->
+    <div id="pixel-punch-v2"></div>
   </div>
 
   <!-- MODALE OPZIONI PRINCIPALE -->
@@ -64,24 +67,22 @@
       <div class="modal-title">📖 REGOLE DI GIOCO</div>
 
       <div class="info-card" style="border-color:#ff0055;">
-        <h4 style="color:#ff0055;">1. EVITA IL BURNOUT!</h4>
-        <p>• Colpisci i ticket prima che scadano.</p>
-        <p>• Ogni errore o ritardo alza lo STRESS.</p>
-        <p style="color:#ffea00; font-weight:900;">• Al 100% di Stress il server va in CRASH!</p>
+        <h4 style="color:#ff0055;">1. LA MISSIONE</h4>
+        <p>• Sconfiggi gli ostacoli lungo i 5 scenari di Torino.</p>
+        <p>• Consegna il master finale entro la mezzanotte.</p>
       </div>
 
       <div class="info-card" style="border-color:#00ffff;">
-        <h4 style="color:#00ffff;">2. TIPOLOGIE DI TICKET</h4>
-        <p>• <span style="color:#ff0055; font-weight:900;">🔴 ROSSI</span> (1 Tap): +100 PTS</p>
-        <p>• <span style="color:#d000ff; font-weight:900;">🟣 VIOLA</span> (2 Tap): +250 PTS</p>
-        <p>• <span style="color:#ffea00; font-weight:900;">☕ CAFFÈ</span> / <span style="color:#ffea00; font-weight:900;">🌟 VIP</span>: +300/500 PTS & -STRESS</p>
-        <p>• <span style="color:#00ffff; font-weight:900;">🌴 FERIE</span>: Pausa e -20% STRESS</p>
+        <h4 style="color:#00ffff;">2. CONTROLLI</h4>
+        <p>• <span style="color:#00ffff; font-weight:900;">JOYSTICK / WASD</span>: Movimento 8 direzioni.</p>
+        <p>• <span style="color:#ff3e91; font-weight:900;">ATTACCO (A / J)</span>: Colpo base concatenabile.</p>
+        <p>• <span style="color:#ffea00; font-weight:900;">SPECIALE (B / K)</span>: Attacco devastante ad area.</p>
+        <p>• <span style="color:#00ff66; font-weight:900;">PARATA (L)</span>: Riduce/annulla i danni subiti.</p>
       </div>
 
-      <div class="info-card" style="border-color:#ff0055;">
-        <h4 style="color:#ff0055;">3. TRAPPOLE DA EVITARE!</h4>
-        <p>• <span style="color:#00ff66; font-weight:900;">🟢 VERDE</span> (APPROVATO) & <span style="color:#ff0055; font-weight:900;">🖤 NERO</span> (CORROTTO)</p>
-        <p style="color:#ff0055; font-weight:900;">NON TOCARLI: +12% STRESS!</p>
+      <div class="info-card" style="border-color:#ffea00;">
+        <h4 style="color:#ffea00;">3. OGGETTI & CIBO</h4>
+        <p>• Distruggi casse e oggetti per trovare snack rigenerativi e punti extra.</p>
       </div>
 
       <button class="close-modal-btn" id="btnCloseRules">◄ TORNA ALLE OPZIONI</button>
@@ -93,26 +94,22 @@
     <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
       <div class="modal-title">⚡ BONUS & MALUS PRODUCER</div>
 
+      <div class="info-card" style="border-color:#ff3e91;">
+        <h4 style="color:#ff3e91;">⚡ CRISTINA - Leader Agile</h4>
+        <p>• <span style="color:#00ff66; font-weight:900;">BONUS:</span> +20% Velocità | -20% Cooldown Speciale</p>
+        <p>• <span style="color:#ff0055; font-weight:900;">MALUS:</span> -15% Danno Attacco Base</p>
+      </div>
+
       <div class="info-card" style="border-color:#00ffff;">
-        <h4 style="color:#00ffff;">🎨 IRIS - AI Specialist</h4>
-        <p>• <span style="color:#ffea00; font-weight:900;">PERK:</span> AUTO-FIX AI</p>
-        <p>• Risoluzione automatica ticket casuali.</p>
-        <p>• Pausa Ferie: 7 Secondi | Moltiplicatore: x1.0</p>
+        <h4 style="color:#00ffff;">🥊 IRIS - Brawler Heavy</h4>
+        <p>• <span style="color:#00ff66; font-weight:900;">BONUS:</span> +25% Danno Base | -20% Danni Subiti</p>
+        <p>• <span style="color:#ff0055; font-weight:900;">MALUS:</span> -15% Velocità di Movimento</p>
       </div>
 
       <div class="info-card" style="border-color:#ffea00;">
-        <h4 style="color:#ffea00;">🎨 CRISTINA - Senior Exec</h4>
-        <p>• <span style="color:#ffea00; font-weight:900;">PERK:</span> DOUBLE ESPRESSO</p>
-        <p>• Punti Caffè raddoppiati (600 PTS).</p>
-        <p>• Nessuna penalità sui ticket Approvati.</p>
-        <p>• Pausa Ferie: 10s | Moltiplicatore: x1.15</p>
-      </div>
-
-      <div class="info-card" style="border-color:#ff0055;">
-        <h4 style="color:#ff0055;">🎨 RACHELE - Lead Producer</h4>
-        <p>• <span style="color:#ffea00; font-weight:900;">PERK:</span> VACATION RUSH</p>
-        <p>• Combo Boost ad ogni colpo a segno.</p>
-        <p>• Super Pausa Ferie: 15 Secondi | Moltiplicatore: x1.25</p>
+        <h4 style="color:#ffea00;">🍕 RACHELE - Tactical Producer</h4>
+        <p>• <span style="color:#00ff66; font-weight:900;">BONUS:</span> +50% Cibo Recuperato | +10% Danno Base</p>
+        <p>• <span style="color:#ff0055; font-weight:900;">MALUS:</span> +20% Danni Subiti</p>
       </div>
 
       <button class="close-modal-btn" id="btnClosePerks">◄ TORNA ALLE OPZIONI</button>
@@ -120,6 +117,7 @@
   </div>
 </div>
 
-<script src="PixelPunch.js"></script>
+<!-- CARICA IL NUOVO MOTORE ISOLATO MODIFICATO -->
+<script src="PixelPunchEngine.js"></script>
 </body>
 </html>
