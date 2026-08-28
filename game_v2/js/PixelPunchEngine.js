@@ -152,7 +152,7 @@
     {
       title: 'CAPITOLO 1 — LA SCADENZA',
       subtitle: 'VENERDÌ ORE 19:00',
-      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del pitch della vita.\n\nLa campagna da un milione di euro che salverà la piccola agenzia indipendente dal fallimento e dalla vendita alla multinazionale "Corporate Global" è pronta per l\'esportazione.'
+      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per l\'esportazione.'
     },
     {
       title: 'CAPITOLO 2 — IL SABOTAGGIO',
@@ -162,7 +162,7 @@
     {
       title: 'CAPITOLO 3 — LA MISSIONE',
       subtitle: 'PITCH OR DIE',
-      text: 'Le tre Producer Cristina, Iris e Rache devono farsi strada a colpi di tastiera, ciak e caffè bollente.\n\nSgombera ogni area, sconfiggi i Boss di settore e consegna il pitch entro la mezzanotte!'
+      text: 'Le tre Producers Cristina, Iris e Rachele devono farsi strada a colpi di tastiera, ciak e caffè bollente.\n\nSgombera ogni area, sconfiggi i Boss di settore e consegna il .def entro la mezzanotte!'
     }
   ];
 
@@ -363,11 +363,11 @@
       this.addTitle('REGOLE DI GIOCO', '#00f0ff');
       
       const rules = [
-        ['JOYSTICK','Muovi la Producer in tutte le direzioni.\nDa tastiera: frecce oppure WASD.'],
-        ['PULSANTE A','Attacco base e combo.\nDa tastiera: J.'],
-        ['PULSANTE B','Attacco speciale ad area.\nDa tastiera: K.'],
-        ['PULSANTE P','Attiva o disattiva la parata.\nDa tastiera: L.'],
-        ['PAUSA','Usa PAUSA in alto nel gioco.\nCompleta ogni ondata per avanzare.']
+        ['JOYSTICK','Muovi la Producer in tutte le direzioni.'],
+        ['PULSANTE A','Attacco base e combo.'],
+        ['PULSANTE B','Attacco speciale ad area'],
+        ['PULSANTE P','Attiva o disattiva la parata'],
+        ['PAUSA','Usa PAUSA in alto nel gioco.']
       ];
       
       rules.forEach((rule, i) => { 
