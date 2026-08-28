@@ -150,17 +150,17 @@
   
   const STORY_PAGES = [
     {
-      title: 'CAPITOLO 1 — LA SCADENZA',
+      title: 'LA SCADENZA',
       subtitle: 'VENERDÌ ORE 19:00',
       text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per l\'esportazione.'
     },
     {
-      title: 'CAPITOLO 2 — IL SABOTAGGIO',
+      title: 'IL SABOTAGGIO',
       subtitle: 'ATTACCO SU TUTTI I FRONTI',
       text: 'Qualcuno ha piazzato trappole e ostacoli lungo l\'intera filiera!\n\nAccount spietati, troupe impazzite, controllori e rider spericolati hanno sbarrato le strade di Torino per impedire che l\'Hard Drive con il master finale arrivi a destinazione.'
     },
     {
-      title: 'CAPITOLO 3 — LA MISSIONE',
+      title: 'LA MISSIONE',
       subtitle: 'PITCH OR DIE',
       text: 'Le tre Producers Cristina, Iris e Rachele devono farsi strada a colpi di tastiera, ciak e caffè bollente.\n\nSgombera ogni area, sconfiggi i Boss di settore e consegna il .def entro la mezzanotte!'
     }
