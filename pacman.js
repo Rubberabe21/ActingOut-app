@@ -766,10 +766,12 @@ function selectBoss(bossKey) {
 }
 
 let map = [], blockData = [], bombs = [], explosions = [], powerups = [], enemies = [];
+const STORY_DROP_GUARANTEE_AFTER = 5;
+let storyBlocksWithoutDrop = 0;
 let player = { x: 1.5 * CELL_SIZE, y: 1.5 * CELL_SIZE, w: 12, h: 12, maxBombs: 1, bombRange: 1, speed: 2.1, isMoving: false, facingLeft: false, invTimer: 0 };
 
 function startGame() {
-  deleteStorySave(); scoreSavedForCurrentGame = false; score = 0; lives = 3; level = 1; currentEraIndex = 1;
+  deleteStorySave(); scoreSavedForCurrentGame = false; score = 0; lives = 3; level = 1; currentEraIndex = 1; storyBlocksWithoutDrop = 0;
   loadLevel(); state = 'ERA_INTRO';
 }
 
@@ -847,12 +849,14 @@ function triggerExplosion(b) {
           blk.currentHp--;
           if (blk.currentHp <= 0) {
             map[cgy][cgx] = 0; blockData[cgy][cgx] = null; score += Math.floor(blk.pts * currentBoss.scoreMult);
-            if (Math.random() < blk.dropChance) {
+            const guaranteedDrop = storyBlocksWithoutDrop >= STORY_DROP_GUARANTEE_AFTER;
+            if (guaranteedDrop || Math.random() < blk.dropChance) {
+              storyBlocksWithoutDrop = 0;
               let types = ['BOMB_UP', 'FIRE_UP', 'SPEED_UP', 'COFFEE', 'COMMAND_Z'], weights = [0.25, 0.25, 0.20, 0.20, 0.10];
               let rand = Math.random(), sum = 0, picked = types[0];
               for (let t = 0; t < types.length; t++) { sum += weights[t]; if (rand < sum) { picked = types[t]; break; } }
               powerups.push({ gx: cgx, gy: cgy, type: picked });
-            }
+            } else storyBlocksWithoutDrop++;
           } else playSound('hit_block');
         }
         break;
