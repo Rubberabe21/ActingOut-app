@@ -245,6 +245,25 @@
   .info-card p:last-child {
     margin-bottom: 0;
   }
+  #rulesModal .modal-box {
+    max-width: 440px;
+    gap: 14px;
+  }
+  #rulesModal .modal-title {
+    font-size: 23px;
+  }
+  #rulesModal .info-card {
+    padding: 14px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  #rulesModal .info-card h4 {
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+  #rulesModal .close-modal-btn {
+    font-size: 15px;
+  }
   @media (max-width: 380px), (max-height: 700px) {
     #canvas-container { width: min(100%, calc(100svh - 206px)); }
     .control-deck { min-height: 164px; padding: 8px 10px; gap: 8px; }

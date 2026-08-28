@@ -5,6 +5,22 @@
   // Usa il mixer condiviso: BGM 0,35 e SFX 0,85, come negli altri giochi.
   const AudioManager = window.AudioManager;
 
+  async function savePixelPunchScore(score) {
+    if (!window.ArcadeScoreManager || score <= 0) return;
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('arcade_current_user'));
+      if (!currentUser) return;
+      await ArcadeScoreManager.saveGameScore({
+        client: typeof supabaseClient === 'undefined' ? null : supabaseClient,
+        currentUser,
+        gameKey: 'pixelPunch',
+        score
+      });
+    } catch (error) {
+      console.warn('[PixelPunch] Salvataggio punteggio non riuscito:', error);
+    }
+  }
+
   function playSfx(path) {
     if (!AudioManager || AudioManager.isSFXMuted()) return;
     const context = AudioManager.getContext();
@@ -299,13 +315,13 @@
     
     addTitle(title, color = '#ffea00') { 
       this.pageObjects.add(this.add.text(W / 2, 28, title, { 
-        fontFamily: 'monospace', fontSize: '30px', color, fontStyle: 'bold', stroke: '#000000', strokeThickness: 5
+        fontFamily: 'monospace', fontSize: '34px', color, fontStyle: 'bold', stroke: '#000000', strokeThickness: 5
       }).setOrigin(0.5)); 
     }
 
     addContinue(label = 'PREMI A PER CONTINUARE ►') {
       const text = this.add.text(W / 2, H - 22, label, { 
-        fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4
+        fontFamily: 'monospace', fontSize: '20px', color: '#00ffcc', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4
       }).setOrigin(0.5);
       this.tweens.add({ targets: text, alpha: 0.35, duration: 520, yoyo: true, repeat: -1 }); 
       this.pageObjects.add(text);
@@ -330,11 +346,11 @@
       const s = STORY_PAGES[this.storyPageIndex];
       this.addTitle(s.title);
 
-      const panel = this.add.rectangle(W / 2, 250, W - 40, 360, 0x140a28, 0.98).setStrokeStyle(3, 0xff3e91);
-      const subtitle = this.add.text(W / 2, 100, s.subtitle, { fontFamily: 'monospace', fontSize: '16px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5);
-      const copy = this.add.text(W / 2, 240, s.text, { fontFamily: 'sans-serif', fontSize: '15px', color: '#ffffff', align: 'center', lineSpacing: 8, wordWrap: { width: W - 80 } }).setOrigin(0.5);
+      const panel = this.add.rectangle(W / 2, 250, W - 30, 386, 0x140a28, 0.98).setStrokeStyle(4, 0xff3e91);
+      const subtitle = this.add.text(W / 2, 100, s.subtitle, { fontFamily: 'monospace', fontSize: '20px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5);
+      const copy = this.add.text(W / 2, 240, s.text, { fontFamily: 'sans-serif', fontSize: '18px', color: '#ffffff', align: 'center', lineSpacing: 9, wordWrap: { width: W - 68 } }).setOrigin(0.5);
       
-      const pageIndicator = this.add.text(W / 2, 400, `PAGINA ${this.storyPageIndex + 1} DI ${STORY_PAGES.length}`, { fontFamily: 'monospace', fontSize: '13px', color: '#ffea00', fontStyle: 'bold' }).setOrigin(0.5);
+      const pageIndicator = this.add.text(W / 2, 420, `PAGINA ${this.storyPageIndex + 1} DI ${STORY_PAGES.length}`, { fontFamily: 'monospace', fontSize: '16px', color: '#ffea00', fontStyle: 'bold' }).setOrigin(0.5);
 
       this.pageObjects.add([panel, subtitle, copy, pageIndicator]); 
       this.addContinue(this.storyPageIndex < STORY_PAGES.length - 1 ? 'PREMI A PER PAGINA SUCCESSIVA ►' : 'PREMI A PER REGOLE DI GIOCO ►');
@@ -347,18 +363,18 @@
       this.addTitle('REGOLE DI GIOCO', '#00f0ff');
       
       const rules = [
-        ['01. MUOVITI','Joystick o WASD: cammina in 8 direzioni.'],
-        ['02. COMBO','A o J: attacco normale concatenabile.'],
-        ['03. SPECIALE E PARATA','B/K: speciale. Tocca P/L per parata.'],
-        ['04. LOCK & PAUSA','Completa le ondate. Tocca PAUSA per fermare.'],
-        ['05. SOPRAVVIVI','Raccogli punti e cibo per recuperare HP.']
+        ['JOYSTICK','Muovi la Producer in tutte le direzioni.\nDa tastiera: frecce oppure WASD.'],
+        ['PULSANTE A','Attacco base e combo.\nDa tastiera: J.'],
+        ['PULSANTE B','Attacco speciale ad area.\nDa tastiera: K.'],
+        ['PULSANTE P','Attiva o disattiva la parata.\nDa tastiera: L.'],
+        ['PAUSA','Usa PAUSA in alto nel gioco.\nCompleta ogni ondata per avanzare.']
       ];
       
       rules.forEach((rule, i) => { 
-        const y = 78 + i * 72, color = ['#ffea00','#ff3e91','#a260ff','#00f0ff','#00ff99'][i];
-        const box = this.add.rectangle(W / 2, y, W - 40, 60, 0x111027, 1).setStrokeStyle(2, Phaser.Display.Color.HexStringToColor(color).color);
-        const title = this.add.text(32, y - 18, rule[0], { fontFamily: 'monospace', fontSize: '13px', color, fontStyle: 'bold' });
-        const copy = this.add.text(32, y + 2, rule[1], { fontFamily: 'sans-serif', fontSize: '12px', color: '#ffffff', wordWrap: { width: W - 64 } });
+        const y = 94 + i * 75, color = ['#ffea00','#ff3e91','#a260ff','#00f0ff','#00ff99'][i];
+        const box = this.add.rectangle(W / 2, y, W - 34, 66, 0x111027, 1).setStrokeStyle(3, Phaser.Display.Color.HexStringToColor(color).color);
+        const title = this.add.text(32, y - 25, rule[0], { fontFamily: 'monospace', fontSize: '18px', color, fontStyle: 'bold' });
+        const copy = this.add.text(32, y - 2, rule[1], { fontFamily: 'sans-serif', fontSize: '15px', color: '#ffffff', lineSpacing: 2, wordWrap: { width: W - 64 } });
         this.pageObjects.add([box, title, copy]); 
       });
 
@@ -378,40 +394,40 @@
       this.pageObjects.add(selectTitle);
 
       // Card contenitore principale
-      const cardBg = this.add.rectangle(W / 2, 266, W - 28, 426, 0x0f0821, 0.98).setStrokeStyle(3, p.color);
+      const cardBg = this.add.rectangle(W / 2, 266, W - 32, 420, 0x0f0821, 0.98).setStrokeStyle(3, p.color);
 
-      // Il ritratto è il protagonista della schermata di scelta.
-      const glow = this.add.ellipse(W / 2, 135, 330, 190, p.color, 0.3);
-      const portrait = fitImage(this.add.image(W / 2, 135, `${p.key}_select`), 310, 170);
+      // Ritratto grande ma con respiro sufficiente per testi e pulsanti.
+      const glow = this.add.ellipse(W / 2, 122, 286, 150, p.color, 0.3);
+      const portrait = fitImage(this.add.image(W / 2, 122, `${p.key}_select`), 270, 148);
       this.tweens.add({ targets: glow, alpha: 0.6, scaleX: 1.15, scaleY: 1.15, duration: 800, yoyo: true, repeat: -1 });
 
-      const nameText = this.add.text(W / 2, 225, p.label, { fontFamily: 'monospace', fontSize: '32px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 }).setOrigin(0.5);
-      const roleText = this.add.text(W / 2, 257, p.role, { fontFamily: 'monospace', fontSize: '17px', color: '#ffea00', fontStyle: 'bold' }).setOrigin(0.5);
+      const nameText = this.add.text(W / 2, 208, p.label, { fontFamily: 'monospace', fontSize: '30px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 }).setOrigin(0.5);
+      const roleText = this.add.text(W / 2, 239, p.role, { fontFamily: 'monospace', fontSize: '16px', color: '#ffea00', fontStyle: 'bold' }).setOrigin(0.5);
 
-      const bioText = this.add.text(W / 2, 278, p.bio, { fontFamily: 'sans-serif', fontSize: '14px', color: '#dddddd', align: 'center', wordWrap: { width: W - 70 }, lineSpacing: 3 }).setOrigin(0.5, 0);
+      const bioText = this.add.text(W / 2, 262, p.bio, { fontFamily: 'sans-serif', fontSize: '13px', color: '#dddddd', align: 'center', wordWrap: { width: W - 82 }, lineSpacing: 3 }).setOrigin(0.5, 0);
 
-      const bonusBox = this.add.rectangle(W / 2, 360, W - 48, 58, 0x0a2416, 0.95).setStrokeStyle(2, 0x00ff88);
-      const bonusTitle = this.add.text(38, 337, 'BONUS', { fontFamily: 'monospace', fontSize: '16px', color: '#00ff88', fontStyle: 'bold' });
-      const bonusDetail = this.add.text(38, 357, p.bonus, { fontFamily: 'sans-serif', fontSize: '14px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
+      const bonusBox = this.add.rectangle(W / 2, 350, W - 58, 62, 0x0a2416, 0.95).setStrokeStyle(2, 0x00ff88);
+      const bonusTitle = this.add.text(44, 323, 'BONUS', { fontFamily: 'monospace', fontSize: '15px', color: '#00ff88', fontStyle: 'bold' });
+      const bonusDetail = this.add.text(44, 344, p.bonus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
 
-      const malusBox = this.add.rectangle(W / 2, 431, W - 48, 50, 0x2b0d14, 0.95).setStrokeStyle(2, 0xff4466);
-      const malusTitle = this.add.text(38, 410, 'MALUS', { fontFamily: 'monospace', fontSize: '16px', color: '#ff4466', fontStyle: 'bold' });
-      const malusDetail = this.add.text(38, 430, p.malus, { fontFamily: 'sans-serif', fontSize: '14px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
+      const malusBox = this.add.rectangle(W / 2, 423, W - 58, 54, 0x2b0d14, 0.95).setStrokeStyle(2, 0xff4466);
+      const malusTitle = this.add.text(44, 400, 'MALUS', { fontFamily: 'monospace', fontSize: '15px', color: '#ff4466', fontStyle: 'bold' });
+      const malusDetail = this.add.text(44, 420, p.malus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
 
       // Frecce tattili grandi di selezione laterale
-      const prevBtn = this.add.text(28, 135, '◀', { fontFamily: 'monospace', fontSize: '48px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const prevBtn = this.add.text(25, 122, '◀', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       prevBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex - 1));
 
-      const nextBtn = this.add.text(W - 28, 135, '▶', { fontFamily: 'monospace', fontSize: '48px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const nextBtn = this.add.text(W - 25, 122, '▶', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       nextBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex + 1));
 
       // Indicatori a pallino
       const dotsText = PLAYERS.map((_, i) => i === this.charSelectIndex ? '●' : '○').join('   ');
-      const dots = this.add.text(W / 2, 470, dotsText, { fontFamily: 'monospace', fontSize: '20px', color: '#00ffcc' }).setOrigin(0.5);
+      const dots = this.add.text(W / 2, 461, dotsText, { fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc' }).setOrigin(0.5);
 
       // Bottone Conferma Ingrandito
-      const selectBtn = this.add.rectangle(W / 2, H - 25, W - 48, 40, 0x7028aa, 1).setStrokeStyle(3, 0xffea00).setInteractive({ useHandCursor: true });
-      const selectBtnText = this.add.text(W / 2, H - 25, `SCEGLI ${p.label} (PREMI A) ►`, { fontFamily: 'monospace', fontSize: '17px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+      const selectBtn = this.add.rectangle(W / 2, H - 24, W - 52, 38, 0x7028aa, 1).setStrokeStyle(3, 0xffea00).setInteractive({ useHandCursor: true });
+      const selectBtnText = this.add.text(W / 2, H - 24, `SCEGLI ${p.label} (PREMI A) ►`, { fontFamily: 'monospace', fontSize: '16px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
       
       selectBtn.on('pointerdown', () => {
         playSfx('assets/audio/sfx_select.mp3');
@@ -448,6 +464,7 @@
 
     handleAction(action) { 
       if (action === 'menu') this.showCover(); 
+      else if (action === 'exit') window.location.href = 'index.html';
       else if (action === 'story') this.showStory(0); 
       else if (action === 'rules') this.showRules(); 
       else if (action === 'attack' || action === 'special') this.advance(); 
@@ -466,16 +483,19 @@
     create() {
       const story = SCENARIO_STORIES[this.stage - 1];
       this.cameras.main.setBackgroundColor('#080412');
-      this.add.rectangle(W / 2, H / 2, W - 34, H - 34, 0x120923, 1).setStrokeStyle(3, 0xff3e91);
-      this.add.text(W / 2, 48, `THE FINAL PITCH  •  ${this.stage}/5`, { fontFamily: 'monospace', fontSize: '15px', color: '#ffea00', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5);
-      this.add.text(W / 2, 100, story.title, { fontFamily: 'monospace', fontSize: '18px', color: '#00f0ff', fontStyle: 'bold', align: 'center', wordWrap: { width: W - 70 }, stroke: '#000', strokeThickness: 3 }).setOrigin(0.5);
-      this.add.text(W / 2, 148, story.subtitle, { fontFamily: 'monospace', fontSize: '14px', color: '#ff3e91', fontStyle: 'bold' }).setOrigin(0.5);
-      this.add.text(W / 2, 280, story.text, { fontFamily: 'sans-serif', fontSize: '14px', color: '#ffffff', align: 'center', lineSpacing: 6, wordWrap: { width: W - 80 } }).setOrigin(0.5);
-      const prompt = this.add.text(W / 2, H - 44, 'PREMI A — INIZIA SCENARIO ►', { fontFamily: 'monospace', fontSize: '14px', color: '#00ffcc', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5);
+      this.add.rectangle(W / 2, H / 2, W, H, 0x04010b, 0.88);
+      const glow = this.add.rectangle(W / 2, H / 2, W - 38, H - 54, 0x35115b, 0.26).setStrokeStyle(5, 0xff3e91);
+      this.tweens.add({ targets: glow, alpha: 0.5, duration: 720, yoyo: true, repeat: -1 });
+      this.add.text(W / 2, 58, `SCENARIO ${this.stage} DI 5`, { fontFamily: 'monospace', fontSize: '23px', color: '#ffea00', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5);
+      this.add.text(W / 2, 118, story.title, { fontFamily: 'monospace', fontSize: '27px', color: '#00f0ff', fontStyle: 'bold', align: 'center', wordWrap: { width: W - 64 }, stroke: '#000', strokeThickness: 4 }).setOrigin(0.5);
+      this.add.text(W / 2, 174, story.subtitle, { fontFamily: 'monospace', fontSize: '19px', color: '#ff3e91', fontStyle: 'bold', align: 'center', wordWrap: { width: W - 72 } }).setOrigin(0.5);
+      this.add.text(W / 2, 300, story.text, { fontFamily: 'sans-serif', fontSize: '18px', color: '#ffffff', align: 'center', lineSpacing: 8, wordWrap: { width: W - 76 } }).setOrigin(0.5);
+      const prompt = this.add.text(W / 2, H - 48, 'TOCCA A O B PER INIZIARE ►', { fontFamily: 'monospace', fontSize: '19px', color: '#00ffcc', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5);
       this.tweens.add({ targets: prompt, alpha: 0.35, duration: 520, yoyo: true, repeat: -1 });
       this.started = false;
       this.actionHandler = event => {
         if (event.detail === 'menu') this.scene.start('SelectScene');
+        else if (event.detail === 'exit') window.location.href = 'index.html';
         else if (event.detail === 'attack' || event.detail === 'special') this.startScenario();
       };
       window.addEventListener('pixelpunch-action', this.actionHandler);
@@ -515,6 +535,7 @@
       this.comboStep = 0;
       this.comboExpires = 0;
       this.specialReadyAt = 0;
+      this.scoreSaved = false;
     }
 
     preload() {
@@ -757,11 +778,28 @@
       else if (action === 'guard-toggle') this.toggleGuard();
       else if (action === 'pause') this.pauseGame();
       else if (action === 'resume') this.resumeGame();
-      else if (action === 'menu') { this.stopGuard(); this.scene.start('SelectScene'); }
+      else if (action === 'menu') this.returnToMenu();
+      else if (action === 'exit') this.exitToHub();
       else if (action === 'story' || action === 'rules') {
         this.registry.set('pixelPunchMenuPage', action);
         this.scene.start('SelectScene');
       }
+    }
+
+    async saveScore() {
+      if (this.scoreSaved) return;
+      this.scoreSaved = true;
+      await savePixelPunchScore(this.score);
+    }
+
+    returnToMenu() {
+      this.stopGuard();
+      this.saveScore().finally(() => this.scene.start('SelectScene'));
+    }
+
+    exitToHub() {
+      this.stopGuard();
+      this.saveScore().finally(() => { window.location.href = 'index.html'; });
     }
 
     update(time) {
@@ -1118,6 +1156,7 @@
     }
 
     showFinalVictory() {
+      this.saveScore();
       playSfx('assets/audio/sfx_win.mp3');
       this.cameras.main.setScroll(0, 0);
       const panel = this.add.rectangle(W / 2, H / 2, 320, 250, 0x080412, 0.96).setScrollFactor(0).setDepth(13001).setStrokeStyle(3, 0xffd43b);
@@ -1129,6 +1168,7 @@
 
     gameOver() {
       this.stageEnded = true; this.player.setVelocity(0); this.player.play(`${this.character}_ko`, true);
+      this.saveScore();
       playSfx('assets/audio/sfx_gameover.mp3');
       const shade = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.72).setScrollFactor(0).setDepth(12500);
       const over = fitImage(this.add.image(W / 2, 210, 'gameover'), W * 0.7, H * 0.24).setScrollFactor(0).setDepth(12501);

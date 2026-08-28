@@ -77,23 +77,25 @@
     <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
       <div class="modal-title">📖 REGOLE DI GIOCO</div>
 
-      <div class="info-card" style="border-color:#ff0055;">
-        <h4 style="color:#ff0055;">1. LA MISSIONE</h4>
-        <p>• Sconfiggi gli ostacoli lungo i 5 scenari di Torino.</p>
-        <p>• Consegna il master finale entro la mezzanotte.</p>
+      <div class="info-card" style="border-color:#00ffff;">
+        <h4 style="color:#00ffff;">MUOVITI</h4>
+        <p><span style="color:#00ffff; font-weight:900;">JOYSTICK</span>: muovi la Producer in tutte le direzioni.</p>
+        <p>Su computer: usa <span style="font-weight:900;">FRECCE oppure WASD</span>.</p>
       </div>
 
-      <div class="info-card" style="border-color:#00ffff;">
-        <h4 style="color:#00ffff;">2. CONTROLLI</h4>
-        <p>• <span style="color:#00ffff; font-weight:900;">JOYSTICK / WASD</span>: Movimento 8 direzioni.</p>
-        <p>• <span style="color:#ff3e91; font-weight:900;">ATTACCO (A / J)</span>: Colpo base concatenabile.</p>
-        <p>• <span style="color:#ffea00; font-weight:900;">SPECIALE (B / K)</span>: Attacco devastante ad area.</p>
-        <p>• <span style="color:#00ff66; font-weight:900;">PARATA (L)</span>: Riduce/annulla i danni subiti.</p>
+      <div class="info-card" style="border-color:#ff3e91;">
+        <h4 style="color:#ff3e91;">PULSANTE A — ATTACCO</h4>
+        <p>Colpo base e combo. Su tastiera: <span style="font-weight:900;">J</span>.</p>
       </div>
 
       <div class="info-card" style="border-color:#ffea00;">
-        <h4 style="color:#ffea00;">3. OGGETTI & CIBO</h4>
-        <p>• Distruggi casse e oggetti per trovare snack rigenerativi e punti extra.</p>
+        <h4 style="color:#ffea00;">PULSANTE B — SPECIALE</h4>
+        <p>Attacco devastante ad area. Su tastiera: <span style="font-weight:900;">K</span>.</p>
+      </div>
+
+      <div class="info-card" style="border-color:#00ff66;">
+        <h4 style="color:#00ff66;">PULSANTE P — PARATA</h4>
+        <p>Attiva o disattiva la difesa. Su tastiera: <span style="font-weight:900;">L</span>.</p>
       </div>
 
       <button class="close-modal-btn" id="btnCloseRules">◄ TORNA ALLE OPZIONI</button>
@@ -204,6 +206,8 @@
       renderAudioOptions();
       ArcadeGameShell.showModal(settingsModal);
     };
+    document.getElementById('btnMenuTop').onclick = () => action('menu');
+    document.getElementById('btnExitTop').onclick = () => action('exit');
     document.getElementById('btnCloseSettings').onclick = () => ArcadeGameShell.hideModal(settingsModal);
     ArcadeGameShell.bindModalTransition(document.getElementById('btnOpenRules'), settingsModal, rulesModal);
     ArcadeGameShell.bindModalTransition(document.getElementById('btnCloseRules'), rulesModal, settingsModal);
