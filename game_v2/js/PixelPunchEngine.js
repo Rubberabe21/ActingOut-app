@@ -536,6 +536,7 @@
       this.comboExpires = 0;
       this.specialReadyAt = 0;
       this.scoreSaved = false;
+      this.bossHazards = [];
     }
 
     preload() {
@@ -802,12 +803,13 @@
       this.saveScore().finally(() => { window.location.href = 'index.html'; });
     }
 
-    update(time) {
+    update(time, delta) {
       if (this.stageEnded || this.isPausedState) return;
       this.updatePlayerMovement();
       this.collectNearbyPickups();
       this.updateArena();
       this.updateEnemies(time);
+      this.updateBossHazards(time, delta);
       this.updateDepths();
       this.updateCooldown(time);
       this.refreshHud();
@@ -913,7 +915,8 @@
       boss.setDepth(boss.y);
       boss.hp = 200 + this.stage * 50; boss.maxHp = boss.hp; boss.damage = 18 + this.stage * 3;
       boss.speed = 55 + this.stage * 3;
-      boss.nextAttack = 0; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
+      boss.nextAttack = this.time.now + 1250; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
+      boss.pattern = this.stage;
       boss.body.setSize(40, 20).setOffset(44, 108);
       this.bindActorAnimationEvents(boss, `boss_${this.stage}`, 17);
       boss.play(`boss_${this.stage}_idle`);
@@ -921,11 +924,17 @@
       
       this.bossBarBack = this.add.rectangle(W / 2, 74, W * 0.72, 12, 0x25091b).setScrollFactor(0).setDepth(10001);
       this.bossBar = this.add.rectangle(W * 0.14, 74, W * 0.72 - 4, 8, 0xc53cff).setOrigin(0, 0.5).setScrollFactor(0).setDepth(10002);
+      this.showBossCallout(['BRIEF BOMB', 'CIACK! CAMBIO CORSIA', 'TAXI DRIFT', 'SCOPE CREEP', 'FINAL PITCH'][this.stage - 1]);
     }
 
     updateEnemies(time) {
       this.enemies.getChildren().forEach(enemy => {
         if (!enemy.active || enemy.stateLocked) return;
+        if (enemy.isBoss) {
+          this.updateBoss(enemy, time);
+          if (this.bossBar) this.bossBar.width = (W * 0.72 - 4) * Math.max(0, enemy.hp / enemy.maxHp);
+          return;
+        }
         const dx = this.player.x - enemy.x, dy = this.player.y - enemy.y;
         const sameLane = Math.abs(dy) < 34;
         const distance = Math.abs(dx);
@@ -939,8 +948,113 @@
           enemy.setVelocity(v.x * enemy.speed, v.y * enemy.speed * 0.7);
           this.playActorAnim(enemy, 'walk', true);
         }
-        if (enemy.isBoss && this.bossBar) this.bossBar.width = (W * 0.72 - 4) * Math.max(0, enemy.hp / enemy.maxHp);
       });
+    }
+
+    updateBoss(boss, time) {
+      const dx = this.player.x - boss.x;
+      const dy = this.player.y - boss.y;
+      boss.facing = dx < 0 ? -1 : 1;
+      boss.setFlipX(boss.facing < 0);
+      if (Math.abs(dx) > 120 || Math.abs(dy) > 42) {
+        const v = new Phaser.Math.Vector2(dx, dy * 1.15).normalize();
+        boss.setVelocity(v.x * boss.speed, v.y * boss.speed * 0.68);
+        this.playActorAnim(boss, 'walk', true);
+      } else {
+        boss.setVelocity(0);
+        this.playActorAnim(boss, 'idle', true);
+      }
+      if (time >= boss.nextAttack) this.triggerBossPattern(boss, time);
+    }
+
+    showBossCallout(label) {
+      const text = this.add.text(W / 2, 108, label, {
+        fontFamily: 'monospace', fontSize: '22px', color: '#ffea00', fontStyle: 'bold',
+        backgroundColor: '#21072f', padding: { x: 14, y: 8 }, stroke: '#000', strokeThickness: 4
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(14000);
+      this.tweens.add({ targets: text, alpha: 0, y: 88, delay: 900, duration: 500, onComplete: () => text.destroy() });
+    }
+
+    addBossHazard({ x, y, width, height, delay = 650, duration = 500, color = 0xff3e91, label = '', vx = 0, circle = false }) {
+      const visual = circle
+        ? this.add.circle(x, y, width / 2, color, 0.24).setStrokeStyle(3, color, 0.95)
+        : this.add.rectangle(x, y, width, height, color, 0.24).setStrokeStyle(3, color, 0.95);
+      const text = label
+        ? this.add.text(x, y, label, { fontFamily: 'monospace', fontSize: '14px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5)
+        : null;
+      visual.setDepth(9000);
+      if (text) text.setDepth(9001);
+      this.bossHazards.push({ x, y, width, height, delayEnds: this.time.now + delay, ends: this.time.now + delay + duration, color, vx, circle, visual, text });
+    }
+
+    updateBossHazards(time, delta) {
+      this.bossHazards = this.bossHazards.filter(hazard => {
+        if (hazard.vx) {
+          hazard.x += hazard.vx * delta / 1000;
+          hazard.visual.x = hazard.x;
+          if (hazard.text) hazard.text.x = hazard.x;
+        }
+        if (time < hazard.delayEnds) {
+          hazard.visual.alpha = Math.sin(time / 90) > 0 ? 0.18 : 0.55;
+          return true;
+        }
+        hazard.visual.alpha = 0.72;
+        const hit = hazard.circle
+          ? Phaser.Math.Distance.Between(this.player.x, this.player.y, hazard.x, hazard.y) < hazard.width / 2 + 20
+          : Math.abs(this.player.x - hazard.x) < hazard.width / 2 + 22 && Math.abs(this.player.y - hazard.y) < hazard.height / 2 + 24;
+        if (hit) this.damagePlayer(14 + this.stage * 3);
+        if (time < hazard.ends) return true;
+        hazard.visual.destroy();
+        if (hazard.text) hazard.text.destroy();
+        return false;
+      });
+    }
+
+    triggerBossPattern(boss, time) {
+      boss.setVelocity(0);
+      this.playActorAnim(boss, 'atk');
+      const cameraLeft = this.cameras.main.scrollX;
+      const centerX = cameraLeft + W / 2;
+      const laneYs = [MOVEMENT_TOP + 32, (MOVEMENT_TOP + MOVEMENT_BOTTOM) / 2, MOVEMENT_BOTTOM - 32];
+
+      if (boss.pattern === 1) {
+        this.showBossCallout('BRIEF BOMB — SPOSTATI!');
+        [-58, 0, 58].forEach(offset => this.addBossHazard({
+          x: Phaser.Math.Clamp(this.player.x + offset, cameraLeft + 42, cameraLeft + W - 42),
+          y: Phaser.Math.Clamp(this.player.y, MOVEMENT_TOP + 36, MOVEMENT_BOTTOM - 36),
+          width: 82, height: 82, delay: 780, duration: 280, color: 0xff3e91, label: 'BRIEF!', circle: true
+        }));
+        boss.nextAttack = time + 2600;
+      } else if (boss.pattern === 2) {
+        this.showBossCallout('CIACK! — CAMBIA CORSIA!');
+        this.addBossHazard({ x: centerX, y: this.player.y, width: W - 24, height: 50, delay: 850, duration: 650, color: 0xffea00, label: 'CIACK!' });
+        boss.nextAttack = time + 2900;
+      } else if (boss.pattern === 3) {
+        const fromLeft = Math.random() < 0.5;
+        this.showBossCallout('TAXI DRIFT — SCHIVA!');
+        this.addBossHazard({
+          x: fromLeft ? cameraLeft - 80 : cameraLeft + W + 80, y: this.player.y, width: 118, height: 56,
+          delay: 620, duration: 1650, color: 0x00f0ff, label: 'TAXI!', vx: fromLeft ? 470 : -470
+        });
+        boss.nextAttack = time + 3000;
+      } else if (boss.pattern === 4) {
+        const safeLane = Phaser.Math.Between(0, laneYs.length - 1);
+        this.showBossCallout('SCOPE CREEP — TROVA IL VARCO!');
+        laneYs.forEach((y, index) => {
+          if (index !== safeLane) this.addBossHazard({ x: centerX, y, width: W - 24, height: 44, delay: 900, duration: 680, color: 0xa260ff, label: 'REVISIONI' });
+        });
+        boss.nextAttack = time + 3200;
+      } else {
+        this.showBossCallout('FINAL PITCH — SOPRAVVIVI!');
+        for (let index = 0; index < 5; index += 1) {
+          this.addBossHazard({
+            x: Phaser.Math.Clamp(this.player.x + Phaser.Math.Between(-150, 150), cameraLeft + 38, cameraLeft + W - 38),
+            y: Phaser.Math.Between(MOVEMENT_TOP + 34, MOVEMENT_BOTTOM - 34),
+            width: 66, height: 66, delay: 360 + index * 150, duration: 330, color: 0xff0055, label: 'DEADLINE', circle: true
+          });
+        }
+        boss.nextAttack = time + 3400;
+      }
     }
 
     enemyAttack(enemy, time) {
