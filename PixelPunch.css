@@ -9,7 +9,10 @@
     background: #060212 !important;
   }
   #wrapper {
+    width: min(100vw, 540px) !important;
     max-width: 100vw;
+    min-width: 0;
+    height: 100svh;
     padding: max(env(safe-area-inset-top), 2px) 2px max(env(safe-area-inset-bottom), 2px) 2px;
     background: #060212 !important;
   }
@@ -51,9 +54,101 @@
   }
 
   #canvas-container {
-    height: 100%;
+    width: min(100%, calc(100svh - 234px));
+    height: auto;
+    aspect-ratio: 1;
+    flex: none;
     margin: 0;
+    min-width: 0;
   }
+  #pixel-punch-v2 {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    display: grid;
+    place-items: center;
+  }
+  #pixel-punch-v2 canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 1;
+    object-fit: contain !important;
+  }
+  .control-deck {
+    width: 100%;
+    min-height: 188px;
+    margin-top: 4px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #160a2c;
+    border: 2px solid #ffea00;
+    border-radius: 14px;
+    box-shadow: 0 0 15px #ffea0044;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .joystick-zone {
+    position: relative;
+    width: clamp(122px, 30vw, 150px);
+    height: clamp(122px, 30vw, 150px);
+    flex: none;
+    border: 3px solid #00f0ff;
+    border-radius: 50%;
+    background: radial-gradient(circle, #1c0b3b 30%, #090216 90%);
+    box-shadow: inset 0 0 18px #00f0ff55, 0 0 10px #00f0ff55;
+    touch-action: none;
+  }
+  .joystick-knob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 58px;
+    height: 58px;
+    transform: translate(-50%, -50%);
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ff3e91, #78003c);
+    box-shadow: 0 0 14px #ff3e91;
+    pointer-events: none;
+  }
+  .action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, clamp(68px, 18vw, 82px));
+    grid-template-rows: repeat(2, clamp(68px, 18vw, 82px));
+    gap: 8px;
+    place-items: center;
+  }
+  .action-btn {
+    position: relative;
+    width: clamp(68px, 18vw, 82px);
+    height: clamp(68px, 18vw, 82px);
+    overflow: hidden;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    color: #fff;
+    background: radial-gradient(circle at 35% 35%, #ff3e91, #84002f);
+    box-shadow: 0 4px 0 #52001e, 0 0 16px #ff3e9199;
+    font: 900 30px 'Courier New', monospace;
+    touch-action: none;
+  }
+  .action-btn:active { transform: translateY(2px); }
+  .action-btn.special, .action-btn.guard { width: 100%; height: 100%; }
+  .action-btn:not(.special):not(.guard) {
+    grid-column: 1 / 3;
+    width: clamp(76px, 20vw, 92px);
+    height: clamp(76px, 20vw, 92px);
+    margin-top: -8px;
+  }
+  .action-btn.special { background: #221342; box-shadow: 0 4px 0 #100820, 0 0 14px #8f52ff88; }
+  .action-btn.guard { background: radial-gradient(circle at 35% 35%, #25d9b1, #075944); box-shadow: 0 4px 0 #04382b, 0 0 14px #25d9b199; }
+  .action-btn.guard.active { background: radial-gradient(circle at 35% 35%, #8dffe5, #08a77c); box-shadow: 0 0 0 4px #fff, 0 0 24px #25ffd0; }
+  .special-fill { position: absolute; inset: auto 0 0; height: 100%; background: linear-gradient(#a260ff, #5a20d0); pointer-events: none; }
+  .btn-label { position: relative; z-index: 2; }
   canvas {
     width: 100%;
     height: 100%;
@@ -149,4 +244,12 @@
   }
   .info-card p:last-child {
     margin-bottom: 0;
+  }
+  @media (max-width: 380px), (max-height: 700px) {
+    #canvas-container { width: min(100%, calc(100svh - 206px)); }
+    .control-deck { min-height: 164px; padding: 8px 10px; gap: 8px; }
+    .joystick-zone { width: 112px; height: 112px; }
+    .action-buttons { grid-template-columns: repeat(2, 66px); grid-template-rows: repeat(2, 66px); gap: 5px; }
+    .action-btn { width: 66px; height: 66px; }
+    .action-btn:not(.special):not(.guard) { width: 74px; height: 74px; }
   }

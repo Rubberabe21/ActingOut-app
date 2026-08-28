@@ -2,113 +2,43 @@
 (() => {
   'use strict';
 
-  // --- MOTORE AUDIO INTEGRATO ---
-  const AudioManager = (function () {
-    const audioMap = { 'PixelPunch.html': 'assets/audio/music_punch.mp3' };
-    const VOLUMES = { bgm: 0.35, sfx: 0.85 };
-    let audioCtx = null, bgmGainNode = null, sfxGainNode = null;
-    let bgmSourceNode = null, bgmBuffer = null, isUnlocked = false;
-    const sfxBuffers = {};
-    let musicMuted = localStorage.getItem('audio_music_muted') === 'true';
-    let sfxMuted = localStorage.getItem('audio_sfx_muted') === 'true';
-
-    function getContext() {
-      if (!audioCtx) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) audioCtx = new AudioContextClass();
-      }
-      if (audioCtx && !bgmGainNode) {
-        bgmGainNode = audioCtx.createGain();
-        bgmGainNode.gain.value = musicMuted ? 0 : VOLUMES.bgm;
-        bgmGainNode.connect(audioCtx.destination);
-      }
-      if (audioCtx && !sfxGainNode) {
-        sfxGainNode = audioCtx.createGain();
-        sfxGainNode.gain.value = sfxMuted ? 0 : VOLUMES.sfx;
-        sfxGainNode.connect(audioCtx.destination);
-      }
-      return audioCtx;
-    }
-
-    async function forceUnlock() {
-      if (isUnlocked) return;
-      const ctx = getContext();
-      if (!ctx) return;
-      if (ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) {} }
-      if (ctx.state === 'running') {
-        try {
-          const buffer = ctx.createBuffer(1, 1, 22050);
-          const source = ctx.createBufferSource();
-          source.buffer = buffer;
-          source.connect(ctx.destination);
-          source.start(0);
-          isUnlocked = true;
-        } catch (e) {}
-        if (bgmBuffer && !bgmSourceNode && !musicMuted) playBGM();
-      }
-    }
-
-    ['touchstart', 'touchend', 'pointerdown', 'pointerup', 'click', 'scroll', 'keydown'].forEach(evt => {
-      window.addEventListener(evt, () => { if (!isUnlocked || (audioCtx && audioCtx.state === 'suspended')) forceUnlock(); }, { capture: true, passive: true });
-    });
-
-    async function loadBGM() {
-      const bgmFile = 'assets/audio/music_punch.mp3';
-      try {
-        const res = await fetch(bgmFile);
-        const data = await res.arrayBuffer();
-        const ctx = getContext();
-        bgmBuffer = await ctx.decodeAudioData(data);
-        if ((isUnlocked || ctx.state === 'running') && !musicMuted) playBGM();
-      } catch (e) {}
-    }
-
-    function playBGM() {
-      const ctx = getContext();
-      if (!ctx || !bgmBuffer || musicMuted || bgmSourceNode) return;
-      try {
-        bgmSourceNode = ctx.createBufferSource();
-        bgmSourceNode.buffer = bgmBuffer;
-        bgmSourceNode.loop = true;
-        bgmSourceNode.connect(bgmGainNode);
-        if (ctx.state === 'suspended') ctx.resume();
-        bgmSourceNode.start(0);
-      } catch (e) { bgmSourceNode = null; }
-    }
-
-    function stopBGM() {
-      if (bgmSourceNode) {
-        try { bgmSourceNode.stop(); bgmSourceNode.disconnect(); } catch (e) {}
-        bgmSourceNode = null;
-      }
-    }
-
-    async function playSFX(sfxFilePath) {
-      if (sfxMuted) return;
-      const ctx = getContext();
-      if (!ctx) return;
-      try {
-        if (!sfxBuffers[sfxFilePath]) {
-          const res = await fetch(sfxFilePath);
-          const data = await res.arrayBuffer();
-          sfxBuffers[sfxFilePath] = await ctx.decodeAudioData(data);
-        }
-        const sfxSource = ctx.createBufferSource();
-        sfxSource.buffer = sfxBuffers[sfxFilePath];
-        sfxSource.connect(sfxGainNode);
-        if (ctx.state === 'suspended') ctx.resume();
-        sfxSource.start(0);
-      } catch (e) {}
-    }
-
-    window.addEventListener('DOMContentLoaded', loadBGM);
-    return { forceUnlock, playSFX, playBGM, stopBGM };
-  })();
-
-  window.AudioManager = AudioManager;
+  // Usa il mixer condiviso: BGM 0,35 e SFX 0,85, come negli altri giochi.
+  const AudioManager = window.AudioManager;
 
   function playSfx(path) {
-    AudioManager.playSFX(path);
+    if (!AudioManager || AudioManager.isSFXMuted()) return;
+    const context = AudioManager.getContext();
+    const destination = AudioManager.getSfxDestination();
+    if (!context || !destination) return;
+    if (context.state === 'suspended') context.resume().catch(() => {});
+
+    const name = path.split('/').pop().replace('sfx_', '').replace('.mp3', '');
+    const profiles = {
+      punch:   { type: 'square', start: 320, end: 120, duration: 0.08, volume: 0.32 },
+      hit:     { type: 'square', start: 520, end: 170, duration: 0.11, volume: 0.36 },
+      crate:   { type: 'square', start: 210, end: 70,  duration: 0.13, volume: 0.34 },
+      block:   { type: 'triangle', start: 260, end: 420, duration: 0.10, volume: 0.28 },
+      hurt:    { type: 'sawtooth', start: 180, end: 45,  duration: 0.25, volume: 0.38 },
+      gameover:{ type: 'sawtooth', start: 170, end: 38,  duration: 0.35, volume: 0.40 },
+      special: { type: 'triangle', start: 300, end: 900, duration: 0.22, volume: 0.40 },
+      pickup:  { type: 'triangle', start: 523, end: 1046,duration: 0.24, volume: 0.34 },
+      win:     { type: 'triangle', start: 440, end: 880, duration: 0.30, volume: 0.36 },
+      select:  { type: 'sine', start: 440, end: 660, duration: 0.08, volume: 0.24 }
+    };
+    const profile = profiles[name] || profiles.select;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const now = context.currentTime;
+
+    oscillator.type = profile.type;
+    oscillator.frequency.setValueAtTime(profile.start, now);
+    oscillator.frequency.exponentialRampToValueAtTime(profile.end, now + profile.duration);
+    gain.gain.setValueAtTime(profile.volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + profile.duration);
+    oscillator.connect(gain);
+    gain.connect(destination);
+    oscillator.start(now);
+    oscillator.stop(now + profile.duration);
   }
 
   // --- STILE CSS PER TASTI E JOYSTICK ---
@@ -159,7 +89,7 @@
   const ENEMY_SCALE = ENTITY_SCALE * 0.9;
   const BOSS_SCALE = 2.2;
   const OBJECT_SCALE = 2.5;
-  const ROOT = '../assets/PixelPunch/GameV2/';
+  const ROOT = 'assets/PixelPunch/GameV2/';
 
   const PLAYERS = [
     { 
@@ -334,7 +264,7 @@
 
     preload() {
       this.load.on('loaderror', file => console.info(`[PixelPunchV2] asset assente, uso fallback: ${file.key}`));
-      this.load.image('cover', '../assets/PixelPunch/copertina.png');
+      this.load.image('cover', 'assets/PixelPunch/copertina.png');
       loadImage(this, 'select_text', 'selezionepersonaggi/select_text.png');
       PLAYERS.forEach(p => loadImage(this, `${p.key}_select`, `selezionepersonaggi/${p.select}`));
     }

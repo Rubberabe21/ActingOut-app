@@ -36,6 +36,17 @@
     <div id="pixel-punch-v2"></div>
   </div>
 
+  <div class="control-deck" aria-label="Controlli touch">
+    <div class="joystick-zone" id="joyZone" aria-label="Joystick">
+      <div class="joystick-knob" id="joyKnob"></div>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn guard" id="btnGuard" aria-label="Parata"><span class="btn-label">P</span></button>
+      <button class="action-btn special" id="btnSpecial" aria-label="Speciale"><span class="special-fill" id="specialFill"></span><span class="btn-label">B</span></button>
+      <button class="action-btn" id="btnAttack" aria-label="Attacco"><span class="btn-label">A</span></button>
+    </div>
+  </div>
+
   <!-- MODALE OPZIONI PRINCIPALE -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
@@ -117,7 +128,91 @@
   </div>
 </div>
 
+<script>
+  (() => {
+    const input = window.PixelPunchInput = { x: 0, y: 0 };
+    const zone = document.getElementById('joyZone');
+    const knob = document.getElementById('joyKnob');
+    const guard = document.getElementById('btnGuard');
+    let activePointerId = null;
+
+    function moveJoystick(event) {
+      const rect = zone.getBoundingClientRect();
+      let x = event.clientX - rect.left - rect.width / 2;
+      let y = event.clientY - rect.top - rect.height / 2;
+      const maxDistance = rect.width * 0.32;
+      const length = Math.hypot(x, y) || 1;
+
+      if (length > maxDistance) {
+        x = x / length * maxDistance;
+        y = y / length * maxDistance;
+      }
+
+      knob.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+      input.x = Math.max(-1, Math.min(1, x / maxDistance));
+      input.y = Math.max(-1, Math.min(1, y / maxDistance));
+    }
+
+    function resetJoystick(event) {
+      if (event && event.pointerId !== activePointerId) return;
+      activePointerId = null;
+      input.x = 0;
+      input.y = 0;
+      knob.style.transform = 'translate(-50%, -50%)';
+    }
+
+    zone.addEventListener('pointerdown', event => {
+      activePointerId = event.pointerId;
+      zone.setPointerCapture(event.pointerId);
+      moveJoystick(event);
+    });
+    zone.addEventListener('pointermove', event => {
+      if (event.pointerId === activePointerId) moveJoystick(event);
+    });
+    zone.addEventListener('pointerup', resetJoystick);
+    zone.addEventListener('pointercancel', resetJoystick);
+
+    const action = name => window.dispatchEvent(new CustomEvent('pixelpunch-action', { detail: name }));
+    document.getElementById('btnAttack').addEventListener('pointerdown', event => {
+      event.preventDefault();
+      guard.classList.remove('active');
+      action('attack');
+    });
+    document.getElementById('btnSpecial').addEventListener('pointerdown', event => {
+      event.preventDefault();
+      guard.classList.remove('active');
+      action('special');
+    });
+    guard.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      guard.classList.toggle('active');
+      action('guard-toggle');
+    });
+    window.addEventListener('pixelpunch-guard-state', event => {
+      guard.classList.toggle('active', Boolean(event.detail));
+    });
+
+    const settingsModal = document.getElementById('settingsModal');
+    const rulesModal = document.getElementById('rulesModal');
+    const perksModal = document.getElementById('perksModal');
+    const renderAudioOptions = ArcadeGameShell.bindAudioOptions(
+      document.getElementById('btnToggleMusic'),
+      document.getElementById('btnToggleSfx')
+    );
+
+    document.getElementById('btnOpenSettings').onclick = () => {
+      renderAudioOptions();
+      ArcadeGameShell.showModal(settingsModal);
+    };
+    document.getElementById('btnCloseSettings').onclick = () => ArcadeGameShell.hideModal(settingsModal);
+    ArcadeGameShell.bindModalTransition(document.getElementById('btnOpenRules'), settingsModal, rulesModal);
+    ArcadeGameShell.bindModalTransition(document.getElementById('btnCloseRules'), rulesModal, settingsModal);
+    ArcadeGameShell.bindModalTransition(document.getElementById('btnOpenPerks'), settingsModal, perksModal);
+    ArcadeGameShell.bindModalTransition(document.getElementById('btnClosePerks'), perksModal, settingsModal);
+  })();
+</script>
+
 <!-- CARICA IL NUOVO MOTORE ISOLATO MODIFICATO -->
-<script src="PixelPunchEngine.js"></script>
+<script src="game_v2/js/PixelPunchEngine.js"></script>
 </body>
 </html>
