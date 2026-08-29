@@ -77,6 +77,62 @@
       bottom: 25px !important;
       transform: none !important;
     }
+    .action-buttons {
+      grid-template-columns: repeat(2, minmax(76px, 88px)) !important;
+      grid-template-rows: repeat(2, minmax(76px, 88px)) !important;
+      gap: 4px 8px !important;
+    }
+    .action-buttons .action-btn {
+      grid-column: auto !important;
+      margin: 0 !important;
+      line-height: normal !important;
+    }
+    .action-buttons .btn-label {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      font: 900 30px "Courier New", monospace;
+      line-height: 1;
+      text-shadow: 0 2px 0 #0008, 0 0 6px currentColor;
+    }
+    #btnGuard, #btnAttack {
+      width: 82px !important;
+      height: 82px !important;
+      border-width: 4px !important;
+      border-radius: 50% !important;
+    }
+    #btnAttack {
+      background: radial-gradient(circle at 32% 28%, #ff86bd, #e31368 55%, #79002f) !important;
+      box-shadow: 0 6px 0 #570022, 0 0 20px #ff3e91aa !important;
+    }
+    #btnSpecial {
+      width: 66px !important;
+      height: 50px !important;
+      border-width: 3px !important;
+      border-radius: 25px !important;
+      clip-path: none;
+      background: linear-gradient(145deg, #c698ff, #7b32d5 58%, #381069) !important;
+      box-shadow: 0 5px 0 #260746, 0 0 15px #a260ffbb !important;
+    }
+    #btnSpecial .btn-label { font-size: 27px; }
+    #btnRun {
+      width: 66px !important;
+      height: 50px !important;
+      border-width: 3px !important;
+      border-radius: 25px !important;
+      background: linear-gradient(145deg, #fff27a, #ff9d19 58%, #b93b00) !important;
+      color: #291000 !important;
+      box-shadow: 0 5px 0 #6d2500, 0 0 15px #ffb00099 !important;
+    }
+    #btnRun .btn-label {
+      font-size: 27px;
+      text-shadow: 0 1px 0 #fff7;
+    }
+    #btnRun.active {
+      transform: translateY(3px) scale(.95);
+      box-shadow: 0 2px 0 #6d2500, 0 0 22px #ffea00 !important;
+    }
   `;
   document.head.appendChild(style);
 
@@ -111,6 +167,9 @@
   const BOSS_SCALE = 2.2 * BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
   const OBJECT_SCALE = 2.5 * BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
   const COMBAT_SCALE = BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
+  const RACHE_DISPLAY_HEIGHT = 128 * ENTITY_SCALE * 0.8;
+  const TAXI_DISPLAY_HEIGHT = RACHE_DISPLAY_HEIGHT * (160 / 170);
+  const TAXI_DISPLAY_WIDTH = TAXI_DISPLAY_HEIGHT * (2478 / 1728);
   const ROOT = 'assets/PixelPunch/GameV2/';
 
   const PLAYERS = [
@@ -256,6 +315,21 @@
     makeSheetTexture(scene, key, frameCount, color);
   }
 
+  function ensureShotSheet(scene, key, color) {
+    const texture = scene.textures.get(key);
+    const source = texture?.getSourceImage?.();
+    if (source && source.width === 1024 && source.height === 256) return;
+    if (scene.textures.exists(key)) scene.textures.remove(key);
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024; canvas.height = 256;
+    const c = canvas.getContext('2d');
+    for (let frame = 0; frame < 4; frame++) {
+      c.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
+      c.beginPath(); c.arc(frame * 256 + 128, 128, 48 + frame * 4, 0, Math.PI * 2); c.fill();
+    }
+    scene.textures.addSpriteSheet(key, canvas, { frameWidth: 256, frameHeight: 256 });
+  }
+
   function fitImage(image, maxWidth, maxHeight) {
     const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
     return image.setScale(scale);
@@ -319,7 +393,13 @@
       else this.showCover();
     }
 
-    clearPage() { this.pageObjects.removeAll(true); }
+    clearPage() {
+      if (this.coverBlinkEvent) {
+        this.coverBlinkEvent.remove(false);
+        this.coverBlinkEvent = null;
+      }
+      this.pageObjects.removeAll(true);
+    }
     
     addTitle(title, color = '#ffea00') { 
       this.pageObjects.add(this.add.text(W / 2, 28, title, { 
@@ -350,7 +430,16 @@
         stroke: '#7b176f', strokeThickness: 5
       }).setOrigin(0.5);
       this.tweens.add({ targets: startGlow, alpha: 0.52, scaleX: 1.045, scaleY: 1.12, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-      this.tweens.add({ targets: startText, alpha: 0.52, duration: 420, yoyo: true, repeat: -1, ease: 'Stepped' });
+      let blinkStep = 0;
+      this.coverBlinkEvent = this.time.addEvent({
+        delay: 210,
+        loop: true,
+        callback: () => {
+          if (!startText.active) return;
+          startText.setAlpha([1, 1, 0.18, 1][blinkStep % 4]);
+          blinkStep++;
+        }
+      });
       this.pageObjects.add([startGlow, startFrame, startText]);
     }
 
@@ -381,7 +470,7 @@
       
       const rules = [
         ['JOYSTICK','Muovi la Producer in tutte le direzioni.'],
-        ['CORSA / SHIFT','Spingi il joystick al bordo per correre.'],
+        ['RUN / SHIFT','Tieni premuto RUN per correre.'],
         ['PULSANTE A','Attacco base e combo.'],
         ['PULSANTE B','Attacco speciale ad area'],
         ['PULSANTE P','Attiva o disattiva la parata'],
@@ -575,6 +664,7 @@
         this.load.spritesheet(`enemy_${enemyNumber + 1}`, ROOT + `cattivi/${ENEMY_FILES[enemyNumber]}`, { frameWidth: 128, frameHeight: 128 });
       }
       this.load.spritesheet(`boss_${s}`, ROOT + `boss/${BOSS_FILES[s - 1]}`, { frameWidth: 128, frameHeight: 128 });
+      if (s !== 3) this.load.spritesheet(`boss_shot_${s}`, ROOT + `shot/boss${s}.png`, { frameWidth: 256, frameHeight: 256 });
 
       CRATES[s - 1].forEach((name, i) => {
         const base = `oggettidistruttibili/Scenario${s}/${name}_crate_`;
@@ -635,6 +725,7 @@
         ensureActorSheet(this, `enemy_${i}`, 12, 0xd13757 + i * 1200);
       }
       ensureActorSheet(this, `boss_${this.stage}`, 18, 0x8c2cff + this.stage * 1600);
+      if (this.stage !== 3) ensureShotSheet(this, `boss_shot_${this.stage}`, 0xff4b85 + this.stage * 1200);
 
       CRATES[this.stage - 1].forEach((_, i) => {
         ensureImage(this, `crate_${i}_whole`, 66, 66, 0xa3612c);
@@ -653,6 +744,12 @@
         addAnimations(this, `enemy_${i}`, ENEMY_FRAME_MAP);
       }
       addAnimations(this, `boss_${this.stage}`);
+      if (this.stage !== 3) {
+        const shotAnim = `boss_shot_${this.stage}_fly`;
+        if (!this.anims.exists(shotAnim)) {
+          this.anims.create({ key: shotAnim, frames: this.anims.generateFrameNumbers(`boss_shot_${this.stage}`, { start: 0, end: 3 }), frameRate: 9, repeat: -1 });
+        }
+      }
     }
 
     createWorld() {
@@ -736,6 +833,9 @@
 
     createHud() {
       this.hud = this.add.container(0, 0).setScrollFactor(0).setDepth(10000);
+      this.hudBack = this.add.rectangle(0, 0, W, 58, 0x000000, 0.78)
+        .setOrigin(0, 0)
+        .setStrokeStyle(1, 0xff3e91, 0.35);
       this.hpBack = this.add.rectangle(17, 20, 152, 14, 0x280c20).setOrigin(0, 0.5);
       this.hpBar = this.add.rectangle(19, 20, 148, 10, 0xff336c).setOrigin(0, 0.5);
       this.scoreText = this.add.text(W - 110, 13, '', { fontFamily: 'monospace', fontSize: '12px', color: '#ffeb4d', fontStyle: 'bold' }).setOrigin(1, 0);
@@ -751,7 +851,7 @@
         this.togglePause();
       });
 
-      this.hud.add([this.hpBack, this.hpBar, this.scoreText, this.stageText, this.specialBack, this.specialBar]);
+      this.hud.add([this.hudBack, this.hpBack, this.hpBar, this.scoreText, this.stageText, this.specialBack, this.specialBar]);
       this.refreshHud();
     }
 
@@ -944,6 +1044,7 @@
       enemy.damage = 3 + this.stage * 2; 
       enemy.speed = (60 + this.stage * 6) * BACKGROUND_SCALE;
       enemy.nextAttack = 0; enemy.isBoss = false; enemy.facing = -1;
+      enemy.setCollideWorldBounds(true);
       enemy.body.setSize(40, 20).setOffset(44, 108);
       this.bindActorAnimationEvents(enemy, `enemy_${number}`, 11);
       enemy.play(`enemy_${number}_idle`);
@@ -963,9 +1064,10 @@
       
       boss.setDepth(boss.y);
       boss.hp = 200 + this.stage * 50; boss.maxHp = boss.hp; boss.damage = 18 + this.stage * 3;
-      boss.speed = (70 + this.stage * 4) * BACKGROUND_SCALE;
-      boss.nextAttack = this.time.now + 1200; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
+      boss.speed = (70 + this.stage * 4) * BACKGROUND_SCALE * 0.72;
+      boss.nextAttack = this.time.now + 1900; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
       boss.pattern = this.stage;
+      boss.shotKey = this.stage === 3 ? null : `boss_shot_${this.stage}`;
       
       boss.mode = 'cast'; 
       boss.castWavesDone = 0;
@@ -973,6 +1075,7 @@
       boss.rushTimeEnd = 0;
 
       boss.body.setSize(40, 20).setOffset(44, 108);
+      boss.setCollideWorldBounds(true);
       this.bindActorAnimationEvents(boss, `boss_${this.stage}`, 17);
       boss.play(`boss_${this.stage}_idle`);
       this.enemies.add(boss);
@@ -985,6 +1088,7 @@
     updateEnemies(time) {
       this.enemies.getChildren().forEach(enemy => {
         if (!enemy.active || enemy.stateLocked) return;
+        enemy.y = Phaser.Math.Clamp(enemy.y, MOVEMENT_TOP, MOVEMENT_BOTTOM);
         if (enemy.isBoss) {
           this.updateBoss(enemy, time);
           if (this.bossBar) this.bossBar.width = (W * 0.72 - 4) * Math.max(0, enemy.hp / enemy.maxHp);
@@ -1033,7 +1137,7 @@
           boss.mode = 'cast';
           boss.castWavesDone = 0;
           boss.castQuota = Math.min(10, boss.castQuota + 3);
-          boss.nextAttack = time + 1200;
+          boss.nextAttack = time + 1900;
           return;
         }
 
@@ -1044,7 +1148,7 @@
 
         if (Math.abs(dx) > 85 * COMBAT_SCALE || Math.abs(dy) > 24 * COMBAT_SCALE) {
           const v = new Phaser.Math.Vector2(dx, dy * 1.25).normalize();
-          boss.setVelocity(v.x * boss.speed * 1.2, v.y * boss.speed * 0.85);
+          boss.setVelocity(v.x * boss.speed * 0.88, v.y * boss.speed * 0.7);
           this.playActorAnim(boss, 'walk', true);
         } else {
           boss.setVelocity(0);
@@ -1100,30 +1204,32 @@
     }
 
     playSpecialAura() {
-      const tint = { cristina: 0x3ffcff, iris: 0xb86cff, rache: 0xffd43b }[this.character];
+      const tint = { cristina: 0x3ffcff, iris: 0xb86cff, rache: 0xff4f91 }[this.character];
       const baseY = this.player.y - 42 * COMBAT_SCALE;
 
       if (this.character === 'cristina') {
         [-1, 0, 1].forEach((lane, index) => this.playFrameEffect('aurea', this.player.x, baseY + lane * 18, {
-          tint, scale: 0.22 + index * 0.035, dx: this.player.facing * (72 + index * 25),
+          tint, scale: (0.22 + index * 0.035) * 1.55, dx: this.player.facing * (92 + index * 30),
           spin: this.player.facing * (35 + index * 20), duration: 260 + index * 45, grow: 0.75
         }));
       } else if (this.character === 'iris') {
-        [0.24, 0.34, 0.46].forEach((scale, index) => this.time.delayedCall(index * 65, () => {
+        [0.38, 0.53, 0.7].forEach((scale, index) => this.time.delayedCall(index * 65, () => {
           if (this.player.active) this.playFrameEffect('aurea', this.player.x, baseY, {
             tint, scale, duration: 360, grow: 1.9, spin: index % 2 ? -50 : 50, alpha: 0.88
           });
         }));
       } else {
         [-1, 1].forEach(direction => this.playFrameEffect('aurea', this.player.x + direction * 22, baseY, {
-          tint, scale: 0.3, dx: direction * 58, dy: -28, spin: direction * 210,
+          tint, scale: 0.48, dx: direction * 78, dy: -38, spin: direction * 210,
           duration: 430, grow: 1.35, ease: 'Sine.easeOut'
         }));
-        this.playFrameEffect('aurea', this.player.x, baseY, { tint, scale: 0.42, spin: 120, duration: 450, grow: 1.55 });
+        this.playFrameEffect('aurea', this.player.x, baseY, { tint, scale: 0.68, spin: 120, duration: 500, grow: 1.65 });
       }
     }
 
-    addBossHazard({ x, y, width, height, delay = 850, duration = 350, color = 0xff0055, vx = 0, circle = false, spriteKey = null }) {
+    addBossHazard({ x, y, width, height, delay = 850, duration = 350, color = 0xff0055, vx = 0, circle = false, spriteKey = null, spriteWidth = width, spriteHeight = height }) {
+      delay *= 1.55;
+      duration *= 1.2;
       const cameraLeft = this.cameras.main.scrollX;
       const halfWidth = width / 2;
       const halfHeight = height / 2;
@@ -1133,8 +1239,14 @@
       let sprite = null;
 
       if (spriteKey) {
-        sprite = this.physics.add.sprite(x, y, spriteKey).setDepth(9001).setVisible(false);
-        fitImage(sprite, width, height);
+        sprite = this.physics.add.sprite(x, y, spriteKey)
+          .setDepth(9001)
+          .setVisible(true)
+          .setAlpha(1);
+        fitImage(sprite, spriteWidth, spriteHeight);
+        if (spriteKey === 'boss_shot_1') sprite.setTint(0x35eaff);
+        const shotAnim = `${spriteKey}_fly`;
+        if (this.anims.exists(shotAnim)) sprite.play(shotAnim);
       }
 
       this.bossHazards.push({
@@ -1152,7 +1264,6 @@
         if (hazard.vx && time >= hazard.delayEnds) {
           hazard.x += hazard.vx * delta / 1000;
           if (hazard.sprite) {
-            hazard.sprite.setVisible(true);
             hazard.sprite.x = hazard.x;
           }
         }
@@ -1160,6 +1271,10 @@
         hazard.graphics.clear();
 
         if (time < hazard.delayEnds) {
+          // Le icone PNG fungono già da telegrafo: restano nitide e opache,
+          // senza il vecchio rettangolo di caricamento sovrapposto.
+          if (hazard.sprite) return true;
+
           const progress = 1 - ((hazard.delayEnds - time) / hazard.totalDelay);
           const pulse = Math.floor(time / 60) % 2 === 0;
 
@@ -1224,7 +1339,11 @@
         [...new Set(indices)].forEach(index => {
           const cell = grid.cells[index];
           if (!cell) return;
-          this.addBossHazard({ x: cell.x, y: cell.y, width: grid.cellW * 0.76, height: grid.cellH * 0.72, delay, duration, color });
+          this.addBossHazard({
+            x: cell.x, y: cell.y, width: grid.cellW * 0.76, height: grid.cellH * 0.72,
+            delay, duration, color, spriteKey: boss.shotKey,
+            spriteWidth: grid.cellW * 0.9, spriteHeight: grid.cellH * 1.15
+          });
         });
       };
 
@@ -1248,7 +1367,7 @@
           y: grid.rows[targetRow], width: 140, height: grid.cellH * 0.72,
           delay: 750, duration: 1100, color: 0x00f0ff,
           vx: (fromLeft ? 560 : -560) * BACKGROUND_SCALE,
-          spriteKey: 'taxi_vehicle'
+          spriteKey: 'taxi_vehicle', spriteWidth: TAXI_DISPLAY_WIDTH, spriteHeight: TAXI_DISPLAY_HEIGHT
         });
         if (enraged) addCells([targetRow * 8 + 2, targetRow * 8 + 5], 0x00f0ff, 620, 260);
       } else if (boss.pattern === 4) {
@@ -1270,11 +1389,11 @@
 
       if (boss.castWavesDone >= boss.castQuota) {
         boss.mode = 'rush';
-        boss.rushTimeEnd = time + 10000;
-        boss.nextAttack = time + 300;
-        this.showBossCallout('ATTACCO DIRETTO! (10s)');
+        boss.rushTimeEnd = time + 6500;
+        boss.nextAttack = time + 650;
+        this.showBossCallout('ATTACCO DIRETTO!');
       } else {
-        boss.nextAttack = time + 1100;
+        boss.nextAttack = time + 2200;
       }
     }
 
@@ -1294,7 +1413,7 @@
     }
 
     enemyAttack(enemy, time) {
-      enemy.nextAttack = time + (enemy.isBoss ? 1500 : Math.max(1400, 2200 - this.stage * 150));
+      enemy.nextAttack = time + (enemy.isBoss ? 2400 : Math.max(1400, 2200 - this.stage * 150));
       enemy.stateLocked = true; enemy.setVelocity(0); this.playActorAnim(enemy, 'atk');
       this.time.delayedCall(enemy.isBoss ? 450 : 220, () => {
         if (!enemy.active || this.stageEnded) return;
@@ -1475,6 +1594,7 @@
 
       // MODALITÀ TEST: INVINCIBILITÀ PER RACHELE
       if (this.character === 'rache') {
+        this.player.invulnerableUntil = this.time.now + 350;
         playSfx('assets/audio/sfx_block.mp3');
         this.player.setTint(0xffea00);
         this.time.delayedCall(80, () => { if (this.player.active) this.player.clearTint(); });

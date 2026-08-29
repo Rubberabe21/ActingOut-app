@@ -41,9 +41,10 @@
       <div class="joystick-knob" id="joyKnob"></div>
     </div>
     <div class="action-buttons">
+      <button class="action-btn run" id="btnRun" aria-label="Corri"><span class="btn-label">R</span></button>
       <button class="action-btn guard" id="btnGuard" aria-label="Parata"><span class="btn-label">P</span></button>
-      <button class="action-btn special" id="btnSpecial" aria-label="Speciale"><span class="special-fill" id="specialFill"></span><span class="btn-label">B</span></button>
       <button class="action-btn" id="btnAttack" aria-label="Attacco"><span class="btn-label">A</span></button>
+      <button class="action-btn special" id="btnSpecial" aria-label="Speciale"><span class="special-fill" id="specialFill"></span><span class="btn-label">B</span></button>
     </div>
   </div>
 
@@ -81,7 +82,7 @@
         <h4 style="color:#00ffff;">MUOVITI</h4>
         <p><span style="color:#00ffff; font-weight:900;">JOYSTICK</span>: muovi la Producer in tutte le direzioni.</p>
         <p>Su computer: usa <span style="font-weight:900;">FRECCE oppure WASD</span>.</p>
-        <p><span style="color:#ffea00; font-weight:900;">CORSA</span>: spingi il joystick fino al bordo. Su computer usa <span style="font-weight:900;">SHIFT</span>.</p>
+        <p><span style="color:#ffea00; font-weight:900;">RUN</span>: tieni premuto il pulsante vicino ad A, B e P. Su computer usa <span style="font-weight:900;">SHIFT</span>.</p>
       </div>
 
       <div class="info-card" style="border-color:#ff3e91;">
@@ -154,7 +155,6 @@
       knob.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
       input.x = Math.max(-1, Math.min(1, x / maxDistance));
       input.y = Math.max(-1, Math.min(1, y / maxDistance));
-      input.running = length >= maxDistance * 0.88;
     }
 
     function resetJoystick(event) {
@@ -176,6 +176,14 @@
     });
     zone.addEventListener('pointerup', resetJoystick);
     zone.addEventListener('pointercancel', resetJoystick);
+
+    const runButton = document.getElementById('btnRun');
+    const setRunning = running => {
+      input.running = running;
+      runButton.classList.toggle('active', running);
+    };
+    runButton.addEventListener('pointerdown', event => { event.preventDefault(); setRunning(true); });
+    ['pointerup', 'pointercancel', 'pointerout'].forEach(name => runButton.addEventListener(name, () => setRunning(false)));
 
     const action = name => window.dispatchEvent(new CustomEvent('pixelpunch-action', { detail: name }));
     document.getElementById('btnAttack').addEventListener('pointerdown', event => {
