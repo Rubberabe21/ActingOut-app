@@ -152,7 +152,7 @@
     {
       title: 'LA SCADENZA',
       subtitle: 'VENERDÌ ORE 19:00',
-      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per l\'esportazione.'
+      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per\'esportazione.'
     },
     {
       title: 'IL SABOTAGGIO',
@@ -563,6 +563,7 @@
       }
       this.load.spritesheet(`boss_${s}`, ROOT + `boss/${BOSS_FILES[s - 1]}`, { frameWidth: 128, frameHeight: 128 });
 
+      // Crate e oggetti distruttibili
       CRATES[s - 1].forEach((name, i) => {
         const base = `oggettidistruttibili/Scenario${s}/${name}_crate_`;
         loadImage(this, `crate_${i}_whole`, base + 'whole.png');
@@ -572,6 +573,11 @@
       });
       PICKUPS[s - 1].forEach((file, i) => loadImage(this, `point_${i}`, `raccoglibili/Scenario${s}/${file}`));
       LIVES[s - 1].forEach((file, i) => loadImage(this, `life_${i}`, `vite/Scenario${s}/${file}`));
+
+      // Asset specifico per Taxi proiettile Boss 3
+      if (s === 3) {
+        loadImage(this, 'taxi_vehicle', 'cattivi/taxi.png');
+      }
     }
 
     create() {
@@ -618,6 +624,7 @@
       });
       [0x56f7ff, 0xffdb42, 0xff54b3].forEach((color, i) => ensureImage(this, `point_${i}`, 40, 40, color));
       [0x5cff72, 0x39ffbc].forEach((color, i) => ensureImage(this, `life_${i}`, 40, 40, color));
+      if (this.stage === 3) ensureImage(this, 'taxi_vehicle', 120, 50, 0xffea00);
     }
 
     createAnimations() {
@@ -680,9 +687,14 @@
       this.physics.add.overlap(this.player, this.pickupGroup, this.collectPickup, undefined, this);
     }
 
+    // Ingrandimento speciale per gli ostacoli di Scenario 2 (Luce/Faretti)
     resizeCrate(crate, textureKey) {
       const frame = this.textures.getFrame(textureKey);
-      const maxDimension = 54 * OBJECT_SCALE * (crate.isCoffeeMachine ? 1.15 : 1);
+      let multiplier = crate.isCoffeeMachine ? 1.15 : 1;
+      if (this.stage === 2 && crate.variant === 0) {
+        multiplier *= 2; // Raddoppiato come richiesto
+      }
+      const maxDimension = 54 * OBJECT_SCALE * multiplier;
       const scale = maxDimension / Math.max(frame.width, frame.height);
       const width = frame.width * scale;
       const height = frame.height * scale;
@@ -906,10 +918,16 @@
       
       boss.setDepth(boss.y);
       boss.hp = 200 + this.stage * 50; boss.maxHp = boss.hp; boss.damage = 18 + this.stage * 3;
-      boss.speed = 55 + this.stage * 3;
-      boss.nextAttack = this.time.now + 1250; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
+      boss.speed = 70 + this.stage * 4;
+      boss.nextAttack = this.time.now + 1200; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
       boss.pattern = this.stage;
-      boss.isCasting = false;
+      
+      // Stato combattimento Boss a due fasi (Casting ad area & Carica ravvicinata)
+      boss.mode = 'cast'; // 'cast' oppure 'rush'
+      boss.castWavesDone = 0;
+      boss.castQuota = 1; // Parte con 1 ondata, poi incrementa
+      boss.rushTimeEnd = 0;
+
       boss.body.setSize(40, 20).setOffset(44, 108);
       this.bindActorAnimationEvents(boss, `boss_${this.stage}`, 17);
       boss.play(`boss_${this.stage}_idle`);
@@ -944,28 +962,57 @@
       });
     }
 
+    // --- NUOVA LOGICA BOSS A FASI ONDATE & CARICA ---
     updateBoss(boss, time) {
-      if (boss.isCasting) {
-        boss.setVelocity(0);
+      const cameraLeft = this.cameras.main.scrollX;
+
+      // FASE 1: CASTING AD AREA DAL BORDO SCHERMO
+      if (boss.mode === 'cast') {
+        const sideTargetX = boss.facing < 0 ? cameraLeft + W - 50 : cameraLeft + 50;
+        const dxSide = sideTargetX - boss.x;
+
+        if (Math.abs(dxSide) > 15) {
+          boss.setVelocityX(Math.sign(dxSide) * boss.speed);
+          this.playActorAnim(boss, 'walk', true);
+        } else {
+          boss.setVelocity(0);
+          this.playActorAnim(boss, 'idle', true);
+        }
+
+        if (time >= boss.nextAttack) {
+          this.triggerBossPattern(boss, time);
+        }
         return;
       }
 
-      const dx = this.player.x - boss.x;
-      const dy = this.player.y - boss.y;
-      boss.facing = dx < 0 ? -1 : 1;
-      boss.setFlipX(boss.facing < 0);
+      // FASE 2: ATTACCO RAVVICINATO (INSEGUIMENTO)
+      if (boss.mode === 'rush') {
+        if (time >= boss.rushTimeEnd) {
+          // Ritorna in modalità Cast con una quota di ondate incrementata
+          boss.mode = 'cast';
+          boss.castWavesDone = 0;
+          boss.castQuota = Math.min(4, boss.castQuota + 1);
+          boss.nextAttack = time + 1000;
+          return;
+        }
 
-      if (Math.abs(dx) > 130 || Math.abs(dy) > 30) {
-        const v = new Phaser.Math.Vector2(dx, dy * 1.1).normalize();
-        boss.setVelocity(v.x * boss.speed, v.y * boss.speed * 0.65);
-        this.playActorAnim(boss, 'walk', true);
-      } else {
-        boss.setVelocity(0);
-        this.playActorAnim(boss, 'idle', true);
-      }
+        const dx = this.player.x - boss.x;
+        const dy = this.player.y - boss.y;
+        boss.facing = dx < 0 ? -1 : 1;
+        boss.setFlipX(boss.facing < 0);
 
-      if (time >= boss.nextAttack) {
-        this.triggerBossPattern(boss, time);
+        if (Math.abs(dx) > 90 || Math.abs(dy) > 28) {
+          const v = new Phaser.Math.Vector2(dx, dy * 1.2).normalize();
+          boss.setVelocity(v.x * boss.speed * 1.15, v.y * boss.speed * 0.8);
+          this.playActorAnim(boss, 'walk', true);
+        } else {
+          boss.setVelocity(0);
+          if (time >= boss.nextAttack) {
+            this.enemyAttack(boss, time);
+          } else {
+            this.playActorAnim(boss, 'idle', true);
+          }
+        }
       }
     }
 
@@ -977,21 +1024,21 @@
       this.tweens.add({ targets: text, alpha: 0, y: 88, delay: 900, duration: 500, onComplete: () => text.destroy() });
     }
 
-    addBossHazard({ x, y, width, height, delay = 900, duration = 400, color = 0xff0055, label = '', vx = 0, circle = false }) {
+    // TELEGRAFI GRAFICI PIXEL-ART (SENZA TESTO) CON TIMING E INDICATORE D'IMPATTO
+    addBossHazard({ x, y, width, height, delay = 850, duration = 350, color = 0xff0055, vx = 0, circle = false, spriteKey = null }) {
       const graphics = this.add.graphics().setDepth(8999);
-      
-      const text = label
-        ? this.add.text(x, y, label, {
-            fontFamily: 'monospace', fontSize: '14px', color: '#ffffff', fontStyle: 'bold',
-            backgroundColor: '#000000aa', padding: { x: 6, y: 4 }, stroke: '#ff0055', strokeThickness: 3
-          }).setOrigin(0.5).setDepth(9001)
-        : null;
+      let sprite = null;
+
+      if (spriteKey) {
+        sprite = this.physics.add.sprite(x, y, spriteKey).setDepth(9001).setVisible(false);
+        fitImage(sprite, width, height);
+      }
 
       this.bossHazards.push({
         x, y, width, height,
         delayEnds: this.time.now + delay,
         ends: this.time.now + delay + duration,
-        color, vx, circle, graphics, text,
+        color, vx, circle, graphics, sprite,
         totalDelay: delay,
         hasHit: false
       });
@@ -1001,43 +1048,54 @@
       this.bossHazards = this.bossHazards.filter(hazard => {
         if (hazard.vx && time >= hazard.delayEnds) {
           hazard.x += hazard.vx * delta / 1000;
-          if (hazard.text) hazard.text.x = hazard.x;
+          if (hazard.sprite) {
+            hazard.sprite.setVisible(true);
+            hazard.sprite.x = hazard.x;
+          }
         }
 
         hazard.graphics.clear();
 
-        // FASE 1: CARICA / WARNING (Con timer visivo di ricarica)
+        // FASE 1: PREAVVISO PIXEL-ART (Lampeggio e barra di carica)
         if (time < hazard.delayEnds) {
           const progress = 1 - ((hazard.delayEnds - time) / hazard.totalDelay);
-          const pulse = Math.sin(time / 50) > 0;
-
-          hazard.graphics.fillStyle(0xffea00, pulse ? 0.25 : 0.10);
-          hazard.graphics.lineStyle(3, 0xff0055, pulse ? 1 : 0.5);
+          const pulse = Math.floor(time / 60) % 2 === 0;
 
           if (hazard.circle) {
+            // Cerchio rosso pieno stile pixel art
+            hazard.graphics.fillStyle(hazard.color, pulse ? 0.35 : 0.15);
             hazard.graphics.fillCircle(hazard.x, hazard.y, hazard.width / 2);
+            hazard.graphics.lineStyle(4, 0xffffff, pulse ? 0.9 : 0.4);
             hazard.graphics.strokeCircle(hazard.x, hazard.y, hazard.width / 2);
-            hazard.graphics.lineStyle(2, 0xffea00, 0.9);
+            
+            // Anello interno di carica
+            hazard.graphics.lineStyle(3, 0xffea00, 0.9);
             hazard.graphics.strokeCircle(hazard.x, hazard.y, (hazard.width / 2) * progress);
           } else {
+            hazard.graphics.fillStyle(hazard.color, pulse ? 0.30 : 0.12);
             hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
+            hazard.graphics.lineStyle(4, 0xffffff, pulse ? 0.9 : 0.4);
             hazard.graphics.strokeRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
-            hazard.graphics.fillStyle(0xffea00, 0.4);
+
+            // Barra di carica a blocchi retro
+            hazard.graphics.fillStyle(0xffea00, 0.5);
             hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width * progress, hazard.height);
           }
           return true;
         }
 
-        // FASE 2: IMPATTO / DANNO CHIARO AD ALTO CONTRASTO
-        hazard.graphics.fillStyle(0xff0055, 0.65);
-        hazard.graphics.lineStyle(4, 0xffffff, 1);
+        // FASE 2: IMPATTO FISICO
+        if (!hazard.sprite) {
+          hazard.graphics.fillStyle(hazard.color, 0.75);
+          hazard.graphics.lineStyle(4, 0xffffff, 1);
 
-        if (hazard.circle) {
-          hazard.graphics.fillCircle(hazard.x, hazard.y, hazard.width / 2);
-          hazard.graphics.strokeCircle(hazard.x, hazard.y, hazard.width / 2);
-        } else {
-          hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
-          hazard.graphics.strokeRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
+          if (hazard.circle) {
+            hazard.graphics.fillCircle(hazard.x, hazard.y, hazard.width / 2);
+            hazard.graphics.strokeCircle(hazard.x, hazard.y, hazard.width / 2);
+          } else {
+            hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
+            hazard.graphics.strokeRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
+          }
         }
 
         if (!hazard.hasHit) {
@@ -1054,14 +1112,12 @@
         if (time < hazard.ends) return true;
 
         hazard.graphics.destroy();
-        if (hazard.text) hazard.text.destroy();
+        if (hazard.sprite) hazard.sprite.destroy();
         return false;
       });
     }
 
     triggerBossPattern(boss, time) {
-      boss.isCasting = true;
-      boss.setVelocity(0);
       this.playActorAnim(boss, 'atk');
 
       const cameraLeft = this.cameras.main.scrollX;
@@ -1070,8 +1126,8 @@
       const midY = (MOVEMENT_TOP + MOVEMENT_BOTTOM) / 2;
       const botY = MOVEMENT_BOTTOM - 30;
 
+      // PATTERN A ONDATE PULITE
       if (boss.pattern === 1) {
-        this.showBossCallout('BRIEF BOMB — SCHIVA I CERCHI!');
         const safeXIndex = Phaser.Math.Between(0, 2);
         const slotsX = [cameraLeft + 100, cameraLeft + 256, cameraLeft + 412];
         
@@ -1079,14 +1135,12 @@
           if (idx !== safeXIndex) {
             this.addBossHazard({
               x: posX, y: midY, width: 110, height: 110,
-              delay: 1000, duration: 350, color: 0xff3e91, label: '⚠️ BOMB', circle: true
+              delay: 950, duration: 350, color: 0xff3e91, circle: true
             });
           }
         });
-        boss.nextAttack = time + 3200;
 
       } else if (boss.pattern === 2) {
-        this.showBossCallout('CIACK! — CAMBIA CORSIA!');
         const lanes = [topY, midY, botY];
         const safeLaneIdx = Phaser.Math.Between(0, 2);
 
@@ -1094,65 +1148,67 @@
           if (idx !== safeLaneIdx) {
             this.addBossHazard({
               x: centerX, y: laneY, width: W - 20, height: 42,
-              delay: 1100, duration: 450, color: 0xffea00, label: '⚠️ CIACK'
+              delay: 1000, duration: 400, color: 0xffea00
             });
           }
         });
-        boss.nextAttack = time + 3400;
 
       } else if (boss.pattern === 3) {
-        this.showBossCallout('TAXI DRIFT — CAMBIA ALTEZZA!');
+        // TAXI DRIFT: Usa lo sprite del Taxi caricato come proiettile
         const targetY = this.player.y;
         const fromLeft = boss.x < centerX;
 
         this.addBossHazard({
           x: fromLeft ? cameraLeft - 60 : cameraLeft + W + 60,
           y: targetY, width: 130, height: 48,
-          delay: 900, duration: 1200, color: 0x00f0ff, label: '🚖 TAXI!',
-          vx: fromLeft ? 520 : -520
+          delay: 850, duration: 1200, color: 0x00f0ff,
+          vx: fromLeft ? 540 : -520,
+          spriteKey: 'taxi_vehicle'
         });
-        boss.nextAttack = time + 3300;
 
       } else if (boss.pattern === 4) {
-        this.showBossCallout('REVISIONE — TROVA IL VARCO!');
         const safeGapX = Phaser.Math.Between(cameraLeft + 120, cameraLeft + W - 120);
 
         this.addBossHazard({
           x: (cameraLeft + safeGapX - 60) / 2, y: midY,
           width: (safeGapX - 60) - cameraLeft, height: MOVEMENT_BOTTOM - MOVEMENT_TOP,
-          delay: 1200, duration: 400, color: 0xa260ff, label: 'BLOCCO'
+          delay: 1100, duration: 400, color: 0xa260ff
         });
         this.addBossHazard({
           x: (safeGapX + 60 + cameraLeft + W) / 2, y: midY,
           width: (cameraLeft + W) - (safeGapX + 60), height: MOVEMENT_BOTTOM - MOVEMENT_TOP,
-          delay: 1200, duration: 400, color: 0xa260ff, label: 'BLOCCO'
+          delay: 1100, duration: 400, color: 0xa260ff
         });
-        boss.nextAttack = time + 3600;
 
       } else {
-        this.showBossCallout('FINAL PITCH — SCHIVA IL RITMO!');
         [0, 1, 2].forEach(step => {
-          this.time.delayedCall(step * 400, () => {
+          this.time.delayedCall(step * 350, () => {
             if (!this.stageEnded && boss.active) {
               this.addBossHazard({
                 x: cameraLeft + 80 + step * 150, y: (step % 2 === 0) ? topY : botY,
-                width: 90, height: 90, delay: 700, duration: 300, color: 0xff0055, label: 'DEADLINE', circle: true
+                width: 90, height: 90, delay: 650, duration: 300, color: 0xff0055, circle: true
               });
             }
           });
         });
-        boss.nextAttack = time + 3800;
       }
 
-      this.time.delayedCall(1100, () => {
-        if (boss.active) boss.isCasting = false;
-      });
+      boss.castWavesDone++;
+
+      // Se ha completato le ondate previste per questa fase, passa al Rush (Inseguimento ravvicinato)
+      if (boss.castWavesDone >= boss.castQuota) {
+        boss.mode = 'rush';
+        boss.rushTimeEnd = time + (3000 + boss.castQuota * 1000); // La carica dura progressivamente di più
+        boss.nextAttack = time + 400;
+      } else {
+        boss.nextAttack = time + 2200;
+      }
     }
 
     enemyAttack(enemy, time) {
-      enemy.nextAttack = time + (enemy.isBoss ? 2600 : Math.max(1400, 2200 - this.stage * 150));
+      enemy.nextAttack = time + (enemy.isBoss ? 1600 : Math.max(1400, 2200 - this.stage * 150));
       enemy.stateLocked = true; enemy.setVelocity(0); this.playActorAnim(enemy, 'atk');
-      this.time.delayedCall(enemy.isBoss ? 550 : 220, () => {
+      this.time.delayedCall(enemy.isBoss ? 450 : 220, () => {
         if (!enemy.active || this.stageEnded) return;
         if (Math.abs(this.player.x - enemy.x) < (enemy.isBoss ? 155 : 118) && Math.abs(this.player.y - enemy.y) < 54) this.damagePlayer(enemy.damage);
       });
