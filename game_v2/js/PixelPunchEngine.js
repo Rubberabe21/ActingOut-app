@@ -157,6 +157,9 @@
   const WORLD_RENDER_TOP = 0;
   const MOVEMENT_BOTTOM = H;
   const MOVEMENT_TOP = H - 345 * BACKGROUND_SCALE;
+  const LOWER_LANE_TOP = Phaser.Math.Linear(MOVEMENT_TOP, MOVEMENT_BOTTOM, 0.24);
+  const BOSS_GRID_COLUMNS = 5;
+  const BOSS_GRID_ROWS = 4;
   const SPECIAL_COOLDOWN = 5000;
   const ENTITY_SIZE_MULTIPLIER = 1.2 * 1.15;
   
@@ -276,7 +279,7 @@
 
   function randomMovementY() {
     const margin = 10 * BACKGROUND_SCALE;
-    return Phaser.Math.Between(Math.ceil(MOVEMENT_TOP + margin), Math.floor(MOVEMENT_BOTTOM - margin));
+    return Phaser.Math.Between(Math.ceil(LOWER_LANE_TOP + margin), Math.floor(MOVEMENT_BOTTOM - margin));
   }
 
   function makeRectTexture(scene, key, width, height, color, label = '') {
@@ -992,6 +995,10 @@
       this.cameras.main.pan(Phaser.Math.Clamp(center, W / 2, WORLD_W - W / 2), H / 2, 300, 'Sine.easeInOut');
       this.showBanner('lock_warning', 720);
       if (this.arenaIndex === BOSS_ARENA_INDEX) {
+        // L'arena del boss deve restare completamente libera da casse.
+        this.crates.getChildren().slice().forEach(crate => {
+          if (crate.active && Math.abs(crate.x - center) <= W * 0.55) crate.destroy();
+        });
         this.bossSpawned = true;
         const runId = this.arenaRunId;
         this.time.delayedCall(900, () => {
@@ -1023,7 +1030,7 @@
         const y = randomMovementY();
         if (occupied.every(otherY => Math.abs(otherY - y) >= 44 * BACKGROUND_SCALE)) return y;
       }
-      const lanes = [0.16, 0.5, 0.84].map(t => Phaser.Math.Linear(MOVEMENT_TOP, MOVEMENT_BOTTOM, t));
+      const lanes = [0.18, 0.52, 0.86].map(t => Phaser.Math.Linear(LOWER_LANE_TOP, MOVEMENT_BOTTOM, t));
       return lanes.sort((a, b) => Math.min(...occupied.map(y => Math.abs(a - y)), Infinity) - Math.min(...occupied.map(y => Math.abs(b - y)), Infinity)).pop();
     }
 
@@ -1064,7 +1071,7 @@
       
       boss.setDepth(boss.y);
       boss.hp = 200 + this.stage * 50; boss.maxHp = boss.hp; boss.damage = 18 + this.stage * 3;
-      boss.speed = (70 + this.stage * 4) * BACKGROUND_SCALE * 0.72;
+      boss.speed = (70 + this.stage * 4) * BACKGROUND_SCALE * 1.05;
       boss.nextAttack = this.time.now + 1900; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
       boss.pattern = this.stage;
       boss.shotKey = this.stage === 3 ? null : `boss_shot_${this.stage}`;
@@ -1240,7 +1247,8 @@
 
       if (spriteKey) {
         sprite = this.physics.add.sprite(x, y, spriteKey)
-          .setDepth(9001)
+          // Sempre dietro a player e boss, che usano la coordinata Y come depth.
+          .setDepth(MOVEMENT_TOP - 1)
           .setVisible(true)
           .setAlpha(1);
         fitImage(sprite, spriteWidth, spriteHeight);
@@ -1325,7 +1333,16 @@
         if (time < hazard.ends) return true;
 
         hazard.graphics.destroy();
-        if (hazard.sprite) hazard.sprite.destroy();
+        if (hazard.sprite) {
+          this.playFrameEffect('dustcloud', hazard.x, hazard.y, {
+            depth: MOVEMENT_TOP - 0.5,
+            scale: 0.42,
+            grow: 1.55,
+            duration: 380,
+            alpha: 0.95
+          });
+          hazard.sprite.destroy();
+        }
         return false;
       });
     }
@@ -1342,7 +1359,7 @@
           this.addBossHazard({
             x: cell.x, y: cell.y, width: grid.cellW * 0.76, height: grid.cellH * 0.72,
             delay, duration, color, spriteKey: boss.shotKey,
-            spriteWidth: grid.cellW * 0.9, spriteHeight: grid.cellH * 1.15
+            spriteWidth: grid.cellW * 1.28, spriteHeight: grid.cellH * 1.58
           });
         });
       };
@@ -1350,14 +1367,14 @@
       if (boss.pattern === 1) {
         // Brief bomb: celle sparse, con una cella sempre lasciata libera attorno al player.
         const playerCell = this.getBossGridIndex(grid, this.player.x, this.player.y);
-        const pool = Phaser.Utils.Array.Shuffle([...Array(32).keys()].filter(index => index !== playerCell));
+        const pool = Phaser.Utils.Array.Shuffle([...Array(BOSS_GRID_COLUMNS * BOSS_GRID_ROWS).keys()].filter(index => index !== playerCell));
         addCells(pool.slice(0, enraged ? 9 : 6), 0xff3e91, 760, 310);
       } else if (boss.pattern === 2) {
         // Ciak: due colonne chiuse, mai adiacenti, quindi restano corridoi leggibili.
-        const first = Phaser.Math.Between(0, 3);
-        const second = first + 4;
-        const columns = enraged ? [first, second, (first + 2) % 8] : [first, second];
-        addCells(columns.flatMap(column => [column, column + 8, column + 16, column + 24]), 0xffea00, 820, 340);
+        const first = Phaser.Math.Between(0, BOSS_GRID_COLUMNS - 1);
+        const second = (first + 2) % BOSS_GRID_COLUMNS;
+        const columns = enraged ? [first, second, (first + 4) % BOSS_GRID_COLUMNS] : [first, second];
+        addCells(columns.flatMap(column => Array.from({ length: BOSS_GRID_ROWS }, (_, row) => row * BOSS_GRID_COLUMNS + column)), 0xffea00, 820, 340);
       } else if (boss.pattern === 3) {
         // Taxi: attraversa una delle quattro righe precise della griglia.
         const targetRow = Phaser.Math.Clamp(Math.floor((this.player.y - MOVEMENT_TOP) / grid.cellH), 0, 3);
@@ -1367,20 +1384,22 @@
           y: grid.rows[targetRow], width: 140, height: grid.cellH * 0.72,
           delay: 750, duration: 1100, color: 0x00f0ff,
           vx: (fromLeft ? 560 : -560) * BACKGROUND_SCALE,
-          spriteKey: 'taxi_vehicle', spriteWidth: TAXI_DISPLAY_WIDTH, spriteHeight: TAXI_DISPLAY_HEIGHT
+          spriteKey: 'taxi_vehicle', spriteWidth: TAXI_DISPLAY_WIDTH * 1.18, spriteHeight: TAXI_DISPLAY_HEIGHT * 1.18
         });
-        if (enraged) addCells([targetRow * 8 + 2, targetRow * 8 + 5], 0x00f0ff, 620, 260);
+        if (enraged) addCells([targetRow * BOSS_GRID_COLUMNS + 1, targetRow * BOSS_GRID_COLUMNS + 3], 0x00f0ff, 620, 260);
       } else if (boss.pattern === 4) {
         // Revisione: scacchiera alternata, con celle piccole e distinte.
         const parity = boss.castWavesDone % 2;
-        const checker = grid.cells.map((_, index) => index).filter(index => ((index % 8) + Math.floor(index / 8)) % 2 === parity);
+        const checker = grid.cells.map((_, index) => index).filter(index => ((index % BOSS_GRID_COLUMNS) + Math.floor(index / BOSS_GRID_COLUMNS)) % 2 === parity);
         addCells(checker.filter((_, index) => !enraged && index % 3 === 0 ? false : true), 0xa260ff, 900, 330);
       } else {
         // Final pitch: una diagonale avanza nella griglia come un'onda.
         const reverse = boss.castWavesDone % 2 === 1;
-        const diagonal = [0, 1, 2, 3].flatMap(row => {
-          const column = reverse ? 7 - row * 2 : row * 2;
-          return enraged ? [row * 8 + column, row * 8 + Phaser.Math.Clamp(column + (reverse ? -1 : 1), 0, 7)] : [row * 8 + column];
+        const diagonal = Array.from({ length: BOSS_GRID_ROWS }, (_, row) => row).flatMap(row => {
+          const column = reverse ? BOSS_GRID_COLUMNS - 1 - row : row;
+          return enraged
+            ? [row * BOSS_GRID_COLUMNS + column, row * BOSS_GRID_COLUMNS + Phaser.Math.Clamp(column + (reverse ? -1 : 1), 0, BOSS_GRID_COLUMNS - 1)]
+            : [row * BOSS_GRID_COLUMNS + column];
         });
         addCells(diagonal, 0xff0055, 620, 280);
       }
@@ -1399,17 +1418,17 @@
 
     getBossGrid(cameraLeft) {
       const paddingX = 12;
-      const cellW = (W - paddingX * 2) / 8;
-      const cellH = (MOVEMENT_BOTTOM - MOVEMENT_TOP) / 4;
-      const columns = Array.from({ length: 8 }, (_, column) => cameraLeft + paddingX + cellW * (column + 0.5));
-      const rows = Array.from({ length: 4 }, (_, row) => MOVEMENT_TOP + cellH * (row + 0.5));
+      const cellW = (W - paddingX * 2) / BOSS_GRID_COLUMNS;
+      const cellH = (MOVEMENT_BOTTOM - MOVEMENT_TOP) / BOSS_GRID_ROWS;
+      const columns = Array.from({ length: BOSS_GRID_COLUMNS }, (_, column) => cameraLeft + paddingX + cellW * (column + 0.5));
+      const rows = Array.from({ length: BOSS_GRID_ROWS }, (_, row) => MOVEMENT_TOP + cellH * (row + 0.5));
       return { cellW, cellH, columns, rows, cells: rows.flatMap(y => columns.map(x => ({ x, y }))) };
     }
 
     getBossGridIndex(grid, x, y) {
-      const column = Phaser.Math.Clamp(Math.floor((x - this.cameras.main.scrollX - 12) / grid.cellW), 0, 7);
-      const row = Phaser.Math.Clamp(Math.floor((y - MOVEMENT_TOP) / grid.cellH), 0, 3);
-      return row * 8 + column;
+      const column = Phaser.Math.Clamp(Math.floor((x - this.cameras.main.scrollX - 12) / grid.cellW), 0, BOSS_GRID_COLUMNS - 1);
+      const row = Phaser.Math.Clamp(Math.floor((y - MOVEMENT_TOP) / grid.cellH), 0, BOSS_GRID_ROWS - 1);
+      return row * BOSS_GRID_COLUMNS + column;
     }
 
     enemyAttack(enemy, time) {
@@ -1550,7 +1569,7 @@
       const minCamX = this.cameras.main.scrollX + 60;
       const maxCamX = this.cameras.main.scrollX + W - 60;
       const safeX = Phaser.Math.Clamp(x, Math.max(minCamX, 60), Math.min(maxCamX, WORLD_W - 60));
-      const safeY = Phaser.Math.Clamp(y, MOVEMENT_TOP + 20 * BACKGROUND_SCALE, MOVEMENT_BOTTOM - 20 * BACKGROUND_SCALE);
+      const safeY = Phaser.Math.Clamp(y, LOWER_LANE_TOP + 20 * BACKGROUND_SCALE, MOVEMENT_BOTTOM - 20 * BACKGROUND_SCALE);
 
       const pickup = this.pickupGroup.create(safeX, safeY, key).setOrigin(0.5, 1).setDisplaySize(38 * OBJECT_SCALE, 38 * OBJECT_SCALE);
       pickup.kind = kind; pickup.value = value;
