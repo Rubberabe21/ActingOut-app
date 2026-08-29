@@ -42,7 +42,7 @@
       select:  { type: 'sine', start: 440, end: 660, duration: 0.08, volume: 0.24 }
     };
     const profile = profiles[name] || profiles.select;
-    const oscillator = context.frequency ? context.createOscillator() : context.createOscillator();
+    const oscillator = context.createOscillator();
     const gain = context.createGain();
     const now = context.currentTime;
 
@@ -125,12 +125,12 @@
       speedMult: 0.85, dmgMult: 1.25, dmgTakenMult: 0.80, cdMult: 1.0, healMult: 1.0 
     },
     { 
-      key: 'rache', file: 'rache.png', fileSelect: 'rache_select.png', label: 'RACHELE', select: 'rache_select.png', color: 0xffd43b,
-      role: 'WORK MACHINE',
-      bio: 'Maestra del recupero. Sfrutta ogni snack per mantenere al massimo l’energia.',
-      bonus: '🍕 +50% Vita dal Cibo\n⚡ +10% Danno Attacco Base', 
-      malus: '⚠️ +20% Danni Subiti se colpita',
-      speedMult: 1.05, dmgMult: 1.10, dmgTakenMult: 1.20, cdMult: 1.0, healMult: 1.50 
+      key: 'rache', file: 'rache.png', label: 'RACHELE', select: 'rache_select.png', color: 0xffd43b,
+      role: 'WORK MACHINE (INVINCIBILE TEST)',
+      bio: 'Maestra del recupero. Modalità TEST: Invincibile ai danni fisici ed ambientali!',
+      bonus: '🍕 MODALITÀ TEST: INVINCIBILITÀ ATTIVA\n⚡ +10% Danno Attacco Base', 
+      malus: '⚠️ Nessun Danno Subito (God Mode)',
+      speedMult: 1.15, dmgMult: 1.20, dmgTakenMult: 0.0, cdMult: 0.70, healMult: 1.50 
     }
   ];
 
@@ -152,7 +152,7 @@
     {
       title: 'LA SCADENZA',
       subtitle: 'VENERDÌ ORE 19:00',
-      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per l\'esportazione.'
+      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per\'esportazione.'
     },
     {
       title: 'IL SABOTAGGIO',
@@ -380,7 +380,6 @@
       this.addContinue('PREMI A PER SCEGLIERE FIGHTER ►');
     }
 
-    // --- SCHERMATA SELEZIONE RISTRUTTURATA ---
     showSelection(charIndex = 0) {
       this.page = 'select';
       this.charSelectIndex = (charIndex + PLAYERS.length) % PLAYERS.length;
@@ -392,18 +391,14 @@
       const selectTitle = fitImage(this.add.image(W / 2, 28, 'select_text'), W * 0.75, 48);
       this.pageObjects.add(selectTitle);
 
-      // Card contenitore principale
       const cardBg = this.add.rectangle(W / 2, 266, W - 32, 420, 0x0f0821, 0.98).setStrokeStyle(3, p.color);
 
-      // FOTO GRANDE IN ALTO A SINISTRA (senza ellisse di sfondo)
       const portrait = fitImage(this.add.image(115, 140, `${p.key}_select`), 160, 180).setOrigin(0.5);
 
-      // INFO PERSONAGGIO A FIANCO DELLA FOTO (A DESTRA)
       const nameText = this.add.text(210, 68, p.label, { fontFamily: 'monospace', fontSize: '28px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 });
       const roleText = this.add.text(210, 102, p.role, { fontFamily: 'monospace', fontSize: '15px', color: '#ffea00', fontStyle: 'bold' });
       const bioText = this.add.text(210, 128, p.bio, { fontFamily: 'sans-serif', fontSize: '13px', color: '#dddddd', wordWrap: { width: 255 }, lineSpacing: 3 });
 
-      // BONUS E MALUS SOTTO L'IMMAGINE E LA BIO
       const bonusBox = this.add.rectangle(W / 2, 280, W - 58, 62, 0x0a2416, 0.95).setStrokeStyle(2, 0x00ff88);
       const bonusTitle = this.add.text(44, 253, 'BONUS', { fontFamily: 'monospace', fontSize: '15px', color: '#00ff88', fontStyle: 'bold' });
       const bonusDetail = this.add.text(44, 274, p.bonus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
@@ -412,18 +407,15 @@
       const malusTitle = this.add.text(44, 337, 'MALUS', { fontFamily: 'monospace', fontSize: '15px', color: '#ff4466', fontStyle: 'bold' });
       const malusDetail = this.add.text(44, 357, p.malus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
 
-      // FRECCE LATERALI DI SELEZIONE
       const prevBtn = this.add.text(25, 140, '◀', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       prevBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex - 1));
 
       const nextBtn = this.add.text(W - 25, 140, '▶', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       nextBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex + 1));
 
-      // INDICATORI A PALLINO
       const dotsText = PLAYERS.map((_, i) => i === this.charSelectIndex ? '●' : '○').join('   ');
       const dots = this.add.text(W / 2, 422, dotsText, { fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc' }).setOrigin(0.5);
 
-      // BOTTONE CONFERMA
       const selectBtn = this.add.rectangle(W / 2, H - 24, W - 52, 38, 0x7028aa, 1).setStrokeStyle(3, 0xffea00).setInteractive({ useHandCursor: true });
       const selectBtnText = this.add.text(W / 2, H - 24, `SCEGLI ${p.label} (PREMI A) ►`, { fontFamily: 'monospace', fontSize: '16px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
       
@@ -568,7 +560,6 @@
       }
       this.load.spritesheet(`boss_${s}`, ROOT + `boss/${BOSS_FILES[s - 1]}`, { frameWidth: 128, frameHeight: 128 });
 
-      // Crate e oggetti distruttibili
       CRATES[s - 1].forEach((name, i) => {
         const base = `oggettidistruttibili/Scenario${s}/${name}_crate_`;
         loadImage(this, `crate_${i}_whole`, base + 'whole.png');
@@ -587,7 +578,10 @@
     create() {
       this.createFallbacks();
       this.createAnimations();
+      
+      // IMPOSTAZIONE MONDO E BOUNDS DI SICUREZZA PER IMPEDIRE AL GIOCATORE DI USCIRE DALLA MAPPA
       this.physics.world.setBounds(0, MOVEMENT_TOP, WORLD_W, MOVEMENT_BOTTOM - MOVEMENT_TOP);
+      
       this.createWorld();
       this.createPlayer();
       this.createObjects();
@@ -664,6 +658,11 @@
         .setAlpha(1);
       this.player.setDepth(this.player.y);
       this.player.clearTint();
+      
+      // BLOCCA IL GIOCATORE NEI CONFINI DEL MONDO DI GIOCO PER EVITARE USCE FUORI MAPPA SULLA SINISTRA
+      this.player.setCollideWorldBounds(true);
+      this.player.body.onWorldBounds = true;
+      
       this.player.body.setSize(50, 32).setOffset(39, 96).setAllowGravity(false);
       this.player.body.enable = true;
       this.player.body.reset(100, startY);
@@ -927,7 +926,7 @@
       
       boss.mode = 'cast'; 
       boss.castWavesDone = 0;
-      boss.castQuota = 1; 
+      boss.castQuota = 3; 
       boss.rushTimeEnd = 0;
 
       boss.body.setSize(40, 20).setOffset(44, 108);
@@ -968,11 +967,11 @@
       const cameraLeft = this.cameras.main.scrollX;
 
       if (boss.mode === 'cast') {
-        const sideTargetX = boss.facing < 0 ? cameraLeft + W - 50 : cameraLeft + 50;
+        const sideTargetX = boss.facing < 0 ? cameraLeft + W - 45 : cameraLeft + 45;
         const dxSide = sideTargetX - boss.x;
 
-        if (Math.abs(dxSide) > 15) {
-          boss.setVelocityX(Math.sign(dxSide) * boss.speed);
+        if (Math.abs(dxSide) > 12) {
+          boss.setVelocityX(Math.sign(dxSide) * boss.speed * 1.2);
           this.playActorAnim(boss, 'walk', true);
         } else {
           boss.setVelocity(0);
@@ -989,8 +988,8 @@
         if (time >= boss.rushTimeEnd) {
           boss.mode = 'cast';
           boss.castWavesDone = 0;
-          boss.castQuota = Math.min(4, boss.castQuota + 1);
-          boss.nextAttack = time + 1000;
+          boss.castQuota = Math.min(10, boss.castQuota + 3);
+          boss.nextAttack = time + 1200;
           return;
         }
 
@@ -999,9 +998,9 @@
         boss.facing = dx < 0 ? -1 : 1;
         boss.setFlipX(boss.facing < 0);
 
-        if (Math.abs(dx) > 90 || Math.abs(dy) > 28) {
-          const v = new Phaser.Math.Vector2(dx, dy * 1.2).normalize();
-          boss.setVelocity(v.x * boss.speed * 1.15, v.y * boss.speed * 0.8);
+        if (Math.abs(dx) > 85 || Math.abs(dy) > 24) {
+          const v = new Phaser.Math.Vector2(dx, dy * 1.25).normalize();
+          boss.setVelocity(v.x * boss.speed * 1.2, v.y * boss.speed * 0.85);
           this.playActorAnim(boss, 'walk', true);
         } else {
           boss.setVelocity(0);
@@ -1058,7 +1057,7 @@
           const pulse = Math.floor(time / 60) % 2 === 0;
 
           if (hazard.circle) {
-            hazard.graphics.fillStyle(hazard.color, pulse ? 0.35 : 0.15);
+            hazard.graphics.fillStyle(hazard.color, pulse ? 0.38 : 0.15);
             hazard.graphics.fillCircle(hazard.x, hazard.y, hazard.width / 2);
             hazard.graphics.lineStyle(4, 0xffffff, pulse ? 0.9 : 0.4);
             hazard.graphics.strokeCircle(hazard.x, hazard.y, hazard.width / 2);
@@ -1066,7 +1065,7 @@
             hazard.graphics.lineStyle(3, 0xffea00, 0.9);
             hazard.graphics.strokeCircle(hazard.x, hazard.y, (hazard.width / 2) * progress);
           } else {
-            hazard.graphics.fillStyle(hazard.color, pulse ? 0.30 : 0.12);
+            hazard.graphics.fillStyle(hazard.color, pulse ? 0.32 : 0.14);
             hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
             hazard.graphics.lineStyle(4, 0xffffff, pulse ? 0.9 : 0.4);
             hazard.graphics.strokeRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
@@ -1078,7 +1077,7 @@
         }
 
         if (!hazard.sprite) {
-          hazard.graphics.fillStyle(hazard.color, 0.75);
+          hazard.graphics.fillStyle(hazard.color, 0.78);
           hazard.graphics.lineStyle(4, 0xffffff, 1);
 
           if (hazard.circle) {
@@ -1113,72 +1112,69 @@
       this.playActorAnim(boss, 'atk');
 
       const cameraLeft = this.cameras.main.scrollX;
-      const centerX = cameraLeft + W / 2;
-      const topY = MOVEMENT_TOP + 30;
-      const midY = (MOVEMENT_TOP + MOVEMENT_BOTTOM) / 2;
-      const botY = MOVEMENT_BOTTOM - 30;
+      const colX = [cameraLeft + W * 0.20, cameraLeft + W * 0.50, cameraLeft + W * 0.80];
+      const rowY = [MOVEMENT_TOP + (MOVEMENT_BOTTOM - MOVEMENT_TOP) * 0.28, MOVEMENT_TOP + (MOVEMENT_BOTTOM - MOVEMENT_TOP) * 0.72];
+
+      const sectors = [
+        { x: colX[0], y: rowY[0] }, { x: colX[1], y: rowY[0] }, { x: colX[2], y: rowY[0] },
+        { x: colX[0], y: rowY[1] }, { x: colX[1], y: rowY[1] }, { x: colX[2], y: rowY[1] }
+      ];
 
       if (boss.pattern === 1) {
-        const safeXIndex = Phaser.Math.Between(0, 2);
-        const slotsX = [cameraLeft + 100, cameraLeft + 256, cameraLeft + 412];
-        
-        slotsX.forEach((posX, idx) => {
-          if (idx !== safeXIndex) {
-            this.addBossHazard({
-              x: posX, y: midY, width: 110, height: 110,
-              delay: 950, duration: 350, color: 0xff3e91, circle: true
-            });
-          }
+        const picked = Phaser.Utils.Array.Shuffle([0, 1, 2, 3, 4, 5]).slice(0, 2);
+        picked.forEach(idx => {
+          const s = sectors[idx];
+          this.addBossHazard({
+            x: s.x, y: s.y, width: 120, height: 80,
+            delay: 800, duration: 350, color: 0xff3e91, circle: true
+          });
         });
 
       } else if (boss.pattern === 2) {
-        const lanes = [topY, midY, botY];
-        const safeLaneIdx = Phaser.Math.Between(0, 2);
-
-        lanes.forEach((laneY, idx) => {
-          if (idx !== safeLaneIdx) {
+        const safeCol = Phaser.Math.Between(0, 2);
+        [0, 1, 2].forEach(colIdx => {
+          if (colIdx !== safeCol) {
             this.addBossHazard({
-              x: centerX, y: laneY, width: W - 20, height: 42,
-              delay: 1000, duration: 400, color: 0xffea00
+              x: colX[colIdx], y: (rowY[0] + rowY[1]) / 2, width: W * 0.28, height: MOVEMENT_BOTTOM - MOVEMENT_TOP,
+              delay: 850, duration: 400, color: 0xffea00
             });
           }
         });
 
       } else if (boss.pattern === 3) {
-        const targetY = this.player.y;
-        const fromLeft = boss.x < centerX;
+        const targetRow = this.player.y < (rowY[0] + rowY[1]) / 2 ? 0 : 1;
+        const fromLeft = boss.x < cameraLeft + W / 2;
 
         this.addBossHazard({
           x: fromLeft ? cameraLeft - 60 : cameraLeft + W + 60,
-          y: targetY, width: 130, height: 48,
-          delay: 850, duration: 1200, color: 0x00f0ff,
-          vx: fromLeft ? 540 : -520,
+          y: rowY[targetRow], width: 140, height: 52,
+          delay: 750, duration: 1100, color: 0x00f0ff,
+          vx: fromLeft ? 560 : -560,
           spriteKey: 'taxi_vehicle'
         });
 
       } else if (boss.pattern === 4) {
-        const safeGapX = Phaser.Math.Between(cameraLeft + 120, cameraLeft + W - 120);
+        const safeStart = Phaser.Math.Between(0, 4);
+        const safeSectors = [safeStart, (safeStart + 1) % 6];
 
-        this.addBossHazard({
-          x: (cameraLeft + safeGapX - 60) / 2, y: midY,
-          width: (safeGapX - 60) - cameraLeft, height: MOVEMENT_BOTTOM - MOVEMENT_TOP,
-          delay: 1100, duration: 400, color: 0xa260ff
-        });
-        this.addBossHazard({
-          x: (safeGapX + 60 + cameraLeft + W) / 2, y: midY,
-          width: (cameraLeft + W) - (safeGapX + 60), height: MOVEMENT_BOTTOM - MOVEMENT_TOP,
-          delay: 1100, duration: 400, color: 0xa260ff
+        sectors.forEach((s, idx) => {
+          if (!safeSectors.includes(idx)) {
+            this.addBossHazard({
+              x: s.x, y: s.y, width: W * 0.28, height: 75,
+              delay: 950, duration: 400, color: 0xa260ff
+            });
+          }
         });
 
       } else {
-        [0, 1, 2].forEach(step => {
-          this.time.delayedCall(step * 350, () => {
-            if (!this.stageEnded && boss.active) {
-              this.addBossHazard({
-                x: cameraLeft + 80 + step * 150, y: (step % 2 === 0) ? topY : botY,
-                width: 90, height: 90, delay: 650, duration: 300, color: 0xff0055, circle: true
-              });
-            }
+        const isEven = boss.castWavesDone % 2 === 0;
+        const targetSectors = isEven ? [0, 2, 4] : [1, 3, 5];
+
+        targetSectors.forEach(idx => {
+          const s = sectors[idx];
+          this.addBossHazard({
+            x: s.x, y: s.y, width: 110, height: 80,
+            delay: 600, duration: 300, color: 0xff0055, circle: true
           });
         });
       }
@@ -1187,15 +1183,16 @@
 
       if (boss.castWavesDone >= boss.castQuota) {
         boss.mode = 'rush';
-        boss.rushTimeEnd = time + (3000 + boss.castQuota * 1000); 
-        boss.nextAttack = time + 400;
+        boss.rushTimeEnd = time + 10000;
+        boss.nextAttack = time + 300;
+        this.showBossCallout('ATTACCO DIRETTO! (10s)');
       } else {
-        boss.nextAttack = time + 2200;
+        boss.nextAttack = time + 1100;
       }
     }
 
     enemyAttack(enemy, time) {
-      enemy.nextAttack = time + (enemy.isBoss ? 1600 : Math.max(1400, 2200 - this.stage * 150));
+      enemy.nextAttack = time + (enemy.isBoss ? 1500 : Math.max(1400, 2200 - this.stage * 150));
       enemy.stateLocked = true; enemy.setVelocity(0); this.playActorAnim(enemy, 'atk');
       this.time.delayedCall(enemy.isBoss ? 450 : 220, () => {
         if (!enemy.active || this.stageEnded) return;
@@ -1271,13 +1268,15 @@
       enemy.hp -= damage; enemy.setVelocity(0); enemy.stateLocked = true;
       if (enemy.hp <= 0) {
         enemy.stateLocked = 'ko'; this.playActorAnim(enemy, 'ko');
-        this.score += enemy.isBoss ? 2500 : 250;
+        this.score += enemy.isBoss ? 5000 : 250; // Punti diretti (5.000 per il Boss)
         this.time.delayedCall(520, () => {
           if (!enemy.active) return;
           const x = enemy.x, y = enemy.y, wasBoss = enemy.isBoss;
           enemy.destroy();
-          if (!wasBoss) this.arenaDefeated++;
-          this.maybeDropPickup(x, y, wasBoss);
+          if (!wasBoss) {
+            this.arenaDefeated++;
+            this.maybeDropPickup(x, y, false);
+          }
           this.checkArenaClear();
         });
       } else {
@@ -1301,10 +1300,12 @@
     }
 
     maybeDropPickup(x, y, boss = false, guaranteed = false) {
-      if (!boss && !guaranteed && Math.random() > 0.45) return;
+      if (boss) return; // NESSUN DROP DAGLI SCONTRI BOSS
+      if (!guaranteed && Math.random() > 0.45) return;
+      
       let key, value, kind;
-      if (boss || Math.random() < 0.3) {
-        const big = boss || Math.random() < 0.35; key = `life_${big ? 1 : 0}`; value = big ? 100 : 25; kind = 'life';
+      if (Math.random() < 0.3) {
+        const big = Math.random() < 0.35; key = `life_${big ? 1 : 0}`; value = big ? 100 : 25; kind = 'life';
       } else {
         const roll = Math.random(); const tier = roll < 0.55 ? 0 : roll < 0.86 ? 1 : 2;
         key = `point_${tier}`; value = [100, 300, 500][tier]; kind = 'points';
@@ -1349,8 +1350,18 @@
       pickup.destroy(); this.refreshHud();
     }
 
+    // GESTIONE DANNO PLAYER (CON GOD MODE PER RACHELE)
     damagePlayer(damage) {
       if (this.time.now < this.player.invulnerableUntil || this.stageEnded) return;
+
+      // MODALITÀ TEST: INVINCIBILITÀ PER RACHELE
+      if (this.character === 'rache') {
+        playSfx('assets/audio/sfx_block.mp3');
+        this.player.setTint(0xffea00);
+        this.time.delayedCall(80, () => { if (this.player.active) this.player.clearTint(); });
+        return;
+      }
+
       if (this.isGuarding) {
         playSfx('assets/audio/sfx_block.mp3');
         this.player.setTint(0x66eaff);
@@ -1358,6 +1369,7 @@
         this.time.delayedCall(90, () => { if (this.player.active) this.player.clearTint(); });
         return;
       }
+
       playSfx('assets/audio/sfx_hurt.mp3');
       const actualDmg = damage * (this.playerStats.dmgTakenMult || 1.0);
       this.hp = Math.max(0, this.hp - actualDmg); this.player.invulnerableUntil = this.time.now + 700;
@@ -1388,8 +1400,9 @@
       }
     }
 
+    // BANNER INGRANDITI (3x) E CENTRATI AL MEZZO
     showBanner(key, duration) {
-      const image = fitImage(this.add.image(W / 2, 142, key), W * 0.7, H * 0.22).setScrollFactor(0).setDepth(12000).setAlpha(0);
+      const image = fitImage(this.add.image(W / 2, H / 2, key), W * 0.9, H * 0.35).setScrollFactor(0).setDepth(12000).setAlpha(0);
       const targetScale = image.scaleX;
       image.setScale(targetScale * 0.62);
       this.tweens.add({ targets: image, alpha: 1, scale: targetScale, duration: 180, yoyo: true, hold: duration, onComplete: () => image.destroy() });
@@ -1420,8 +1433,8 @@
       this.saveScore();
       playSfx('assets/audio/sfx_gameover.mp3');
       const shade = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.72).setScrollFactor(0).setDepth(12500);
-      const over = fitImage(this.add.image(W / 2, 210, 'gameover'), W * 0.7, H * 0.24).setScrollFactor(0).setDepth(12501);
-      const retry = this.add.text(W / 2, 370, 'RIPROVA', { fontFamily: 'monospace', fontSize: '20px', color: '#ffffff', backgroundColor: '#c71950', padding: { x: 32, y: 13 } }).setOrigin(0.5).setScrollFactor(0).setDepth(12502).setInteractive({ useHandCursor: true });
+      const over = fitImage(this.add.image(W / 2, H / 2, 'gameover'), W * 0.9, H * 0.35).setScrollFactor(0).setDepth(12501);
+      const retry = this.add.text(W / 2, 380, 'RIPROVA', { fontFamily: 'monospace', fontSize: '20px', color: '#ffffff', backgroundColor: '#c71950', padding: { x: 32, y: 13 } }).setOrigin(0.5).setScrollFactor(0).setDepth(12502).setInteractive({ useHandCursor: true });
       retry.on('pointerdown', () => this.scene.restart({ character: this.character, stage: this.stage, score: this.score }));
       void shade; void over;
     }
