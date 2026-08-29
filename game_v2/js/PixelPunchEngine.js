@@ -191,7 +191,6 @@
     ['wine_littlelife.png', 'dolci_biglife.png']
   ];
 
-  // Frame-rate e velocità fisica sono separati: il passo resta leggibile senza rallentare i personaggi.
   const FRAME_MAP = {
     idle: [0, 1, 7], block: [2, 2, 1], walk: [3, 6, 7], atk: [7, 9, 6],
     atk_spec: [10, 12, 6], hurt: [13, 14, 10], ko: [15, 17, 7]
@@ -381,7 +380,6 @@
       this.addContinue('PREMI A PER SCEGLIERE FIGHTER ►');
     }
 
-    // PAGINA SELEZIONE MIGLIORATA: Immagini e testi ingranditi e ridisegnati
     showSelection(charIndex = 0) {
       this.page = 'select';
       this.charSelectIndex = (charIndex + PLAYERS.length) % PLAYERS.length;
@@ -393,10 +391,8 @@
       const selectTitle = fitImage(this.add.image(W / 2, 28, 'select_text'), W * 0.75, 48);
       this.pageObjects.add(selectTitle);
 
-      // Card contenitore principale
       const cardBg = this.add.rectangle(W / 2, 266, W - 32, 420, 0x0f0821, 0.98).setStrokeStyle(3, p.color);
 
-      // Ritratto grande ma con respiro sufficiente per testi e pulsanti.
       const glow = this.add.ellipse(W / 2, 122, 286, 150, p.color, 0.3);
       const portrait = fitImage(this.add.image(W / 2, 122, `${p.key}_select`), 270, 148);
       this.tweens.add({ targets: glow, alpha: 0.6, scaleX: 1.15, scaleY: 1.15, duration: 800, yoyo: true, repeat: -1 });
@@ -414,18 +410,15 @@
       const malusTitle = this.add.text(44, 400, 'MALUS', { fontFamily: 'monospace', fontSize: '15px', color: '#ff4466', fontStyle: 'bold' });
       const malusDetail = this.add.text(44, 420, p.malus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
 
-      // Frecce tattili grandi di selezione laterale
       const prevBtn = this.add.text(25, 122, '◀', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       prevBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex - 1));
 
       const nextBtn = this.add.text(W - 25, 122, '▶', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       nextBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex + 1));
 
-      // Indicatori a pallino
       const dotsText = PLAYERS.map((_, i) => i === this.charSelectIndex ? '●' : '○').join('   ');
       const dots = this.add.text(W / 2, 461, dotsText, { fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc' }).setOrigin(0.5);
 
-      // Bottone Conferma Ingrandito
       const selectBtn = this.add.rectangle(W / 2, H - 24, W - 52, 38, 0x7028aa, 1).setStrokeStyle(3, 0xffea00).setInteractive({ useHandCursor: true });
       const selectBtnText = this.add.text(W / 2, H - 24, `SCEGLI ${p.label} (PREMI A) ►`, { fontFamily: 'monospace', fontSize: '16px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
       
@@ -660,7 +653,6 @@
         .setAlpha(1);
       this.player.setDepth(this.player.y);
       this.player.clearTint();
-      // Hitbox ingrandita per facilitare l'overlap con gli oggetti
       this.player.body.setSize(50, 32).setOffset(39, 96).setAllowGravity(false);
       this.player.body.enable = true;
       this.player.body.reset(100, startY);
@@ -917,6 +909,7 @@
       boss.speed = 55 + this.stage * 3;
       boss.nextAttack = this.time.now + 1250; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
       boss.pattern = this.stage;
+      boss.isCasting = false;
       boss.body.setSize(40, 20).setOffset(44, 108);
       this.bindActorAnimationEvents(boss, `boss_${this.stage}`, 17);
       boss.play(`boss_${this.stage}_idle`);
@@ -924,7 +917,7 @@
       
       this.bossBarBack = this.add.rectangle(W / 2, 74, W * 0.72, 12, 0x25091b).setScrollFactor(0).setDepth(10001);
       this.bossBar = this.add.rectangle(W * 0.14, 74, W * 0.72 - 4, 8, 0xc53cff).setOrigin(0, 0.5).setScrollFactor(0).setDepth(10002);
-      this.showBossCallout(['BRIEF BOMB', 'CIACK! CAMBIO CORSIA', 'TAXI DRIFT', 'SCOPE CREEP', 'FINAL PITCH'][this.stage - 1]);
+      this.showBossCallout(['BRIEF BOMB', 'CIACK! CAMBIO CORSIA', 'TAXI DRIFT', 'REVISIONE', 'FINAL PITCH'][this.stage - 1]);
     }
 
     updateEnemies(time) {
@@ -952,109 +945,208 @@
     }
 
     updateBoss(boss, time) {
+      if (boss.isCasting) {
+        boss.setVelocity(0);
+        return;
+      }
+
       const dx = this.player.x - boss.x;
       const dy = this.player.y - boss.y;
       boss.facing = dx < 0 ? -1 : 1;
       boss.setFlipX(boss.facing < 0);
-      if (Math.abs(dx) > 120 || Math.abs(dy) > 42) {
-        const v = new Phaser.Math.Vector2(dx, dy * 1.15).normalize();
-        boss.setVelocity(v.x * boss.speed, v.y * boss.speed * 0.68);
+
+      if (Math.abs(dx) > 130 || Math.abs(dy) > 30) {
+        const v = new Phaser.Math.Vector2(dx, dy * 1.1).normalize();
+        boss.setVelocity(v.x * boss.speed, v.y * boss.speed * 0.65);
         this.playActorAnim(boss, 'walk', true);
       } else {
         boss.setVelocity(0);
         this.playActorAnim(boss, 'idle', true);
       }
-      if (time >= boss.nextAttack) this.triggerBossPattern(boss, time);
+
+      if (time >= boss.nextAttack) {
+        this.triggerBossPattern(boss, time);
+      }
     }
 
     showBossCallout(label) {
       const text = this.add.text(W / 2, 108, label, {
-        fontFamily: 'monospace', fontSize: '22px', color: '#ffea00', fontStyle: 'bold',
+        fontFamily: 'monospace', fontSize: '20px', color: '#ffea00', fontStyle: 'bold',
         backgroundColor: '#21072f', padding: { x: 14, y: 8 }, stroke: '#000', strokeThickness: 4
       }).setOrigin(0.5).setScrollFactor(0).setDepth(14000);
       this.tweens.add({ targets: text, alpha: 0, y: 88, delay: 900, duration: 500, onComplete: () => text.destroy() });
     }
 
-    addBossHazard({ x, y, width, height, delay = 650, duration = 500, color = 0xff3e91, label = '', vx = 0, circle = false }) {
-      const visual = circle
-        ? this.add.circle(x, y, width / 2, color, 0.24).setStrokeStyle(3, color, 0.95)
-        : this.add.rectangle(x, y, width, height, color, 0.24).setStrokeStyle(3, color, 0.95);
+    addBossHazard({ x, y, width, height, delay = 900, duration = 400, color = 0xff0055, label = '', vx = 0, circle = false }) {
+      const graphics = this.add.graphics().setDepth(8999);
+      
       const text = label
-        ? this.add.text(x, y, label, { fontFamily: 'monospace', fontSize: '14px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5)
+        ? this.add.text(x, y, label, {
+            fontFamily: 'monospace', fontSize: '14px', color: '#ffffff', fontStyle: 'bold',
+            backgroundColor: '#000000aa', padding: { x: 6, y: 4 }, stroke: '#ff0055', strokeThickness: 3
+          }).setOrigin(0.5).setDepth(9001)
         : null;
-      visual.setDepth(9000);
-      if (text) text.setDepth(9001);
-      this.bossHazards.push({ x, y, width, height, delayEnds: this.time.now + delay, ends: this.time.now + delay + duration, color, vx, circle, visual, text });
+
+      this.bossHazards.push({
+        x, y, width, height,
+        delayEnds: this.time.now + delay,
+        ends: this.time.now + delay + duration,
+        color, vx, circle, graphics, text,
+        totalDelay: delay,
+        hasHit: false
+      });
     }
 
     updateBossHazards(time, delta) {
       this.bossHazards = this.bossHazards.filter(hazard => {
-        if (hazard.vx) {
+        if (hazard.vx && time >= hazard.delayEnds) {
           hazard.x += hazard.vx * delta / 1000;
-          hazard.visual.x = hazard.x;
           if (hazard.text) hazard.text.x = hazard.x;
         }
+
+        hazard.graphics.clear();
+
+        // FASE 1: CARICA / WARNING (Con timer visivo di ricarica)
         if (time < hazard.delayEnds) {
-          hazard.visual.alpha = Math.sin(time / 90) > 0 ? 0.18 : 0.55;
+          const progress = 1 - ((hazard.delayEnds - time) / hazard.totalDelay);
+          const pulse = Math.sin(time / 50) > 0;
+
+          hazard.graphics.fillStyle(0xffea00, pulse ? 0.25 : 0.10);
+          hazard.graphics.lineStyle(3, 0xff0055, pulse ? 1 : 0.5);
+
+          if (hazard.circle) {
+            hazard.graphics.fillCircle(hazard.x, hazard.y, hazard.width / 2);
+            hazard.graphics.strokeCircle(hazard.x, hazard.y, hazard.width / 2);
+            hazard.graphics.lineStyle(2, 0xffea00, 0.9);
+            hazard.graphics.strokeCircle(hazard.x, hazard.y, (hazard.width / 2) * progress);
+          } else {
+            hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
+            hazard.graphics.strokeRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
+            hazard.graphics.fillStyle(0xffea00, 0.4);
+            hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width * progress, hazard.height);
+          }
           return true;
         }
-        hazard.visual.alpha = 0.72;
-        const hit = hazard.circle
-          ? Phaser.Math.Distance.Between(this.player.x, this.player.y, hazard.x, hazard.y) < hazard.width / 2 + 20
-          : Math.abs(this.player.x - hazard.x) < hazard.width / 2 + 22 && Math.abs(this.player.y - hazard.y) < hazard.height / 2 + 24;
-        if (hit) this.damagePlayer(14 + this.stage * 3);
+
+        // FASE 2: IMPATTO / DANNO CHIARO AD ALTO CONTRASTO
+        hazard.graphics.fillStyle(0xff0055, 0.65);
+        hazard.graphics.lineStyle(4, 0xffffff, 1);
+
+        if (hazard.circle) {
+          hazard.graphics.fillCircle(hazard.x, hazard.y, hazard.width / 2);
+          hazard.graphics.strokeCircle(hazard.x, hazard.y, hazard.width / 2);
+        } else {
+          hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
+          hazard.graphics.strokeRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
+        }
+
+        if (!hazard.hasHit) {
+          const hit = hazard.circle
+            ? Phaser.Math.Distance.Between(this.player.x, this.player.y, hazard.x, hazard.y) < (hazard.width / 2 + 15)
+            : Math.abs(this.player.x - hazard.x) < (hazard.width / 2 + 15) && Math.abs(this.player.y - hazard.y) < (hazard.height / 2 + 15);
+
+          if (hit) {
+            this.damagePlayer(15 + this.stage * 3);
+            hazard.hasHit = true;
+          }
+        }
+
         if (time < hazard.ends) return true;
-        hazard.visual.destroy();
+
+        hazard.graphics.destroy();
         if (hazard.text) hazard.text.destroy();
         return false;
       });
     }
 
     triggerBossPattern(boss, time) {
+      boss.isCasting = true;
       boss.setVelocity(0);
       this.playActorAnim(boss, 'atk');
+
       const cameraLeft = this.cameras.main.scrollX;
       const centerX = cameraLeft + W / 2;
-      const laneYs = [MOVEMENT_TOP + 32, (MOVEMENT_TOP + MOVEMENT_BOTTOM) / 2, MOVEMENT_BOTTOM - 32];
+      const topY = MOVEMENT_TOP + 30;
+      const midY = (MOVEMENT_TOP + MOVEMENT_BOTTOM) / 2;
+      const botY = MOVEMENT_BOTTOM - 30;
 
       if (boss.pattern === 1) {
-        this.showBossCallout('BRIEF BOMB — SPOSTATI!');
-        [-58, 0, 58].forEach(offset => this.addBossHazard({
-          x: Phaser.Math.Clamp(this.player.x + offset, cameraLeft + 42, cameraLeft + W - 42),
-          y: Phaser.Math.Clamp(this.player.y, MOVEMENT_TOP + 36, MOVEMENT_BOTTOM - 36),
-          width: 82, height: 82, delay: 780, duration: 280, color: 0xff3e91, label: 'BRIEF!', circle: true
-        }));
-        boss.nextAttack = time + 2600;
-      } else if (boss.pattern === 2) {
-        this.showBossCallout('CIACK! — CAMBIA CORSIA!');
-        this.addBossHazard({ x: centerX, y: this.player.y, width: W - 24, height: 50, delay: 850, duration: 650, color: 0xffea00, label: 'CIACK!' });
-        boss.nextAttack = time + 2900;
-      } else if (boss.pattern === 3) {
-        const fromLeft = Math.random() < 0.5;
-        this.showBossCallout('TAXI DRIFT — SCHIVA!');
-        this.addBossHazard({
-          x: fromLeft ? cameraLeft - 80 : cameraLeft + W + 80, y: this.player.y, width: 118, height: 56,
-          delay: 620, duration: 1650, color: 0x00f0ff, label: 'TAXI!', vx: fromLeft ? 470 : -470
-        });
-        boss.nextAttack = time + 3000;
-      } else if (boss.pattern === 4) {
-        const safeLane = Phaser.Math.Between(0, laneYs.length - 1);
-        this.showBossCallout('SCOPE CREEP — TROVA IL VARCO!');
-        laneYs.forEach((y, index) => {
-          if (index !== safeLane) this.addBossHazard({ x: centerX, y, width: W - 24, height: 44, delay: 900, duration: 680, color: 0xa260ff, label: 'REVISIONI' });
+        this.showBossCallout('BRIEF BOMB — SCHIVA I CERCHI!');
+        const safeXIndex = Phaser.Math.Between(0, 2);
+        const slotsX = [cameraLeft + 100, cameraLeft + 256, cameraLeft + 412];
+        
+        slotsX.forEach((posX, idx) => {
+          if (idx !== safeXIndex) {
+            this.addBossHazard({
+              x: posX, y: midY, width: 110, height: 110,
+              delay: 1000, duration: 350, color: 0xff3e91, label: '⚠️ BOMB', circle: true
+            });
+          }
         });
         boss.nextAttack = time + 3200;
-      } else {
-        this.showBossCallout('FINAL PITCH — SOPRAVVIVI!');
-        for (let index = 0; index < 5; index += 1) {
-          this.addBossHazard({
-            x: Phaser.Math.Clamp(this.player.x + Phaser.Math.Between(-150, 150), cameraLeft + 38, cameraLeft + W - 38),
-            y: Phaser.Math.Between(MOVEMENT_TOP + 34, MOVEMENT_BOTTOM - 34),
-            width: 66, height: 66, delay: 360 + index * 150, duration: 330, color: 0xff0055, label: 'DEADLINE', circle: true
-          });
-        }
+
+      } else if (boss.pattern === 2) {
+        this.showBossCallout('CIACK! — CAMBIA CORSIA!');
+        const lanes = [topY, midY, botY];
+        const safeLaneIdx = Phaser.Math.Between(0, 2);
+
+        lanes.forEach((laneY, idx) => {
+          if (idx !== safeLaneIdx) {
+            this.addBossHazard({
+              x: centerX, y: laneY, width: W - 20, height: 42,
+              delay: 1100, duration: 450, color: 0xffea00, label: '⚠️ CIACK'
+            });
+          }
+        });
         boss.nextAttack = time + 3400;
+
+      } else if (boss.pattern === 3) {
+        this.showBossCallout('TAXI DRIFT — CAMBIA ALTEZZA!');
+        const targetY = this.player.y;
+        const fromLeft = boss.x < centerX;
+
+        this.addBossHazard({
+          x: fromLeft ? cameraLeft - 60 : cameraLeft + W + 60,
+          y: targetY, width: 130, height: 48,
+          delay: 900, duration: 1200, color: 0x00f0ff, label: '🚖 TAXI!',
+          vx: fromLeft ? 520 : -520
+        });
+        boss.nextAttack = time + 3300;
+
+      } else if (boss.pattern === 4) {
+        this.showBossCallout('REVISIONE — TROVA IL VARCO!');
+        const safeGapX = Phaser.Math.Between(cameraLeft + 120, cameraLeft + W - 120);
+
+        this.addBossHazard({
+          x: (cameraLeft + safeGapX - 60) / 2, y: midY,
+          width: (safeGapX - 60) - cameraLeft, height: MOVEMENT_BOTTOM - MOVEMENT_TOP,
+          delay: 1200, duration: 400, color: 0xa260ff, label: 'BLOCCO'
+        });
+        this.addBossHazard({
+          x: (safeGapX + 60 + cameraLeft + W) / 2, y: midY,
+          width: (cameraLeft + W) - (safeGapX + 60), height: MOVEMENT_BOTTOM - MOVEMENT_TOP,
+          delay: 1200, duration: 400, color: 0xa260ff, label: 'BLOCCO'
+        });
+        boss.nextAttack = time + 3600;
+
+      } else {
+        this.showBossCallout('FINAL PITCH — SCHIVA IL RITMO!');
+        [0, 1, 2].forEach(step => {
+          this.time.delayedCall(step * 400, () => {
+            if (!this.stageEnded && boss.active) {
+              this.addBossHazard({
+                x: cameraLeft + 80 + step * 150, y: (step % 2 === 0) ? topY : botY,
+                width: 90, height: 90, delay: 700, duration: 300, color: 0xff0055, label: 'DEADLINE', circle: true
+              });
+            }
+          });
+        });
+        boss.nextAttack = time + 3800;
       }
+
+      this.time.delayedCall(1100, () => {
+        if (boss.active) boss.isCasting = false;
+      });
     }
 
     enemyAttack(enemy, time) {
@@ -1163,7 +1255,6 @@
       }
     }
 
-    // GESTIONE PICKUP E BORDI SCHERMO MIGLIORATA
     maybeDropPickup(x, y, boss = false, guaranteed = false) {
       if (!boss && !guaranteed && Math.random() > 0.45) return;
       let key, value, kind;
@@ -1174,7 +1265,6 @@
         key = `point_${tier}`; value = [100, 300, 500][tier]; kind = 'points';
       }
 
-      // Evita che lo spawn finisca oltre i bordi invalicabili mantenendo una distanza minima di sicurezza
       const minCamX = this.cameras.main.scrollX + 60;
       const maxCamX = this.cameras.main.scrollX + W - 60;
       const safeX = Phaser.Math.Clamp(x, Math.max(minCamX, 60), Math.min(maxCamX, WORLD_W - 60));
