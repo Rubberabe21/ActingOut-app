@@ -81,6 +81,7 @@
         <h4 style="color:#00ffff;">MUOVITI</h4>
         <p><span style="color:#00ffff; font-weight:900;">JOYSTICK</span>: muovi la Producer in tutte le direzioni.</p>
         <p>Su computer: usa <span style="font-weight:900;">FRECCE oppure WASD</span>.</p>
+        <p><span style="color:#ffea00; font-weight:900;">CORSA</span>: spingi il joystick fino al bordo. Su computer usa <span style="font-weight:900;">SHIFT</span>.</p>
       </div>
 
       <div class="info-card" style="border-color:#ff3e91;">
@@ -132,7 +133,7 @@
 
 <script>
   (() => {
-    const input = window.PixelPunchInput = { x: 0, y: 0 };
+    const input = window.PixelPunchInput = { x: 0, y: 0, running: false };
     const zone = document.getElementById('joyZone');
     const knob = document.getElementById('joyKnob');
     const guard = document.getElementById('btnGuard');
@@ -153,6 +154,7 @@
       knob.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
       input.x = Math.max(-1, Math.min(1, x / maxDistance));
       input.y = Math.max(-1, Math.min(1, y / maxDistance));
+      input.running = length >= maxDistance * 0.88;
     }
 
     function resetJoystick(event) {
@@ -160,6 +162,7 @@
       activePointerId = null;
       input.x = 0;
       input.y = 0;
+      input.running = false;
       knob.style.transform = 'translate(-50%, -50%)';
     }
 

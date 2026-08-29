@@ -87,24 +87,30 @@
 
   const W = 512;
   const H = 512;
-  const NATIVE_BACKGROUND_HEIGHT = 640;
+  const NATIVE_BACKGROUND_WIDTH = 1920;
+  const NATIVE_FLOOR_WIDTH = 6800;
+  const NATIVE_BACKGROUND_HEIGHT = 1000;
   const BACKGROUND_SCALE = H / NATIVE_BACKGROUND_HEIGHT;
-  const WORLD_W = 3200 * BACKGROUND_SCALE;
+  const WORLD_W = NATIVE_FLOOR_WIDTH * BACKGROUND_SCALE;
+  const BACKGROUND_DISPLAY_W = NATIVE_BACKGROUND_WIDTH * BACKGROUND_SCALE;
+  const BACKGROUND_SCROLL_FACTOR = (BACKGROUND_DISPLAY_W - W) / (WORLD_W - W);
   const WORLD_VIEW_TOP = 64;
   const WORLD_VIEW_BOTTOM = H;
   const WORLD_VIEW_HEIGHT = WORLD_VIEW_BOTTOM - WORLD_VIEW_TOP;
   const WORLD_SCALE_Y = BACKGROUND_SCALE;
   const WORLD_RENDER_TOP = 0;
-  const MOVEMENT_HEIGHT = H * (190 / 640);
-  const MOVEMENT_VERTICAL_OFFSET = H * (30 / 640);
-  const MOVEMENT_BOTTOM = H + MOVEMENT_VERTICAL_OFFSET;
-  const MOVEMENT_TOP = H - MOVEMENT_HEIGHT + H * (60 / 640);
+  const MOVEMENT_BOTTOM = H;
+  const MOVEMENT_TOP = H - 345 * BACKGROUND_SCALE;
   const SPECIAL_COOLDOWN = 5000;
+  const ENTITY_SIZE_MULTIPLIER = 1.2 * 1.15;
   
-  const ENTITY_SCALE = 2;
+  // Gli enti mantengono le proporzioni relative esistenti, ma seguono la
+  // stessa scala 0,512 dell'ambiente 3200x1000.
+  const ENTITY_SCALE = 2 * BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
   const ENEMY_SCALE = ENTITY_SCALE * 0.9;
-  const BOSS_SCALE = 2.2;
-  const OBJECT_SCALE = 2.5;
+  const BOSS_SCALE = 2.2 * BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
+  const OBJECT_SCALE = 2.5 * BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
+  const COMBAT_SCALE = BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
   const ROOT = 'assets/PixelPunch/GameV2/';
 
   const PLAYERS = [
@@ -146,7 +152,9 @@
     '17_consulente.png', '18_investor.png', '19_techbro.png', '20_brand.png'
   ];
   const BOSS_FILES = ['21_boss_creative.png', '22_boss_regista.png', '23_boss_tassista.png', '24_boss_client.png', '25_boss_ceo.png'];
-  const ARENA_X = [520, 1100, 1680, 2260, 2840].map(x => x * BACKGROUND_SCALE);
+  // Cinque combattimenti normali, seguiti da un'arena dedicata al boss.
+  const ARENA_X = [900, 1900, 2900, 3900, 4900, 5900].map(x => x * BACKGROUND_SCALE);
+  const BOSS_ARENA_INDEX = ARENA_X.length - 1;
   
   const STORY_PAGES = [
     {
@@ -208,7 +216,8 @@
   }
 
   function randomMovementY() {
-    return Phaser.Math.Between(Math.ceil(MOVEMENT_TOP + 10), Math.floor(MOVEMENT_BOTTOM - 10));
+    const margin = 10 * BACKGROUND_SCALE;
+    return Phaser.Math.Between(Math.ceil(MOVEMENT_TOP + margin), Math.floor(MOVEMENT_BOTTOM - margin));
   }
 
   function makeRectTexture(scene, key, width, height, color, label = '') {
@@ -332,8 +341,17 @@
       const cover = this.add.image(W / 2, H / 2, 'cover');
       cover.setScale(Math.max(W / cover.width, H / cover.height));
       this.pageObjects.add(cover);
-      this.pageObjects.add(this.add.rectangle(W / 2, H - 58, W, 116, 0x05020d, 0.72)); 
-      this.addContinue('PREMI A PER INIZIARE ►');
+      const startGlow = this.add.rectangle(W / 2, H - 70, 286, 58, 0xff3e91, 0.16)
+        .setStrokeStyle(5, 0xff3e91, 0.35);
+      const startFrame = this.add.rectangle(W / 2, H - 70, 270, 50, 0x10051f, 0.96)
+        .setStrokeStyle(3, 0x00f0ff, 1);
+      const startText = this.add.text(W / 2, H - 70, '▶  PRESS A  ◀', {
+        fontFamily: 'monospace', fontSize: '24px', color: '#ffea00', fontStyle: 'bold',
+        stroke: '#7b176f', strokeThickness: 5
+      }).setOrigin(0.5);
+      this.tweens.add({ targets: startGlow, alpha: 0.52, scaleX: 1.045, scaleY: 1.12, duration: 520, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.tweens.add({ targets: startText, alpha: 0.52, duration: 420, yoyo: true, repeat: -1, ease: 'Stepped' });
+      this.pageObjects.add([startGlow, startFrame, startText]);
     }
 
     showStory(index = 0) {
@@ -363,6 +381,7 @@
       
       const rules = [
         ['JOYSTICK','Muovi la Producer in tutte le direzioni.'],
+        ['CORSA / SHIFT','Spingi il joystick al bordo per correre.'],
         ['PULSANTE A','Attacco base e combo.'],
         ['PULSANTE B','Attacco speciale ad area'],
         ['PULSANTE P','Attiva o disattiva la parata'],
@@ -370,10 +389,10 @@
       ];
       
       rules.forEach((rule, i) => { 
-        const y = 94 + i * 75, color = ['#ffea00','#ff3e91','#a260ff','#00f0ff','#00ff99'][i];
-        const box = this.add.rectangle(W / 2, y, W - 34, 66, 0x111027, 1).setStrokeStyle(3, Phaser.Display.Color.HexStringToColor(color).color);
-        const title = this.add.text(32, y - 25, rule[0], { fontFamily: 'monospace', fontSize: '18px', color, fontStyle: 'bold' });
-        const copy = this.add.text(32, y - 2, rule[1], { fontFamily: 'sans-serif', fontSize: '15px', color: '#ffffff', lineSpacing: 2, wordWrap: { width: W - 64 } });
+        const y = 78 + i * 61, color = ['#ffea00','#ff8b19','#ff3e91','#a260ff','#00f0ff','#00ff99'][i];
+        const box = this.add.rectangle(W / 2, y, W - 34, 52, 0x111027, 1).setStrokeStyle(2, Phaser.Display.Color.HexStringToColor(color).color);
+        const title = this.add.text(32, y - 20, rule[0], { fontFamily: 'monospace', fontSize: '15px', color, fontStyle: 'bold' });
+        const copy = this.add.text(32, y, rule[1], { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', wordWrap: { width: W - 64 } });
         this.pageObjects.add([box, title, copy]); 
       });
 
@@ -388,36 +407,27 @@
 
       const p = PLAYERS[this.charSelectIndex];
 
-      const selectTitle = fitImage(this.add.image(W / 2, 28, 'select_text'), W * 0.75, 48);
-      this.pageObjects.add(selectTitle);
+      const backdrop = this.add.rectangle(W / 2, H / 2, W, H, 0x080412);
+      const header = this.add.text(24, 20, 'SCEGLI LA TUA PRODUCER', { fontFamily: 'monospace', fontSize: '22px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 });
+      const counter = this.add.text(W - 24, 24, `${this.charSelectIndex + 1} / ${PLAYERS.length}`, { fontFamily: 'monospace', fontSize: '14px', color: '#00ffcc', fontStyle: 'bold' }).setOrigin(1, 0);
+      const portrait = fitImage(this.add.image(132, 208, `${p.key}_select`), 218, 300).setOrigin(0.5);
+      const infoPanel = this.add.rectangle(371, 214, 232, 306, 0x0f0b21, 0.98).setStrokeStyle(2, p.color, 0.7);
+      const nameText = this.add.text(270, 76, p.label, { fontFamily: 'monospace', fontSize: '29px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 });
+      const roleText = this.add.text(270, 112, p.role, { fontFamily: 'monospace', fontSize: '13px', color: '#ffea00', fontStyle: 'bold', wordWrap: { width: 205 } });
+      const divider = this.add.rectangle(371, 151, 194, 2, p.color, 0.65);
+      const bonusTitle = this.add.text(270, 170, '▲ BONUS', { fontFamily: 'monospace', fontSize: '15px', color: '#00ff88', fontStyle: 'bold' });
+      const bonusDetail = this.add.text(270, 200, p.bonus, { fontFamily: 'sans-serif', fontSize: '14px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 7, wordWrap: { width: 202 } });
+      const malusTitle = this.add.text(270, 296, '▼ MALUS', { fontFamily: 'monospace', fontSize: '15px', color: '#ff5577', fontStyle: 'bold' });
+      const malusDetail = this.add.text(270, 326, p.malus, { fontFamily: 'sans-serif', fontSize: '14px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 5, wordWrap: { width: 202 } });
 
-      const cardBg = this.add.rectangle(W / 2, 266, W - 32, 420, 0x0f0821, 0.98).setStrokeStyle(3, p.color);
-
-      const portrait = fitImage(this.add.image(115, 140, `${p.key}_select`), 160, 180).setOrigin(0.5);
-
-      const nameText = this.add.text(210, 68, p.label, { fontFamily: 'monospace', fontSize: '28px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 });
-      const roleText = this.add.text(210, 102, p.role, { fontFamily: 'monospace', fontSize: '15px', color: '#ffea00', fontStyle: 'bold' });
-      const bioText = this.add.text(210, 128, p.bio, { fontFamily: 'sans-serif', fontSize: '13px', color: '#dddddd', wordWrap: { width: 255 }, lineSpacing: 3 });
-
-      const bonusBox = this.add.rectangle(W / 2, 280, W - 58, 62, 0x0a2416, 0.95).setStrokeStyle(2, 0x00ff88);
-      const bonusTitle = this.add.text(44, 253, 'BONUS', { fontFamily: 'monospace', fontSize: '15px', color: '#00ff88', fontStyle: 'bold' });
-      const bonusDetail = this.add.text(44, 274, p.bonus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
-
-      const malusBox = this.add.rectangle(W / 2, 360, W - 58, 54, 0x2b0d14, 0.95).setStrokeStyle(2, 0xff4466);
-      const malusTitle = this.add.text(44, 337, 'MALUS', { fontFamily: 'monospace', fontSize: '15px', color: '#ff4466', fontStyle: 'bold' });
-      const malusDetail = this.add.text(44, 357, p.malus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
-
-      const prevBtn = this.add.text(25, 140, '◀', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const prevBtn = this.add.text(28, 202, '‹', { fontFamily: 'monospace', fontSize: '58px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       prevBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex - 1));
-
-      const nextBtn = this.add.text(W - 25, 140, '▶', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const nextBtn = this.add.text(236, 202, '›', { fontFamily: 'monospace', fontSize: '58px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       nextBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex + 1));
-
       const dotsText = PLAYERS.map((_, i) => i === this.charSelectIndex ? '●' : '○').join('   ');
-      const dots = this.add.text(W / 2, 422, dotsText, { fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc' }).setOrigin(0.5);
-
-      const selectBtn = this.add.rectangle(W / 2, H - 24, W - 52, 38, 0x7028aa, 1).setStrokeStyle(3, 0xffea00).setInteractive({ useHandCursor: true });
-      const selectBtnText = this.add.text(W / 2, H - 24, `SCEGLI ${p.label} (PREMI A) ►`, { fontFamily: 'monospace', fontSize: '16px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
+      const dots = this.add.text(132, 363, dotsText, { fontFamily: 'monospace', fontSize: '17px', color: '#00ffcc' }).setOrigin(0.5);
+      const selectBtn = this.add.rectangle(W / 2, 466, W - 48, 58, p.color, 0.92).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
+      const selectBtnText = this.add.text(W / 2, 466, `GIOCA CON ${p.label}  ►`, { fontFamily: 'monospace', fontSize: '18px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5);
       
       selectBtn.on('pointerdown', () => {
         playSfx('assets/audio/sfx_select.mp3');
@@ -425,10 +435,9 @@
       });
 
       this.pageObjects.add([
-        cardBg, portrait, nameText, roleText, bioText,
-        bonusBox, bonusTitle, bonusDetail,
-        malusBox, malusTitle, malusDetail,
-        prevBtn, nextBtn, dots, selectBtn, selectBtnText
+        backdrop, header, counter, portrait, infoPanel,
+        nameText, roleText, divider, bonusTitle, bonusDetail,
+        malusTitle, malusDetail, prevBtn, nextBtn, dots, selectBtn, selectBtnText
       ]);
     }
 
@@ -518,6 +527,7 @@
       this.arenaDefeated = 0;
       this.lastSpawnSide = Phaser.Math.Between(0, 1) ? 'left' : 'right';
       this.bossSpawned = false;
+      this.arenaRunId = 0;
       this.stageEnded = false;
       this.attackBusy = false;
       this.isGuarding = false;
@@ -552,6 +562,12 @@
       loadImage(this, `bg_${s}`, `sfondi/scenario_${s}_BG.png`);
       loadImage(this, `floor_${s}`, `sfondi/scenario_${s}_strada.png`);
       ['gameover', 'go', 'lock_warning', 'overhead_player', 'stageclear'].forEach(key => loadImage(this, key, `grafichegioco/${key}.png`));
+      ['aurea', 'dustcloud', 'hitspark'].forEach(effect => {
+        for (let frame = 1; frame <= 3; frame++) {
+          const key = `${effect}_${frame}`;
+          if (!this.textures.exists(key)) loadImage(this, key, `colpi/${effect}${frame}.png`);
+        }
+      });
       PLAYERS.forEach(p => this.load.spritesheet(p.key, ROOT + `player/${p.file}`, { frameWidth: 128, frameHeight: 128 }));
       
       for (let i = 0; i < 4; i++) {
@@ -599,13 +615,18 @@
     }
 
     createFallbacks() {
-      ensureImage(this, `bg_${this.stage}`, 1920, 640, 0x24123c);
-      ensureImage(this, `floor_${this.stage}`, 3200, 640, 0x321b47);
+      ensureImage(this, `bg_${this.stage}`, NATIVE_BACKGROUND_WIDTH, NATIVE_BACKGROUND_HEIGHT, 0x24123c);
+      ensureImage(this, `floor_${this.stage}`, NATIVE_FLOOR_WIDTH, NATIVE_BACKGROUND_HEIGHT, 0x321b47);
       ensureImage(this, 'gameover', 280, 100, 0xc71950);
       ensureImage(this, 'go', 150, 70, 0x25d987);
       ensureImage(this, 'lock_warning', 240, 80, 0xff8b19);
       ensureImage(this, 'overhead_player', 38, 24, 0xffffff);
       ensureImage(this, 'stageclear', 285, 100, 0x25b7ff);
+      ['aurea', 'dustcloud', 'hitspark'].forEach((effect, effectIndex) => {
+        for (let frame = 1; frame <= 3; frame++) {
+          ensureImage(this, `${effect}_${frame}`, 243, 256, [0x8f52ff, 0xc9a27a, 0xffea00][effectIndex]);
+        }
+      });
       
       PLAYERS.forEach(p => ensureActorSheet(this, p.key, 18, p.color));
       
@@ -635,21 +656,28 @@
     }
 
     createWorld() {
-      this.farBg = this.add.tileSprite(0, WORLD_RENDER_TOP, WORLD_W, H, `bg_${this.stage}`)
-        .setOrigin(0)
-        .setTileScale(BACKGROUND_SCALE, BACKGROUND_SCALE)
-        .setScrollFactor(0.4)
+      // Il fondale 1920x1000 viene disegnato una sola volta e resta fisso
+      // dietro all'azione per l'intero scenario: nessun tiling visibile.
+      this.farBg = this.add.image(0, WORLD_RENDER_TOP, `bg_${this.stage}`)
+        .setOrigin(0, 0)
+        .setScale(BACKGROUND_SCALE)
+        .setScrollFactor(BACKGROUND_SCROLL_FACTOR)
         .setDepth(-20);
-      this.floor = this.add.image(0, WORLD_RENDER_TOP, `floor_${this.stage}`).setOrigin(0).setScale(BACKGROUND_SCALE).setDepth(-10);
+      // La strada 6800x1000 coincide con il mondo fisico: una sola immagine,
+      // nessun tile e nessuna ripetizione lungo il livello.
+      this.floor = this.add.image(0, WORLD_RENDER_TOP, `floor_${this.stage}`)
+        .setOrigin(0)
+        .setScale(BACKGROUND_SCALE)
+        .setDepth(-10);
       ARENA_X.forEach((x, i) => {
-        this.add.text(x, MOVEMENT_TOP + 12, i === 4 ? 'BOSS' : `LOCK ${i + 1}`, {
+        this.add.text(x, MOVEMENT_TOP + 12, i === BOSS_ARENA_INDEX ? 'BOSS' : `LOCK ${i + 1}`, {
           fontFamily: 'monospace', fontSize: '11px', color: '#ffffff66'
         }).setOrigin(0.5).setDepth(MOVEMENT_TOP + 12);
       });
     }
 
     createPlayer() {
-      const startY = Phaser.Math.Clamp(worldY(520), MOVEMENT_TOP, MOVEMENT_BOTTOM);
+      const startY = Phaser.Math.Linear(MOVEMENT_TOP, MOVEMENT_BOTTOM, 0.65);
       this.player = this.physics.add.sprite(100, startY, this.character, 0)
         .setOrigin(0.5, 1)
         .setScale(getPlayerScale(this.character))
@@ -666,7 +694,7 @@
       this.player.body.setSize(50, 32).setOffset(39, 96).setAllowGravity(false);
       this.player.body.enable = true;
       this.player.body.reset(100, startY);
-      this.player.speed = 210 * (this.playerStats.speedMult || 1.0);
+      this.player.speed = 210 * BACKGROUND_SCALE * (this.playerStats.speedMult || 1.0);
       this.player.facing = 1;
       this.player.invulnerableUntil = 0;
       this.bindActorAnimationEvents(this.player, this.character, 17, true);
@@ -677,7 +705,8 @@
       this.enemies = this.physics.add.group();
       this.crates = this.physics.add.group({ immovable: true });
       this.pickupGroup = this.physics.add.group({ allowGravity: false });
-      const positions = [350, 780, 1320, 1900, 2470, 3050].map(x => x * BACKGROUND_SCALE);
+      const positions = [500, 1050, 1550, 2150, 2700, 3300, 3850, 4450, 5000, 5550, 6150, 6550]
+        .map(x => x * BACKGROUND_SCALE);
       positions.forEach((x, i) => {
         const variant = i % 2;
         const crate = this.crates.create(x, randomMovementY(), `crate_${variant}_whole`).setOrigin(0.5, 1);
@@ -701,13 +730,12 @@
       const width = frame.width * scale;
       const height = frame.height * scale;
       crate.setDisplaySize(width, height);
-      crate.body.setSize(width * 0.7, Math.max(22, height * 0.25));
-      crate.body.setOffset(width * 0.15, height * 0.75);
+      crate.body.setSize(frame.width * 0.7, frame.height * 0.25);
+      crate.body.setOffset(frame.width * 0.15, frame.height * 0.75);
     }
 
     createHud() {
       this.hud = this.add.container(0, 0).setScrollFactor(0).setDepth(10000);
-      this.hud.add(this.add.rectangle(W / 2, WORLD_VIEW_TOP / 2, W, WORLD_VIEW_TOP, 0x020105, 1));
       this.hpBack = this.add.rectangle(17, 20, 152, 14, 0x280c20).setOrigin(0, 0.5);
       this.hpBar = this.add.rectangle(19, 20, 148, 10, 0xff336c).setOrigin(0, 0.5);
       this.scoreText = this.add.text(W - 110, 13, '', { fontFamily: 'monospace', fontSize: '12px', color: '#ffeb4d', fontStyle: 'bold' }).setOrigin(1, 0);
@@ -730,6 +758,7 @@
     bindControls() {
       this.cursors = this.input.keyboard.createCursorKeys();
       this.wasd = this.input.keyboard.addKeys('W,A,S,D,J,K,L,P');
+      this.runKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
       this.input.keyboard.on('keydown-J', () => this.normalAttack());
       this.input.keyboard.on('keydown-K', () => this.specialAttack());
       this.input.keyboard.on('keydown-L', () => this.toggleGuard());
@@ -819,7 +848,6 @@
       this.updateDepths();
       this.updateCooldown(time);
       this.refreshHud();
-      this.farBg.tilePositionX = this.cameras.main.scrollX * 0.4;
     }
 
     updatePlayerMovement() {
@@ -832,11 +860,13 @@
       if (this.cursors.down.isDown || this.wasd.S.isDown) y += 1;
       const v = new Phaser.Math.Vector2(x, y);
       if (v.lengthSq() > 1) v.normalize();
-      this.player.setVelocity(v.x * this.player.speed, v.y * this.player.speed * 0.72);
+      const running = Boolean(externalInput.running || this.runKey?.isDown);
+      const speedMultiplier = running ? 1.65 : 1;
+      this.player.setVelocity(v.x * this.player.speed * speedMultiplier, v.y * this.player.speed * 0.72 * speedMultiplier);
       this.player.y = Phaser.Math.Clamp(this.player.y, MOVEMENT_TOP, MOVEMENT_BOTTOM);
       if (this.arenaLocked) {
         const center = ARENA_X[this.arenaIndex];
-        this.player.x = Phaser.Math.Clamp(this.player.x, center - 160, center + 160);
+        this.player.x = Phaser.Math.Clamp(this.player.x, center - W * 0.42, center + W * 0.42);
       }
       if (v.x !== 0) { this.player.facing = Math.sign(v.x); this.player.setFlipX(v.x < 0); }
       const desired = v.lengthSq() ? `${this.character}_walk` : `${this.character}_idle`;
@@ -845,12 +875,15 @@
 
     updateArena() {
       if (this.arenaLocked || this.arenaIndex >= ARENA_X.length) return;
-      if (this.player.x >= ARENA_X[this.arenaIndex] - 105) this.lockArena();
+      if (this.player.x >= ARENA_X[this.arenaIndex] - 105 * BACKGROUND_SCALE) this.lockArena();
     }
 
     lockArena() {
       this.arenaLocked = true;
-      this.arenaQuota = Math.min(3 + (this.stage - 1) * 2, 10);
+      this.arenaRunId++;
+      this.arenaQuota = this.arenaIndex === BOSS_ARENA_INDEX
+        ? 0
+        : Math.min(3 + (this.stage - 1) * 2 + Math.floor(this.arenaIndex / 2), 10);
       this.arenaSpawned = 0;
       this.arenaDefeated = 0;
       this.bossSpawned = false;
@@ -858,21 +891,29 @@
       this.cameras.main.stopFollow();
       this.cameras.main.pan(Phaser.Math.Clamp(center, W / 2, WORLD_W - W / 2), H / 2, 300, 'Sine.easeInOut');
       this.showBanner('lock_warning', 720);
-      this.scheduleArenaSpawn(1500);
+      if (this.arenaIndex === BOSS_ARENA_INDEX) {
+        this.bossSpawned = true;
+        const runId = this.arenaRunId;
+        this.time.delayedCall(900, () => {
+          if (this.arenaLocked && !this.stageEnded && this.arenaRunId === runId) this.spawnBoss(center);
+        });
+      } else {
+        this.scheduleArenaSpawn(1500, this.arenaRunId);
+      }
     }
 
-    scheduleArenaSpawn(delay = Phaser.Math.Between(1500, 2500)) {
+    scheduleArenaSpawn(delay = Phaser.Math.Between(1500, 2500), runId = this.arenaRunId) {
       this.time.delayedCall(delay, () => {
-        if (!this.arenaLocked || this.stageEnded || this.arenaSpawned >= this.arenaQuota) return;
+        if (!this.arenaLocked || this.stageEnded || runId !== this.arenaRunId || this.arenaSpawned >= this.arenaQuota) return;
         const activeMinions = this.enemies.getChildren().filter(enemy => enemy.active && !enemy.isBoss).length;
         const maxSimultaneous = Math.min(1 + Math.floor((this.stage - 1) / 2) + 1, 3);
         if (activeMinions >= maxSimultaneous) {
-          this.scheduleArenaSpawn(700);
+          this.scheduleArenaSpawn(700, runId);
           return;
         }
-        this.spawnEnemy(this.arenaSpawned % 4);
+        this.spawnEnemy((this.arenaIndex + this.arenaSpawned) % 4);
         this.arenaSpawned++;
-        if (this.arenaSpawned < this.arenaQuota) this.scheduleArenaSpawn();
+        if (this.arenaSpawned < this.arenaQuota) this.scheduleArenaSpawn(Phaser.Math.Between(1500, 2500), runId);
       });
     }
 
@@ -880,7 +921,7 @@
       const occupied = this.enemies.getChildren().filter(enemy => enemy.active).map(enemy => enemy.y);
       for (let attempt = 0; attempt < 14; attempt++) {
         const y = randomMovementY();
-        if (occupied.every(otherY => Math.abs(otherY - y) >= 44)) return y;
+        if (occupied.every(otherY => Math.abs(otherY - y) >= 44 * BACKGROUND_SCALE)) return y;
       }
       const lanes = [0.16, 0.5, 0.84].map(t => Phaser.Math.Linear(MOVEMENT_TOP, MOVEMENT_BOTTOM, t));
       return lanes.sort((a, b) => Math.min(...occupied.map(y => Math.abs(a - y)), Infinity) - Math.min(...occupied.map(y => Math.abs(b - y)), Infinity)).pop();
@@ -892,7 +933,8 @@
       const side = useOppositeSide ? (this.lastSpawnSide === 'left' ? 'right' : 'left') : (Math.random() < 0.5 ? 'left' : 'right');
       this.lastSpawnSide = side;
       const cameraLeft = this.cameras.main.scrollX;
-      const spawnX = side === 'left' ? cameraLeft - 60 : cameraLeft + W + 60;
+      const spawnMargin = 60 * BACKGROUND_SCALE;
+      const spawnX = side === 'left' ? cameraLeft - spawnMargin : cameraLeft + W + spawnMargin;
       
       const enemy = this.physics.add.sprite(spawnX, this.getSpawnLaneY(), `enemy_${number}`, 0).setOrigin(0.5, 1).setScale(ENEMY_SCALE).setVisible(true);
       enemy.setDepth(enemy.y);
@@ -900,7 +942,7 @@
       enemy.hp = 30 + this.stage * 10; 
       enemy.maxHp = enemy.hp; 
       enemy.damage = 3 + this.stage * 2; 
-      enemy.speed = 60 + this.stage * 6;
+      enemy.speed = (60 + this.stage * 6) * BACKGROUND_SCALE;
       enemy.nextAttack = 0; enemy.isBoss = false; enemy.facing = -1;
       enemy.body.setSize(40, 20).setOffset(44, 108);
       this.bindActorAnimationEvents(enemy, `enemy_${number}`, 11);
@@ -911,16 +953,17 @@
     spawnBoss(center) {
       const cameraLeft = this.cameras.main.scrollX;
       const side = Math.random() < 0.5 ? 'left' : 'right';
-      const spawnX = side === 'left' ? cameraLeft - 70 : cameraLeft + W + 70;
+      const spawnMargin = 64 * BOSS_SCALE + 6;
+      const spawnX = side === 'left' ? cameraLeft + spawnMargin : cameraLeft + W - spawnMargin;
 
-      const boss = this.physics.add.sprite(spawnX, Phaser.Math.Clamp(worldY(535), MOVEMENT_TOP, MOVEMENT_BOTTOM), `boss_${this.stage}`, 0)
+      const boss = this.physics.add.sprite(spawnX, Phaser.Math.Linear(MOVEMENT_TOP, MOVEMENT_BOTTOM, 0.72), `boss_${this.stage}`, 0)
         .setOrigin(0.5, 1)
         .setScale(BOSS_SCALE)
         .setVisible(true);
       
       boss.setDepth(boss.y);
       boss.hp = 200 + this.stage * 50; boss.maxHp = boss.hp; boss.damage = 18 + this.stage * 3;
-      boss.speed = 70 + this.stage * 4;
+      boss.speed = (70 + this.stage * 4) * BACKGROUND_SCALE;
       boss.nextAttack = this.time.now + 1200; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
       boss.pattern = this.stage;
       
@@ -948,10 +991,10 @@
           return;
         }
         const dx = this.player.x - enemy.x, dy = this.player.y - enemy.y;
-        const sameLane = Math.abs(dy) < 34;
+        const sameLane = Math.abs(dy) < 34 * COMBAT_SCALE;
         const distance = Math.abs(dx);
         enemy.facing = dx < 0 ? -1 : 1; enemy.setFlipX(enemy.facing < 0);
-        if (sameLane && distance < 116) {
+        if (sameLane && distance < 116 * COMBAT_SCALE) {
           enemy.setVelocity(0);
           if (time >= enemy.nextAttack) this.enemyAttack(enemy, time);
           else this.playActorAnim(enemy, 'idle', true);
@@ -967,7 +1010,8 @@
       const cameraLeft = this.cameras.main.scrollX;
 
       if (boss.mode === 'cast') {
-        const sideTargetX = boss.facing < 0 ? cameraLeft + W - 45 : cameraLeft + 45;
+        const bossMargin = 64 * BOSS_SCALE + 6;
+        const sideTargetX = boss.facing < 0 ? cameraLeft + W - bossMargin : cameraLeft + bossMargin;
         const dxSide = sideTargetX - boss.x;
 
         if (Math.abs(dxSide) > 12) {
@@ -998,7 +1042,7 @@
         boss.facing = dx < 0 ? -1 : 1;
         boss.setFlipX(boss.facing < 0);
 
-        if (Math.abs(dx) > 85 || Math.abs(dy) > 24) {
+        if (Math.abs(dx) > 85 * COMBAT_SCALE || Math.abs(dy) > 24 * COMBAT_SCALE) {
           const v = new Phaser.Math.Vector2(dx, dy * 1.25).normalize();
           boss.setVelocity(v.x * boss.speed * 1.2, v.y * boss.speed * 0.85);
           this.playActorAnim(boss, 'walk', true);
@@ -1021,7 +1065,70 @@
       this.tweens.add({ targets: text, alpha: 0, y: 88, delay: 900, duration: 500, onComplete: () => text.destroy() });
     }
 
+    playFrameEffect(type, x, y, options = {}) {
+      const frames = [`${type}_1`, `${type}_2`, `${type}_3`];
+      const effect = this.add.image(x, y, frames[0])
+        .setOrigin(0.5)
+        .setDepth(options.depth || 9500)
+        .setScale(options.scale || 0.28 * ENTITY_SIZE_MULTIPLIER)
+        .setAlpha(options.alpha ?? 1);
+      if (options.tint) effect.setTint(options.tint);
+      if (options.rotation) effect.setRotation(options.rotation);
+
+      let frameIndex = 0;
+      this.time.addEvent({
+        delay: options.frameDelay || 55,
+        repeat: 2,
+        callback: () => {
+          frameIndex = Math.min(frameIndex + 1, frames.length - 1);
+          if (effect.active) effect.setTexture(frames[frameIndex]);
+        }
+      });
+      this.tweens.add({
+        targets: effect,
+        x: x + (options.dx || 0),
+        y: y + (options.dy || 0),
+        scaleX: effect.scaleX * (options.grow || 1.15),
+        scaleY: effect.scaleY * (options.grow || 1.15),
+        alpha: 0,
+        angle: effect.angle + (options.spin || 0),
+        duration: options.duration || 230,
+        ease: options.ease || 'Quad.easeOut',
+        onComplete: () => effect.destroy()
+      });
+      return effect;
+    }
+
+    playSpecialAura() {
+      const tint = { cristina: 0x3ffcff, iris: 0xb86cff, rache: 0xffd43b }[this.character];
+      const baseY = this.player.y - 42 * COMBAT_SCALE;
+
+      if (this.character === 'cristina') {
+        [-1, 0, 1].forEach((lane, index) => this.playFrameEffect('aurea', this.player.x, baseY + lane * 18, {
+          tint, scale: 0.22 + index * 0.035, dx: this.player.facing * (72 + index * 25),
+          spin: this.player.facing * (35 + index * 20), duration: 260 + index * 45, grow: 0.75
+        }));
+      } else if (this.character === 'iris') {
+        [0.24, 0.34, 0.46].forEach((scale, index) => this.time.delayedCall(index * 65, () => {
+          if (this.player.active) this.playFrameEffect('aurea', this.player.x, baseY, {
+            tint, scale, duration: 360, grow: 1.9, spin: index % 2 ? -50 : 50, alpha: 0.88
+          });
+        }));
+      } else {
+        [-1, 1].forEach(direction => this.playFrameEffect('aurea', this.player.x + direction * 22, baseY, {
+          tint, scale: 0.3, dx: direction * 58, dy: -28, spin: direction * 210,
+          duration: 430, grow: 1.35, ease: 'Sine.easeOut'
+        }));
+        this.playFrameEffect('aurea', this.player.x, baseY, { tint, scale: 0.42, spin: 120, duration: 450, grow: 1.55 });
+      }
+    }
+
     addBossHazard({ x, y, width, height, delay = 850, duration = 350, color = 0xff0055, vx = 0, circle = false, spriteKey = null }) {
+      const cameraLeft = this.cameras.main.scrollX;
+      const halfWidth = width / 2;
+      const halfHeight = height / 2;
+      x = Phaser.Math.Clamp(x, cameraLeft + halfWidth, cameraLeft + W - halfWidth);
+      y = Phaser.Math.Clamp(y, MOVEMENT_TOP + halfHeight, MOVEMENT_BOTTOM - halfHeight);
       const graphics = this.add.graphics().setDepth(8999);
       let sprite = null;
 
@@ -1091,8 +1198,8 @@
 
         if (!hazard.hasHit) {
           const hit = hazard.circle
-            ? Phaser.Math.Distance.Between(this.player.x, this.player.y, hazard.x, hazard.y) < (hazard.width / 2 + 15)
-            : Math.abs(this.player.x - hazard.x) < (hazard.width / 2 + 15) && Math.abs(this.player.y - hazard.y) < (hazard.height / 2 + 15);
+            ? Phaser.Math.Distance.Between(this.player.x, this.player.y, hazard.x, hazard.y) < (hazard.width / 2 + 15 * COMBAT_SCALE)
+            : Math.abs(this.player.x - hazard.x) < (hazard.width / 2 + 15 * COMBAT_SCALE) && Math.abs(this.player.y - hazard.y) < (hazard.height / 2 + 15 * COMBAT_SCALE);
 
           if (hit) {
             this.damagePlayer(15 + this.stage * 3);
@@ -1110,73 +1217,53 @@
 
     triggerBossPattern(boss, time) {
       this.playActorAnim(boss, 'atk');
-
       const cameraLeft = this.cameras.main.scrollX;
-      const colX = [cameraLeft + W * 0.20, cameraLeft + W * 0.50, cameraLeft + W * 0.80];
-      const rowY = [MOVEMENT_TOP + (MOVEMENT_BOTTOM - MOVEMENT_TOP) * 0.28, MOVEMENT_TOP + (MOVEMENT_BOTTOM - MOVEMENT_TOP) * 0.72];
-
-      const sectors = [
-        { x: colX[0], y: rowY[0] }, { x: colX[1], y: rowY[0] }, { x: colX[2], y: rowY[0] },
-        { x: colX[0], y: rowY[1] }, { x: colX[1], y: rowY[1] }, { x: colX[2], y: rowY[1] }
-      ];
+      const grid = this.getBossGrid(cameraLeft);
+      const enraged = boss.hp <= boss.maxHp * 0.5;
+      const addCells = (indices, color, delay = 720, duration = 300) => {
+        [...new Set(indices)].forEach(index => {
+          const cell = grid.cells[index];
+          if (!cell) return;
+          this.addBossHazard({ x: cell.x, y: cell.y, width: grid.cellW * 0.76, height: grid.cellH * 0.72, delay, duration, color });
+        });
+      };
 
       if (boss.pattern === 1) {
-        const picked = Phaser.Utils.Array.Shuffle([0, 1, 2, 3, 4, 5]).slice(0, 2);
-        picked.forEach(idx => {
-          const s = sectors[idx];
-          this.addBossHazard({
-            x: s.x, y: s.y, width: 120, height: 80,
-            delay: 800, duration: 350, color: 0xff3e91, circle: true
-          });
-        });
-
+        // Brief bomb: celle sparse, con una cella sempre lasciata libera attorno al player.
+        const playerCell = this.getBossGridIndex(grid, this.player.x, this.player.y);
+        const pool = Phaser.Utils.Array.Shuffle([...Array(32).keys()].filter(index => index !== playerCell));
+        addCells(pool.slice(0, enraged ? 9 : 6), 0xff3e91, 760, 310);
       } else if (boss.pattern === 2) {
-        const safeCol = Phaser.Math.Between(0, 2);
-        [0, 1, 2].forEach(colIdx => {
-          if (colIdx !== safeCol) {
-            this.addBossHazard({
-              x: colX[colIdx], y: (rowY[0] + rowY[1]) / 2, width: W * 0.28, height: MOVEMENT_BOTTOM - MOVEMENT_TOP,
-              delay: 850, duration: 400, color: 0xffea00
-            });
-          }
-        });
-
+        // Ciak: due colonne chiuse, mai adiacenti, quindi restano corridoi leggibili.
+        const first = Phaser.Math.Between(0, 3);
+        const second = first + 4;
+        const columns = enraged ? [first, second, (first + 2) % 8] : [first, second];
+        addCells(columns.flatMap(column => [column, column + 8, column + 16, column + 24]), 0xffea00, 820, 340);
       } else if (boss.pattern === 3) {
-        const targetRow = this.player.y < (rowY[0] + rowY[1]) / 2 ? 0 : 1;
+        // Taxi: attraversa una delle quattro righe precise della griglia.
+        const targetRow = Phaser.Math.Clamp(Math.floor((this.player.y - MOVEMENT_TOP) / grid.cellH), 0, 3);
         const fromLeft = boss.x < cameraLeft + W / 2;
-
         this.addBossHazard({
-          x: fromLeft ? cameraLeft - 60 : cameraLeft + W + 60,
-          y: rowY[targetRow], width: 140, height: 52,
+          x: fromLeft ? cameraLeft + 70 : cameraLeft + W - 70,
+          y: grid.rows[targetRow], width: 140, height: grid.cellH * 0.72,
           delay: 750, duration: 1100, color: 0x00f0ff,
-          vx: fromLeft ? 560 : -560,
+          vx: (fromLeft ? 560 : -560) * BACKGROUND_SCALE,
           spriteKey: 'taxi_vehicle'
         });
-
+        if (enraged) addCells([targetRow * 8 + 2, targetRow * 8 + 5], 0x00f0ff, 620, 260);
       } else if (boss.pattern === 4) {
-        const safeStart = Phaser.Math.Between(0, 4);
-        const safeSectors = [safeStart, (safeStart + 1) % 6];
-
-        sectors.forEach((s, idx) => {
-          if (!safeSectors.includes(idx)) {
-            this.addBossHazard({
-              x: s.x, y: s.y, width: W * 0.28, height: 75,
-              delay: 950, duration: 400, color: 0xa260ff
-            });
-          }
-        });
-
+        // Revisione: scacchiera alternata, con celle piccole e distinte.
+        const parity = boss.castWavesDone % 2;
+        const checker = grid.cells.map((_, index) => index).filter(index => ((index % 8) + Math.floor(index / 8)) % 2 === parity);
+        addCells(checker.filter((_, index) => !enraged && index % 3 === 0 ? false : true), 0xa260ff, 900, 330);
       } else {
-        const isEven = boss.castWavesDone % 2 === 0;
-        const targetSectors = isEven ? [0, 2, 4] : [1, 3, 5];
-
-        targetSectors.forEach(idx => {
-          const s = sectors[idx];
-          this.addBossHazard({
-            x: s.x, y: s.y, width: 110, height: 80,
-            delay: 600, duration: 300, color: 0xff0055, circle: true
-          });
+        // Final pitch: una diagonale avanza nella griglia come un'onda.
+        const reverse = boss.castWavesDone % 2 === 1;
+        const diagonal = [0, 1, 2, 3].flatMap(row => {
+          const column = reverse ? 7 - row * 2 : row * 2;
+          return enraged ? [row * 8 + column, row * 8 + Phaser.Math.Clamp(column + (reverse ? -1 : 1), 0, 7)] : [row * 8 + column];
         });
+        addCells(diagonal, 0xff0055, 620, 280);
       }
 
       boss.castWavesDone++;
@@ -1191,12 +1278,30 @@
       }
     }
 
+    getBossGrid(cameraLeft) {
+      const paddingX = 12;
+      const cellW = (W - paddingX * 2) / 8;
+      const cellH = (MOVEMENT_BOTTOM - MOVEMENT_TOP) / 4;
+      const columns = Array.from({ length: 8 }, (_, column) => cameraLeft + paddingX + cellW * (column + 0.5));
+      const rows = Array.from({ length: 4 }, (_, row) => MOVEMENT_TOP + cellH * (row + 0.5));
+      return { cellW, cellH, columns, rows, cells: rows.flatMap(y => columns.map(x => ({ x, y }))) };
+    }
+
+    getBossGridIndex(grid, x, y) {
+      const column = Phaser.Math.Clamp(Math.floor((x - this.cameras.main.scrollX - 12) / grid.cellW), 0, 7);
+      const row = Phaser.Math.Clamp(Math.floor((y - MOVEMENT_TOP) / grid.cellH), 0, 3);
+      return row * 8 + column;
+    }
+
     enemyAttack(enemy, time) {
       enemy.nextAttack = time + (enemy.isBoss ? 1500 : Math.max(1400, 2200 - this.stage * 150));
       enemy.stateLocked = true; enemy.setVelocity(0); this.playActorAnim(enemy, 'atk');
       this.time.delayedCall(enemy.isBoss ? 450 : 220, () => {
         if (!enemy.active || this.stageEnded) return;
-        if (Math.abs(this.player.x - enemy.x) < (enemy.isBoss ? 155 : 118) && Math.abs(this.player.y - enemy.y) < 54) this.damagePlayer(enemy.damage);
+        if (Math.abs(this.player.x - enemy.x) < (enemy.isBoss ? 155 : 118) * COMBAT_SCALE && Math.abs(this.player.y - enemy.y) < 54 * COMBAT_SCALE) {
+          this.playFrameEffect('hitspark', this.player.x, this.player.y - 38 * COMBAT_SCALE, { tint: 0xff6a4d, scale: 0.25, spin: 35 });
+          this.damagePlayer(enemy.damage);
+        }
       });
     }
 
@@ -1207,7 +1312,7 @@
       const now = this.time.now;
       this.comboStep = now <= this.comboExpires ? (this.comboStep % 3) + 1 : 1;
       this.comboExpires = now + 650;
-      this.performAttack('atk', 18 + this.comboStep * 4, 125, 55, 250);
+      this.performAttack('atk', 18 + this.comboStep * 4, 125 * COMBAT_SCALE, 55 * COMBAT_SCALE, 250);
     }
 
     specialAttack() {
@@ -1216,7 +1321,8 @@
       if (this.attackBusy || this.stageEnded || this.isPausedState || this.time.now < this.specialReadyAt) return;
       playSfx('assets/audio/sfx_special.mp3');
       this.specialReadyAt = this.time.now + cd;
-      this.performAttack('atk_spec', 58, 190, 90, 250);
+      this.playSpecialAura();
+      this.performAttack('atk_spec', 58, 190 * COMBAT_SCALE, 90 * COMBAT_SCALE, 250);
       this.cameras.main.shake(180, 0.006);
     }
 
@@ -1252,12 +1358,12 @@
         const hitX = this.player.x + this.player.facing * reach * 0.55;
         this.enemies.getChildren().slice().forEach(enemy => {
           if (!enemy.active) return;
-          const inFront = this.player.facing > 0 ? enemy.x >= this.player.x - 8 : enemy.x <= this.player.x + 8;
+          const inFront = this.player.facing > 0 ? enemy.x >= this.player.x - 8 * COMBAT_SCALE : enemy.x <= this.player.x + 8 * COMBAT_SCALE;
           if (inFront && Math.abs(enemy.x - hitX) <= reach * 0.65 && Math.abs(enemy.y - this.player.y) <= lane) this.damageEnemy(enemy, totalDmg);
         });
         this.crates.getChildren().slice().forEach(crate => {
-          const inFront = this.player.facing > 0 ? crate.x >= this.player.x - 8 : crate.x <= this.player.x + 8;
-          if (crate.active && inFront && Math.abs(crate.x - hitX) <= reach * 0.7 && Math.abs(crate.y - this.player.y) <= lane + 10) this.damageCrate(crate, totalDmg);
+          const inFront = this.player.facing > 0 ? crate.x >= this.player.x - 8 * COMBAT_SCALE : crate.x <= this.player.x + 8 * COMBAT_SCALE;
+          if (crate.active && inFront && Math.abs(crate.x - hitX) <= reach * 0.7 && Math.abs(crate.y - this.player.y) <= lane + 10 * COMBAT_SCALE) this.damageCrate(crate, totalDmg);
         });
       });
     }
@@ -1265,9 +1371,18 @@
     damageEnemy(enemy, damage) {
       if (enemy.stateLocked === 'ko') return;
       playSfx('assets/audio/sfx_hit.mp3');
+      this.playFrameEffect('hitspark', enemy.x, enemy.y - 42 * COMBAT_SCALE, {
+        tint: enemy.isBoss ? 0xffd43b : 0xffffff,
+        scale: enemy.isBoss ? 0.34 : 0.25,
+        dx: this.player.facing * 12,
+        spin: this.player.facing * 45
+      });
       enemy.hp -= damage; enemy.setVelocity(0); enemy.stateLocked = true;
       if (enemy.hp <= 0) {
         enemy.stateLocked = 'ko'; this.playActorAnim(enemy, 'ko');
+        this.playFrameEffect('dustcloud', enemy.x, enemy.y - 12 * COMBAT_SCALE, {
+          scale: enemy.isBoss ? 0.52 : 0.34, grow: 1.6, duration: 420, alpha: 0.9
+        });
         this.score += enemy.isBoss ? 5000 : 250; // Punti diretti (5.000 per il Boss)
         this.time.delayedCall(520, () => {
           if (!enemy.active) return;
@@ -1287,9 +1402,11 @@
     damageCrate(crate, damage) {
       if (!crate.active || crate.hitLock) return;
       playSfx('assets/audio/sfx_crate.mp3');
+      this.playFrameEffect('hitspark', crate.x, crate.y - 22 * COMBAT_SCALE, { tint: 0xffd089, scale: 0.22, spin: 70 });
       crate.hitLock = true; crate.hp -= damage >= 50 ? 2 : 1;
       if (crate.hp <= 0) {
         const x = crate.x, y = crate.y; const textureKey = `crate_${crate.variant}_broken2`;
+        this.playFrameEffect('dustcloud', x, y - 8 * COMBAT_SCALE, { scale: 0.3, grow: 1.5, duration: 360 });
         crate.setTexture(textureKey); this.resizeCrate(crate, textureKey);
         this.time.delayedCall(180, () => { crate.destroy(); this.maybeDropPickup(x, y, false, true); });
       } else {
@@ -1314,19 +1431,21 @@
       const minCamX = this.cameras.main.scrollX + 60;
       const maxCamX = this.cameras.main.scrollX + W - 60;
       const safeX = Phaser.Math.Clamp(x, Math.max(minCamX, 60), Math.min(maxCamX, WORLD_W - 60));
-      const safeY = Phaser.Math.Clamp(y, MOVEMENT_TOP + 20, MOVEMENT_BOTTOM - 20);
+      const safeY = Phaser.Math.Clamp(y, MOVEMENT_TOP + 20 * BACKGROUND_SCALE, MOVEMENT_BOTTOM - 20 * BACKGROUND_SCALE);
 
       const pickup = this.pickupGroup.create(safeX, safeY, key).setOrigin(0.5, 1).setDisplaySize(38 * OBJECT_SCALE, 38 * OBJECT_SCALE);
       pickup.kind = kind; pickup.value = value;
       
-      pickup.body.setSize(84, 72).setOffset(-23, -18);
-      this.tweens.add({ targets: pickup, y: safeY - 8, duration: 430, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      const pickupFrame = pickup.frame;
+      pickup.body.setSize(pickupFrame.width * 0.8, pickupFrame.height * 0.8);
+      pickup.body.setOffset(pickupFrame.width * 0.1, pickupFrame.height * 0.1);
+      this.tweens.add({ targets: pickup, y: safeY - 8 * BACKGROUND_SCALE, duration: 430, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     }
 
     collectNearbyPickups() {
       this.pickupGroup.getChildren().forEach(pickup => {
         if (!pickup.active || pickup.collecting) return;
-        if (Math.abs(this.player.x - pickup.x) <= 90 && Math.abs(this.player.y - pickup.y) <= 72) {
+        if (Math.abs(this.player.x - pickup.x) <= 90 * COMBAT_SCALE && Math.abs(this.player.y - pickup.y) <= 72 * COMBAT_SCALE) {
           this.collectPickup(this.player, pickup);
         }
       });
@@ -1383,19 +1502,13 @@
       if (!this.arenaLocked || this.enemies.countActive(true) > 0) return;
       const quotaComplete = this.arenaSpawned >= this.arenaQuota && this.arenaDefeated >= this.arenaQuota;
       if (!quotaComplete) return;
-      if (this.arenaIndex === ARENA_X.length - 1) {
-        if (!this.bossSpawned) {
-          this.bossSpawned = true;
-          this.showBanner('lock_warning', 500);
-          this.time.delayedCall(650, () => {
-            if (this.arenaLocked && !this.stageEnded) this.spawnBoss(ARENA_X[this.arenaIndex]);
-          });
-        } else {
-          this.stageClear();
-        }
+      if (this.arenaIndex === BOSS_ARENA_INDEX) {
+        if (this.bossSpawned) this.stageClear();
       } else {
         this.showBanner('go', 900);
-        this.arenaLocked = false; this.arenaIndex++;
+        this.arenaLocked = false;
+        this.arenaRunId++;
+        this.arenaIndex++;
         this.cameras.main.startFollow(this.player, true, 0.12, 0.12, -55, 0);
       }
     }
@@ -1430,6 +1543,7 @@
 
     gameOver() {
       this.stageEnded = true; this.player.setVelocity(0); this.player.play(`${this.character}_ko`, true);
+      this.playFrameEffect('dustcloud', this.player.x, this.player.y - 10 * COMBAT_SCALE, { scale: 0.38, grow: 1.7, duration: 460 });
       this.saveScore();
       playSfx('assets/audio/sfx_gameover.mp3');
       const shade = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.72).setScrollFactor(0).setDepth(12500);
@@ -1482,7 +1596,13 @@
       if (!this.hpBar) return;
       this.hpBar.width = 148 * (this.hp / 100);
       this.scoreText.setText(`PTS ${this.score}`);
-      this.stageText.setText(this.arenaLocked ? `STAGE ${this.stage}/5  LOCK ${Math.min(this.arenaDefeated, this.arenaQuota)}/${this.arenaQuota}` : `STAGE ${this.stage}/5`);
+      if (!this.arenaLocked) {
+        this.stageText.setText(`STAGE ${this.stage}/5  FIGHT ${Math.min(this.arenaIndex + 1, 5)}/5`);
+      } else if (this.arenaIndex === BOSS_ARENA_INDEX) {
+        this.stageText.setText(`STAGE ${this.stage}/5  BOSS`);
+      } else {
+        this.stageText.setText(`FIGHT ${this.arenaIndex + 1}/5  ${Math.min(this.arenaDefeated, this.arenaQuota)}/${this.arenaQuota}`);
+      }
     }
   }
 
