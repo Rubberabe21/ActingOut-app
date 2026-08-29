@@ -125,7 +125,7 @@
       speedMult: 0.85, dmgMult: 1.25, dmgTakenMult: 0.80, cdMult: 1.0, healMult: 1.0 
     },
     { 
-      key: 'rache', file: 'rache', fileSelect: 'rache_select.png', label: 'RACHELE', select: 'rache_select.png', color: 0xffd43b,
+      key: 'rache', file: 'rache.png', fileSelect: 'rache_select.png', label: 'RACHELE', select: 'rache_select.png', color: 0xffd43b,
       role: 'WORK MACHINE',
       bio: 'Maestra del recupero. Sfrutta ogni snack per mantenere al massimo l’energia.',
       bonus: '🍕 +50% Vita dal Cibo\n⚡ +10% Danno Attacco Base', 
