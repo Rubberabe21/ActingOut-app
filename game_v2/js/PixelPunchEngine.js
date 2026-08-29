@@ -42,7 +42,7 @@
       select:  { type: 'sine', start: 440, end: 660, duration: 0.08, volume: 0.24 }
     };
     const profile = profiles[name] || profiles.select;
-    const oscillator = context.createOscillator();
+    const oscillator = context.frequency ? context.createOscillator() : context.createOscillator();
     const gain = context.createGain();
     const now = context.currentTime;
 
@@ -110,7 +110,7 @@
   const PLAYERS = [
     { 
       key: 'cristina', file: 'cri.png', label: 'CRISTINA', select: 'cri_select.png', color: 0xff3e91,
-      role: 'LEADER AGILE',
+      role: 'THE FIXER',
       bio: 'Focalizzata sulla velocità. Sfreccia tra i nemici e ricarica le speciali a tempo record.',
       bonus: '⚡ +20% Velocità di movimento\n⏱️ -20% Ricarica Speciale', 
       malus: '💥 -15% Danno Attacco Base',
@@ -118,15 +118,15 @@
     },
     { 
       key: 'iris', file: 'iris.png', label: 'IRIS', select: 'iris_select.png', color: 0x39dfff,
-      role: 'BRAWLER HEAVY',
+      role: 'PROMPT PADAWAN',
       bio: 'Potenza pura. Assorbe i colpi senza piegarsi e infligge danni devastanti.',
       bonus: '🥊 +25% Danno Attacco Base\n🛡️ -20% Danni Subiti', 
       malus: '🐢 -15% Velocità di movimento',
       speedMult: 0.85, dmgMult: 1.25, dmgTakenMult: 0.80, cdMult: 1.0, healMult: 1.0 
     },
     { 
-      key: 'rache', file: 'rache.png', label: 'RACHE', select: 'rache_select.png', color: 0xffd43b,
-      role: 'TACTICAL PRODUCER',
+      key: 'rache', file: 'rache', fileSelect: 'rache_select.png', label: 'RACHELE', select: 'rache_select.png', color: 0xffd43b,
+      role: 'WORK MACHINE',
       bio: 'Maestra del recupero. Sfrutta ogni snack per mantenere al massimo l’energia.',
       bonus: '🍕 +50% Vita dal Cibo\n⚡ +10% Danno Attacco Base', 
       malus: '⚠️ +20% Danni Subiti se colpita',
@@ -152,7 +152,7 @@
     {
       title: 'LA SCADENZA',
       subtitle: 'VENERDÌ ORE 19:00',
-      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per\'esportazione.'
+      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per l\'esportazione.'
     },
     {
       title: 'IL SABOTAGGIO',
@@ -380,6 +380,7 @@
       this.addContinue('PREMI A PER SCEGLIERE FIGHTER ►');
     }
 
+    // --- SCHERMATA SELEZIONE RISTRUTTURATA ---
     showSelection(charIndex = 0) {
       this.page = 'select';
       this.charSelectIndex = (charIndex + PLAYERS.length) % PLAYERS.length;
@@ -391,34 +392,38 @@
       const selectTitle = fitImage(this.add.image(W / 2, 28, 'select_text'), W * 0.75, 48);
       this.pageObjects.add(selectTitle);
 
+      // Card contenitore principale
       const cardBg = this.add.rectangle(W / 2, 266, W - 32, 420, 0x0f0821, 0.98).setStrokeStyle(3, p.color);
 
-      const glow = this.add.ellipse(W / 2, 122, 286, 150, p.color, 0.3);
-      const portrait = fitImage(this.add.image(W / 2, 122, `${p.key}_select`), 270, 148);
-      this.tweens.add({ targets: glow, alpha: 0.6, scaleX: 1.15, scaleY: 1.15, duration: 800, yoyo: true, repeat: -1 });
+      // FOTO GRANDE IN ALTO A SINISTRA (senza ellisse di sfondo)
+      const portrait = fitImage(this.add.image(115, 140, `${p.key}_select`), 160, 180).setOrigin(0.5);
 
-      const nameText = this.add.text(W / 2, 208, p.label, { fontFamily: 'monospace', fontSize: '30px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 }).setOrigin(0.5);
-      const roleText = this.add.text(W / 2, 239, p.role, { fontFamily: 'monospace', fontSize: '16px', color: '#ffea00', fontStyle: 'bold' }).setOrigin(0.5);
+      // INFO PERSONAGGIO A FIANCO DELLA FOTO (A DESTRA)
+      const nameText = this.add.text(210, 68, p.label, { fontFamily: 'monospace', fontSize: '28px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 5 });
+      const roleText = this.add.text(210, 102, p.role, { fontFamily: 'monospace', fontSize: '15px', color: '#ffea00', fontStyle: 'bold' });
+      const bioText = this.add.text(210, 128, p.bio, { fontFamily: 'sans-serif', fontSize: '13px', color: '#dddddd', wordWrap: { width: 255 }, lineSpacing: 3 });
 
-      const bioText = this.add.text(W / 2, 262, p.bio, { fontFamily: 'sans-serif', fontSize: '13px', color: '#dddddd', align: 'center', wordWrap: { width: W - 82 }, lineSpacing: 3 }).setOrigin(0.5, 0);
+      // BONUS E MALUS SOTTO L'IMMAGINE E LA BIO
+      const bonusBox = this.add.rectangle(W / 2, 280, W - 58, 62, 0x0a2416, 0.95).setStrokeStyle(2, 0x00ff88);
+      const bonusTitle = this.add.text(44, 253, 'BONUS', { fontFamily: 'monospace', fontSize: '15px', color: '#00ff88', fontStyle: 'bold' });
+      const bonusDetail = this.add.text(44, 274, p.bonus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
 
-      const bonusBox = this.add.rectangle(W / 2, 350, W - 58, 62, 0x0a2416, 0.95).setStrokeStyle(2, 0x00ff88);
-      const bonusTitle = this.add.text(44, 323, 'BONUS', { fontFamily: 'monospace', fontSize: '15px', color: '#00ff88', fontStyle: 'bold' });
-      const bonusDetail = this.add.text(44, 344, p.bonus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
+      const malusBox = this.add.rectangle(W / 2, 360, W - 58, 54, 0x2b0d14, 0.95).setStrokeStyle(2, 0xff4466);
+      const malusTitle = this.add.text(44, 337, 'MALUS', { fontFamily: 'monospace', fontSize: '15px', color: '#ff4466', fontStyle: 'bold' });
+      const malusDetail = this.add.text(44, 357, p.malus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
 
-      const malusBox = this.add.rectangle(W / 2, 423, W - 58, 54, 0x2b0d14, 0.95).setStrokeStyle(2, 0xff4466);
-      const malusTitle = this.add.text(44, 400, 'MALUS', { fontFamily: 'monospace', fontSize: '15px', color: '#ff4466', fontStyle: 'bold' });
-      const malusDetail = this.add.text(44, 420, p.malus, { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', fontStyle: 'bold', lineSpacing: 2 });
-
-      const prevBtn = this.add.text(25, 122, '◀', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      // FRECCE LATERALI DI SELEZIONE
+      const prevBtn = this.add.text(25, 140, '◀', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       prevBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex - 1));
 
-      const nextBtn = this.add.text(W - 25, 122, '▶', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const nextBtn = this.add.text(W - 25, 140, '▶', { fontFamily: 'monospace', fontSize: '42px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       nextBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex + 1));
 
+      // INDICATORI A PALLINO
       const dotsText = PLAYERS.map((_, i) => i === this.charSelectIndex ? '●' : '○').join('   ');
-      const dots = this.add.text(W / 2, 461, dotsText, { fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc' }).setOrigin(0.5);
+      const dots = this.add.text(W / 2, 422, dotsText, { fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc' }).setOrigin(0.5);
 
+      // BOTTONE CONFERMA
       const selectBtn = this.add.rectangle(W / 2, H - 24, W - 52, 38, 0x7028aa, 1).setStrokeStyle(3, 0xffea00).setInteractive({ useHandCursor: true });
       const selectBtnText = this.add.text(W / 2, H - 24, `SCEGLI ${p.label} (PREMI A) ►`, { fontFamily: 'monospace', fontSize: '16px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
       
@@ -428,7 +433,7 @@
       });
 
       this.pageObjects.add([
-        cardBg, glow, portrait, nameText, roleText, bioText,
+        cardBg, portrait, nameText, roleText, bioText,
         bonusBox, bonusTitle, bonusDetail,
         malusBox, malusTitle, malusDetail,
         prevBtn, nextBtn, dots, selectBtn, selectBtnText
@@ -574,7 +579,6 @@
       PICKUPS[s - 1].forEach((file, i) => loadImage(this, `point_${i}`, `raccoglibili/Scenario${s}/${file}`));
       LIVES[s - 1].forEach((file, i) => loadImage(this, `life_${i}`, `vite/Scenario${s}/${file}`));
 
-      // Asset specifico per Taxi proiettile Boss 3
       if (s === 3) {
         loadImage(this, 'taxi_vehicle', 'cattivi/taxi.png');
       }
@@ -687,12 +691,11 @@
       this.physics.add.overlap(this.player, this.pickupGroup, this.collectPickup, undefined, this);
     }
 
-    // Ingrandimento speciale per gli ostacoli di Scenario 2 (Luce/Faretti)
     resizeCrate(crate, textureKey) {
       const frame = this.textures.getFrame(textureKey);
       let multiplier = crate.isCoffeeMachine ? 1.15 : 1;
       if (this.stage === 2 && crate.variant === 0) {
-        multiplier *= 2; // Raddoppiato come richiesto
+        multiplier *= 2;
       }
       const maxDimension = 54 * OBJECT_SCALE * multiplier;
       const scale = maxDimension / Math.max(frame.width, frame.height);
@@ -922,10 +925,9 @@
       boss.nextAttack = this.time.now + 1200; boss.isBoss = true; boss.facing = side === 'left' ? 1 : -1;
       boss.pattern = this.stage;
       
-      // Stato combattimento Boss a due fasi (Casting ad area & Carica ravvicinata)
-      boss.mode = 'cast'; // 'cast' oppure 'rush'
+      boss.mode = 'cast'; 
       boss.castWavesDone = 0;
-      boss.castQuota = 1; // Parte con 1 ondata, poi incrementa
+      boss.castQuota = 1; 
       boss.rushTimeEnd = 0;
 
       boss.body.setSize(40, 20).setOffset(44, 108);
@@ -962,11 +964,9 @@
       });
     }
 
-    // --- NUOVA LOGICA BOSS A FASI ONDATE & CARICA ---
     updateBoss(boss, time) {
       const cameraLeft = this.cameras.main.scrollX;
 
-      // FASE 1: CASTING AD AREA DAL BORDO SCHERMO
       if (boss.mode === 'cast') {
         const sideTargetX = boss.facing < 0 ? cameraLeft + W - 50 : cameraLeft + 50;
         const dxSide = sideTargetX - boss.x;
@@ -985,10 +985,8 @@
         return;
       }
 
-      // FASE 2: ATTACCO RAVVICINATO (INSEGUIMENTO)
       if (boss.mode === 'rush') {
         if (time >= boss.rushTimeEnd) {
-          // Ritorna in modalità Cast con una quota di ondate incrementata
           boss.mode = 'cast';
           boss.castWavesDone = 0;
           boss.castQuota = Math.min(4, boss.castQuota + 1);
@@ -1024,7 +1022,6 @@
       this.tweens.add({ targets: text, alpha: 0, y: 88, delay: 900, duration: 500, onComplete: () => text.destroy() });
     }
 
-    // TELEGRAFI GRAFICI PIXEL-ART (SENZA TESTO) CON TIMING E INDICATORE D'IMPATTO
     addBossHazard({ x, y, width, height, delay = 850, duration = 350, color = 0xff0055, vx = 0, circle = false, spriteKey = null }) {
       const graphics = this.add.graphics().setDepth(8999);
       let sprite = null;
@@ -1056,19 +1053,16 @@
 
         hazard.graphics.clear();
 
-        // FASE 1: PREAVVISO PIXEL-ART (Lampeggio e barra di carica)
         if (time < hazard.delayEnds) {
           const progress = 1 - ((hazard.delayEnds - time) / hazard.totalDelay);
           const pulse = Math.floor(time / 60) % 2 === 0;
 
           if (hazard.circle) {
-            // Cerchio rosso pieno stile pixel art
             hazard.graphics.fillStyle(hazard.color, pulse ? 0.35 : 0.15);
             hazard.graphics.fillCircle(hazard.x, hazard.y, hazard.width / 2);
             hazard.graphics.lineStyle(4, 0xffffff, pulse ? 0.9 : 0.4);
             hazard.graphics.strokeCircle(hazard.x, hazard.y, hazard.width / 2);
             
-            // Anello interno di carica
             hazard.graphics.lineStyle(3, 0xffea00, 0.9);
             hazard.graphics.strokeCircle(hazard.x, hazard.y, (hazard.width / 2) * progress);
           } else {
@@ -1077,14 +1071,12 @@
             hazard.graphics.lineStyle(4, 0xffffff, pulse ? 0.9 : 0.4);
             hazard.graphics.strokeRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width, hazard.height);
 
-            // Barra di carica a blocchi retro
             hazard.graphics.fillStyle(0xffea00, 0.5);
             hazard.graphics.fillRect(hazard.x - hazard.width / 2, hazard.y - hazard.height / 2, hazard.width * progress, hazard.height);
           }
           return true;
         }
 
-        // FASE 2: IMPATTO FISICO
         if (!hazard.sprite) {
           hazard.graphics.fillStyle(hazard.color, 0.75);
           hazard.graphics.lineStyle(4, 0xffffff, 1);
@@ -1126,7 +1118,6 @@
       const midY = (MOVEMENT_TOP + MOVEMENT_BOTTOM) / 2;
       const botY = MOVEMENT_BOTTOM - 30;
 
-      // PATTERN A ONDATE PULITE
       if (boss.pattern === 1) {
         const safeXIndex = Phaser.Math.Between(0, 2);
         const slotsX = [cameraLeft + 100, cameraLeft + 256, cameraLeft + 412];
@@ -1154,7 +1145,6 @@
         });
 
       } else if (boss.pattern === 3) {
-        // TAXI DRIFT: Usa lo sprite del Taxi caricato come proiettile
         const targetY = this.player.y;
         const fromLeft = boss.x < centerX;
 
@@ -1195,10 +1185,9 @@
 
       boss.castWavesDone++;
 
-      // Se ha completato le ondate previste per questa fase, passa al Rush (Inseguimento ravvicinato)
       if (boss.castWavesDone >= boss.castQuota) {
         boss.mode = 'rush';
-        boss.rushTimeEnd = time + (3000 + boss.castQuota * 1000); // La carica dura progressivamente di più
+        boss.rushTimeEnd = time + (3000 + boss.castQuota * 1000); 
         boss.nextAttack = time + 400;
       } else {
         boss.nextAttack = time + 2200;
