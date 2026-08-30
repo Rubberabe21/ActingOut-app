@@ -1566,12 +1566,6 @@ const FIXED_STEP = 1000 / 60;
 let accumulator = 0;
 
 function loop(timestamp) {
-  if (window.MobilePortraitGuard?.isLocked()) {
-    lastTime = timestamp;
-    accumulator = 0;
-    requestAnimationFrame(loop);
-    return;
-  }
   if (!lastTime) lastTime = timestamp;
   let deltaTime = timestamp - lastTime;
   lastTime = timestamp;

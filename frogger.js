@@ -1499,10 +1499,6 @@ function draw() {
 }
 
 function gameLoop() {
-  if (window.MobilePortraitGuard?.isLocked()) {
-    requestAnimationFrame(gameLoop);
-    return;
-  }
   update();
   draw();
   requestAnimationFrame(gameLoop);

@@ -60,16 +60,6 @@
   // --- STILE CSS PER TASTI E JOYSTICK ---
   const style = document.createElement('style');
   style.innerHTML = `
-    #game-wrapper, #wrapper {
-      height: 100dvh !important;
-    }
-    #canvas-container {
-      width: min(100%, calc(100dvh - 234px - env(safe-area-inset-top) - env(safe-area-inset-bottom))) !important;
-    }
-    .control-deck {
-      padding-left: max(14px, env(safe-area-inset-left)) !important;
-      padding-right: max(14px, env(safe-area-inset-right)) !important;
-    }
     .top-header {
       display: grid !important;
       grid-template-columns: 112px minmax(0, 1fr) 112px !important;
@@ -157,15 +147,6 @@
     @media (max-width: 600px) {
       .deck-pause-btn {
         left: 38%;
-      }
-    }
-    @media (max-width: 380px), (max-height: 700px) {
-      #canvas-container {
-        width: min(100%, calc(100dvh - 206px - env(safe-area-inset-top) - env(safe-area-inset-bottom))) !important;
-      }
-      .control-deck {
-        padding-left: max(10px, env(safe-area-inset-left)) !important;
-        padding-right: max(10px, env(safe-area-inset-right)) !important;
       }
     }
     .action-buttons .action-btn {
@@ -2027,5 +2008,4 @@
 
   window.PixelPunchV2 = { config, PLAYERS, ENEMY_FILES, BOSS_FILES };
   window.pixelPunchV2Game = new Phaser.Game(config);
-  window.MobilePortraitGuard?.registerPhaserGame(window.pixelPunchV2Game);
 })();

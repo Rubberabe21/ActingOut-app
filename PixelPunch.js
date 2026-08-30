@@ -1094,10 +1094,6 @@ async function exitGame() {
 }
 
 function loop() {
-    if (window.MobilePortraitGuard?.isLocked()) {
-        requestAnimationFrame(loop);
-        return;
-    }
     frame++;
     update();
     draw();
