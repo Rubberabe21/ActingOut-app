@@ -1054,16 +1054,16 @@
       this.rightHudPanel = this.add.rectangle(W - 101, 31, 190, 48, 0x1c1022, 0.96)
         .setStrokeStyle(2, 0xffd43b, 0.72);
 
-      this.hpLabel = this.add.text(13, 8, `♥ ${this.playerStats.label}`, {
-        fontFamily: 'monospace', fontSize: '10px', color: '#ffffff', fontStyle: 'bold'
+      this.hpLabel = this.add.text(13, 13, `♥ ${this.playerStats.label}`, {
+        fontFamily: 'monospace', fontSize: '11px', color: '#ffffff', fontStyle: 'bold'
       });
-      this.hpBack = this.add.rectangle(13, 31, 176, 15, 0x260817).setOrigin(0, 0.5)
+      this.hpValueText = this.add.text(189, 13, '100 HP', {
+        fontFamily: 'monospace', fontSize: '11px', color: '#ffea00', fontStyle: 'bold'
+      }).setOrigin(1, 0);
+      this.hpBack = this.add.rectangle(13, 38, 176, 13, 0x260817).setOrigin(0, 0.5)
         .setStrokeStyle(1, 0xffffff, 0.25);
-      this.hpBar = this.add.rectangle(15, 31, 172, 11, playerColor).setOrigin(0, 0.5);
-      this.hpShine = this.add.rectangle(16, 28, 168, 2, 0xffffff, 0.38).setOrigin(0, 0.5);
-      this.hpValueText = this.add.text(101, 48, '100 HP', {
-        fontFamily: 'monospace', fontSize: '9px', color: '#ffea00', fontStyle: 'bold'
-      }).setOrigin(0.5);
+      this.hpBar = this.add.rectangle(15, 38, 172, 9, playerColor).setOrigin(0, 0.5);
+      this.hpShine = this.add.rectangle(16, 35, 168, 2, 0xffffff, 0.38).setOrigin(0, 0.5);
 
       this.stageText = this.add.text(W / 2, 31, `STAGE ${this.stage}/5\nFIGHT 1/5`, {
         fontFamily: 'monospace', fontSize: '10px', color: '#65f6ff', fontStyle: 'bold',
@@ -1071,14 +1071,15 @@
       }).setOrigin(0.5);
 
       this.scoreText = this.add.text(W - 13, 8, '', {
-        fontFamily: 'monospace', fontSize: '12px', color: '#ffeb4d', fontStyle: 'bold'
+        fontFamily: 'monospace', fontSize: '16px', color: '#ffeb4d', fontStyle: 'bold',
+        stroke: '#5c2300', strokeThickness: 3
       }).setOrigin(1, 0);
-      this.specialLabel = this.add.text(W - 13, 27, 'SPECIAL', {
-        fontFamily: 'monospace', fontSize: '9px', color: '#b9fff2', fontStyle: 'bold'
+      this.specialLabel = this.add.text(W - 13, 35, 'SPECIAL', {
+        fontFamily: 'monospace', fontSize: '8px', color: '#86aaa4', fontStyle: 'bold'
       }).setOrigin(1, 0.5);
-      this.specialBack = this.add.rectangle(W - 13, 43, 112, 11, 0x132d32).setOrigin(1, 0.5)
-        .setStrokeStyle(1, 0x33f5c0, 0.45);
-      this.specialBar = this.add.rectangle(W - 123, 43, 108, 7, 0x33f5c0).setOrigin(0, 0.5);
+      this.specialBack = this.add.rectangle(W - 13, 47, 90, 8, 0x132d32).setOrigin(1, 0.5)
+        .setStrokeStyle(1, 0x33f5c0, 0.28);
+      this.specialBar = this.add.rectangle(W - 101, 47, 86, 4, 0x33f5c0, 0.72).setOrigin(0, 0.5);
 
       this.hud.add([
         this.hudBack, this.leftHudPanel, this.centerHudPanel, this.rightHudPanel,
@@ -1968,7 +1969,7 @@
     updateCooldown(time) {
       const cd = SPECIAL_COOLDOWN * (this.playerStats.cdMult || 1.0);
       const progress = Phaser.Math.Clamp(1 - (this.specialReadyAt - time) / cd, 0, 1);
-      this.specialBar.width = 108 * progress;
+      this.specialBar.width = 86 * progress;
       const fill = document.getElementById('specialFill');
       if (fill) fill.style.height = `${Math.round(progress * 100)}%`;
     }

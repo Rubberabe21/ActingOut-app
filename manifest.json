@@ -3,6 +3,7 @@
   "short_name": "Arcade",
   "start_url": "./start.html",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
   "scope": "/"
