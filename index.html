@@ -20,6 +20,7 @@
 
 <!-- Gestione Audio Centralizzata (Web Audio API) -->
 <script src="audioManager.js"></script>
+<script src="printerPredictions.js"></script>
 
 <link rel="stylesheet" href="hub.css">
 <script defer src="rotationLock.js"></script>
@@ -96,6 +97,16 @@
 <div class="cart-title">DEADLINE DRIVE</div>
 <div class="cart-score" id="stat-dodge">0 PTS</div>
 </div>
+</div>
+
+<div class="section-title advice-section-title">CONSIGLI CONSERVATI 🧾</div>
+<div class="saved-advice-card">
+  <div class="saved-advice-summary">
+    <span id="saved-advice-status">NESSUN CONSIGLIO CONSERVATO</span>
+    <span id="saved-advice-count">0</span>
+  </div>
+  <button id="toggle-advice-archive-btn" class="saved-advice-btn">APRI L'ARCHIVIO</button>
+  <div id="saved-advice-archive" class="saved-advice-archive" style="display:none;"></div>
 </div>
 
 <button id="toggle-edit-btn" class="auth-btn" style="background:#181836; border:1px solid #00f3ff !important; color:#00f3ff; margin-bottom:8px;">
@@ -295,6 +306,80 @@ class AuthManager {
 
 const auth = new AuthManager();
 
+function getAdviceDayKey() {
+return new Date().toLocaleDateString('sv-SE');
+}
+
+function getAdviceStorageKey() {
+const username = auth.currentUser?.username || 'guest';
+return `arcade_saved_advice_${encodeURIComponent(username)}`;
+}
+
+function getSavedAdviceArchive() {
+try {
+  const saved = JSON.parse(localStorage.getItem(getAdviceStorageKey()) || '[]');
+  return Array.isArray(saved) ? saved : [];
+} catch (_error) {
+  return [];
+}
+}
+
+function getTodaySavedAdvice() {
+const today = getAdviceDayKey();
+return getSavedAdviceArchive().find(item => item.date === today) || null;
+}
+
+function saveDailyAdvice(text) {
+const archive = getSavedAdviceArchive();
+const today = getAdviceDayKey();
+const existing = archive.find(item => item.date === today);
+if (existing) return existing;
+
+const entry = { date: today, text };
+archive.unshift(entry);
+localStorage.setItem(getAdviceStorageKey(), JSON.stringify(archive));
+return entry;
+}
+
+function formatAdviceDate(dateValue) {
+const parts = String(dateValue).split('-');
+return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateValue;
+}
+
+function renderSavedAdviceArchive() {
+const archive = getSavedAdviceArchive();
+const todayAdvice = getTodaySavedAdvice();
+const status = document.getElementById('saved-advice-status');
+const count = document.getElementById('saved-advice-count');
+const list = document.getElementById('saved-advice-archive');
+if (!status || !count || !list) return;
+
+status.textContent = todayAdvice ? 'CONSIGLIO DI OGGI CONSERVATO ✓' : 'OGGI LA STAMPANTE TI ASPETTA';
+count.textContent = String(archive.length);
+list.replaceChildren();
+
+if (!archive.length) {
+  const empty = document.createElement('div');
+  empty.className = 'saved-advice-empty';
+  empty.textContent = 'Avvicinati alla Stampante dei Consigli nella Hub per ricevere la prima predizione.';
+  list.appendChild(empty);
+  return;
+}
+
+archive.forEach(item => {
+  const card = document.createElement('article');
+  card.className = 'saved-advice-entry';
+  const date = document.createElement('div');
+  date.className = 'saved-advice-date';
+  date.textContent = formatAdviceDate(item.date);
+  const copy = document.createElement('div');
+  copy.className = 'saved-advice-copy';
+  copy.textContent = item.text;
+  card.append(date, copy);
+  list.appendChild(card);
+});
+}
+
 function updateHeaderDOM() {
 const userBtn = document.getElementById('header-user-btn');
 const scoreBtn = document.getElementById('header-score-btn');
@@ -335,6 +420,7 @@ this.load.on('progress', (val) => {
 
 this.load.image('background', 'assets/hub/background.png');
 this.load.image('logo', 'assets/hub/logo.png');
+this.load.spritesheet('advice_printer', 'assets/hub/stampante.png', { frameWidth: 256, frameHeight: 256 });
 
 this.load.video('npc_video', 'assets/hub/personaggio.mp4', 'loadeddata', false, true);
 this.load.video('gabri_video', 'assets/hub/gabri.mp4', 'loadeddata', false, true);
@@ -342,6 +428,7 @@ this.load.video('raffa_video', 'assets/hub/raffa.mp4', 'loadeddata', false, true
 this.load.video('pierri_video', 'assets/hub/pierri.mp4', 'loadeddata', false, true);
 this.load.video('morena_video', 'assets/hub/morena.mp4', 'loadeddata', false, true);
 this.load.video('scintu_video', 'assets/hub/scintu.mp4', 'loadeddata', false, true);
+this.load.video('vigliani_video', 'assets/hub/vigliani.mp4', 'loadeddata', false, true);
 
 const playerSkins = [
 'dave.png', 'iris.png', 'laura.png', 'tosatto.png', 'rache.png',
@@ -410,6 +497,27 @@ this.scintu = this.add.video(2120, 595, 'scintu_video').setOrigin(0.5, 1).setSca
 if (this.scintu.setPipeline) this.scintu.setPipeline('GreenKey');
 this.scintu.play(true);
 this.scintu.setMute(true);
+
+this.vigliani = this.add.video(3020, 605, 'vigliani_video').setOrigin(0.5, 1).setScale(0.28).setDepth(10);
+if (this.vigliani.setPipeline) this.vigliani.setPipeline('GreenKey');
+this.vigliani.play(true);
+this.vigliani.setMute(true);
+
+this.advicePrinter = this.add.sprite(2750, 511 - 12, 'advice_printer', 0)
+  .setOrigin(0.5, 1)
+  .setScale(0.33)
+  .setDepth(11)
+  .setInteractive({ useHandCursor: true });
+this.advicePrinter.on('pointerdown', () => this.useAdvicePrinter());
+this.isAdviceOpen = false;
+this.isPrinterBusy = false;
+
+this.anims.create({
+key: 'advice_printer_print',
+frames: this.anims.generateFrameNumbers('advice_printer', { start: 0, end: 3 }),
+frameRate: 8,
+repeat: 1
+});
 
 this.anims.create({
 key: 'idle',
@@ -622,6 +730,12 @@ this.npcLines = [line1, Phaser.Math.RND.pick([
 "Sto controllando tutti i settaggi della C70. Se poi qualcosa non funziona, almeno non sarà colpa della macchina.",
 "Un attimo che finisco di preparare la camera… batteria, scheda, ottica e siamo pronti a girare."
 ])];
+} else if (speakerKey === 'vigliani') {
+this.npcLines = [line1, Phaser.Math.RND.pick([
+"Il cliente ha detto: “Fallo più caldo”. Ora sto cercando di capire se parla del video o della temperatura ambiente.",
+"Il mio lavoro è semplice: passo otto ore a spostare una rotella di tre millimetri e a dire “così è meglio”.",
+"Ho appena trovato il colore perfetto. Peccato che il monitor del cliente lo veda completamente diverso."
+])];
 } else {
 this.npcLines = [line1, Phaser.Math.RND.pick([
 "Sto sistemando un po’ di materiale d’archivio. Tu intanto puoi dare un’occhiata ai quattro cabinati più avanti.",
@@ -662,6 +776,9 @@ targetY = this.raffa.y;
 } else if (this.activeSpeaker === 'scintu') {
 targetX = this.scintu.x;
 targetY = this.scintu.y;
+} else if (this.activeSpeaker === 'vigliani') {
+targetX = this.vigliani.x +73;
+targetY = this.vigliani.y;
 }
 
 this.dialogueContainer.setPosition(targetX - 0, targetY - 210 - boxH / 2);
@@ -679,6 +796,129 @@ this.closeDialogue();
 closeDialogue() {
 this.isDialogueOpen = false;
 this.dialogueContainer.setVisible(false);
+}
+
+playPrinterSound() {
+if (!window.AudioManager || AudioManager.isSFXMuted()) return;
+const context = AudioManager.getContext();
+const destination = AudioManager.getSfxDestination();
+if (!context || !destination) return;
+if (context.state === 'suspended') context.resume().catch(() => {});
+
+const now = context.currentTime;
+for (let i = 0; i < 9; i++) {
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  const startsAt = now + i * 0.075;
+  oscillator.type = i % 2 ? 'square' : 'sawtooth';
+  oscillator.frequency.setValueAtTime(105 + (i % 3) * 28, startsAt);
+  oscillator.frequency.exponentialRampToValueAtTime(62, startsAt + 0.055);
+  gain.gain.setValueAtTime(0.085, startsAt);
+  gain.gain.exponentialRampToValueAtTime(0.001, startsAt + 0.06);
+  oscillator.connect(gain);
+  gain.connect(destination);
+  oscillator.start(startsAt);
+  oscillator.stop(startsAt + 0.065);
+}
+}
+
+useAdvicePrinter() {
+if (this.isPrinterBusy || this.isAdviceOpen || this.isDialogueOpen) return;
+const existingAdvice = getTodaySavedAdvice();
+const predictions = window.PRINTER_PREDICTIONS || ['Oggi sarà una giornata.'];
+const dailyAdvice = existingAdvice || saveDailyAdvice(Phaser.Math.RND.pick(predictions));
+this.pendingAdvicePrediction = dailyAdvice.text;
+this.isPrinterBusy = true;
+this.infoBox.setVisible(false);
+this.player.setVelocityX(0);
+this.player.play('idle', true);
+this.playPrinterSound();
+this.advicePrinter.play('advice_printer_print', true);
+
+this.time.delayedCall(760, () => {
+  this.isPrinterBusy = false;
+  this.showAdviceSheet(this.pendingAdvicePrediction);
+  this.pendingAdvicePrediction = null;
+});
+}
+
+showAdviceSheet(prediction) {
+prediction = prediction || getTodaySavedAdvice()?.text || 'Oggi sarà una giornata.';
+this.isAdviceOpen = true;
+
+this.adviceOverlay = this.add.container(180, 330).setScrollFactor(0).setDepth(400);
+const shade = this.add.rectangle(0, 0, 360, 740, 0x030108, 0.82);
+const paperShadow = this.add.rectangle(4, 5, 306, 386, 0x000000, 0.45);
+const paper = this.add.rectangle(0, 0, 306, 386, 0xfff9df, 1).setStrokeStyle(4, 0xff0055, 1);
+const perforation = this.add.text(0, -170, '- - - - - - - - - - - - - -', {
+  font: 'bold 13px monospace', color: '#b7aa8c'
+}).setOrigin(0.5);
+const title = this.add.text(0, -133, 'LA STAMPANTE\nDEI CONSIGLI', {
+  font: '900 22px monospace', color: '#17111f', align: 'center', lineSpacing: 3
+}).setOrigin(0.5);
+const divider = this.add.rectangle(0, -78, 242, 3, 0xff0055, 1);
+const label = this.add.text(0, -57, 'PREDIZIONE DEL GIORNO', {
+  font: '900 11px monospace', color: '#ff0055', letterSpacing: 1
+}).setOrigin(0.5);
+const copy = this.add.text(0, 29, prediction, {
+  font: 'bold 16px monospace', color: '#17111f', align: 'center',
+  lineSpacing: 7, wordWrap: { width: 254 }
+}).setOrigin(0.5);
+const closeBg = this.add.rectangle(0, 157, 250, 52, 0x17111f, 1)
+  .setStrokeStyle(3, 0xff0055, 1)
+  .setInteractive({ useHandCursor: true });
+const closeText = this.add.text(0, 157, 'CONSERVA IL CONSIGLIO', {
+  font: '900 11px monospace', color: '#ffffff'
+}).setOrigin(0.5).setInteractive({ useHandCursor: true });
+const saveTouchZone = this.add.rectangle(0, 157, 276, 66, 0xffffff, 0.001)
+  .setInteractive({ useHandCursor: true });
+
+this.adviceOverlay.add([shade, paperShadow, paper, perforation, title, divider, label, copy, closeBg, closeText, saveTouchZone]);
+shade.setPosition(0, 40);
+let adviceConfirming = false;
+const confirmAdvice = (_pointer, _localX, _localY, event) => {
+  if (adviceConfirming) return;
+  adviceConfirming = true;
+  if (event) event.stopPropagation();
+  closeBg.setFillStyle(0xff0055, 1);
+  closeText.setText('CONSIGLIO CONSERVATO ✓');
+  this.time.delayedCall(140, () => this.closeAdviceSheet());
+};
+saveTouchZone.on('pointerdown', confirmAdvice);
+closeBg.on('pointerdown', confirmAdvice);
+closeText.on('pointerdown', confirmAdvice);
+saveTouchZone.on('pointerout', () => {
+  if (adviceConfirming) return;
+  closeBg.setFillStyle(0x17111f, 1);
+  closeText.setText('CONSERVA IL CONSIGLIO');
+});
+this.adviceOverlay.setScale(0.12).setAlpha(0).setY(520);
+this.tweens.add({
+  targets: this.adviceOverlay,
+  y: 330,
+  scaleX: 1,
+  scaleY: 1,
+  alpha: 1,
+  duration: 430,
+  ease: 'Back.easeOut'
+});
+}
+
+closeAdviceSheet() {
+if (!this.isAdviceOpen || !this.adviceOverlay) return;
+this.isAdviceOpen = false;
+const overlay = this.adviceOverlay;
+this.adviceOverlay = null;
+this.tweens.add({
+  targets: overlay,
+  y: 500,
+  scaleX: 0.2,
+  scaleY: 0.2,
+  alpha: 0,
+  duration: 220,
+  ease: 'Back.easeIn',
+  onComplete: () => overlay.destroy(true)
+});
 }
 
 setupTouchControls(width, height) {
@@ -763,6 +1003,11 @@ controlDeck.add([deckBg]);
 }
 
 interact() {
+if (this.isAdviceOpen) {
+this.closeAdviceSheet();
+return;
+}
+
 if (this.isDialogueOpen) {
 this.advanceDialogue();
 return;
@@ -804,6 +1049,18 @@ this.startDialogue('scintu');
 return;
 }
 
+let distVigliani = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.vigliani.x, this.vigliani.y);
+if (distVigliani < 70) {
+this.startDialogue('vigliani');
+return;
+}
+
+let distPrinter = Math.abs(this.player.x - this.advicePrinter.x);
+if (distPrinter < 90) {
+this.useAdvicePrinter();
+return;
+}
+
 for (let cab of this.cabinetSprites) {
 let dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, cab.x, cab.y);
 if (dist < 60) {
@@ -819,13 +1076,17 @@ return;
 
 update() {
 if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) {
+if (this.isAdviceOpen) {
+this.closeAdviceSheet();
+return;
+}
 if (this.isDialogueOpen) {
 this.closeDialogue();
 }
 return;
 }
 
-if (this.isDialogueOpen) {
+if (this.isDialogueOpen || this.isAdviceOpen || this.isPrinterBusy) {
 this.player.setVelocityX(0);
 this.player.play('idle', true);
 this.infoBox.setVisible(false);
@@ -881,6 +1142,16 @@ return;
 
 if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.scintu.x, this.scintu.y) < 70) {
 this.showInfoCard(this.scintu.x, this.cabBadgeY, "Scintu", null, "PARLA 💬");
+return;
+}
+
+if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.vigliani.x, this.vigliani.y) < 70) {
+this.showInfoCard(this.vigliani.x, this.cabBadgeY, "Vigliani", null, "PARLA 💬");
+return;
+}
+
+if (Math.abs(this.player.x - this.advicePrinter.x) < 90) {
+this.showInfoCard(this.advicePrinter.x, this.cabBadgeY, "STAMPANTE DEI CONSIGLI", null, "STAMPA IL DESTINO 🧾");
 return;
 }
 
@@ -954,6 +1225,7 @@ document.getElementById('stat-invaders').innerText = (s.feedbackInvaders || 0).t
 document.getElementById('stat-cyber').innerText = (s.cyberRun || 0).toLocaleString() + " PTS";
 document.getElementById('stat-punch').innerText = (s.pixelPunch || 0).toLocaleString() + " PTS";
 document.getElementById('stat-dodge').innerText = (s.deadlineDrive || 0).toLocaleString() + " PTS";
+renderSavedAdviceArchive();
 
 selectedAvatarForEdit = auth.currentUser.avatar || AVATAR_LIST[0];
 renderAvatarPickerGrid();
@@ -988,6 +1260,15 @@ grid.appendChild(fragment);
 document.getElementById('toggle-edit-btn').addEventListener('click', () => {
 const box = document.getElementById('edit-profile-box');
 box.style.display = box.style.display === 'none' ? 'block' : 'none';
+});
+
+document.getElementById('toggle-advice-archive-btn').addEventListener('click', () => {
+const archive = document.getElementById('saved-advice-archive');
+const button = document.getElementById('toggle-advice-archive-btn');
+const opening = archive.style.display === 'none';
+if (opening) renderSavedAdviceArchive();
+archive.style.display = opening ? 'grid' : 'none';
+button.textContent = opening ? 'CHIUDI L\'ARCHIVIO' : 'APRI L\'ARCHIVIO';
 });
 
 document.getElementById('save-profile-changes-btn').addEventListener('click', async () => {

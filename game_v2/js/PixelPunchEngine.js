@@ -566,7 +566,7 @@
       
       const rules = [
         ['JOYSTICK','Muovi la Producer in tutte le direzioni.'],
-        ['RUN / SHIFT','Tieni premuto RUN per correre.'],
+        ['PULSANTE RUN','Tieni premuto RUN per correre.'],
         ['PULSANTE A','Attacco base e combo.'],
         ['PULSANTE B','Attacco speciale ad area'],
         ['PULSANTE P','Attiva o disattiva la parata'],

@@ -121,7 +121,7 @@ const ERAS_INFO = [
   { era: 2, name: "ERA 2: BUG 404", monster: "Bug 404", boss: "KERNEL PANIC 404", colBase: "#ff0033", colTough: "#aa00ff", filterTough: "hue-rotate(270deg) saturate(250%)", storyEra: ["I collegamenti dei layout si sono spezzati!", "I Bug 404 rimbalzano all'impazzata.", "Elimina le varianti viola corazzate!"], storyBoss: ["Kernel Panic! Schermata blu imminente.", "Spazza via i blocchi corrotti al suo passaggio!", "Supera ogni ostacolo per travolgerti!"] },
   { era: 3, name: "ERA 3: FONT MANCANTE", monster: "Font Mancante [?]", boss: "MUSEO TOFU SCOMPARSO", colBase: "#00f0ff", colTough: "#00ff66", filterTough: "hue-rotate(120deg) saturate(200%)", storyEra: ["I font del cliente sono scomparsi!", "Caratteri fantasma vagano tra i file.", "Elimina i Tofu verdi a doppio colpo!"], storyBoss: ["Il blocco Tofu vuoto e gigante è qui!", "Esegue scatti improvvisi e cariche rapide!", "Fallo saltare prima della stampa!"] },
   { era: 4, name: "ERA 4: RAM EATER", monster: "Ram Eater", boss: "SPINNING WHEEL OF DEATH", colBase: "#ffea00", colTough: "#ff0055", filterTough: "hue-rotate(300deg) saturate(220%)", storyEra: ["La RAM della workstation è al 99%!", "Le rotelline ti inseguono nel server.", "I Ram Eater rossi sono ultra-veloci!"], storyBoss: ["La Girandola congelante ti punta costantemente!", "Cerca la coordinata del grafico sul canvas.", "Non fermarti mai per non farti intrappolare!"] },
-  { era: 5, name: "ERA 5: CRASH NON SALVATO", monster: "Crash Non Salvato", boss: "THE DEADLINE CRASH 00:00", colBase: "#00ff66", colTough: "#ff0000", filterTough: "hue-rotate(180deg) saturate(300%)", storyEra: ["Mancano pochi minuti alle 18:30!", "File non salvati corrono nel sistema.", "Cancella il caos pre-consegna!"], storyBoss: ["Il timer segna 00:00! Crash Finale Ultra!", "Velocità folle e inseguimento spietato.", "Usa ogni Command-Z e salva lo studio!"] }
+  { era: 5, name: "ERA 5: CRASH NON SALVATO", monster: "Crash Non Salvato", boss: "THE DEADLINE CRASH 00:00", colBase: "#00ff66", colTough: "#ff0000", filterTough: "hue-rotate(180deg) saturate(300%)", storyEra: ["Mancano pochi minuti alle 18:30!", "File non salvati corrono nel sistema.", "Cancella il caos pre-consegna!"], storyBoss: ["Il timer segna 00:00! Crash Finale Ultra!", "Velocità folle e inseguimento spietato.", "Sfrutta ogni Cuore del Tempo e salva lo studio!"] }
 ];
 
 const CHARACTERS = {
@@ -1208,14 +1208,14 @@ function drawVSLobby() {
 
   const roundOpt = VS_ROUNDS_OPTIONS[vsRoundsIndex];
   drawVSButton(42, 182, CANVAS_W - 84, 34, `FORMATO: ${roundOpt.label}`, true, '#ffea00');
-  if (vsIsHost) drawCrispText('▲ ▼ FRECCE PER CAMBIARE MODALITÀ', CANVAS_W / 2, 226, '900 8px Courier New', '#ffaa00');
+  if (vsIsHost) drawCrispText('TOCCA FORMATO PER CAMBIARE MODALITÀ', CANVAS_W / 2, 226, '900 8px Courier New', '#ffaa00');
 
   Object.values(vsPlayers).sort((a, b) => a.slotIndex - b.slotIndex).forEach((item, index) => {
     const itemSlot = VS_SLOTS[item.slotIndex];
     drawCrispText(`${itemSlot.label}: ${item.username} (${item.character}) ${item.ready ? '✓' : '...'}`, 18, 250 + index * 22, '900 10px Courier New', itemSlot.hex, 'left', '#000000', 2);
   });
 
-  drawCrispText(vsIsHost ? 'SPAZIO: PRONTO  •  INVIO: AVVIA PARTITA' : 'SPAZIO: PRONTO', CANVAS_W / 2, 365, '900 10px Courier New', '#ffea00');
+  drawCrispText(vsIsHost ? 'TOCCA PRONTO • POI AVVIA LA PARTITA' : 'TOCCA PRONTO', CANVAS_W / 2, 365, '900 10px Courier New', '#ffea00');
   drawCrispText(local.ready ? 'STATO: PRONTO ✓' : 'CONFERMA QUANDO SEI PRONTO', CANVAS_W / 2, 388, '900 11px Courier New', local.ready ? '#00ff66' : '#ffffff');
   if (vsStatusMessage) drawCrispText(vsStatusMessage, CANVAS_W / 2, 412, '900 9px Courier New', '#ff5577');
 }
@@ -1315,7 +1315,7 @@ function drawScreens() {
     drawCrispText('03. RACCOGLI POTENZIAMENTI', W / 2, 218, '900 14px Courier New', '#ff00ff');
     drawCrispText('Aumenta raggio, bombe e velocità', W / 2, 238, 'bold 12px Courier New', '#ffffff');
     drawCrispText('04. CONTROLLI GUIDA', W / 2, 286, '900 14px Courier New', '#ffd700');
-    drawCrispText('Joystick Touch / WASD + Tasto BOMBA', W / 2, 306, 'bold 12px Courier New', '#ffffff');
+    drawCrispText('Joystick Touch + pulsante BOMBA', W / 2, 306, 'bold 12px Courier New', '#ffffff');
     if (Math.floor(frame / 40) % 2 === 0) drawCrispText('CONTINUA ►', W / 2, H - 20, '900 15px Courier New', '#ffea00');
     return;
   }
@@ -1328,7 +1328,7 @@ function drawScreens() {
       { key: 'FUOCO', title: 'WARP BRUSH', desc: '+1 Raggio Esplosione', col: '#ffaa00', emoji: '🔥' },
       { key: 'SCARPA', title: 'ACCELERATORE ITERAZIONE', desc: '+20% Vel. Elaborazione', col: '#00ffcc', emoji: '👟' },
       { key: 'CAFFE', title: 'CACHE PUNTI LAYERS', desc: '+300 Punti Extra Layers', col: '#ffd700', emoji: '☕' },
-      { key: 'CUORE', title: 'COMMAND - Z', desc: 'Cuore del Tempo (+1 Vita)', col: '#ff007f', emoji: '❤️' }
+      { key: 'CUORE', title: 'CUORE DEL TEMPO', desc: 'Bonus recupero (+1 Vita)', col: '#ff007f', emoji: '❤️' }
     ].forEach((item, idx) => {
       let boxY = 48 + idx * 56;
       ctx.fillStyle = '#101228'; ctx.beginPath(); ctx.roundRect(14, boxY, W - 28, 50, 8); ctx.fill();
@@ -1425,7 +1425,7 @@ function drawScreens() {
     drawCrispText('IN PAUSA', W / 2, 135, '900 30px Courier New', '#ffea00');
     drawCrispText('TOCCA SOPRA PER RIPRENDERE', W / 2, 188, '900 12px Courier New', '#00f0ff');
     drawVSButton(62, 245, W - 124, 58, 'SALVA ED ESCI', true, '#00ffcc');
-    drawCrispText('OPPURE PREMI INVIO', W / 2, 326, '900 10px Courier New', '#ffffff');
+    drawCrispText('USA I COMANDI TOUCH', W / 2, 326, '900 10px Courier New', '#ffffff');
     return;
   }
 

@@ -213,6 +213,7 @@ const PICKUP_TYPES = {
   PROXY_ON:    { label: '🎬 PROXY 2X', pts: 400, isMalus: false, scoreBoost: 2 },
   CACHE_BOOST: { label: '⚡ CACHE', pts: 150, isMalus: false, speedBoost: 1.2 },
   GUARD:       { label: '🛡️ RENDER', pts: 250, isMalus: false, shieldDuration: 180 },
+  EXTRA_LIFE:  { label: '♥ +1 VITA', pts: 100, isMalus: false, extraLife: 1 },
   DROP_FRAME:  { label: '🐌 DROP', pts: -100, isMalus: true, slowFactor: 0.7 },
   DISK_FULL:   { label: '⚠️ FULL DISK', pts: -200, isMalus: true, invertControls: true }
 };
@@ -571,8 +572,12 @@ function checkPickups() {
         if (p.type.shieldDuration) {
           player.guardTimer = p.type.shieldDuration;
         }
+        if (p.type.extraLife) {
+          lives = Math.min(5, lives + p.type.extraLife);
+        }
       }
-      addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, p.type.isMalus ? '#ff0055' : '#00f3ff', 10);
+      const pickupColor = p.type.extraLife ? '#ff3e91' : (p.type.isMalus ? '#ff0055' : '#00f3ff');
+      addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, pickupColor, 10);
       currentLane.pickups.splice(i, 1);
     }
   }
@@ -1078,12 +1083,13 @@ function drawScreens() {
     ctx.fillText('• 🎬 PROXY 2X: Moltiplica x2 i punti', boxX + 32, boxY + 138);
     ctx.fillText('• ⚡ CACHE BOOST: +150 Punti & Velocità', boxX + 32, boxY + 161);
     ctx.fillText('• 🛡️ RENDER SHIELD: Scudo Invulnerabile', boxX + 32, boxY + 184);
+    ctx.fillText('• ♥ EXTRA LIFE: +1 Vita (massimo 5)', boxX + 32, boxY + 207);
 
     ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px monospace';
-    ctx.fillText('--- MALUS TRAPPOLA ---', boxX + 32, boxY + 225);
+    ctx.fillText('--- MALUS TRAPPOLA ---', boxX + 32, boxY + 235);
     ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif';
-    ctx.fillText('• 🐌 DROP FRAME: -100 Punti & Rallenta', boxX + 32, boxY + 250);
-    ctx.fillText('• ⚠️ FULL DISK: -200 Punti & Inverte Guida', boxX + 32, boxY + 273);
+    ctx.fillText('• 🐌 DROP FRAME: -100 Punti & Rallenta', boxX + 32, boxY + 260);
+    ctx.fillText('• ⚠️ FULL DISK: -200 Punti & Inverte Guida', boxX + 32, boxY + 283);
 
     ctx.fillStyle = '#ffea00'; ctx.font = 'bold 12px monospace';
     ctx.fillText('CONSIGLIO: Mantieni i riflessi pronti!', boxX + 32, boxY + 320);

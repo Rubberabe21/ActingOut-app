@@ -1311,8 +1311,8 @@ function drawScreens() {
     ctx.fillStyle = '#ffd700'; ctx.font = '900 20px Courier New';
     ctx.fillText('04. CONTROLLI GUIDA', W/2, 445);
     ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('Usa Joystick Touch o Frecce PC', W/2, 470);
-    ctx.fillText('insieme al tasto SPARO.', W/2, 493);
+    ctx.fillText('Usa il Joystick Touch', W/2, 470);
+    ctx.fillText('insieme al pulsante SPARO.', W/2, 493);
 
     if (Math.floor(frame / 40) % 2 === 0) {
       ctx.fillStyle = '#ffea00';
