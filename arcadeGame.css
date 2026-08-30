@@ -41,6 +41,7 @@ body {
   transform: translateX(-50%);
   width: 100vw;
   height: 100svh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,7 +55,7 @@ body {
   grid-template-columns: 112px minmax(0, 1fr) 112px;
   align-items: center;
   gap: 4px;
-  padding: 4px 6px;
+  padding: 4px max(6px, env(safe-area-inset-right)) 4px max(6px, env(safe-area-inset-left));
   margin-bottom: 2px;
   flex-shrink: 0;
 }
@@ -159,4 +160,17 @@ body {
 
 .close-modal-btn {
   cursor: pointer;
+}
+
+@media (max-height: 620px) {
+  .top-header {
+    margin-bottom: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+
+  .modal-box {
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);
+    overflow-y: auto;
+  }
 }

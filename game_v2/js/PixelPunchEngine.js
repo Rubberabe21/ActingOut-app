@@ -60,6 +60,16 @@
   // --- STILE CSS PER TASTI E JOYSTICK ---
   const style = document.createElement('style');
   style.innerHTML = `
+    #game-wrapper, #wrapper {
+      height: 100dvh !important;
+    }
+    #canvas-container {
+      width: min(100%, calc(100dvh - 234px - env(safe-area-inset-top) - env(safe-area-inset-bottom))) !important;
+    }
+    .control-deck {
+      padding-left: max(14px, env(safe-area-inset-left)) !important;
+      padding-right: max(14px, env(safe-area-inset-right)) !important;
+    }
     .top-header {
       display: grid !important;
       grid-template-columns: 112px minmax(0, 1fr) 112px !important;
@@ -143,6 +153,20 @@
     .deck-pause-btn:active {
       transform: translateX(-50%) translateY(3px);
       box-shadow: 0 1px 0 #230638, 0 0 16px #00f0ffaa;
+    }
+    @media (max-width: 600px) {
+      .deck-pause-btn {
+        left: 38%;
+      }
+    }
+    @media (max-width: 380px), (max-height: 700px) {
+      #canvas-container {
+        width: min(100%, calc(100dvh - 206px - env(safe-area-inset-top) - env(safe-area-inset-bottom))) !important;
+      }
+      .control-deck {
+        padding-left: max(10px, env(safe-area-inset-left)) !important;
+        padding-right: max(10px, env(safe-area-inset-right)) !important;
+      }
     }
     .action-buttons .action-btn {
       grid-column: auto !important;
@@ -1037,17 +1061,49 @@
 
     createHud() {
       this.hud = this.add.container(0, 0).setScrollFactor(0).setDepth(10000);
-      this.hudBack = this.add.rectangle(0, 0, W, 58, 0x000000, 0.78)
+      const playerColor = this.playerStats.color;
+      this.hudBack = this.add.rectangle(0, 0, W, 62, 0x05030b, 0.92)
         .setOrigin(0, 0)
-        .setStrokeStyle(1, 0xff3e91, 0.35);
-      this.hpBack = this.add.rectangle(17, 20, 152, 14, 0x280c20).setOrigin(0, 0.5);
-      this.hpBar = this.add.rectangle(19, 20, 148, 10, 0xff336c).setOrigin(0, 0.5);
-      this.scoreText = this.add.text(W - 110, 13, '', { fontFamily: 'monospace', fontSize: '12px', color: '#ffeb4d', fontStyle: 'bold' }).setOrigin(1, 0);
-      this.stageText = this.add.text(18, 35, `STAGE ${this.stage}/5`, { fontFamily: 'monospace', fontSize: '11px', color: '#65f6ff' });
-      this.specialBack = this.add.rectangle(W - 110, 41, 90, 7, 0x241638).setOrigin(1, 0.5);
-      this.specialBar = this.add.rectangle(W - 200, 41, 88, 5, 0x33f5c0).setOrigin(0, 0.5);
-      
-      this.hud.add([this.hudBack, this.hpBack, this.hpBar, this.scoreText, this.stageText, this.specialBack, this.specialBar]);
+        .setStrokeStyle(2, playerColor, 0.75);
+
+      this.leftHudPanel = this.add.rectangle(101, 31, 190, 48, 0x160b24, 0.96)
+        .setStrokeStyle(2, playerColor, 0.8);
+      this.centerHudPanel = this.add.rectangle(W / 2, 31, 104, 48, 0x081925, 0.96)
+        .setStrokeStyle(2, 0x00f0ff, 0.75);
+      this.rightHudPanel = this.add.rectangle(W - 101, 31, 190, 48, 0x1c1022, 0.96)
+        .setStrokeStyle(2, 0xffd43b, 0.72);
+
+      this.hpLabel = this.add.text(13, 8, `♥ ${this.playerStats.label}`, {
+        fontFamily: 'monospace', fontSize: '10px', color: '#ffffff', fontStyle: 'bold'
+      });
+      this.hpBack = this.add.rectangle(13, 31, 176, 15, 0x260817).setOrigin(0, 0.5)
+        .setStrokeStyle(1, 0xffffff, 0.25);
+      this.hpBar = this.add.rectangle(15, 31, 172, 11, playerColor).setOrigin(0, 0.5);
+      this.hpShine = this.add.rectangle(16, 28, 168, 2, 0xffffff, 0.38).setOrigin(0, 0.5);
+      this.hpValueText = this.add.text(101, 48, '100 HP', {
+        fontFamily: 'monospace', fontSize: '9px', color: '#ffea00', fontStyle: 'bold'
+      }).setOrigin(0.5);
+
+      this.stageText = this.add.text(W / 2, 31, `STAGE ${this.stage}/5\nFIGHT 1/5`, {
+        fontFamily: 'monospace', fontSize: '10px', color: '#65f6ff', fontStyle: 'bold',
+        align: 'center', lineSpacing: 2
+      }).setOrigin(0.5);
+
+      this.scoreText = this.add.text(W - 13, 8, '', {
+        fontFamily: 'monospace', fontSize: '12px', color: '#ffeb4d', fontStyle: 'bold'
+      }).setOrigin(1, 0);
+      this.specialLabel = this.add.text(W - 13, 27, 'SPECIAL', {
+        fontFamily: 'monospace', fontSize: '9px', color: '#b9fff2', fontStyle: 'bold'
+      }).setOrigin(1, 0.5);
+      this.specialBack = this.add.rectangle(W - 13, 43, 112, 11, 0x132d32).setOrigin(1, 0.5)
+        .setStrokeStyle(1, 0x33f5c0, 0.45);
+      this.specialBar = this.add.rectangle(W - 123, 43, 108, 7, 0x33f5c0).setOrigin(0, 0.5);
+
+      this.hud.add([
+        this.hudBack, this.leftHudPanel, this.centerHudPanel, this.rightHudPanel,
+        this.hpLabel, this.hpBack, this.hpBar, this.hpShine, this.hpValueText,
+        this.stageText, this.scoreText, this.specialLabel, this.specialBack, this.specialBar
+      ]);
       this.refreshHud();
     }
 
@@ -1931,21 +1987,23 @@
     updateCooldown(time) {
       const cd = SPECIAL_COOLDOWN * (this.playerStats.cdMult || 1.0);
       const progress = Phaser.Math.Clamp(1 - (this.specialReadyAt - time) / cd, 0, 1);
-      this.specialBar.width = 88 * progress;
+      this.specialBar.width = 108 * progress;
       const fill = document.getElementById('specialFill');
       if (fill) fill.style.height = `${Math.round(progress * 100)}%`;
     }
 
     refreshHud() {
       if (!this.hpBar) return;
-      this.hpBar.width = 148 * (this.hp / 100);
-      this.scoreText.setText(`PTS ${this.score}`);
+      this.hpBar.width = 172 * (this.hp / 100);
+      this.hpShine.width = 168 * (this.hp / 100);
+      this.hpValueText.setText(`${Math.ceil(this.hp)} HP`);
+      this.scoreText.setText(`★ ${this.score.toString().padStart(6, '0')}`);
       if (!this.arenaLocked) {
-        this.stageText.setText(`STAGE ${this.stage}/5  FIGHT ${Math.min(this.arenaIndex + 1, 5)}/5`);
+        this.stageText.setText(`STAGE ${this.stage}/5\nFIGHT ${Math.min(this.arenaIndex + 1, 5)}/5`);
       } else if (this.arenaIndex === BOSS_ARENA_INDEX) {
-        this.stageText.setText(`STAGE ${this.stage}/5  BOSS`);
+        this.stageText.setText(`STAGE ${this.stage}/5\n⚠ BOSS ⚠`);
       } else {
-        this.stageText.setText(`FIGHT ${this.arenaIndex + 1}/5  ${Math.min(this.arenaDefeated, this.arenaQuota)}/${this.arenaQuota}`);
+        this.stageText.setText(`FIGHT ${this.arenaIndex + 1}/5\nKO ${Math.min(this.arenaDefeated, this.arenaQuota)}/${this.arenaQuota}`);
       }
     }
   }
@@ -1969,4 +2027,5 @@
 
   window.PixelPunchV2 = { config, PLAYERS, ENEMY_FILES, BOSS_FILES };
   window.pixelPunchV2Game = new Phaser.Game(config);
+  window.MobilePortraitGuard?.registerPhaserGame(window.pixelPunchV2Game);
 })();

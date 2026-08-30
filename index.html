@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
 <title>Agency Arcade</title>
 
@@ -22,6 +22,8 @@
 <script src="audioManager.js"></script>
 
 <link rel="stylesheet" href="hub.css">
+<link rel="stylesheet" href="mobileGuard.css">
+<script defer src="mobileGuard.js"></script>
 </head>
 
 <body>
@@ -928,6 +930,8 @@ scene: [MainHub]
 };
 
 const game = new Phaser.Game(config);
+window.hubGame = game;
+window.MobilePortraitGuard?.registerPhaserGame(game);
 
 let currentLBGameKey = 'feedbackInvaders';
 
