@@ -884,6 +884,19 @@ const confirmAdvice = (_pointer, _localX, _localY, event) => {
   closeText.setText('CONSIGLIO CONSERVATO ✓');
   this.time.delayedCall(140, () => this.closeAdviceSheet());
 };
+this.advicePointerHandler = pointer => {
+  if (!this.isAdviceOpen || adviceConfirming) return;
+  const buttonCenterX = this.adviceOverlay.x;
+  const buttonCenterY = this.adviceOverlay.y + 157 * this.adviceOverlay.scaleY;
+  const halfWidth = 138 * this.adviceOverlay.scaleX;
+  const halfHeight = 33 * this.adviceOverlay.scaleY;
+  const insideButton = pointer.x >= buttonCenterX - halfWidth
+    && pointer.x <= buttonCenterX + halfWidth
+    && pointer.y >= buttonCenterY - halfHeight
+    && pointer.y <= buttonCenterY + halfHeight;
+  if (insideButton) confirmAdvice(pointer);
+};
+this.input.on('pointerdown', this.advicePointerHandler);
 saveTouchZone.on('pointerdown', confirmAdvice);
 closeBg.on('pointerdown', confirmAdvice);
 closeText.on('pointerdown', confirmAdvice);
@@ -907,6 +920,10 @@ this.tweens.add({
 closeAdviceSheet() {
 if (!this.isAdviceOpen || !this.adviceOverlay) return;
 this.isAdviceOpen = false;
+if (this.advicePointerHandler) {
+  this.input.off('pointerdown', this.advicePointerHandler);
+  this.advicePointerHandler = null;
+}
 const overlay = this.adviceOverlay;
 this.adviceOverlay = null;
 this.tweens.add({
