@@ -22,9 +22,10 @@
     font-weight: 900;
     text-shadow: 2px 2px 0px #ff0055;
     letter-spacing: 1px;
-    flex: 1;
-    text-align: left;
+    text-align: center;
   }
+  .header-title span:first-child { color: #ffea00; transform: skew(-8deg); }
+  .header-title span:last-child { color: #ff3e91; transform: skew(8deg); text-shadow: 2px 2px 0 #7b176f, 0 0 8px #ff3e91; }
   .opt-btn {
     background: #121224;
     border: 2px solid #ffea00 !important;

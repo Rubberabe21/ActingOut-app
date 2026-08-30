@@ -16,8 +16,9 @@
     font-weight: bold;
     text-shadow: 0 0 6px #ff0055 !important;
     letter-spacing: 1px;
-    flex: 1;
   }
+  .header-title span:first-child { color: #ffea00; font-size: .82em; text-shadow: 0 0 6px #ff9d00; }
+  .header-title span:last-child { color: #ff0055; transform: skew(-7deg); text-shadow: 2px 2px 0 #6f0026, 0 0 9px #ff0055; }
 
   .opt-btn {
     background: #1a0836;

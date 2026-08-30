@@ -16,8 +16,9 @@
     font-weight: 900;
     text-shadow: 0 0 8px #00f0ff !important;
     letter-spacing: 1px;
-    flex: 1;
   }
+  .header-title span:first-child { color: #ffffff; text-shadow: 0 0 6px #ffffff; }
+  .header-title span:last-child { color: #00f0ff; transform: skew(-9deg); text-shadow: 2px 2px 0 #1746a2, 0 0 9px #00f0ff; }
 
   .opt-btn {
     background: #1a0836;

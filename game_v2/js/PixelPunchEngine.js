@@ -60,6 +60,43 @@
   // --- STILE CSS PER TASTI E JOYSTICK ---
   const style = document.createElement('style');
   style.innerHTML = `
+    .top-header {
+      display: grid !important;
+      grid-template-columns: 112px minmax(0, 1fr) 112px !important;
+      align-items: center;
+      gap: 4px !important;
+    }
+    .top-header .header-title {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 4px;
+      min-width: 0;
+      text-align: center;
+      font-size: 15px;
+    }
+    .top-header .header-title span:first-child { color: #ffea00; transform: skew(-8deg); text-shadow: 2px 2px 0 #ff0055; }
+    .top-header .header-title span:last-child { color: #ff3e91; transform: skew(8deg); text-shadow: 2px 2px 0 #7b176f, 0 0 8px #ff3e91; }
+    .top-header .header-btns-right { justify-content: flex-end; gap: 4px; }
+    .top-header .options-btn { width: 76px; }
+    .top-header .restart-btn { width: 72px; }
+    .top-header .options-btn,
+    .top-header .restart-btn,
+    .top-header .exit-x-btn {
+      height: 34px;
+      padding-top: 0;
+      padding-bottom: 0;
+      display: inline-grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .top-header .exit-x-btn { width: 34px; min-width: 34px; font-size: 16px; line-height: 34px; }
+    @media (max-width: 390px) {
+      .top-header { grid-template-columns: 82px minmax(0, 1fr) 108px !important; }
+      .top-header .options-btn { width: 72px; }
+      .top-header .restart-btn { width: 68px; }
+    }
     .virtual-btn, #btn-a, #btn-b, #btn-p, .action-btn, [data-action="attack"], [data-action="special"], [data-action="pause"] {
       width: 72px !important;
       height: 72px !important;
@@ -81,6 +118,31 @@
       grid-template-columns: repeat(2, minmax(76px, 88px)) !important;
       grid-template-rows: repeat(2, minmax(76px, 88px)) !important;
       gap: 4px 8px !important;
+      transform: rotate(7deg) !important;
+      transform-origin: center !important;
+    }
+    .control-deck {
+      position: relative !important;
+    }
+    .deck-pause-btn {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      z-index: 6;
+      width: 88px;
+      height: 38px;
+      transform: translateX(-50%);
+      border: 2px solid #00f0ff;
+      border-radius: 9px;
+      background: linear-gradient(145deg, #7a2bb1, #3a105f);
+      color: #ffffff;
+      box-shadow: 0 4px 0 #230638, 0 0 13px #00f0ff77;
+      font: 900 12px "Courier New", monospace;
+      touch-action: none;
+    }
+    .deck-pause-btn:active {
+      transform: translateX(-50%) translateY(3px);
+      box-shadow: 0 1px 0 #230638, 0 0 16px #00f0ffaa;
     }
     .action-buttons .action-btn {
       grid-column: auto !important;
@@ -92,11 +154,12 @@
       place-items: center;
       width: 100%;
       height: 100%;
+      transform: rotate(-7deg);
       font: 900 30px "Courier New", monospace;
       line-height: 1;
       text-shadow: 0 2px 0 #0008, 0 0 6px currentColor;
     }
-    #btnGuard, #btnAttack {
+    #btnGuard, #btnAttack, #btnSpecial, #btnRun {
       width: 82px !important;
       height: 82px !important;
       border-width: 4px !important;
@@ -107,26 +170,18 @@
       box-shadow: 0 6px 0 #570022, 0 0 20px #ff3e91aa !important;
     }
     #btnSpecial {
-      width: 66px !important;
-      height: 50px !important;
-      border-width: 3px !important;
-      border-radius: 25px !important;
       clip-path: none;
       background: linear-gradient(145deg, #c698ff, #7b32d5 58%, #381069) !important;
       box-shadow: 0 5px 0 #260746, 0 0 15px #a260ffbb !important;
     }
-    #btnSpecial .btn-label { font-size: 27px; }
+    #btnSpecial .btn-label { font-size: 30px; }
     #btnRun {
-      width: 66px !important;
-      height: 50px !important;
-      border-width: 3px !important;
-      border-radius: 25px !important;
       background: linear-gradient(145deg, #fff27a, #ff9d19 58%, #b93b00) !important;
       color: #291000 !important;
       box-shadow: 0 5px 0 #6d2500, 0 0 15px #ffb00099 !important;
     }
     #btnRun .btn-label {
-      font-size: 27px;
+      font-size: 30px;
       text-shadow: 0 1px 0 #fff7;
     }
     #btnRun.active {
@@ -194,11 +249,11 @@
     },
     { 
       key: 'rache', file: 'rache.png', label: 'RACHELE', select: 'rache_select.png', color: 0xffd43b,
-      role: 'WORK MACHINE (INVINCIBILE TEST)',
-      bio: 'Maestra del recupero. Modalità TEST: Invincibile ai danni fisici ed ambientali!',
-      bonus: '🍕 MODALITÀ TEST: INVINCIBILITÀ ATTIVA\n⚡ +10% Danno Attacco Base', 
-      malus: '⚠️ Nessun Danno Subito (God Mode)',
-      speedMult: 1.15, dmgMult: 1.20, dmgTakenMult: 0.0, cdMult: 0.70, healMult: 1.50 
+      role: 'WORK MACHINE',
+      bio: 'Maestra del recupero. Resiste alla pressione grazie a cure potenziate e speciali frequenti.',
+      bonus: '🍕 +50% Recupero salute\n⚡ +20% Danno Attacco Base',
+      malus: '🛡️ Danni subiti normali',
+      speedMult: 1.15, dmgMult: 1.20, dmgTakenMult: 1.0, cdMult: 0.70, healMult: 1.50
     }
   ];
 
@@ -213,7 +268,40 @@
     '13_guardia.png', '14_avvocato.png', '15_hr.png', '16_account.png',
     '17_consulente.png', '18_investor.png', '19_techbro.png', '20_brand.png'
   ];
+  const ENEMY_DOSSIERS = [
+    [
+      { name: 'LO STAGISTA ETERNO', text: 'Ha un badge provvisorio dal 2019 e combatte per conquistare una scrivania.' },
+      { name: 'IL MANAGER URGENTE', text: 'Trasforma ogni richiesta in una priorità assoluta, soprattutto alle 18:29.' },
+      { name: 'COPY TERMINATOR', text: 'Corregge headline inesistenti e colpisce con revisioni chilometriche.' },
+      { name: 'PIXEL DESIGNER', text: 'Difende font e margini come fossero l’ultima campagna sulla Terra.' }
+    ],
+    [
+      { name: 'INFLUENCER TAKE 99', text: 'Non lascia il set finché la luce non valorizza perfettamente il suo profilo.' },
+      { name: 'IL FONICO PERMALOSO', text: 'Sente ogni rumore, tranne quando gli chiedono di abbassare il volume.' },
+      { name: 'DOMATORE DI CAVI', text: 'Ha trasformato il pavimento del set in una trappola elettrica.' },
+      { name: 'STYLIST DA GUERRA', text: 'Attacca chiunque osi spiegazzare un outfit già approvato.' }
+    ],
+    [
+      { name: 'RIDER TURBO', text: 'Attraversa Via Po senza frenare e considera i pedoni semplici ostacoli.' },
+      { name: 'MONOPATTINO MAD', text: 'Sbuca dal nulla sul pavè con traiettorie impossibili da prevedere.' },
+      { name: 'TURISTA SELFIE', text: 'Blocca ogni passaggio pur di inquadrare la Mole nel formato giusto.' },
+      { name: 'IL CONTROLLORE', text: 'Chiede il biglietto anche a chi sta salvando un progetto milionario.' }
+    ],
+    [
+      { name: 'GUARDIA CORPORATE', text: 'Protegge l’ascensore panoramico e non accetta appuntamenti fuori agenda.' },
+      { name: 'AVVOCATO COMMA 12', text: 'Lancia contratti, postille e clausole scritte troppo in piccolo.' },
+      { name: 'HR SORRISO FREDDO', text: 'Ti invita a un confronto sereno mentre prepara il downsizing.' },
+      { name: 'ACCOUNT ESCALATION', text: 'Rimbalza responsabilità e richieste finché la deadline non esplode.' }
+    ],
+    [
+      { name: 'CONSULENTE PREMIUM', text: 'Presenta soluzioni costosissime a problemi che prima non esistevano.' },
+      { name: 'INVESTOR SHARK', text: 'Fiuta l’incertezza e trasforma ogni esitazione in un taglio al budget.' },
+      { name: 'TECHBRO DISRUPTOR', text: 'Vuole rivoluzionare il pitch con una piattaforma ancora in beta.' },
+      { name: 'BRAND GUARDIAN', text: 'Boccia ogni idea che non usa esattamente il tono di voce del manuale.' }
+    ]
+  ];
   const BOSS_FILES = ['21_boss_creative.png', '22_boss_regista.png', '23_boss_tassista.png', '24_boss_client.png', '25_boss_ceo.png'];
+  const BOSS_NAMES = ['IL CREATIVO', 'LA REGISTA VIP', 'IL TAXISTA ARRABBIATO', 'LADY DOWNSIZE', 'IL CEO'];
   // Cinque combattimenti normali, seguiti da un'arena dedicata al boss.
   const ARENA_X = [900, 1900, 2900, 3900, 4900, 5900].map(x => x * BACKGROUND_SCALE);
   const BOSS_ARENA_INDEX = ARENA_X.length - 1;
@@ -222,7 +310,7 @@
     {
       title: 'LA SCADENZA',
       subtitle: 'VENERDÌ ORE 19:00',
-      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per\'esportazione.'
+      text: 'È venerdì sera a Torino e mancano solo 5 ore alla scadenza improrogabile del progetto della vita.\n\nLa campagna da un milione di euro che salverà ActingOut dal fallimento e dalla vendita alla multinazionale "RAI" è pronta per l\'esportazione.'
     },
     {
       title: 'IL SABOTAGGIO',
@@ -237,11 +325,11 @@
   ];
 
   const SCENARIO_STORIES = [
-    { title: 'SCENARIO 1 — OPEN SPACE AGENZIA', subtitle: 'INTERNAL CHAOS', text: 'Il cliente manda i suoi Account e Manager a requisire i computer dell’ufficio per fermare l’esportazione del video. Le Producer devono farsi strada a colpi di tastiera e caffè bollente per portare via l’Hard Drive.' },
-    { title: 'SCENARIO 2 — SET DOCKS DORA', subtitle: 'IL SET FUORI CONTROLLO', text: 'Bisogna recuperare gli ultimi girati B-roll sul set. Il Regista Capriccioso e la sua troupe sono impazziti e hanno bloccato le uscite: occorre sgomberare l’area tra faretti e cavi scoppiettanti.' },
-    { title: 'SCENARIO 3 — TORINO CENTRO', subtitle: 'LA CORSA SU VIA PO', text: 'Attraversamento rapido della città verso il grattacielo. Controllori GTT, Rider spericolati e Turisti col selfie-stick cercano di far cadere la borsa con l’Hard Drive lungo il pavè torinese.' },
-    { title: 'SCENARIO 4 — CORPORATE TOWER', subtitle: 'LA BUROCRAZIA', text: 'Infiltrazione nell’edificio del cliente. Bisogna farsi strada tra Guardie di sicurezza, Avvocati armati di contratti e HR spietati per prendere l’ascensore panoramico.' },
-    { title: 'SCENARIO 5 — PENTHOUSE VIP', subtitle: 'IL PITCH FINALE', text: 'L’ultimo scontro nel salone barocco. Il CEO e il Client Boss tentano di bocciare il progetto con attacchi finanziari devastanti. La vittoria sblocca PITCH DELIVERED a un secondo dalla mezzanotte.' }
+    { title: 'OPEN SPACE AGENZIA', subtitle: 'INTERNAL CHAOS', text: 'Il cliente manda i suoi Account e Manager a requisire i computer dell’ufficio per fermare l’esportazione del video. Le Producer devono farsi strada a colpi di tastiera e caffè bollente per portare via l’Hard Drive.' },
+    { title: 'SET DOCKS DORA', subtitle: 'IL SET FUORI CONTROLLO', text: 'Bisogna recuperare gli ultimi girati B-roll sul set. Il Regista Capriccioso e la sua troupe sono impazziti e hanno bloccato le uscite: occorre sgomberare l’area tra faretti e cavi scoppiettanti.' },
+    { title: 'TORINO CENTRO', subtitle: 'LA CORSA SU VIA PO', text: 'Attraversamento rapido della città verso il grattacielo. Controllori GTT, Rider spericolati e Turisti col selfie-stick cercano di far cadere la borsa con l’Hard Drive lungo il pavè torinese.' },
+    { title: 'CORPORATE TOWER', subtitle: 'LA BUROCRAZIA', text: 'Infiltrazione nell’edificio del cliente. Bisogna farsi strada tra Guardie di sicurezza, Avvocati armati di contratti e HR spietati per prendere l’ascensore panoramico.' },
+    { title: 'PENTHOUSE VIP', subtitle: 'IL PITCH FINALE', text: 'L’ultimo scontro nel salone barocco. Il CEO e il Client Boss tentano di bocciare il progetto con attacchi finanziari devastanti. La vittoria sblocca PITCH DELIVERED a un secondo dalla mezzanotte.' }
   ];
 
   const CRATES = [
@@ -599,6 +687,89 @@
       if (this.started) return;
       this.started = true;
       playSfx('assets/audio/sfx_select.mp3');
+      this.scene.start('EnemyBriefingScene', { character: this.character, stage: this.stage, score: this.score });
+    }
+  }
+
+  class EnemyBriefingScene extends Phaser.Scene {
+    constructor() { super('EnemyBriefingScene'); }
+
+    init(data) {
+      this.character = data.character || 'cristina';
+      this.stage = Phaser.Math.Clamp(data.stage || 1, 1, 5);
+      this.score = data.score || 0;
+      this.started = false;
+    }
+
+    preload() {
+      const firstEnemy = (this.stage - 1) * 4;
+      for (let i = 0; i < 4; i++) {
+        this.load.spritesheet(`brief_enemy_${i}`, ROOT + `cattivi/${ENEMY_FILES[firstEnemy + i]}`, {
+          frameWidth: 128, frameHeight: 128
+        });
+      }
+    }
+
+    create() {
+      const dossier = ENEMY_DOSSIERS[this.stage - 1];
+      this.cameras.main.setBackgroundColor('#07030f');
+      this.add.rectangle(W / 2, H / 2, W - 20, H - 20, 0x130822, 0.98).setStrokeStyle(4, 0xff3e91);
+      this.add.text(W / 2, 25, 'DOSSIER MINACCE', {
+        fontFamily: 'monospace', fontSize: '27px', color: '#ffea00', fontStyle: 'bold',
+        stroke: '#7b176f', strokeThickness: 5
+      }).setOrigin(0.5);
+      this.add.text(W / 2, 55, `SCENARIO ${this.stage} — NEMICI AVVISTATI`, {
+        fontFamily: 'monospace', fontSize: '13px', color: '#00f0ff', fontStyle: 'bold'
+      }).setOrigin(0.5);
+
+      dossier.forEach((enemyInfo, index) => {
+        const column = index % 2;
+        const row = Math.floor(index / 2);
+        const x = 132 + column * 248;
+        const y = 154 + row * 166;
+        this.add.rectangle(x, y, 226, 150, 0x211035, 0.98)
+          .setStrokeStyle(2, index % 2 ? 0xa260ff : 0xff3e91, 0.9);
+        this.add.rectangle(x - 68, y + 19, 82, 88, 0x090617, 0.8)
+          .setStrokeStyle(1, 0xffffff, 0.2);
+        this.add.rectangle(x, y - 43, 204, 1, index % 2 ? 0xa260ff : 0xff3e91, 0.55);
+        ensureActorSheet(this, `brief_enemy_${index}`, 12, 0xd13757 + (index + 1) * 1600);
+        this.add.sprite(x - 68, y + 19, `brief_enemy_${index}`, 0)
+          .setOrigin(0.5)
+          .setDisplaySize(96, 96);
+        this.add.text(x, y - 58, enemyInfo.name, {
+          fontFamily: 'monospace', fontSize: '12px', color: '#ffffff', fontStyle: 'bold',
+          wordWrap: { width: 206 }, align: 'center'
+        }).setOrigin(0.5, 0);
+        this.add.text(x - 17, y - 29, enemyInfo.text, {
+          fontFamily: 'sans-serif', fontSize: '12px', color: '#e9ddff',
+          lineSpacing: 3, wordWrap: { width: 112 }, align: 'left'
+        }).setOrigin(0, 0);
+      });
+
+      const promptBack = this.add.rectangle(W / 2, 466, W - 48, 54, 0x35115b, 0.96)
+        .setStrokeStyle(3, 0x00f0ff, 0.9);
+      const prompt = this.add.text(W / 2, 466, 'PREMI A O B  •  ENTRA IN AZIONE', {
+        fontFamily: 'monospace', fontSize: '15px', color: '#00ffcc', fontStyle: 'bold',
+        align: 'center',
+        stroke: '#000000', strokeThickness: 4
+      }).setOrigin(0.5);
+      this.tweens.add({ targets: [promptBack, prompt], alpha: 0.55, duration: 520, yoyo: true, repeat: -1 });
+
+      this.actionHandler = event => {
+        if (event.detail === 'menu') this.scene.start('SelectScene');
+        else if (event.detail === 'exit') window.location.href = 'index.html';
+        else if (event.detail === 'attack' || event.detail === 'special') this.startGame();
+      };
+      window.addEventListener('pixelpunch-action', this.actionHandler);
+      this.events.once('shutdown', () => window.removeEventListener('pixelpunch-action', this.actionHandler));
+      this.input.keyboard.on('keydown-SPACE', () => this.startGame());
+      this.input.keyboard.on('keydown-ENTER', () => this.startGame());
+    }
+
+    startGame() {
+      if (this.started) return;
+      this.started = true;
+      playSfx('assets/audio/sfx_select.mp3');
       this.scene.start('GameScene', { character: this.character, stage: this.stage, score: this.score });
     }
   }
@@ -799,6 +970,33 @@
       this.player.invulnerableUntil = 0;
       this.bindActorAnimationEvents(this.player, this.character, 17, true);
       this.player.play(`${this.character}_idle`);
+
+      this.playerOverhead = this.add.image(this.player.x, this.player.y - this.player.displayHeight - 8, 'overhead_player')
+        .setDisplaySize(34, 36)
+        .setTint(this.playerStats.color)
+        .setDepth(this.player.y + 1);
+      this.tweens.add({
+        targets: this.playerOverhead,
+        scaleX: this.playerOverhead.scaleX * 1.08,
+        scaleY: this.playerOverhead.scaleY * 1.08,
+        duration: 340,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+      this.time.delayedCall(3000, () => {
+        if (!this.playerOverhead?.active) return;
+        this.tweens.killTweensOf(this.playerOverhead);
+        this.tweens.add({
+          targets: this.playerOverhead,
+          alpha: 0,
+          duration: 220,
+          onComplete: () => {
+            this.playerOverhead?.destroy();
+            this.playerOverhead = null;
+          }
+        });
+      });
     }
 
     createObjects() {
@@ -811,6 +1009,7 @@
         const variant = i % 2;
         const crate = this.crates.create(x, randomMovementY(), `crate_${variant}_whole`).setOrigin(0.5, 1);
         crate.hp = 3; crate.variant = variant;
+        crate.assetName = CRATES[this.stage - 1][variant];
         crate.isCoffeeMachine = this.stage === 1 && variant === 0;
         this.resizeCrate(crate, `crate_${variant}_whole`);
       });
@@ -825,6 +1024,8 @@
       if (this.stage === 2 && crate.variant === 0) {
         multiplier *= 2;
       }
+      if (crate.assetName === 'cestino') multiplier *= 0.7;
+      if (crate.assetName === 'acqua') multiplier *= 1.3;
       const maxDimension = 54 * OBJECT_SCALE * multiplier;
       const scale = maxDimension / Math.max(frame.width, frame.height);
       const width = frame.width * scale;
@@ -846,14 +1047,6 @@
       this.specialBack = this.add.rectangle(W - 110, 41, 90, 7, 0x241638).setOrigin(1, 0.5);
       this.specialBar = this.add.rectangle(W - 200, 41, 88, 5, 0x33f5c0).setOrigin(0, 0.5);
       
-      this.pauseBtn = this.add.text(W - 10, 8, '⏸ PAUSA', { 
-        fontFamily: 'monospace', fontSize: '13px', color: '#ffffff', backgroundColor: '#5c1d8d', padding: { x: 10, y: 7 } 
-      }).setOrigin(1, 0).setScrollFactor(0).setDepth(20000).setInteractive({ useHandCursor: true });
-      
-      this.pauseBtn.on('pointerdown', () => {
-        this.togglePause();
-      });
-
       this.hud.add([this.hudBack, this.hpBack, this.hpBar, this.scoreText, this.stageText, this.specialBack, this.specialBar]);
       this.refreshHud();
     }
@@ -862,7 +1055,10 @@
       this.cursors = this.input.keyboard.createCursorKeys();
       this.wasd = this.input.keyboard.addKeys('W,A,S,D,J,K,L,P');
       this.runKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
-      this.input.keyboard.on('keydown-J', () => this.normalAttack());
+      this.input.keyboard.on('keydown-J', () => {
+        if (this.isPausedState) this.resumeGame();
+        else this.normalAttack();
+      });
       this.input.keyboard.on('keydown-K', () => this.specialAttack());
       this.input.keyboard.on('keydown-L', () => this.toggleGuard());
       this.input.keyboard.on('keydown-P', () => this.togglePause());
@@ -887,7 +1083,7 @@
       this.pauseOverlay = this.add.container(0, 0).setScrollFactor(0).setDepth(30000);
       const bg = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.8).setInteractive();
       const text = this.add.text(W / 2, H / 2 - 20, 'GIOCO IN PAUSA', { fontFamily: 'monospace', fontSize: '26px', color: '#ffea00', fontStyle: 'bold' }).setOrigin(0.5);
-      const sub = this.add.text(W / 2, H / 2 + 25, 'TOCCA PER RIPRENDERE ►', { fontFamily: 'monospace', fontSize: '14px', color: '#00ffcc', fontStyle: 'bold' }).setOrigin(0.5);
+      const sub = this.add.text(W / 2, H / 2 + 25, 'PREMI A O TOCCA PER RIPRENDERE ►', { fontFamily: 'monospace', fontSize: '13px', color: '#00ffcc', fontStyle: 'bold' }).setOrigin(0.5);
       
       this.tweens.add({ targets: sub, alpha: 0.4, duration: 500, yoyo: true, repeat: -1 });
       
@@ -912,9 +1108,13 @@
     }
 
     handleExternalAction(action) {
-      if (action === 'attack') this.normalAttack();
+      if (action === 'attack') {
+        if (this.isPausedState) this.resumeGame();
+        else this.normalAttack();
+      }
       else if (action === 'special') this.specialAttack();
       else if (action === 'guard-toggle') this.toggleGuard();
+      else if (action === 'pause-toggle') this.togglePause();
       else if (action === 'pause') this.pauseGame();
       else if (action === 'resume') this.resumeGame();
       else if (action === 'menu') this.returnToMenu();
@@ -1078,7 +1278,7 @@
       
       boss.mode = 'cast'; 
       boss.castWavesDone = 0;
-      boss.castQuota = 3; 
+      boss.castQuota = 5;
       boss.rushTimeEnd = 0;
 
       boss.body.setSize(40, 20).setOffset(44, 108);
@@ -1089,6 +1289,10 @@
       
       this.bossBarBack = this.add.rectangle(W / 2, 74, W * 0.72, 12, 0x25091b).setScrollFactor(0).setDepth(10001);
       this.bossBar = this.add.rectangle(W * 0.14, 74, W * 0.72 - 4, 8, 0xc53cff).setOrigin(0, 0.5).setScrollFactor(0).setDepth(10002);
+      this.bossNameText = this.add.text(W / 2, 88, BOSS_NAMES[this.stage - 1], {
+        fontFamily: 'monospace', fontSize: '13px', color: '#ffffff', fontStyle: 'bold',
+        stroke: '#000000', strokeThickness: 4
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(10002);
       this.showBossCallout(['BRIEF BOMB', 'CIACK! CAMBIO CORSIA', 'TAXI DRIFT', 'REVISIONE', 'FINAL PITCH'][this.stage - 1]);
     }
 
@@ -1143,7 +1347,7 @@
         if (time >= boss.rushTimeEnd) {
           boss.mode = 'cast';
           boss.castWavesDone = 0;
-          boss.castQuota = Math.min(10, boss.castQuota + 3);
+          boss.castQuota = Math.min(12, boss.castQuota + 3);
           boss.nextAttack = time + 1900;
           return;
         }
@@ -1386,7 +1590,6 @@
           vx: (fromLeft ? 560 : -560) * BACKGROUND_SCALE,
           spriteKey: 'taxi_vehicle', spriteWidth: TAXI_DISPLAY_WIDTH * 1.18, spriteHeight: TAXI_DISPLAY_HEIGHT * 1.18
         });
-        if (enraged) addCells([targetRow * BOSS_GRID_COLUMNS + 1, targetRow * BOSS_GRID_COLUMNS + 3], 0x00f0ff, 620, 260);
       } else if (boss.pattern === 4) {
         // Revisione: scacchiera alternata, con celle piccole e distinte.
         const parity = boss.castWavesDone % 2;
@@ -1408,11 +1611,11 @@
 
       if (boss.castWavesDone >= boss.castQuota) {
         boss.mode = 'rush';
-        boss.rushTimeEnd = time + 6500;
-        boss.nextAttack = time + 650;
+        boss.rushTimeEnd = time + 9000;
+        boss.nextAttack = time + 350;
         this.showBossCallout('ATTACCO DIRETTO!');
       } else {
-        boss.nextAttack = time + 2200;
+        boss.nextAttack = time + 2400;
       }
     }
 
@@ -1432,7 +1635,7 @@
     }
 
     enemyAttack(enemy, time) {
-      enemy.nextAttack = time + (enemy.isBoss ? 2400 : Math.max(1400, 2200 - this.stage * 150));
+      enemy.nextAttack = time + (enemy.isBoss ? 1100 : Math.max(1400, 2200 - this.stage * 150));
       enemy.stateLocked = true; enemy.setVelocity(0); this.playActorAnim(enemy, 'atk');
       this.time.delayedCall(enemy.isBoss ? 450 : 220, () => {
         if (!enemy.active || this.stageEnded) return;
@@ -1508,6 +1711,12 @@
 
     damageEnemy(enemy, damage) {
       if (enemy.stateLocked === 'ko') return;
+      if (enemy.isBoss && enemy.mode !== 'rush') {
+        playSfx('assets/audio/sfx_block.mp3');
+        enemy.setTint(0x66eaff);
+        this.time.delayedCall(90, () => { if (enemy.active) enemy.clearTint(); });
+        return;
+      }
       playSfx('assets/audio/sfx_hit.mp3');
       this.playFrameEffect('hitspark', enemy.x, enemy.y - 42 * COMBAT_SCALE, {
         tint: enemy.isBoss ? 0xffd43b : 0xffffff,
@@ -1607,18 +1816,9 @@
       pickup.destroy(); this.refreshHud();
     }
 
-    // GESTIONE DANNO PLAYER (CON GOD MODE PER RACHELE)
+    // GESTIONE DANNO PLAYER
     damagePlayer(damage) {
       if (this.time.now < this.player.invulnerableUntil || this.stageEnded) return;
-
-      // MODALITÀ TEST: INVINCIBILITÀ PER RACHELE
-      if (this.character === 'rache') {
-        this.player.invulnerableUntil = this.time.now + 350;
-        playSfx('assets/audio/sfx_block.mp3');
-        this.player.setTint(0xffea00);
-        this.time.delayedCall(80, () => { if (this.player.active) this.player.clearTint(); });
-        return;
-      }
 
       if (this.isGuarding) {
         playSfx('assets/audio/sfx_block.mp3');
@@ -1718,6 +1918,11 @@
 
     updateDepths() {
       this.player.setDepth(Math.round(this.player.y));
+      if (this.playerOverhead?.active) {
+        this.playerOverhead.x = this.player.x;
+        this.playerOverhead.y = this.player.y - this.player.displayHeight - 8;
+        this.playerOverhead.setDepth(Math.round(this.player.y) + 1);
+      }
       this.enemies.getChildren().forEach(e => e.setDepth(Math.round(e.y)));
       this.crates.getChildren().forEach(o => o.setDepth(Math.round(o.y)));
       this.pickupGroup.getChildren().forEach(o => o.setDepth(Math.round(o.y)));
@@ -1759,7 +1964,7 @@
       arcade: { gravity: { y: 0 }, debug: false }
     },
     input: { activePointers: 4 },
-    scene: [SelectScene, ScenarioIntroScene, GameScene]
+    scene: [SelectScene, ScenarioIntroScene, EnemyBriefingScene, GameScene]
   };
 
   window.PixelPunchV2 = { config, PLAYERS, ENEMY_FILES, BOSS_FILES };

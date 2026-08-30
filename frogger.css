@@ -30,9 +30,10 @@ body {
   letter-spacing: .5px;
   font-family: 'Courier New', monospace;
   white-space: nowrap;
-  flex: 1;
   text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
 }
+.header-title span:first-child { color: #ffea00; font-size: .88em; text-shadow: 0 0 7px #ff9d00; }
+.header-title span:last-child { color: #00f3ff; font-style: italic; letter-spacing: 1px; text-shadow: 2px 2px 0 #075d68, 0 0 9px #00f3ff; }
 
 .opt-btn {
   background: #181824;

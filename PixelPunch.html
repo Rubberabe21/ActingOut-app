@@ -23,11 +23,11 @@
 
 <div id="wrapper">
   <div class="top-header">
-    <span class="header-title">PIXEL PUNCH</span>
+    <button class="opt-btn options-btn" id="btnOpenSettings">OPZIONI</button>
+    <span class="header-title"><span>PIXEL</span><span>PUNCH</span></span>
     <div class="header-btns-right">
-      <button class="opt-btn" id="btnMenuTop">MENU</button>
-      <button class="opt-btn" id="btnExitTop">ESCI</button>
-      <button class="opt-btn" id="btnOpenSettings">OPZIONI</button>
+      <button class="opt-btn restart-btn" id="btnMenuTop">RESTART</button>
+      <button class="opt-btn exit-x-btn" id="btnExitTop" aria-label="Esci">×</button>
     </div>
   </div>
 
@@ -40,11 +40,12 @@
     <div class="joystick-zone" id="joyZone" aria-label="Joystick">
       <div class="joystick-knob" id="joyKnob"></div>
     </div>
+    <button class="deck-pause-btn" id="btnPauseDeck" aria-label="Pausa">⏸ PAUSA</button>
     <div class="action-buttons">
       <button class="action-btn run" id="btnRun" aria-label="Corri"><span class="btn-label">R</span></button>
       <button class="action-btn guard" id="btnGuard" aria-label="Parata"><span class="btn-label">P</span></button>
-      <button class="action-btn" id="btnAttack" aria-label="Attacco"><span class="btn-label">A</span></button>
       <button class="action-btn special" id="btnSpecial" aria-label="Speciale"><span class="special-fill" id="specialFill"></span><span class="btn-label">B</span></button>
+      <button class="action-btn" id="btnAttack" aria-label="Attacco"><span class="btn-label">A</span></button>
     </div>
   </div>
 
@@ -186,6 +187,10 @@
     ['pointerup', 'pointercancel', 'pointerout'].forEach(name => runButton.addEventListener(name, () => setRunning(false)));
 
     const action = name => window.dispatchEvent(new CustomEvent('pixelpunch-action', { detail: name }));
+    document.getElementById('btnPauseDeck').addEventListener('pointerdown', event => {
+      event.preventDefault();
+      action('pause-toggle');
+    });
     document.getElementById('btnAttack').addEventListener('pointerdown', event => {
       event.preventDefault();
       guard.classList.remove('active');
