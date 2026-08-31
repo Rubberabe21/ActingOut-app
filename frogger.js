@@ -224,13 +224,13 @@ const BLOCK_TYPES = {
 };
 
 const PICKUP_TYPES = {
-  AUTO_SAVE:   { id: 'AUTO_SAVE', label: 'AUTO-SAVE', detail: 'Punteggio bonus bloccato', pts: 300, isMalus: false, icon: pickupImages.AUTO_SAVE },
-  PROXY_ON:    { id: 'PROXY_ON', label: 'PROXY 2X', detail: 'Punti raddoppiati', pts: 400, isMalus: false, scoreBoost: 2, duration: 600, icon: pickupImages.PROXY_ON },
-  CACHE_BOOST: { id: 'CACHE_BOOST', label: 'CACHE BOOST', detail: 'Movimento più fluido', pts: 150, isMalus: false, speedBoost: 1.2, duration: 480, icon: pickupImages.CACHE_BOOST },
-  GUARD:       { id: 'GUARD', label: 'RENDER SHIELD', detail: 'Protezione dai crash', pts: 250, isMalus: false, shieldDuration: 300, duration: 300, icon: pickupImages.GUARD },
+  AUTO_SAVE:   { id: 'AUTO_SAVE', label: 'AUTO-SAVE', detail: 'Checkpoint: riparti da qui', pts: 300, isMalus: false, icon: pickupImages.AUTO_SAVE },
+  PROXY_ON:    { id: 'PROXY_ON', label: 'PROXY 2X', detail: 'Punti raddoppiati per 10s', pts: 400, isMalus: false, scoreBoost: 2, duration: 600, icon: pickupImages.PROXY_ON },
+  CACHE_BOOST: { id: 'CACHE_BOOST', label: 'CACHE BOOST', detail: 'Velocità e +150 punti', pts: 150, isMalus: false, speedBoost: 1.2, duration: 480, icon: pickupImages.CACHE_BOOST },
+  GUARD:       { id: 'GUARD', label: 'RENDER SHIELD', detail: 'Protezione crash per 5s', pts: 250, isMalus: false, shieldDuration: 300, duration: 300, icon: pickupImages.GUARD },
   EXTRA_LIFE:  { id: 'EXTRA_LIFE', label: 'UNDO LIFE', detail: 'Errore annullato: +1 vita', pts: 100, isMalus: false, extraLife: 1, icon: pickupImages.EXTRA_LIFE },
-  DROP_FRAME:  { id: 'DROP_FRAME', label: 'DROP FRAME', detail: 'Sistema rallentato', pts: -100, isMalus: true, slowFactor: 0.7, duration: 360, icon: pickupImages.DROP_FRAME },
-  DISK_FULL:   { id: 'DISK_FULL', label: 'BUFFERING', detail: 'Controlli invertiti', pts: -200, isMalus: true, invertControls: true, duration: 300, icon: pickupImages.DISK_FULL }
+  DROP_FRAME:  { id: 'DROP_FRAME', label: 'DROP FRAME', detail: 'Sistema rallentato per 6s', pts: -100, isMalus: true, slowFactor: 0.7, duration: 360, icon: pickupImages.DROP_FRAME },
+  DISK_FULL:   { id: 'DISK_FULL', label: 'BUFFERING', detail: 'Controlli invertiti per 5s', pts: -200, isMalus: true, invertControls: true, duration: 300, icon: pickupImages.DISK_FULL }
 };
 
 let gameState = 'COVER';
@@ -245,8 +245,9 @@ let frame = 0;
 let visualScrollOffset = 0;
 let activeLanes = [];
 let particles = [];
-let lockedScoreFloor = 0;
 let activePickupStatus = null;
+let autosaveCheckpoint = null;
+let saveBanner = null;
 
 /* VAR PER GESTIONE ONDATE PANICO (AVVIA DA LIVELLO V15) */
 let panicModeActive = false;
@@ -410,7 +411,8 @@ function startGame() {
   scoreSavedForCurrentGame = false;
   currentTheme = CHARACTERS[CHARACTER_LIST[selectedCharIndex]];
   score = 0;
-  lockedScoreFloor = 0;
+  autosaveCheckpoint = null;
+  saveBanner = null;
   lives = 3;
   startInfiniteScroll();
   gameState = 'playing';
@@ -610,7 +612,6 @@ function checkPickups() {
       score += Math.floor(p.type.pts * currentTheme.scoreMult);
       if (p.type.isMalus) {
         playSound('malus');
-        score = Math.max(lockedScoreFloor, score);
         if (p.type.slowFactor) {
           player.speedMult = p.type.slowFactor;
           player.speedTimer = p.type.duration;
@@ -619,7 +620,6 @@ function checkPickups() {
         if (p.type.invertControls) player.glitchTimer = p.type.duration;
       } else {
         playSound('pickup');
-        if (p.type.id === 'AUTO_SAVE') lockedScoreFloor = Math.max(lockedScoreFloor, score);
         if (p.type.speedBoost) {
           player.speedMult = p.type.speedBoost;
           player.speedTimer = p.type.duration;
@@ -641,8 +641,66 @@ function checkPickups() {
       const pickupColor = p.type.extraLife ? '#ff3e91' : (p.type.isMalus ? '#ff0055' : '#00f3ff');
       addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, pickupColor, 10);
       currentLane.pickups.splice(i, 1);
+      if (p.type.id === 'AUTO_SAVE') {
+        captureAutosaveCheckpoint();
+        showSaveBanner('AUTOSAVE');
+        activePickupStatus = null;
+      }
     }
   }
+}
+
+function cloneLaneForCheckpoint(lane) {
+  return {
+    ...lane,
+    objects: lane.objects.map(obj => ({ ...obj })),
+    pickups: lane.pickups.map(pickup => ({ ...pickup }))
+  };
+}
+
+function captureAutosaveCheckpoint() {
+  autosaveCheckpoint = {
+    score,
+    currentLevel,
+    maxReachedLevel,
+    totalLanesGenerated,
+    visualScrollOffset,
+    activeLanes: activeLanes.map(cloneLaneForCheckpoint),
+    gx: player.gx,
+    gy: player.gy,
+    facingLeft: player.facingLeft,
+    panicModeActive,
+    panicWaveCount,
+    panicTimer,
+    panicCooldown,
+    voidGy,
+    voidStepTimer
+  };
+}
+
+function restoreAutosaveCheckpoint() {
+  if (!autosaveCheckpoint) return false;
+  score = autosaveCheckpoint.score;
+  currentLevel = autosaveCheckpoint.currentLevel;
+  maxReachedLevel = autosaveCheckpoint.maxReachedLevel;
+  totalLanesGenerated = autosaveCheckpoint.totalLanesGenerated;
+  visualScrollOffset = autosaveCheckpoint.visualScrollOffset;
+  activeLanes = autosaveCheckpoint.activeLanes.map(cloneLaneForCheckpoint);
+  player.gx = autosaveCheckpoint.gx;
+  player.gy = autosaveCheckpoint.gy;
+  player.facingLeft = autosaveCheckpoint.facingLeft;
+  panicModeActive = autosaveCheckpoint.panicModeActive;
+  panicWaveCount = autosaveCheckpoint.panicWaveCount;
+  panicTimer = autosaveCheckpoint.panicTimer;
+  panicCooldown = autosaveCheckpoint.panicCooldown;
+  voidGy = autosaveCheckpoint.voidGy;
+  voidStepTimer = autosaveCheckpoint.voidStepTimer;
+  showSaveBanner('RECOVERY SAVE');
+  return true;
+}
+
+function showSaveBanner(label) {
+  saveBanner = { label, timer: 112, elapsed: 0, fillDuration: 100 };
 }
 
 function checkCollisions() {
@@ -655,11 +713,14 @@ function checkCollisions() {
       return;
     }
 
-    lane.objects.forEach(obj => {
+    for (const obj of lane.objects) {
       let oLeft = obj.x, oRight = obj.x + obj.w;
       let pLeft = playerX - player.w / 2, pRight = playerX + player.w / 2;
-      if (pLeft < oRight && pRight > oLeft) hitPlayer();
-    });
+      if (pLeft < oRight && pRight > oLeft) {
+        hitPlayer();
+        break;
+      }
+    }
   }
 }
 
@@ -673,15 +734,18 @@ function hitPlayer() {
     playSound('fail');
     saveScore();
   } else {
-    let respawnGy = ROWS - 2;
-    for (let r = player.gy; r < ROWS; r++) {
-      if (activeLanes[r] && activeLanes[r].type === 'SAFE' && r < voidGy) {
-        respawnGy = r;
-        break;
+    const recovered = restoreAutosaveCheckpoint();
+    if (!recovered) {
+      let respawnGy = ROWS - 2;
+      for (let r = player.gy; r < ROWS; r++) {
+        if (activeLanes[r] && activeLanes[r].type === 'SAFE' && r < voidGy) {
+          respawnGy = r;
+          break;
+        }
       }
+      player.gx = Math.floor(COLS / 2);
+      player.gy = respawnGy;
     }
-    player.gx = Math.floor(COLS / 2);
-    player.gy = respawnGy;
     player.invTimer = 120;
     player.glitchTimer = 0;
     player.speedMult = 1;
@@ -846,6 +910,7 @@ function drawGameWorld() {
   drawSinglePlayer();
 
   if (activePickupStatus) drawActivePickupStatus();
+  if (saveBanner) drawSaveBanner();
 
   if (panicModeActive) {
     let secLeft = Math.ceil(panicTimer / 60);
@@ -932,6 +997,31 @@ function drawActivePickupStatus() {
   ctx.restore();
 }
 
+function drawSaveBanner() {
+  const x = 42, y = HUD_HEIGHT + 92, w = CANVAS_W - 84, h = 104;
+  const progress = Math.max(0, Math.min(1, saveBanner.elapsed / saveBanner.fillDuration));
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(34, 34, 38, 0.98)';
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, 12); ctx.fill();
+  ctx.strokeStyle = '#77777d'; ctx.lineWidth = 2; ctx.stroke();
+
+  ctx.fillStyle = '#6e6e72';
+  ctx.fillRect(x + 2, y + 2, w - 4, 34);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 17px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(saveBanner.label, x + 16, y + 19);
+
+  ctx.fillStyle = '#18181c';
+  ctx.beginPath(); ctx.roundRect(x + 18, y + 57, w - 36, 24, 8); ctx.fill();
+  if (progress > 0) {
+    ctx.fillStyle = '#349bea';
+    ctx.beginPath(); ctx.roundRect(x + 18, y + 57, (w - 36) * progress, 24, 8); ctx.fill();
+  }
+  ctx.restore();
+}
+
 function drawHUD() {
   ctx.fillStyle = '#121218';
   ctx.fillRect(0, 0, CANVAS_W, HUD_HEIGHT);
@@ -997,7 +1087,7 @@ function drawMenuBackground() {
   ctx.fillText(`GPU_ACCEL: ON`, CANVAS_W - 12, 38);
 }
 
-function drawCyberPanel(x, y, w, h, borderColor = '#00f3ff', bgColor = 'rgba(16, 16, 26, 0.92)') {
+function drawCyberPanel(x, y, w, h, borderColor = '#00f3ff', bgColor = 'rgba(16, 16, 26, 0.94)') {
   ctx.save();
   ctx.fillStyle = bgColor;
   ctx.fillRect(x, y, w, h);
@@ -1018,62 +1108,72 @@ function drawCyberPanel(x, y, w, h, borderColor = '#00f3ff', bgColor = 'rgba(16,
   ctx.restore();
 }
 
+function drawPickupInfoIcon(type, x, y, size = 32) {
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  if (type.icon?.complete && type.icon.naturalWidth > 0) {
+    ctx.drawImage(type.icon, x, y, size, size);
+  } else {
+    ctx.fillStyle = type.isMalus ? '#ff0055' : '#00f3ff';
+    ctx.fillRect(x + 3, y + 3, size - 6, size - 6);
+  }
+  ctx.restore();
+}
+
+function drawPickupInfoRow(type, x, y, text, iconSize = 32) {
+  drawPickupInfoIcon(type, x, y - iconSize / 2, iconSize);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x + iconSize + 12, y, 330);
+}
+
+function drawClipInfoPreview(type, x, y, w = 110) {
+  ctx.save();
+  ctx.fillStyle = type.bg;
+  ctx.fillRect(x, y, w, 42);
+  ctx.fillStyle = type.topBar;
+  ctx.fillRect(x, y, w, 5);
+  ctx.strokeStyle = type.border;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, 42);
+  ctx.fillStyle = type.textCol;
+  ctx.font = '900 11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(type.label, x + w / 2, y + 23, w - 8);
+  ctx.restore();
+}
+
 function drawScreens() {
   if (gameState === 'COVER') {
     if (ASSETS.COVER && ASSETS.COVER.complete && ASSETS.COVER.naturalWidth !== 0) {
       ctx.drawImage(ASSETS.COVER, 0, 0, CANVAS_W, CANVAS_H);
     } else {
       drawMenuBackground();
-      let boxW = 380, boxH = 460;
-      let boxX = (CANVAS_W - boxW) / 2, boxY = 80;
-
-      drawCyberPanel(boxX, boxY, boxW, boxH, '#00f3ff');
-
-      ctx.fillStyle = 'rgba(0, 243, 255, 0.2)';
-      ctx.fillRect(boxX + 25, boxY + 25, boxW - 50, 30);
-      ctx.strokeStyle = '#00f3ff';
-      ctx.strokeRect(boxX + 25, boxY + 25, boxW - 50, 30);
-
-      ctx.fillStyle = '#00f3ff';
-      ctx.font = '900 13px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('⚡ PREMIERE PRO ARCADE ⚡', CANVAS_W / 2, boxY + 45);
-
       ctx.fillStyle = '#ffea00';
-      ctx.font = '900 26px "Courier New", monospace';
+      ctx.font = '900 36px "Courier New", monospace';
+      ctx.textAlign = 'center';
       ctx.shadowColor = '#ffea00';
-      ctx.shadowBlur = 12;
-      ctx.fillText('DEADLINE DRIVE', CANVAS_W / 2, boxY + 130);
+      ctx.shadowBlur = 16;
+      ctx.fillText('DEADLINE', CANVAS_W / 2, 190);
+      ctx.fillText('DRIVE', CANVAS_W / 2, 232);
       ctx.shadowBlur = 0;
-
-      ctx.fillStyle = '#ff0055';
-      ctx.font = '900 14px monospace';
-      ctx.fillText('TIMELINE RUSH 2026', CANVAS_W / 2, boxY + 165);
-
-      ctx.fillStyle = '#0a0a12';
-      ctx.fillRect(boxX + 30, boxY + 200, boxW - 60, 130);
-      ctx.strokeStyle = '#ff0055';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(boxX + 30, boxY + 200, boxW - 60, 130);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '13px sans-serif';
-      ctx.fillText('Risali le tracce video prima', CANVAS_W / 2, boxY + 238);
-      ctx.fillText('che scada l\'Export finale!', CANVAS_W / 2, boxY + 262);
-
-      ctx.fillStyle = '#00ff66';
-      ctx.font = 'bold 12px monospace';
-      ctx.fillText(`HIGH SCORE: ${highScore} PTS`, CANVAS_W / 2, boxY + 302);
     }
 
-    if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#00f3ff';
-      ctx.font = '900 16px "Courier New", monospace';
+    if (Math.floor(frame / 34) % 2 === 0) {
+      const promptY = CANVAS_H - 54;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+      ctx.fillRect(28, promptY - 24, CANVAS_W - 56, 48);
+      ctx.strokeStyle = '#00f3ff';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(28, promptY - 24, CANVAS_W - 56, 48);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 15px "Courier New", monospace';
       ctx.textAlign = 'center';
-      ctx.shadowColor = '#00f3ff';
-      ctx.shadowBlur = 8;
-      ctx.fillText('PREMI PER COMINCIARE ►', CANVAS_W / 2, CANVAS_H - 40);
-      ctx.shadowBlur = 0;
+      ctx.textBaseline = 'middle';
+      ctx.fillText('PREMI UN TASTO PER COMINCIARE', CANVAS_W / 2, promptY);
     }
     return;
   }
@@ -1081,166 +1181,222 @@ function drawScreens() {
   drawMenuBackground();
 
   if (gameState === 'STORY') {
-    let boxW = 390, boxH = 490;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 60;
+    let boxW = CANVAS_W - 28, boxH = 610;
+    let boxX = (CANVAS_W - boxW) / 2, boxY = 30;
 
     drawCyberPanel(boxX, boxY, boxW, boxH, '#ffea00');
 
     ctx.fillStyle = '#ffea00';
-    ctx.font = '900 18px monospace';
+    ctx.font = '900 22px "Courier New", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('🎬 MISSIONE: LA STORIA', CANVAS_W / 2, boxY + 40);
+    ctx.shadowColor = '#ffea00';
+    ctx.shadowBlur = 10;
+    ctx.fillText('🎬 MISSIONE: LA STORIA', CANVAS_W / 2, boxY + 38);
+    ctx.shadowBlur = 0;
 
-    ctx.fillStyle = '#101018';
-    ctx.fillRect(boxX + 20, boxY + 65, boxW - 40, 310);
-    ctx.strokeStyle = '#ffea0044';
-    ctx.strokeRect(boxX + 20, boxY + 65, boxW - 40, 310);
-
-    ctx.textAlign = 'left';
-    ctx.font = '12px sans-serif';
+    ctx.fillStyle = 'rgba(0, 243, 255, 0.15)';
+    ctx.fillRect(boxX + 20, boxY + 54, boxW - 40, 24);
+    ctx.strokeStyle = '#00f3ff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(boxX + 20, boxY + 54, boxW - 40, 24);
 
     ctx.fillStyle = '#00f3ff';
-    ctx.fillText('CLIENTE: IMPOSSIBILE', boxX + 35, boxY + 100);
-    ctx.fillText('DEADLINE: IN ARRIVO', boxX + 35, boxY + 122);
+    ctx.font = '900 12px monospace';
+    ctx.fillText('⚡ PROJECT: DEADLINE_RUSH_2026', CANVAS_W / 2, boxY + 70);
+
+    ctx.fillStyle = '#101018';
+    ctx.fillRect(boxX + 20, boxY + 90, boxW - 40, 420);
+    ctx.strokeStyle = '#ffea00aa';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(boxX + 20, boxY + 90, boxW - 40, 420);
+
+    let contentX = boxX + 35;
+    ctx.textAlign = 'left';
 
     ctx.fillStyle = '#ff0055';
-    ctx.fillText('STATO TIMELINE: DA RISALIRE!', boxX + 35, boxY + 152);
+    ctx.font = '900 14px monospace';
+    ctx.fillText('⚠️ SITUAZIONE CRITICA IN AGENZIA', contentX, boxY + 120);
 
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('• La sequenza di montaggio è sommersa', boxX + 35, boxY + 190);
-    ctx.fillText('  da clip corrotte e tracce sfasate!', boxX + 35, boxY + 212);
-
-    ctx.fillStyle = '#00ff66';
-    ctx.fillText('• Risali le tracce V1, V2, V3, V4...', boxX + 35, boxY + 260);
-    ctx.fillText('  Colleziona Auto-Save e Proxy 2X!', boxX + 35, boxY + 282);
-    ctx.fillText('  Porta in salvo il progetto finale!', boxX + 35, boxY + 304);
+    ctx.font = '14px sans-serif';
+    ctx.fillText('• Il cliente pretende la consegna finale!', contentX, boxY + 148);
+    ctx.fillText('• Manca pochissimo all\'ora di scadenza.', contentX, boxY + 172);
 
     ctx.fillStyle = '#ffea00';
-    ctx.fillRect(boxX + 35, boxY + 405, boxW - 70, 50);
-    ctx.fillStyle = '#000';
+    ctx.fillRect(contentX, boxY + 195, boxW - 70, 2);
+
+    ctx.fillStyle = '#00f3ff';
     ctx.font = '900 14px monospace';
+    ctx.fillText('🔴 CHAOS IN TIMELINE', contentX, boxY + 225);
+
+    ctx.fillStyle = '#e0e0e0';
+    ctx.font = '14px sans-serif';
+    ctx.fillText('• La sequenza video è sommersa da clip', contentX, boxY + 253);
+    ctx.fillText('  corrotte, Lumetri sfasati e Drop Frame!', contentX, boxY + 277);
+    ctx.fillText('• I blocchi sfrecciano a velocità folle.', contentX, boxY + 301);
+
+    ctx.fillStyle = '#00f3ff';
+    ctx.fillRect(contentX, boxY + 325, boxW - 70, 2);
+
+    ctx.fillStyle = '#00ff66';
+    ctx.font = '900 14px monospace';
+    ctx.fillText('🎯 OBIETTIVO DEL VIDEOMAKER', contentX, boxY + 355);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '14px sans-serif';
+    ctx.fillText('• Risali le tracce V1, V2, V3, V4...', contentX, boxY + 383);
+    ctx.fillText('• Raccogli Auto-Save, Proxy 2X e Scudi!', contentX, boxY + 407);
+    ctx.fillText('• Salva il progetto e fai l\'export finale!', contentX, boxY + 431);
+
+    ctx.fillStyle = '#ffea00';
+    ctx.fillRect(boxX + 25, boxY + 530, boxW - 50, 56);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(boxX + 25, boxY + 530, boxW - 50, 56);
+
+    ctx.fillStyle = '#000000';
+    ctx.font = '900 16px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('AVANTI: REGOLE DI GIOCO ►', CANVAS_W / 2, boxY + 435);
+    ctx.fillText('AVANTI: REGOLE DI GIOCO ►', CANVAS_W / 2, boxY + 563);
     return;
   }
 
   if (gameState === 'RULES') {
-    let boxW = 390, boxH = 500;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 55;
+    let boxW = CANVAS_W - 28, boxH = 610;
+    let boxX = (CANVAS_W - boxW) / 2, boxY = 30;
 
     drawCyberPanel(boxX, boxY, boxW, boxH, '#ff0055');
 
     ctx.fillStyle = '#ff0055';
-    ctx.font = '900 18px monospace';
+    ctx.font = '900 22px monospace';
     ctx.textAlign = 'center';
+    ctx.shadowColor = '#ff0055';
+    ctx.shadowBlur = 10;
     ctx.fillText('📋 TIMELINE PROTOCOLS', CANVAS_W / 2, boxY + 38);
+    ctx.shadowBlur = 0;
 
-    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 20, boxY + 60, boxW - 40, 110);
-    ctx.strokeStyle = '#00f3ff'; ctx.strokeRect(boxX + 20, boxY + 60, boxW - 40, 110);
+    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 18, boxY + 60, boxW - 36, 125);
+    ctx.strokeStyle = '#00f3ff'; ctx.lineWidth = 2; ctx.strokeRect(boxX + 18, boxY + 60, boxW - 36, 125);
 
-    ctx.fillStyle = '#00f3ff'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left';
-    ctx.fillText('1. EVITA GLI OSTACOLI CLIP 🚫', boxX + 32, boxY + 86);
-    ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif';
-    ctx.fillText('Schiva Media Offline 🔴, Speed Ramps, Lumetri', boxX + 32, boxY + 110);
-    ctx.fillText('Color e clip sfasate lungo la Timeline!', boxX + 32, boxY + 132);
+    ctx.fillStyle = '#00f3ff'; ctx.font = '900 14px monospace'; ctx.textAlign = 'left';
+    ctx.fillText('1. SCHIVA LE CLIP E I RENDER', boxX + 30, boxY + 83);
+    drawClipInfoPreview(BLOCK_TYPES.A_ROLL, boxX + 30, boxY + 98, 110);
+    drawClipInfoPreview(BLOCK_TYPES.SPEED_RAMP, boxX + 148, boxY + 98, 110);
+    drawClipInfoPreview(BLOCK_TYPES.LUMETRI, boxX + 266, boxY + 98, 110);
+    ctx.fillStyle = '#ffffff'; ctx.font = '13px sans-serif';
+    ctx.fillText('Schiva ogni blocco ostacolo in movimento sulle tracce!', boxX + 30, boxY + 168);
 
-    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 20, boxY + 185, boxW - 40, 115);
-    ctx.strokeStyle = '#00ff66'; ctx.strokeRect(boxX + 20, boxY + 185, boxW - 40, 115);
+    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 18, boxY + 198, boxW - 36, 140);
+    ctx.strokeStyle = '#00ff66'; ctx.lineWidth = 2; ctx.strokeRect(boxX + 18, boxY + 198, boxW - 36, 140);
 
-    ctx.fillStyle = '#00ff66'; ctx.font = 'bold 12px monospace';
-    ctx.fillText('2. POWERUPS & BONUS 💾', boxX + 32, boxY + 211);
-    ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif';
-    ctx.fillText('💾 Auto-Save (+300) | 🎬 Proxy (Punti 2X)', boxX + 32, boxY + 235);
-    ctx.fillText('⚡ Cache Boost (+Velocità) | 🛡️ Render Shield', boxX + 32, boxY + 257);
+    ctx.fillStyle = '#00ff66'; ctx.font = '900 14px monospace';
+    ctx.fillText('2. POWERUPS & BONUS', boxX + 30, boxY + 221);
+    drawPickupInfoIcon(PICKUP_TYPES.AUTO_SAVE, boxX + 30, boxY + 236, 32);
+    drawPickupInfoIcon(PICKUP_TYPES.PROXY_ON, boxX + 78, boxY + 236, 32);
+    drawPickupInfoIcon(PICKUP_TYPES.CACHE_BOOST, boxX + 126, boxY + 236, 32);
+    drawPickupInfoIcon(PICKUP_TYPES.GUARD, boxX + 174, boxY + 236, 32);
+    drawPickupInfoIcon(PICKUP_TYPES.EXTRA_LIFE, boxX + 222, boxY + 236, 32);
+    ctx.fillStyle = '#ffffff'; ctx.font = '13px sans-serif';
+    ctx.fillText('Raccogli i moduli per ottenere Checkpoint, Punti 2X,', boxX + 30, boxY + 295);
+    ctx.fillText('Sprint, Scudo protettivo e Vite extra!', boxX + 30, boxY + 317);
 
-    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 20, boxY + 315, boxW - 40, 85);
-    ctx.strokeStyle = '#ff0055'; ctx.strokeRect(boxX + 20, boxY + 315, boxW - 40, 85);
+    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 18, boxY + 350, boxW - 36, 105);
+    ctx.strokeStyle = '#ff0055'; ctx.lineWidth = 2; ctx.strokeRect(boxX + 18, boxY + 350, boxW - 36, 105);
 
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px monospace';
-    ctx.fillText('3. MALUS TRAPPOLA ⚠️', boxX + 32, boxY + 341);
-    ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif';
-    ctx.fillText('🐌 Drop Frame (Rallenta) | ⚠️ Full Disk (Inverte)', boxX + 32, boxY + 365);
+    ctx.fillStyle = '#ff0055'; ctx.font = '900 14px monospace';
+    ctx.fillText('3. MALUS TRAPPOLA', boxX + 30, boxY + 373);
+    drawPickupInfoIcon(PICKUP_TYPES.DROP_FRAME, boxX + 30, boxY + 388, 32);
+    drawPickupInfoIcon(PICKUP_TYPES.DISK_FULL, boxX + 78, boxY + 388, 32);
+    ctx.fillStyle = '#ffffff'; ctx.font = '13px sans-serif';
+    ctx.fillText('ATTENZIONE: Drop Frame ti rallenta,', boxX + 124, boxY + 398);
+    ctx.fillText('Buffering inverte i comandi di guida!', boxX + 124, boxY + 420);
 
     ctx.fillStyle = '#ff0055';
-    ctx.fillRect(boxX + 35, boxY + 425, boxW - 70, 50);
-    ctx.fillStyle = '#fff'; ctx.font = '900 14px monospace'; ctx.textAlign = 'center';
-    ctx.fillText('SCHEDA BONUS & MALUS ►', CANVAS_W / 2, boxY + 455);
+    ctx.fillRect(boxX + 25, boxY + 530, boxW - 50, 56);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(boxX + 25, boxY + 530, boxW - 50, 56);
+    ctx.fillStyle = '#ffffff'; ctx.font = '900 16px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('SCHEDA BONUS & MALUS ►', CANVAS_W / 2, boxY + 563);
     return;
   }
 
   if (gameState === 'POWERUPS_INFO') {
-    let boxW = 390, boxH = 500;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 55;
+    let boxW = CANVAS_W - 28, boxH = 610;
+    let boxX = (CANVAS_W - boxW) / 2, boxY = 30;
 
     drawCyberPanel(boxX, boxY, boxW, boxH, '#00ff66');
 
     ctx.fillStyle = '#00ff66';
-    ctx.font = '900 18px monospace';
+    ctx.font = '900 22px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('⚡ BONUS & MALUS DETTAGLIO', CANVAS_W / 2, boxY + 38);
+    ctx.shadowColor = '#00ff66';
+    ctx.shadowBlur = 10;
+    ctx.fillText('BONUS & MALUS DETTAGLIO', CANVAS_W / 2, boxY + 38);
+    ctx.shadowBlur = 0;
 
-    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 20, boxY + 60, boxW - 40, 340);
-    ctx.strokeStyle = '#00ff6644'; ctx.strokeRect(boxX + 20, boxY + 60, boxW - 40, 340);
+    ctx.fillStyle = '#101018'; ctx.fillRect(boxX + 18, boxY + 60, boxW - 36, 440);
+    ctx.strokeStyle = '#00ff6644'; ctx.strokeRect(boxX + 18, boxY + 60, boxW - 36, 440);
 
+    const infoX = boxX + 28;
     ctx.textAlign = 'left';
-    ctx.font = 'bold 12px monospace';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 14px monospace';
 
     ctx.fillStyle = '#00ff66';
-    ctx.fillText('--- POTENZIAMENTI BONUS ---', boxX + 32, boxY + 90);
-    ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif';
-    ctx.fillText('• 💾 AUTO-SAVE: +300 Punti istantanei', boxX + 32, boxY + 115);
-    ctx.fillText('• 🎬 PROXY 2X: Moltiplica x2 i punti', boxX + 32, boxY + 138);
-    ctx.fillText('• ⚡ CACHE BOOST: +150 Punti & Velocità', boxX + 32, boxY + 161);
-    ctx.fillText('• 🛡️ RENDER SHIELD: Scudo Invulnerabile', boxX + 32, boxY + 184);
-    ctx.fillText('• ♥ EXTRA LIFE: +1 Vita (massimo 5)', boxX + 32, boxY + 207);
+    ctx.fillText('POTENZIAMENTI BONUS', infoX, boxY + 84);
+    drawPickupInfoRow(PICKUP_TYPES.AUTO_SAVE, infoX, boxY + 116, 'AUTO-SAVE · checkpoint: riparti da qui');
+    drawPickupInfoRow(PICKUP_TYPES.PROXY_ON, infoX, boxY + 158, 'PROXY 2X · punti raddoppiati per 10s');
+    drawPickupInfoRow(PICKUP_TYPES.CACHE_BOOST, infoX, boxY + 200, 'CACHE BOOST · +150 punti e sprint per 8s');
+    drawPickupInfoRow(PICKUP_TYPES.GUARD, infoX, boxY + 242, 'RENDER SHIELD · protezione dai crash per 5s');
+    drawPickupInfoRow(PICKUP_TYPES.EXTRA_LIFE, infoX, boxY + 284, 'UNDO LIFE · +1 vita, massimo 5');
 
-    ctx.fillStyle = '#ff0055'; ctx.font = 'bold 12px monospace';
-    ctx.fillText('--- MALUS TRAPPOLA ---', boxX + 32, boxY + 235);
-    ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif';
-    ctx.fillText('• 🐌 DROP FRAME: -100 Punti & Rallenta', boxX + 32, boxY + 260);
-    ctx.fillText('• ⚠️ FULL DISK: -200 Punti & Inverte Guida', boxX + 32, boxY + 283);
+    ctx.fillStyle = '#ff0055';
+    ctx.font = '900 14px monospace';
+    ctx.fillText('MALUS TRAPPOLA', infoX, boxY + 326);
+    drawPickupInfoRow(PICKUP_TYPES.DROP_FRAME, infoX, boxY + 358, 'DROP FRAME · -100 punti e rallenta per 6s');
+    drawPickupInfoRow(PICKUP_TYPES.DISK_FULL, infoX, boxY + 400, 'BUFFERING · -200 punti, comandi invertiti 5s');
 
-    ctx.fillStyle = '#ffea00'; ctx.font = 'bold 12px monospace';
-    ctx.fillText('CONSIGLIO: Mantieni i riflessi pronti!', boxX + 32, boxY + 320);
+    ctx.fillStyle = '#ffea00'; ctx.font = 'bold 13px monospace';
+    ctx.fillText('Mantieni i riflessi pronti sulla timeline!', infoX, boxY + 452);
 
     ctx.fillStyle = '#00ff66';
-    ctx.fillRect(boxX + 35, boxY + 425, boxW - 70, 50);
-    ctx.fillStyle = '#000'; ctx.font = '900 14px monospace'; ctx.textAlign = 'center';
-    ctx.fillText('SCEGLI VIDEOMAKER ►', CANVAS_W / 2, boxY + 455);
+    ctx.fillRect(boxX + 25, boxY + 530, boxW - 50, 56);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(boxX + 25, boxY + 530, boxW - 50, 56);
+    ctx.fillStyle = '#000'; ctx.font = '900 16px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('SCEGLI VIDEOMAKER ►', CANVAS_W / 2, boxY + 563);
     return;
   }
 
   if (gameState === 'CHAR_SELECT') {
-    let boxW = 390, boxH = 510;
-    let boxX = (CANVAS_W - boxW) / 2, boxY = 45;
+    let boxW = CANVAS_W - 28, boxH = 610;
+    let boxX = (CANVAS_W - boxW) / 2, boxY = 30;
 
     let c = CHARACTERS[CHARACTER_LIST[selectedCharIndex]];
 
     drawCyberPanel(boxX, boxY, boxW, boxH, c.primary);
 
     ctx.fillStyle = c.primary;
-    ctx.font = '900 18px monospace';
+    ctx.font = '900 22px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('🎬 SELEZIONA VIDEOMAKER', CANVAS_W / 2, boxY + 35);
+    ctx.fillText('🎬 SELEZIONA VIDEOMAKER', CANVAS_W / 2, boxY + 38);
 
-    let imgW = 160, imgH = 160;
-    let imgX = (CANVAS_W - imgW) / 2, imgY = boxY + 55;
+    let imgW = 180, imgH = 180;
+    let imgX = (CANVAS_W - imgW) / 2, imgY = boxY + 60;
 
     ctx.fillStyle = '#181824';
-    ctx.fillRect(boxX + 16, imgY + 50, 44, 60);
+    ctx.fillRect(boxX + 16, imgY + 60, 48, 60);
     ctx.strokeStyle = c.primary;
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(boxX + 16, imgY + 50, 44, 60);
+    ctx.strokeRect(boxX + 16, imgY + 60, 48, 60);
     ctx.fillStyle = c.primary;
-    ctx.font = '900 24px monospace';
-    ctx.fillText('◄', boxX + 38, imgY + 86);
+    ctx.font = '900 26px monospace';
+    ctx.fillText('◄', boxX + 40, imgY + 95);
 
     ctx.fillStyle = '#181824';
-    ctx.fillRect(boxX + boxW - 60, imgY + 50, 44, 60);
+    ctx.fillRect(boxX + boxW - 64, imgY + 60, 48, 60);
     ctx.strokeStyle = c.primary;
-    ctx.strokeRect(boxX + boxW - 60, imgY + 50, 44, 60);
+    ctx.strokeRect(boxX + boxW - 64, imgY + 60, 48, 60);
     ctx.fillStyle = c.primary;
-    ctx.fillText('►', boxX + boxW - 38, imgY + 86);
+    ctx.fillText('►', boxX + boxW - 40, imgY + 95);
 
     ctx.fillStyle = '#0a0a10';
     ctx.fillRect(imgX, imgY, imgW, imgH);
@@ -1249,8 +1405,8 @@ function drawScreens() {
       ctx.drawImage(c.img, imgX, imgY, imgW, imgH);
     } else {
       ctx.fillStyle = c.primary;
-      ctx.font = '900 56px monospace';
-      ctx.fillText(c.name[0], CANVAS_W / 2, imgY + 100);
+      ctx.font = '900 64px monospace';
+      ctx.fillText(c.name[0], CANVAS_W / 2, imgY + 110);
     }
 
     ctx.strokeStyle = c.primary;
@@ -1258,45 +1414,48 @@ function drawScreens() {
     ctx.strokeRect(imgX, imgY, imgW, imgH);
 
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(imgX + 5, imgY + 5, 60, 16);
+    ctx.fillRect(imgX + 6, imgY + 6, 68, 18);
     ctx.fillStyle = '#00ff66';
-    ctx.font = 'bold 9px monospace';
-    ctx.fillText('● REC 4K', imgX + 35, imgY + 16);
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText('● REC 4K', imgX + 40, imgY + 18);
 
     ctx.fillStyle = c.primary;
-    ctx.font = '900 22px -apple-system, sans-serif';
-    ctx.fillText(c.name, CANVAS_W / 2, boxY + 242);
+    ctx.font = '900 24px -apple-system, sans-serif';
+    ctx.fillText(c.name, CANVAS_W / 2, boxY + 270);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 12px sans-serif';
-    ctx.fillText(c.subtitle, CANVAS_W / 2, boxY + 264);
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText(c.subtitle, CANVAS_W / 2, boxY + 295);
 
     ctx.fillStyle = '#0a0a10';
-    ctx.fillRect(boxX + 25, boxY + 282, boxW - 50, 85);
+    ctx.fillRect(boxX + 20, boxY + 315, boxW - 40, 100);
     ctx.strokeStyle = '#2a2a38';
-    ctx.strokeRect(boxX + 25, boxY + 282, boxW - 50, 85);
+    ctx.strokeRect(boxX + 20, boxY + 315, boxW - 40, 100);
 
     ctx.fillStyle = '#ffea00';
-    ctx.font = 'bold 12px monospace';
-    ctx.fillText(c.perkBonus, CANVAS_W / 2, boxY + 312);
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(c.perkBonus, CANVAS_W / 2, boxY + 350);
 
     ctx.fillStyle = '#ff0055';
-    ctx.fillText(c.perkMalus, CANVAS_W / 2, boxY + 342);
+    ctx.fillText(c.perkMalus, CANVAS_W / 2, boxY + 385);
 
-    let dotSpacing = 16;
+    let dotSpacing = 18;
     let startX = CANVAS_W / 2 - ((CHARACTER_LIST.length - 1) * dotSpacing) / 2;
     for (let i = 0; i < CHARACTER_LIST.length; i++) {
       ctx.beginPath();
-      ctx.arc(startX + i * dotSpacing, boxY + 392, 4, 0, Math.PI * 2);
+      ctx.arc(startX + i * dotSpacing, boxY + 438, 5, 0, Math.PI * 2);
       ctx.fillStyle = (i === selectedCharIndex) ? c.primary : '#333344';
       ctx.fill();
     }
 
     ctx.fillStyle = c.primary;
-    ctx.fillRect(boxX + 30, boxY + 425, boxW - 60, 52);
+    ctx.fillRect(boxX + 25, boxY + 530, boxW - 50, 56);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(boxX + 25, boxY + 530, boxW - 50, 56);
     ctx.fillStyle = '#000000';
-    ctx.font = '900 15px monospace';
-    ctx.fillText(`GIOCA CON ${c.name} ►`, CANVAS_W / 2, boxY + 457);
+    ctx.font = '900 16px monospace';
+    ctx.fillText(`GIOCA CON ${c.name} ►`, CANVAS_W / 2, boxY + 563);
     return;
   }
 
@@ -1305,13 +1464,13 @@ function drawScreens() {
     drawGameWorld();
     drawHUD();
 
-    let boxW = 380, boxH = 320;
+    let boxW = CANVAS_W - 28, boxH = 360;
     let boxX = (CANVAS_W - boxW) / 2, boxY = (CANVAS_H - boxH) / 2 - 20;
 
     drawCyberPanel(boxX, boxY, boxW, boxH, '#ff0055');
 
     ctx.fillStyle = '#ff0055';
-    ctx.font = '900 19px monospace';
+    ctx.font = '900 20px monospace';
     ctx.textAlign = 'center';
     ctx.shadowColor = '#ff0055';
     ctx.shadowBlur = 10;
@@ -1319,66 +1478,69 @@ function drawScreens() {
     ctx.shadowBlur = 0;
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 13px sans-serif';
-    ctx.fillText('LA TIMELINE ENTRA IN OVERHEAT!', CANVAS_W / 2, boxY + 72);
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('LA TIMELINE ENTRA IN OVERHEAT!', CANVAS_W / 2, boxY + 74);
 
     ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(boxX + 20, boxY + 95, boxW - 40, 135);
+    ctx.fillRect(boxX + 20, boxY + 98, boxW - 40, 160);
     ctx.strokeStyle = '#ffea00';
     ctx.lineWidth = 1;
-    ctx.strokeRect(boxX + 20, boxY + 95, boxW - 40, 135);
+    ctx.strokeRect(boxX + 20, boxY + 98, boxW - 40, 160);
 
     ctx.fillStyle = '#ffea00';
-    ctx.font = 'bold 11px monospace';
-    ctx.fillText('ONDATE DI CANCELLAZIONE TEMPORIZZATE:', CANVAS_W / 2, boxY + 118);
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText('ONDATE DI CANCELLAZIONE TEMPORIZZATE:', CANVAS_W / 2, boxY + 124);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '12px sans-serif';
-    ctx.fillText('1. La prima ondata durerà 20 SECONDI.', CANVAS_W / 2, boxY + 142);
-    ctx.fillText('2. La sequenza si CANCELLA VELOCE!', CANVAS_W / 2, boxY + 164);
-    ctx.fillText('3. I blocchi aumentano follia ogni ondata.', CANVAS_W / 2, boxY + 186);
+    ctx.font = '13px sans-serif';
+    ctx.fillText('1. La prima ondata durerà 20 SECONDI.', CANVAS_W / 2, boxY + 152);
+    ctx.fillText('2. La sequenza si CANCELLA VELOCE!', CANVAS_W / 2, boxY + 176);
+    ctx.fillText('3. I blocchi aumentano follia ogni ondata.', CANVAS_W / 2, boxY + 200);
 
     ctx.fillStyle = '#00ff66';
-    ctx.font = 'bold 12px monospace';
-    ctx.fillText('RESISTI FINO ALLA FINE DELL\'ONDATA!', CANVAS_W / 2, boxY + 212);
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText('RESISTI FINO ALLA FINE DELL\'ONDATA!', CANVAS_W / 2, boxY + 232);
 
     ctx.fillStyle = '#ff0055';
-    ctx.fillRect(boxX + 30, boxY + 248, boxW - 60, 48);
+    ctx.fillRect(boxX + 25, boxY + 280, boxW - 50, 54);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(boxX + 25, boxY + 280, boxW - 50, 54);
     ctx.fillStyle = '#ffffff';
-    ctx.font = '900 15px monospace';
-    ctx.fillText('INIZIA PRIMA ONDATA ►', CANVAS_W / 2, boxY + 278);
+    ctx.font = '900 16px monospace';
+    ctx.fillText('INIZIA PRIMA ONDATA ►', CANVAS_W / 2, boxY + 312);
     return;
   }
 
   if (gameState === 'PAUSE') {
-    let boxW = 340, boxH = 220;
+    let boxW = CANVAS_W - 40, boxH = 240;
     let boxX = (CANVAS_W - boxW) / 2, boxY = (CANVAS_H - boxH) / 2;
 
     drawCyberPanel(boxX, boxY, boxW, boxH, '#ffea00');
 
     ctx.fillStyle = '#ffea00';
-    ctx.font = '900 26px monospace';
+    ctx.font = '900 28px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('⏸️ IN PAUSA', CANVAS_W / 2, boxY + 75);
+    ctx.fillText('⏸️ IN PAUSA', CANVAS_W / 2, boxY + 80);
 
     ctx.fillStyle = '#00f3ff';
-    ctx.font = 'bold 13px monospace';
-    ctx.fillText('TIMELINE SOSPESA', CANVAS_W / 2, boxY + 118);
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText('TIMELINE SOSPESA', CANVAS_W / 2, boxY + 125);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '12px monospace';
-    ctx.fillText('TOCCA PER RIPRENDERE IL MONTAGGIO', CANVAS_W / 2, boxY + 160);
+    ctx.font = '13px monospace';
+    ctx.fillText('TOCCA PER RIPRENDERE IL MONTAGGIO', CANVAS_W / 2, boxY + 170);
     return;
   }
 
   if (gameState === 'gameover') {
-    let boxW = 380, boxH = 390;
+    let boxW = CANVAS_W - 28, boxH = 410;
     let boxX = (CANVAS_W - boxW) / 2, boxY = (CANVAS_H - boxH) / 2;
 
     drawCyberPanel(boxX, boxY, boxW, boxH, '#ff0055');
 
     ctx.fillStyle = '#ff0055';
-    ctx.font = '900 24px monospace';
+    ctx.font = '900 26px monospace';
     ctx.textAlign = 'center';
     ctx.shadowColor = '#ff0055';
     ctx.shadowBlur = 10;
@@ -1386,27 +1548,30 @@ function drawScreens() {
     ctx.shadowBlur = 0;
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '14px monospace';
+    ctx.font = '15px monospace';
     ctx.fillText('CRASH DEL SISTEMA DI EXPORT', CANVAS_W / 2, boxY + 105);
 
     ctx.fillStyle = '#0a0a12';
-    ctx.fillRect(boxX + 25, boxY + 135, boxW - 50, 130);
+    ctx.fillRect(boxX + 25, boxY + 135, boxW - 50, 140);
     ctx.strokeStyle = '#ffea00';
-    ctx.strokeRect(boxX + 25, boxY + 135, boxW - 50, 130);
+    ctx.strokeRect(boxX + 25, boxY + 135, boxW - 50, 140);
 
     ctx.fillStyle = '#ffea00';
-    ctx.font = '900 20px monospace';
+    ctx.font = '900 22px monospace';
     ctx.fillText(`PUNTEGGIO: ${score}`, CANVAS_W / 2, boxY + 185);
 
     ctx.fillStyle = '#00f3ff';
-    ctx.font = 'bold 13px monospace';
-    ctx.fillText(`TRACCIA MASSIMA: V${maxReachedLevel} | REC: ${highScore}`, CANVAS_W / 2, boxY + 225);
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(`TRACCIA MASSIMA: V${maxReachedLevel} | REC: ${highScore}`, CANVAS_W / 2, boxY + 230);
 
     ctx.fillStyle = Math.floor(frame / 30) % 2 === 0 ? '#ff0055' : '#ffea00';
-    ctx.fillRect(boxX + 35, boxY + 295, boxW - 70, 52);
+    ctx.fillRect(boxX + 25, boxY + 310, boxW - 50, 56);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(boxX + 25, boxY + 310, boxW - 50, 56);
     ctx.fillStyle = '#000';
-    ctx.font = '900 14px monospace';
-    ctx.fillText('► TOCCA PER RIPROVARE ◄', CANVAS_W / 2, boxY + 327);
+    ctx.font = '900 16px monospace';
+    ctx.fillText('► TOCCA PER RIPROVARE ◄', CANVAS_W / 2, boxY + 343);
   }
 }
 
@@ -1422,12 +1587,12 @@ canvas.addEventListener('pointerdown', e => {
   }
 
   if (gameState === 'PANIC_POPUP') {
-    const boxW = 380, boxH = 320;
+    const boxW = CANVAS_W - 28, boxH = 360;
     const boxX = (CANVAS_W - boxW) / 2;
     const boxY = (CANVAS_H - boxH) / 2 - 20;
-    const buttonX = boxX + 30;
-    const buttonY = boxY + 248;
-    if (x >= buttonX && x <= buttonX + boxW - 60 && y >= buttonY && y <= buttonY + 48) {
+    const buttonX = boxX + 25;
+    const buttonY = boxY + 280;
+    if (x >= buttonX && x <= buttonX + boxW - 50 && y >= buttonY && y <= buttonY + 54) {
       gameState = 'playing';
       startPanicWave();
     }
@@ -1435,21 +1600,21 @@ canvas.addEventListener('pointerdown', e => {
   }
 
   if (gameState === 'CHAR_SELECT') {
-    let boxW = 390;
+    let boxW = CANVAS_W - 28;
     let boxX = (CANVAS_W - boxW) / 2;
-    let imgY = 100;
+    let imgY = 90;
 
-    if (x >= boxX + 10 && x <= boxX + 70 && y >= imgY + 40 && y <= imgY + 120) {
+    if (x >= boxX + 16 && x <= boxX + 64 && y >= imgY + 60 && y <= imgY + 120) {
       selectedCharIndex = (selectedCharIndex - 1 + CHARACTER_LIST.length) % CHARACTER_LIST.length;
       playSound('cross');
       return;
     }
-    if (x >= boxX + boxW - 70 && x <= boxX + boxW - 10 && y >= imgY + 40 && y <= imgY + 120) {
+    if (x >= boxX + boxW - 64 && x <= boxX + boxW - 16 && y >= imgY + 60 && y <= imgY + 120) {
       selectedCharIndex = (selectedCharIndex + 1) % CHARACTER_LIST.length;
       playSound('cross');
       return;
     }
-    if (y >= 450) {
+    if (y >= 520) {
       startGame();
       return;
     }
@@ -1489,7 +1654,6 @@ function bindDirBtn(id, dirKey) {
     }
 
     if (gameState === 'PANIC_POPUP') {
-      // L'allerta si conferma soltanto toccando il pulsante nel banner.
       return;
     }
 
@@ -1546,7 +1710,6 @@ window.addEventListener('keydown', e => {
   if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(gameState)) {
     if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
   } else if (gameState === 'PANIC_POPUP') {
-    // D-pad e tastiera non possono chiudere l'allerta Panico.
     return;
   } else if (gameState === 'CHAR_SELECT') {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
@@ -1612,6 +1775,10 @@ async function exitGame() {
 function update() {
   frame++;
   if (gameState === 'playing') {
+    if (saveBanner) {
+      saveBanner.elapsed++;
+      if (--saveBanner.timer <= 0) saveBanner = null;
+    }
     updateVehicles();
     updatePlayer();
   }

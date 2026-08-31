@@ -1327,19 +1327,88 @@ function drawScreens() {
   }
 
   if (state === 'RULES') {
-    ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
-    drawCrispText('REGOLE DI GIOCO', W / 2, 38, '900 22px Courier New', '#00f0ff');
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(14, 58, W - 28, H - 100, 12); ctx.fill();
-    ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 2.5; ctx.stroke();
-    drawCrispText('01. PULISCI FILE CORROTTI', W / 2, 82, '900 14px Courier New', '#ffea00');
-    drawCrispText('Fai esplodere .JPG, .PNG, .PSD, .AI e .PDF', W / 2, 102, 'bold 12px Courier New', '#ffffff');
-    drawCrispText('02. DISTRUGGI I BUG', W / 2, 150, '900 14px Courier New', '#00ffcc');
-    drawCrispText('Elimina i bug vaganti e i Mega Boss', W / 2, 170, 'bold 12px Courier New', '#ffffff');
-    drawCrispText('03. RACCOGLI POTENZIAMENTI', W / 2, 218, '900 14px Courier New', '#ff00ff');
-    drawCrispText('Aumenta raggio, bombe e velocità', W / 2, 238, 'bold 12px Courier New', '#ffffff');
-    drawCrispText('04. CONTROLLI GUIDA', W / 2, 286, '900 14px Courier New', '#ffd700');
-    drawCrispText('Joystick Touch + pulsante BOMBA', W / 2, 306, 'bold 12px Courier New', '#ffffff');
-    if (Math.floor(frame / 40) % 2 === 0) drawCrispText('CONTINUA ►', W / 2, H - 20, '900 15px Courier New', '#ffea00');
+    ctx.fillStyle = '#060614'; ctx.fillRect(0, 0, W, H);
+
+    const drawRuleCard = (y, color, title, action, drawVisual) => {
+      ctx.save();
+      ctx.fillStyle = '#101228';
+      ctx.beginPath(); ctx.roundRect(12, y, W - 24, 88, 10); ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = color; ctx.fillRect(12, y, 6, 88);
+
+      // Area grafica a sinistra: centro della colonna sinistra a X = 70, Y = y + 44
+      drawVisual(70, y + 44);
+
+      // Testi a destra (allineati a sinistra a X = 135)
+      drawCrispText(title, 135, y + 33, '900 14px Courier New', color, 'left');
+      drawCrispText(action, 135, y + 55, '900 11px Courier New', '#ffffff', 'left');
+      ctx.restore();
+    };
+
+    drawCrispText('COME SI GIOCA', W / 2, 22, '900 21px Courier New', '#00f0ff');
+    drawCrispText('3 COSE DA RICORDARE', W / 2, 40, '900 10px Courier New', '#ffffff');
+
+    // Card 1: Bomba ingrandita del 50% (48x48)
+    drawRuleCard(48, '#ffea00', 'PIAZZA LA BOMBA', 'ROMPI I FILE', (x, y) => {
+      ctx.imageSmoothingEnabled = false;
+      if (ASSETS.BOMBA.complete && ASSETS.BOMBA.naturalWidth) ctx.drawImage(ASSETS.BOMBA, x - 24, y - 24, 48, 48);
+      else { ctx.fillStyle = '#ffea00'; ctx.beginPath(); ctx.arc(x, y, 21, 0, Math.PI * 2); ctx.fill(); }
+    });
+
+    // Card 2: Bug/Mostri ingranditi del 50% (30x30 ciascuno)
+    drawRuleCard(142, '#ff0055', 'EVITA I BUG', 'ESPLODI E SCAPPA', (x, y) => {
+      ctx.imageSmoothingEnabled = false;
+      const monsterLayout = [
+        { img: ASSETS.MOSTRI[1], x: x - 18, y: y - 12 },
+        { img: ASSETS.MOSTRI[3], x: x + 18, y: y - 12 },
+        { img: ASSETS.MOSTRI[5], x, y: y + 14 }
+      ];
+      monsterLayout.forEach((item, idx) => {
+        if (item.img?.complete && item.img.naturalWidth) {
+          ctx.drawImage(item.img, item.x - 15, item.y - 15, 30, 30);
+        } else {
+          ctx.fillStyle = ['#ff007f', '#00f0ff', '#00ff66'][idx];
+          ctx.fillRect(item.x - 12, item.y - 12, 24, 24);
+        }
+      });
+    });
+
+    // Card 3: Bonus/Powerup ingranditi del 50% (30x30 ciascuno)
+    drawRuleCard(236, '#00ffcc', 'PRENDI I BONUS', 'DIVENTA PIÙ FORTE', (x, y) => {
+      ctx.imageSmoothingEnabled = false;
+      const bonusLayout = [
+        { img: ASSETS.FUOCO, x: x - 18, y: y - 12 },
+        { img: ASSETS.SCARPA, x: x + 18, y: y - 12 },
+        { img: ASSETS.CUORE, x, y: y + 14 }
+      ];
+      bonusLayout.forEach(item => {
+        if (item.img?.complete && item.img.naturalWidth) {
+          ctx.drawImage(item.img, item.x - 15, item.y - 15, 30, 30);
+        }
+      });
+    });
+
+    ctx.fillStyle = '#17102d';
+    ctx.beginPath(); ctx.roundRect(12, 330, W - 24, 72, 10); ctx.fill();
+    ctx.strokeStyle = '#9d5cff'; ctx.lineWidth = 2; ctx.stroke();
+
+    const controlsY = 358;
+    ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 3;
+    ctx.fillStyle = '#0a0318';
+    ctx.beginPath(); ctx.arc(84, controlsY, 21, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ff007f';
+    ctx.beginPath(); ctx.arc(80, controlsY - 4, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
+    drawCrispText('MUOVITI', 84, 390, '900 11px Courier New', '#ffffff');
+
+    ctx.fillStyle = '#ff0055';
+    ctx.beginPath(); ctx.arc(254, controlsY, 23, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#ff8aac'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.imageSmoothingEnabled = false;
+    if (ASSETS.BOMBA.complete && ASSETS.BOMBA.naturalWidth) ctx.drawImage(ASSETS.BOMBA, 238, controlsY - 16, 32, 32);
+    drawCrispText('BOMBA', 254, 390, '900 11px Courier New', '#ffffff');
+
+    if (Math.floor(frame / 40) % 2 === 0) drawCrispText('TOCCA PER CONTINUARE', W / 2, H - 12, '900 12px Courier New', '#ffea00');
     return;
   }
 

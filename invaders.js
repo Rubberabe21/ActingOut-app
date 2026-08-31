@@ -126,6 +126,15 @@ const astTommi = new Image(); astTommi.src = 'assets/invaders/tommi-ast.png';
 const astGiampa = new Image(); astGiampa.src = 'assets/invaders/giampa-ast.png';
 const astBretto = new Image(); astBretto.src = 'assets/invaders/bretto-ast.png';
 
+function drawCrispText(text, x, y, font, color, align = 'center', strokeColor = '#000000', strokeWidth = 3) {
+  ctx.save();
+  ctx.font = font; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  let rx = Math.round(x), ry = Math.round(y);
+  if (strokeColor) { ctx.strokeStyle = strokeColor; ctx.lineWidth = strokeWidth; ctx.strokeText(text, rx, ry); }
+  ctx.fillStyle = color; ctx.fillText(text, rx, ry);
+  ctx.restore();
+}
+
 // --- PERSONAGGI E PERK ---
 const CHARACTERS = {
   TOMMI: {
@@ -1280,44 +1289,92 @@ function drawScreens() {
   }
 
   if (state === 'RULES') {
-    ctx.fillStyle = 'rgba(6, 6, 20, 0.98)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#060614'; ctx.fillRect(0, 0, W, H);
 
-    ctx.fillStyle = '#ff0055'; ctx.font = '900 32px Courier New'; ctx.textAlign = 'center';
-    ctx.fillText('REGOLE DI GIOCO', W/2, 85);
+    const drawRuleCard = (y, color, title, action, drawVisual) => {
+      ctx.save();
+      ctx.fillStyle = '#101228';
+      ctx.beginPath(); ctx.roundRect(16, y, W - 32, 110, 12); ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.fillStyle = color; ctx.fillRect(16, y, 8, 110);
 
-    ctx.beginPath(); ctx.fillStyle = '#101228'; ctx.roundRect(20, 115, 440, 440, 16); ctx.fill();
-    ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3; ctx.stroke();
+      // Immagini/Icone a sinistra
+      drawVisual(75, y + 55);
 
-    ctx.textAlign = 'center';
+      // Testi ingranditi a destra
+      drawCrispText(title, 145, y + 40, '900 18px Courier New', color, 'left');
+      drawCrispText(action, 145, y + 70, '900 13px Courier New', '#ffffff', 'left');
+      ctx.restore();
+    };
 
-    ctx.fillStyle = '#ffea00'; ctx.font = '900 20px Courier New';
-    ctx.fillText('01. ONDATE INCUBI', W/2, 160);
-    ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('Elimina i nemici prima che superino', W/2, 185);
-    ctx.fillText('la linea di difesa dello studio.', W/2, 208);
+    drawCrispText('COME SI GIOCA', W / 2, 26, '900 27px Courier New', '#00f0ff');
+    drawCrispText('3 COSE DA RICORDARE', W / 2, 50, '900 13px Courier New', '#ffffff');
 
-    ctx.fillStyle = '#00ffcc'; ctx.font = '900 20px Courier New';
-    ctx.fillText('02. EVOLUZIONE ERE', W/2, 255);
-    ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('I nemici cambiano e diventano più', W/2, 280);
-    ctx.fillText('aggressivi ogni 10 stadi superati.', W/2, 303);
+    // Card 1: Nemici
+    drawRuleCard(68, '#ffea00', 'DISTRUGGI GLI INCUBI', 'SPARA AI NEMICI PRIMA CHE SCENDANO', (x, y) => {
+      ctx.imageSmoothingEnabled = false;
+      const enemiesList = [
+        { img: ASSETS["BRIEF CONFUSO"], x: x - 22, y: y - 14 },
+        { img: ASSETS["FEEDBACK EXTRA"], x: x + 22, y: y - 14 },
+        { img: ASSETS["LOGO PIÙ GRANDE"], x: x, y: y + 16 }
+      ];
+      enemiesList.forEach((item) => {
+        if (item.img?.complete && item.img.naturalWidth) {
+          ctx.drawImage(item.img, item.x - 18, item.y - 18, 36, 36);
+        } else {
+          ctx.fillStyle = '#ff0055'; ctx.fillRect(item.x - 15, item.y - 15, 30, 30);
+        }
+      });
+    });
 
-    ctx.fillStyle = '#ff00ff'; ctx.font = '900 20px Courier New';
-    ctx.fillText('03. SCONTRI MEGA BOSS', W/2, 350);
-    ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('Affronta i 5 Boss dell\'agenzia', W/2, 375);
-    ctx.fillText('dotati di attacchi speciali unici.', W/2, 398);
+    // Card 2: Boss
+    drawRuleCard(192, '#ff0055', 'AFFRONTA I BOSS', 'BATTI I MEGA BOSS OGNI 10 ONDATE', (x, y) => {
+      ctx.imageSmoothingEnabled = false;
+      if (ASSETS.BOSS_1?.complete && ASSETS.BOSS_1.naturalWidth) {
+        ctx.drawImage(ASSETS.BOSS_1, x - 30, y - 30, 60, 60);
+      } else {
+        ctx.fillStyle = '#ff0055'; ctx.beginPath(); ctx.arc(x, y, 26, 0, Math.PI * 2); ctx.fill();
+      }
+    });
 
-    ctx.fillStyle = '#ffd700'; ctx.font = '900 20px Courier New';
-    ctx.fillText('04. CONTROLLI GUIDA', W/2, 445);
-    ctx.fillStyle = '#ffffff'; ctx.font = '16px Courier New';
-    ctx.fillText('Usa il Joystick Touch', W/2, 470);
-    ctx.fillText('insieme al pulsante SPARO.', W/2, 493);
+    // Card 3: Powerup
+    drawRuleCard(316, '#00ffcc', 'RACCOGLI I BONUS', 'POTENZIA ARME, SCUDI ED ENERGIA', (x, y) => {
+      ctx.imageSmoothingEnabled = false;
+      const bonusLayout = [
+        { img: ASSETS.BOOST, x: x - 22, y: y - 14 },
+        { img: ASSETS.SHIELD, x: x + 22, y: y - 14 },
+        { img: ASSETS.COFFEE, x: x, y: y + 16 }
+      ];
+      bonusLayout.forEach(item => {
+        if (item.img?.complete && item.img.naturalWidth) {
+          ctx.drawImage(item.img, item.x - 18, item.y - 18, 36, 36);
+        }
+      });
+    });
+
+    // Riquadro Comandi
+    ctx.save();
+    ctx.fillStyle = '#17102d';
+    ctx.beginPath(); ctx.roundRect(16, 440, W - 32, 110, 12); ctx.fill();
+    ctx.strokeStyle = '#9d5cff'; ctx.lineWidth = 2.5; ctx.stroke();
+
+    const controlsY = 485;
+    ctx.strokeStyle = '#00f0ff'; ctx.lineWidth = 3;
+    ctx.fillStyle = '#0a0318';
+    ctx.beginPath(); ctx.arc(110, controlsY, 28, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ff007f';
+    ctx.beginPath(); ctx.arc(104, controlsY - 5, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.stroke();
+    drawCrispText('MUOVITI', 110, controlsY + 42, '900 14px Courier New', '#ffffff');
+
+    ctx.fillStyle = '#ff0055';
+    ctx.beginPath(); ctx.arc(370, controlsY, 32, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#ff8aac'; ctx.lineWidth = 2.5; ctx.stroke();
+    drawCrispText('ATTACCA', 370, controlsY + 42, '900 14px Courier New', '#ffffff');
+    ctx.restore();
 
     if (Math.floor(frame / 40) % 2 === 0) {
-      ctx.fillStyle = '#ffea00';
-      ctx.font = '900 20px Courier New';
-      ctx.fillText('CONTINUA ►', W/2, H - 35);
+      drawCrispText('TOCCA PER CONTINUARE', W / 2, H - 25, '900 15px Courier New', '#ffea00');
     }
     return;
   }

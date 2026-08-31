@@ -223,8 +223,6 @@
   const SPECIAL_COOLDOWN = 5000;
   const ENTITY_SIZE_MULTIPLIER = 1.2 * 1.15;
   
-  // Gli enti mantengono le proporzioni relative esistenti, ma seguono la
-  // stessa scala 0,512 dell'ambiente 3200x1000.
   const ENTITY_SCALE = 2 * BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
   const ENEMY_SCALE = ENTITY_SCALE * 0.9;
   const BOSS_SCALE = 2.2 * BACKGROUND_SCALE * ENTITY_SIZE_MULTIPLIER;
@@ -307,7 +305,6 @@
   ];
   const BOSS_FILES = ['21_boss_creative.png', '22_boss_regista.png', '23_boss_tassista.png', '24_boss_client.png', '25_boss_ceo.png'];
   const BOSS_NAMES = ['IL CREATIVO', 'LA REGISTA VIP', 'IL TAXISTA ARRABBIATO', 'LADY DOWNSIZE', 'IL CEO'];
-  // Cinque combattimenti normali, seguiti da un'arena dedicata al boss.
   const ARENA_X = [900, 1900, 2900, 3900, 4900, 5900].map(x => x * BACKGROUND_SCALE);
   const BOSS_ARENA_INDEX = ARENA_X.length - 1;
   
@@ -378,10 +375,6 @@
 
   function loadImage(scene, key, path) {
     scene.load.image(key, ROOT + path);
-  }
-
-  function worldY(nativeY) {
-    return WORLD_RENDER_TOP + nativeY * WORLD_SCALE_Y;
   }
 
   function randomMovementY() {
@@ -529,13 +522,13 @@
     
     addTitle(title, color = '#ffea00') { 
       this.pageObjects.add(this.add.text(W / 2, 28, title, { 
-        fontFamily: 'monospace', fontSize: '34px', color, fontStyle: 'bold', stroke: '#000000', strokeThickness: 5
+        fontFamily: 'monospace', fontSize: '30px', color, fontStyle: 'bold', stroke: '#000000', strokeThickness: 5
       }).setOrigin(0.5)); 
     }
 
     addContinue(label = 'PREMI A PER CONTINUARE ►') {
       const text = this.add.text(W / 2, H - 22, label, { 
-        fontFamily: 'monospace', fontSize: '20px', color: '#00ffcc', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4
+        fontFamily: 'monospace', fontSize: '18px', color: '#00ffcc', fontStyle: 'bold', stroke: '#000000', strokeThickness: 4
       }).setOrigin(0.5);
       this.tweens.add({ targets: text, alpha: 0.35, duration: 520, yoyo: true, repeat: -1 }); 
       this.pageObjects.add(text);
@@ -594,21 +587,77 @@
       playSfx('assets/audio/sfx_select.mp3');
       this.addTitle('REGOLE DI GIOCO', '#00f0ff');
       
-      const rules = [
-        ['JOYSTICK','Muovi la Producer in tutte le direzioni.'],
-        ['PULSANTE RUN','Tieni premuto RUN per correre.'],
-        ['PULSANTE A','Attacco base e combo.'],
-        ['PULSANTE B','Attacco speciale ad area'],
-        ['PULSANTE P','Attiva o disattiva la parata'],
-        ['PAUSA','Usa PAUSA in alto nel gioco.']
+      const cardsData = [
+        {
+          color: 0x00f0ff,
+          colorHex: '#00f0ff',
+          title: 'JOYSTICK / MOVIMENTO',
+          action: 'MUOVI LA PRODUCER IN TUTTE LE DIREZIONI',
+          type: 'joy'
+        },
+        {
+          color: 0xff9d19,
+          colorHex: '#ff9d19',
+          title: 'CORSA',
+          action: 'TIENI PREMUTO RUN PER MUOVERTI PIÙ VELOCE',
+          type: 'btn',
+          label: 'R'
+        },
+        {
+          color: 0xff3e91,
+          colorHex: '#ff3e91',
+          title: 'ATTACCO A',
+          action: 'PUGNI BASE E COMBO DEVASTANTI',
+          type: 'btn',
+          label: 'A'
+        },
+        {
+          color: 0xa260ff,
+          colorHex: '#a260ff',
+          title: 'SPECIALE B',
+          action: 'ATTACCO SPECIALE AD AREA AD ALTO DANNO',
+          type: 'btn',
+          label: 'B'
+        },
+        {
+          color: 0x00ffcc,
+          colorHex: '#00ffcc',
+          title: 'PARATA P',
+          action: 'ATTIVA LA DIFESA PER BLOCCARE I COLPI',
+          type: 'btn',
+          label: 'P'
+        }
       ];
-      
-      rules.forEach((rule, i) => { 
-        const y = 78 + i * 61, color = ['#ffea00','#ff8b19','#ff3e91','#a260ff','#00f0ff','#00ff99'][i];
-        const box = this.add.rectangle(W / 2, y, W - 34, 52, 0x111027, 1).setStrokeStyle(2, Phaser.Display.Color.HexStringToColor(color).color);
-        const title = this.add.text(32, y - 20, rule[0], { fontFamily: 'monospace', fontSize: '15px', color, fontStyle: 'bold' });
-        const copy = this.add.text(32, y, rule[1], { fontFamily: 'sans-serif', fontSize: '13px', color: '#ffffff', wordWrap: { width: W - 64 } });
-        this.pageObjects.add([box, title, copy]); 
+
+      cardsData.forEach((item, i) => {
+        const y = 82 + i * 67;
+        const box = this.add.rectangle(W / 2, y, W - 28, 58, 0x111027, 0.98)
+          .setStrokeStyle(2.5, item.color, 1);
+        const bar = this.add.rectangle(17, y, 6, 58, item.color, 1);
+
+        this.pageObjects.add([box, bar]);
+
+        const iconX = 64;
+        if (item.type === 'joy') {
+          const outer = this.add.circle(iconX, y, 22, 0x0a0318, 1).setStrokeStyle(3, 0x00f0ff, 1);
+          const inner = this.add.circle(iconX - 4, y - 4, 10, 0xff007f, 1).setStrokeStyle(1.5, 0xffffff, 1);
+          this.pageObjects.add([outer, inner]);
+        } else {
+          const btn = this.add.circle(iconX, y, 22, item.color, 1).setStrokeStyle(2, 0xffffff, 1);
+          const txt = this.add.text(iconX, y, item.label, {
+            fontFamily: 'monospace', fontSize: item.label === 'RUN' ? '12px' : '18px', color: item.label === 'RUN' ? '#291000' : '#ffffff', fontStyle: 'bold'
+          }).setOrigin(0.5);
+          this.pageObjects.add([btn, txt]);
+        }
+
+        const title = this.add.text(106, y - 11, item.title, {
+          fontFamily: 'monospace', fontSize: '15px', color: item.colorHex, fontStyle: 'bold', stroke: '#000000', strokeThickness: 3
+        }).setOrigin(0, 0.5);
+        const copy = this.add.text(106, y + 11, item.action, {
+          fontFamily: 'sans-serif', fontSize: '12px', color: '#ffffff', fontStyle: 'bold'
+        }).setOrigin(0, 0.5);
+
+        this.pageObjects.add([title, copy]);
       });
 
       this.addContinue('PREMI A PER SCEGLIERE FIGHTER ►');
@@ -639,7 +688,7 @@
       prevBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex - 1));
       const nextBtn = this.add.text(236, 202, '›', { fontFamily: 'monospace', fontSize: '58px', color: '#00f0ff', fontStyle: 'bold', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       nextBtn.on('pointerdown', () => this.showSelection(this.charSelectIndex + 1));
-      const dotsText = PLAYERS.map((_, i) => i === this.charSelectIndex ? '●' : '○').join('   ');
+      const dotsText = PLAYERS.map((_, i) => i === this.charSelectIndex ? '●' : '○').join('    ');
       const dots = this.add.text(132, 363, dotsText, { fontFamily: 'monospace', fontSize: '17px', color: '#00ffcc' }).setOrigin(0.5);
       const selectBtn = this.add.rectangle(W / 2, 466, W - 48, 58, p.color, 0.92).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
       const selectBtnText = this.add.text(W / 2, 466, `GIOCA CON ${p.label}  ►`, { fontFamily: 'monospace', fontSize: '18px', color: '#ffffff', fontStyle: 'bold', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5);
@@ -791,8 +840,6 @@
       }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       skip.on('pointerdown', () => this.continueGame(null));
 
-      // Il comando RESTART deve restare disponibile anche nelle scene
-      // intermedie che non hanno ancora avviato il gameplay.
       this.actionHandler = event => {
         if (event.detail === 'menu') this.scene.start('SelectScene');
         else if (event.detail === 'exit') window.location.href = 'index.html';
@@ -968,8 +1015,6 @@
           if (!this.textures.exists(key)) loadImage(this, key, `colpi/${effect}${frame}.png`);
         }
       });
-      // Carica soltanto la Producer scelta. Ricaricare tutte e tre le sheet a
-      // ogni scenario può creare collisioni nel Texture Manager di Phaser.
       if (!this.textures.exists(this.character)) {
         this.load.spritesheet(this.character, ROOT + `player/${this.playerStats.file}`, {
           frameWidth: 128,
@@ -1011,7 +1056,6 @@
       this.createFallbacks();
       this.createAnimations();
       
-      // IMPOSTAZIONE MONDO E BOUNDS DI SICUREZZA PER IMPEDIRE AL GIOCATORE DI USCIRE DALLA MAPPA
       this.physics.world.setBounds(0, MOVEMENT_TOP, WORLD_W, MOVEMENT_BOTTOM - MOVEMENT_TOP);
       
       this.createWorld();
@@ -1087,15 +1131,11 @@
     }
 
     createWorld() {
-      // Il fondale 1920x1000 viene disegnato una sola volta e resta fisso
-      // dietro all'azione per l'intero scenario: nessun tiling visibile.
       this.farBg = this.add.image(0, WORLD_RENDER_TOP, `bg_${this.stage}`)
         .setOrigin(0, 0)
         .setScale(BACKGROUND_SCALE)
         .setScrollFactor(BACKGROUND_SCROLL_FACTOR)
         .setDepth(-20);
-      // La strada 6800x1000 coincide con il mondo fisico: una sola immagine,
-      // nessun tile e nessuna ripetizione lungo il livello.
       this.floor = this.add.image(0, WORLD_RENDER_TOP, `floor_${this.stage}`)
         .setOrigin(0)
         .setScale(BACKGROUND_SCALE)
@@ -1118,7 +1158,6 @@
       this.player.setDepth(this.player.y);
       this.player.clearTint();
       
-      // BLOCCA IL GIOCATORE NEI CONFINI DEL MONDO DI GIOCO PER EVITARE USCE FUORI MAPPA SULLA SINISTRA
       this.player.setCollideWorldBounds(true);
       this.player.body.onWorldBounds = true;
       
@@ -1525,7 +1564,6 @@
       this.cameras.main.pan(Phaser.Math.Clamp(center, W / 2, WORLD_W - W / 2), H / 2, 300, 'Sine.easeInOut');
       this.showBanner('lock_warning', 720);
       if (this.arenaIndex === BOSS_ARENA_INDEX) {
-        // L'arena del boss deve restare completamente libera da casse.
         this.crates.getChildren().slice().forEach(crate => {
           if (crate.active && Math.abs(crate.x - center) <= W * 0.55) crate.destroy();
         });
@@ -1781,7 +1819,6 @@
 
       if (spriteKey) {
         sprite = this.physics.add.sprite(x, y, spriteKey)
-          // Sempre dietro a player e boss, che usano la coordinata Y come depth.
           .setDepth(MOVEMENT_TOP - 1)
           .setVisible(true)
           .setAlpha(1);
@@ -1813,8 +1850,6 @@
         hazard.graphics.clear();
 
         if (time < hazard.delayEnds) {
-          // Le icone PNG fungono già da telegrafo: restano nitide e opache,
-          // senza il vecchio rettangolo di caricamento sovrapposto.
           if (hazard.sprite) return true;
 
           const progress = 1 - ((hazard.delayEnds - time) / hazard.totalDelay);
@@ -1899,18 +1934,15 @@
       };
 
       if (boss.pattern === 1) {
-        // Brief bomb: celle sparse, con una cella sempre lasciata libera attorno al player.
         const playerCell = this.getBossGridIndex(grid, this.player.x, this.player.y);
         const pool = Phaser.Utils.Array.Shuffle([...Array(BOSS_GRID_COLUMNS * BOSS_GRID_ROWS).keys()].filter(index => index !== playerCell));
         addCells(pool.slice(0, enraged ? 9 : 6), 0xff3e91, 760, 310);
       } else if (boss.pattern === 2) {
-        // Ciak: due colonne chiuse, mai adiacenti, quindi restano corridoi leggibili.
         const first = Phaser.Math.Between(0, BOSS_GRID_COLUMNS - 1);
         const second = (first + 2) % BOSS_GRID_COLUMNS;
         const columns = enraged ? [first, second, (first + 4) % BOSS_GRID_COLUMNS] : [first, second];
         addCells(columns.flatMap(column => Array.from({ length: BOSS_GRID_ROWS }, (_, row) => row * BOSS_GRID_COLUMNS + column)), 0xffea00, 820, 340);
       } else if (boss.pattern === 3) {
-        // Taxi: attraversa una delle quattro righe precise della griglia.
         const targetRow = Phaser.Math.Clamp(Math.floor((this.player.y - MOVEMENT_TOP) / grid.cellH), 0, 3);
         const fromLeft = boss.x < cameraLeft + W / 2;
         this.addBossHazard({
@@ -1921,12 +1953,10 @@
           spriteKey: 'taxi_vehicle', spriteWidth: TAXI_DISPLAY_WIDTH * 1.18, spriteHeight: TAXI_DISPLAY_HEIGHT * 1.18
         });
       } else if (boss.pattern === 4) {
-        // Revisione: scacchiera alternata, con celle piccole e distinte.
         const parity = boss.castWavesDone % 2;
         const checker = grid.cells.map((_, index) => index).filter(index => ((index % BOSS_GRID_COLUMNS) + Math.floor(index / BOSS_GRID_COLUMNS)) % 2 === parity);
         addCells(checker.filter((_, index) => !enraged && index % 3 === 0 ? false : true), 0xa260ff, 900, 330);
       } else {
-        // Final pitch: una diagonale avanza nella griglia come un'onda.
         const reverse = boss.castWavesDone % 2 === 1;
         const diagonal = Array.from({ length: BOSS_GRID_ROWS }, (_, row) => row).flatMap(row => {
           const column = reverse ? BOSS_GRID_COLUMNS - 1 - row : row;
@@ -2081,7 +2111,7 @@
         this.playFrameEffect('dustcloud', enemy.x, enemy.y - 12 * COMBAT_SCALE, {
           scale: enemy.isBoss ? 0.52 : 0.34, grow: 1.6, duration: 420, alpha: 0.9
         });
-        this.score += enemy.isBoss ? 5000 : 250; // Punti diretti (5.000 per il Boss)
+        this.score += enemy.isBoss ? 5000 : 250;
         this.time.delayedCall(520, () => {
           if (!enemy.active) return;
           const x = enemy.x, y = enemy.y, wasBoss = enemy.isBoss;
@@ -2120,7 +2150,7 @@
     }
 
     maybeDropPickup(x, y, boss = false, guaranteed = false) {
-      if (boss) return; // NESSUN DROP DAGLI SCONTRI BOSS
+      if (boss) return;
       if (!guaranteed && Math.random() > 0.45) return;
       
       let key, value, kind;
@@ -2176,7 +2206,6 @@
       pickup.destroy(); this.refreshHud();
     }
 
-    // GESTIONE DANNO PLAYER
     damagePlayer(damage) {
       if (this.time.now < this.player.invulnerableUntil || this.stageEnded) return;
 
@@ -2219,7 +2248,6 @@
       }
     }
 
-    // BANNER INGRANDITI (3x) E CENTRATI AL MEZZO
     showBanner(key, duration) {
       const image = fitImage(this.add.image(W / 2, H / 2, key), W * 0.9, H * 0.35).setScrollFactor(0).setDepth(12000).setAlpha(0);
       const targetScale = image.scaleX;
