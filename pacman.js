@@ -888,18 +888,41 @@ function updatePlayer() {
   else if (keyPressed('ArrowUp') || keyPressed('KeyW') || moveUp) { dy = -player.speed; }
   else if (keyPressed('ArrowDown') || keyPressed('KeyS') || moveDown) { dy = player.speed; }
 
-  player.isMoving = (dx !== 0 || dy !== 0);
-  if (player.isMoving) animTimer++;
+  const previousX = player.x;
+  const previousY = player.y;
+  const railCenter = value => Math.round((value - CELL_SIZE / 2) / CELL_SIZE) * CELL_SIZE + CELL_SIZE / 2;
+  const snapStep = (value, target) => {
+    const difference = target - value;
+    if (Math.abs(difference) <= 0.05) return target;
+    return value + Math.sign(difference) * Math.min(Math.abs(difference), player.speed);
+  };
 
   if (dx !== 0) {
-    let centerY = (Math.floor(player.y / CELL_SIZE) + 0.5) * CELL_SIZE, diffY = centerY - player.y;
-    let targetY = Math.abs(diffY) > 0.1 ? player.y + Math.sign(diffY) * Math.min(Math.abs(diffY), player.speed) : centerY;
-    if (!isBlocked(player.x + dx, targetY)) { player.x += dx; player.y = targetY; }
+    const centerY = railCenter(player.y);
+    if (Math.abs(centerY - player.y) > 0.05) {
+      // Prima raggiunge il binario orizzontale: nessun avanzamento obliquo.
+      const targetY = snapStep(player.y, centerY);
+      if (!isBlocked(player.x, targetY)) player.y = targetY;
+    } else {
+      player.y = centerY;
+      const targetX = player.x + dx;
+      if (!isBlocked(targetX, player.y)) player.x = targetX;
+    }
   } else if (dy !== 0) {
-    let centerX = (Math.floor(player.x / CELL_SIZE) + 0.5) * CELL_SIZE, diffX = centerX - player.x;
-    let targetX = Math.abs(diffX) > 0.1 ? player.x + Math.sign(diffX) * Math.min(Math.abs(diffX), player.speed) : centerX;
-    if (!isBlocked(targetX, player.y + dy)) { player.x = targetX; player.y += dy; }
+    const centerX = railCenter(player.x);
+    if (Math.abs(centerX - player.x) > 0.05) {
+      // Prima raggiunge il binario verticale: nessun avanzamento obliquo.
+      const targetX = snapStep(player.x, centerX);
+      if (!isBlocked(targetX, player.y)) player.x = targetX;
+    } else {
+      player.x = centerX;
+      const targetY = player.y + dy;
+      if (!isBlocked(player.x, targetY)) player.y = targetY;
+    }
   }
+
+  player.isMoving = Math.abs(player.x - previousX) > 0.01 || Math.abs(player.y - previousY) > 0.01;
+  if (player.isMoving) animTimer++;
 
   if (player.invTimer > 0) player.invTimer--;
   let pGx = Math.floor(player.x / CELL_SIZE), pGy = Math.floor(player.y / CELL_SIZE);

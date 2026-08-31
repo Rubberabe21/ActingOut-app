@@ -354,6 +354,20 @@
     ['wine_littlelife.png', 'dolci_biglife.png']
   ];
 
+  const POWERUPS = [
+    { key: 'coffee', file: 'caffedoppio.png', name: 'CAFFÈ DOPPIO', unlock: 1, duration: 15000, price: 700, desc: '+40% velocità e recupero pugni istantaneo' },
+    { key: 'vip', file: 'Passvip.png', name: 'PASS VIP', unlock: 1, duration: 10000, price: 900, desc: 'Immunità totale ai danni' },
+    { key: 'supercharge', file: 'supercarica.png', name: 'SUPER CARICA', unlock: 1, duration: 10000, price: 850, desc: 'Speciale pronta e senza cooldown' },
+    { key: 'doubleDamage', file: 'dannix2.png', name: 'DANNI ×2', unlock: 1, duration: 10000, price: 900, desc: 'Raddoppia tutti i danni' },
+    { key: 'vampire', file: 'vampiro.png', name: 'VAMPIRO', unlock: 2, duration: 15000, price: 800, desc: '+10 HP per ogni nemico sconfitto' },
+    { key: 'wave', file: 'onda.png', name: 'ONDA COMBO', unlock: 3, duration: 15000, price: 850, desc: 'Il terzo pugno libera un’onda' },
+    { key: 'poison', file: 'veleno.png', name: 'VELENO', unlock: 4, duration: 15000, price: 950, desc: 'I nemici colpiti perdono il 3% HP al secondo' }
+  ];
+
+  function availablePowerups(stage, excludedKey = null) {
+    return POWERUPS.filter(power => power.unlock <= stage && power.key !== excludedKey);
+  }
+
   const FRAME_MAP = {
     idle: [0, 1, 7], block: [2, 2, 1], walk: [3, 6, 7], atk: [7, 9, 6],
     atk_spec: [10, 12, 6], hurt: [13, 14, 10], ko: [15, 17, 7]
@@ -422,6 +436,22 @@
     for (let frame = 0; frame < 4; frame++) {
       c.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
       c.beginPath(); c.arc(frame * 256 + 128, 128, 48 + frame * 4, 0, Math.PI * 2); c.fill();
+    }
+    scene.textures.addSpriteSheet(key, canvas, { frameWidth: 256, frameHeight: 256 });
+  }
+
+  function ensureEnergySheet(scene, key, color) {
+    const texture = scene.textures.get(key);
+    const source = texture?.getSourceImage?.();
+    if (source && source.width === 768 && source.height === 256) return;
+    if (scene.textures.exists(key)) scene.textures.remove(key);
+    const canvas = document.createElement('canvas');
+    canvas.width = 768; canvas.height = 256;
+    const c = canvas.getContext('2d');
+    for (let frame = 0; frame < 3; frame++) {
+      c.strokeStyle = `#${color.toString(16).padStart(6, '0')}`;
+      c.lineWidth = 16;
+      c.beginPath(); c.arc(frame * 256 + 128, 128, 68 + frame * 10, 0, Math.PI * 2); c.stroke();
     }
     scene.textures.addSpriteSheet(key, canvas, { frameWidth: 256, frameHeight: 256 });
   }
@@ -692,7 +722,99 @@
       if (this.started) return;
       this.started = true;
       playSfx('assets/audio/sfx_select.mp3');
-      this.scene.start('EnemyBriefingScene', { character: this.character, stage: this.stage, score: this.score });
+      this.scene.start('PowerShopScene', { character: this.character, stage: this.stage, score: this.score });
+    }
+  }
+
+  class PowerShopScene extends Phaser.Scene {
+    constructor() { super('PowerShopScene'); }
+
+    init(data) {
+      this.character = data.character || 'cristina';
+      this.stage = Phaser.Math.Clamp(data.stage || 1, 1, 5);
+      this.score = data.score || 0;
+      this.started = false;
+      const pool = Phaser.Utils.Array.Shuffle(availablePowerups(this.stage).slice());
+      this.offers = pool.slice(0, 4);
+    }
+
+    preload() {
+      this.offers.forEach(power => loadImage(this, `shop_power_${power.key}`, `potenziamenti/${power.file}`));
+    }
+
+    create() {
+      this.cameras.main.setBackgroundColor('#07030f');
+      this.add.rectangle(W / 2, H / 2, W - 18, H - 18, 0x130822, 0.99).setStrokeStyle(4, 0xffd43b);
+      this.add.rectangle(W / 2, 48, W - 42, 70, 0x291044, 0.98).setStrokeStyle(2, 0xff3e91, 0.75);
+      this.add.text(W / 2, 26, 'POWER SHOP', {
+        fontFamily: 'monospace', fontSize: '28px', color: '#ffea00', fontStyle: 'bold', stroke: '#7b176f', strokeThickness: 5
+      }).setOrigin(0.5);
+      this.add.text(W / 2, 63, `SCENARIO ${this.stage}  •  CREDITI ★ ${this.score}`, {
+        fontFamily: 'monospace', fontSize: '14px', color: '#00f0ff', fontStyle: 'bold'
+      }).setOrigin(0.5);
+      this.add.text(W / 2, 91, 'SCEGLI 1 BOOST PER TUTTO IL LIVELLO', {
+        fontFamily: 'monospace', fontSize: '11px', color: '#ffffff', fontStyle: 'bold'
+      }).setOrigin(0.5);
+
+      this.offers.forEach((power, index) => {
+        const column = index % 2;
+        const row = Math.floor(index / 2);
+        const x = 132 + column * 248;
+        const y = 180 + row * 151;
+        const cost = power.price + (this.stage - 1) * 100;
+        const affordable = this.score >= cost;
+        const card = this.add.rectangle(x, y, 224, 137, affordable ? 0x211035 : 0x19131d, 1)
+          .setStrokeStyle(3, affordable ? 0xff3e91 : 0x665b68)
+          .setInteractive({ useHandCursor: affordable });
+        this.add.rectangle(x, y - 50, 202, 25, affordable ? 0x3b1556 : 0x252027, 0.98);
+        this.add.text(x, y - 50, power.name, {
+          fontFamily: 'monospace', fontSize: '12px', color: affordable ? '#ffffff' : '#888888',
+          fontStyle: 'bold', align: 'center'
+        }).setOrigin(0.5);
+        this.add.rectangle(x - 70, y + 2, 72, 72, 0x080412, 0.9).setStrokeStyle(1, 0xffffff, 0.22);
+        const icon = this.add.image(x - 70, y + 2, `shop_power_${power.key}`).setDisplaySize(64, 64);
+        this.add.text(x - 22, y - 30, power.desc, {
+          fontFamily: 'sans-serif', fontSize: '11px', color: affordable ? '#eee5f8' : '#817986',
+          align: 'left', lineSpacing: 2, wordWrap: { width: 119 }
+        }).setOrigin(0, 0);
+        this.add.rectangle(x, y + 52, 202, 25, affordable ? 0x572276 : 0x29222c, 0.98);
+        this.add.text(x, y + 52, affordable ? `COMPRA  ★ ${cost}` : `SERVONO ★ ${cost}`, {
+          fontFamily: 'monospace', fontSize: '11px', color: affordable ? '#ffea00' : '#ff6677', fontStyle: 'bold'
+        }).setOrigin(0.5);
+        if (affordable) card.on('pointerdown', () => this.buy(power, cost));
+        void icon;
+      });
+
+      const skip = this.add.text(W / 2, 472, 'NON COMPRARE  •  ENTRA IN AZIONE ►', {
+        fontFamily: 'monospace', fontSize: '14px', color: '#00ffcc', backgroundColor: '#281448',
+        padding: { x: 18, y: 11 }, fontStyle: 'bold'
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      skip.on('pointerdown', () => this.continueGame(null));
+
+      // Il comando RESTART deve restare disponibile anche nelle scene
+      // intermedie che non hanno ancora avviato il gameplay.
+      this.actionHandler = event => {
+        if (event.detail === 'menu') this.scene.start('SelectScene');
+        else if (event.detail === 'exit') window.location.href = 'index.html';
+      };
+      window.addEventListener('pixelpunch-action', this.actionHandler);
+      this.events.once('shutdown', () => window.removeEventListener('pixelpunch-action', this.actionHandler));
+    }
+
+    buy(power, cost) {
+      if (this.started || this.score < cost) return;
+      this.score -= cost;
+      playSfx('assets/audio/sfx_pickup.mp3');
+      this.continueGame(power.key);
+    }
+
+    continueGame(stagePower) {
+      if (this.started) return;
+      this.started = true;
+      this.scene.start('EnemyBriefingScene', {
+        character: this.character, stage: this.stage, score: this.score, stagePower,
+        shopPowerKeys: this.offers.map(power => power.key)
+      });
     }
   }
 
@@ -703,6 +825,8 @@
       this.character = data.character || 'cristina';
       this.stage = Phaser.Math.Clamp(data.stage || 1, 1, 5);
       this.score = data.score || 0;
+      this.stagePower = data.stagePower || null;
+      this.shopPowerKeys = data.shopPowerKeys || [];
       this.started = false;
     }
 
@@ -775,7 +899,10 @@
       if (this.started) return;
       this.started = true;
       playSfx('assets/audio/sfx_select.mp3');
-      this.scene.start('GameScene', { character: this.character, stage: this.stage, score: this.score });
+      this.scene.start('GameScene', {
+        character: this.character, stage: this.stage, score: this.score,
+        stagePower: this.stagePower, shopPowerKeys: this.shopPowerKeys
+      });
     }
   }
 
@@ -787,6 +914,8 @@
       this.playerStats = PLAYERS.find(p => p.key === this.character) || PLAYERS[0];
       this.stage = Phaser.Math.Clamp(data.stage || 1, 1, 5);
       this.score = data.score || 0;
+      this.stagePower = data.stagePower || null;
+      this.shopPowerKeys = data.shopPowerKeys || [];
       this.hp = 100;
       this.arenaIndex = 0;
       this.arenaLocked = false;
@@ -805,6 +934,9 @@
       this.specialReadyAt = 0;
       this.scoreSaved = false;
       this.bossHazards = [];
+      this.activePowers = {};
+      this.nextTimedDropAt = 12000;
+      this.timedDropCounter = 0;
     }
 
     preload() {
@@ -836,7 +968,22 @@
           if (!this.textures.exists(key)) loadImage(this, key, `colpi/${effect}${frame}.png`);
         }
       });
-      PLAYERS.forEach(p => this.load.spritesheet(p.key, ROOT + `player/${p.file}`, { frameWidth: 128, frameHeight: 128 }));
+      // Carica soltanto la Producer scelta. Ricaricare tutte e tre le sheet a
+      // ogni scenario può creare collisioni nel Texture Manager di Phaser.
+      if (!this.textures.exists(this.character)) {
+        this.load.spritesheet(this.character, ROOT + `player/${this.playerStats.file}`, {
+          frameWidth: 128,
+          frameHeight: 128
+        });
+      }
+      POWERUPS.forEach(power => {
+        if (!this.textures.exists(`power_${power.key}`)) loadImage(this, `power_${power.key}`, `potenziamenti/${power.file}`);
+      });
+      if (!this.textures.exists(`energy_${this.character}`)) {
+        this.load.spritesheet(`energy_${this.character}`, ROOT + `potenziamenti/${{
+          cristina: 'energiacri.png', iris: 'energiairis.png', rache: 'energiarache.png'
+        }[this.character]}`, { frameWidth: 256, frameHeight: 256 });
+      }
       
       for (let i = 0; i < 4; i++) {
         const enemyNumber = (s - 1) * 4 + i;
@@ -872,6 +1019,8 @@
       this.createObjects();
       this.createHud();
       this.bindControls();
+      this.nextTimedDropAt = this.time.now + 12000;
+      this.applyPurchasedPower();
 
       this.cameras.main.setBounds(0, 0, WORLD_W, H);
       this.cameras.main.startFollow(this.player, true, 0.12, 0.12, -55, 0);
@@ -897,7 +1046,7 @@
         }
       });
       
-      PLAYERS.forEach(p => ensureActorSheet(this, p.key, 18, p.color));
+      ensureActorSheet(this, this.character, 18, this.playerStats.color);
       
       const startEnemy = (this.stage - 1) * 4 + 1;
       for (let i = startEnemy; i < startEnemy + 4; i++) {
@@ -913,11 +1062,17 @@
       });
       [0x56f7ff, 0xffdb42, 0xff54b3].forEach((color, i) => ensureImage(this, `point_${i}`, 40, 40, color));
       [0x5cff72, 0x39ffbc].forEach((color, i) => ensureImage(this, `life_${i}`, 40, 40, color));
+      POWERUPS.forEach((power, index) => ensureImage(this, `power_${power.key}`, 64, 64, 0x7b32d5 + index * 900));
+      ensureEnergySheet(this, `energy_${this.character}`, this.playerStats.color);
       if (this.stage === 3) ensureImage(this, 'taxi_vehicle', 120, 50, 0xffea00);
     }
 
     createAnimations() {
-      PLAYERS.forEach(p => addAnimations(this, p.key));
+      addAnimations(this, this.character);
+      const energyAnim = `energy_${this.character}_pulse`;
+      if (!this.anims.exists(energyAnim)) {
+        this.anims.create({ key: energyAnim, frames: this.anims.generateFrameNumbers(`energy_${this.character}`, { start: 0, end: 2 }), frameRate: 8, repeat: -1 });
+      }
       const startEnemy = (this.stage - 1) * 4 + 1;
       for (let i = startEnemy; i < startEnemy + 4; i++) {
         addAnimations(this, `enemy_${i}`, ENEMY_FRAME_MAP);
@@ -1080,6 +1235,15 @@
       this.specialBack = this.add.rectangle(W - 13, 47, 90, 8, 0x132d32).setOrigin(1, 0.5)
         .setStrokeStyle(1, 0x33f5c0, 0.28);
       this.specialBar = this.add.rectangle(W - 101, 47, 86, 4, 0x33f5c0, 0.72).setOrigin(0, 0.5);
+      this.powerStatusBack = this.add.rectangle(8, 67, 238, 43, 0x160722, 0.94)
+        .setOrigin(0, 0).setStrokeStyle(2, 0xff3e91, 0.9).setScrollFactor(0).setDepth(10002);
+      this.powerStatusTitle = this.add.text(17, 72, '⚡ BOOST ATTIVO', {
+        fontFamily: 'monospace', fontSize: '10px', color: '#00f0ff', fontStyle: 'bold'
+      }).setScrollFactor(0).setDepth(10003);
+      this.powerStatusText = this.add.text(17, 88, '', {
+        fontFamily: 'monospace', fontSize: '13px', color: '#ffea00', fontStyle: 'bold',
+        stroke: '#4b092e', strokeThickness: 3
+      }).setScrollFactor(0).setDepth(10003);
 
       this.hud.add([
         this.hudBack, this.leftHudPanel, this.centerHudPanel, this.rightHudPanel,
@@ -1100,6 +1264,131 @@
       this.input.keyboard.on('keydown-K', () => this.specialAttack());
       this.input.keyboard.on('keydown-L', () => this.toggleGuard());
       this.input.keyboard.on('keydown-P', () => this.togglePause());
+    }
+
+    isPowerActive(key) {
+      return this.stagePower === key || (this.activePowers[key] || 0) > this.time.now;
+    }
+
+    applyPurchasedPower() {
+      if (!this.stagePower) return;
+      const power = POWERUPS.find(item => item.key === this.stagePower);
+      if (!power) return;
+      this.showPowerNotice(`${power.name} • VERSIONE LIVELLO`);
+      if (power.key === 'supercharge') this.specialReadyAt = 0;
+      if (power.key === 'supercharge') this.createEnergyAura();
+      if (power.key === 'vip') this.createVipAura();
+    }
+
+    showPowerNotice(message) {
+      const text = this.add.text(W / 2, 76, message, {
+        fontFamily: 'monospace', fontSize: '12px', color: '#ffffff', fontStyle: 'bold',
+        backgroundColor: '#5d178d', padding: { x: 10, y: 6 }, stroke: '#000000', strokeThickness: 3
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(15000);
+      this.tweens.add({ targets: text, alpha: 0, y: 62, delay: 900, duration: 350, onComplete: () => text.destroy() });
+    }
+
+    activatePower(power) {
+      this.activePowers[power.key] = this.time.now + power.duration;
+      this.showPowerNotice(`${power.name} • ${Math.round(power.duration / 1000)} SEC`);
+      if (power.key === 'supercharge') {
+        this.specialReadyAt = 0;
+        this.createEnergyAura();
+      }
+      if (power.key === 'vip') this.createVipAura();
+    }
+
+    createEnergyAura() {
+      this.energyAura?.destroy();
+      this.energyAura = this.add.sprite(this.player.x, this.player.y - this.player.displayHeight * 0.48 - 26, `energy_${this.character}`)
+        .setScale(0.62 * ENTITY_SIZE_MULTIPLIER)
+        .setDepth(this.player.y - 1)
+        .setAlpha(0.9)
+        .play(`energy_${this.character}_pulse`);
+    }
+
+    createVipAura() {
+      this.vipAura?.destroy();
+      this.vipAura = this.add.graphics().setDepth(this.player.y - 2);
+    }
+
+    updatePowerEffects(time) {
+      const statuses = [];
+      if (this.stagePower) {
+        const purchased = POWERUPS.find(power => power.key === this.stagePower);
+        if (purchased) statuses.push(`${purchased.name} ∞`);
+      }
+      POWERUPS.forEach(power => {
+        const remaining = (this.activePowers[power.key] || 0) - time;
+        if (remaining > 0) statuses.push(`${power.name} ${Math.ceil(remaining / 1000)}s`);
+      });
+      const hasStatuses = statuses.length > 0;
+      this.powerStatusBack?.setVisible(hasStatuses);
+      this.powerStatusTitle?.setVisible(hasStatuses);
+      this.powerStatusText?.setVisible(hasStatuses).setText(statuses.join('  •  '));
+      if (this.energyAura?.active) {
+        if (!this.isPowerActive('supercharge') || this.stagePower === 'supercharge') {
+          if (!this.isPowerActive('supercharge')) { this.energyAura.destroy(); this.energyAura = null; }
+        }
+        if (this.energyAura?.active) {
+          this.energyAura.setPosition(this.player.x, this.player.y - this.player.displayHeight * 0.48 - 26);
+          this.energyAura.setDepth(Math.round(this.player.y) - 1);
+        }
+      }
+      if (this.vipAura?.active) {
+        if (!this.isPowerActive('vip')) { this.vipAura.destroy(); this.vipAura = null; }
+        else {
+          const pulse = 0.16 + (Math.sin(time / 90) + 1) * 0.08;
+          this.vipAura.clear().fillStyle(0xffea00, pulse).fillCircle(this.player.x, this.player.y - 48, 48 * ENTITY_SIZE_MULTIPLIER);
+          this.vipAura.lineStyle(4, 0xffffff, 0.75).strokeCircle(this.player.x, this.player.y - 48, 48 * ENTITY_SIZE_MULTIPLIER);
+          this.vipAura.setDepth(Math.round(this.player.y) - 2);
+        }
+      }
+
+      this.enemies?.getChildren().forEach(enemy => {
+        if (!enemy.active || !enemy.poisonUntil) return;
+        if (time >= enemy.poisonUntil) {
+          enemy.poisonUntil = 0;
+          enemy.clearTint();
+          return;
+        }
+        enemy.setTint(Math.floor(time / 130) % 2 ? 0xbb55ff : 0x7130a8);
+        if (time >= (enemy.nextPoisonTick || 0)) {
+          enemy.nextPoisonTick = time + 1000;
+          const rate = this.stagePower === 'poison' ? 0.01 : 0.03;
+          this.damageEnemy(enemy, Math.max(1, enemy.maxHp * rate), true);
+        }
+      });
+    }
+
+    updateTimedDrops(time) {
+      if (time < this.nextTimedDropAt || this.stageEnded) return;
+      this.timedDropCounter++;
+      this.nextTimedDropAt = time + Phaser.Math.Between(14000, 19000);
+      const dropLife = this.timedDropCounter % 3 === 0;
+      const cameraLeft = this.cameras.main.scrollX;
+      const x = Phaser.Math.Clamp(this.player.x + Phaser.Math.Between(-150, 150), cameraLeft + 55, cameraLeft + W - 55);
+      const y = randomMovementY();
+
+      let pickup;
+      if (dropLife) {
+        const lifeIndex = Math.random() < 0.72 ? 0 : 1;
+        pickup = this.pickupGroup.create(x, y, `life_${lifeIndex}`).setDisplaySize(46, 46);
+        pickup.kind = 'life'; pickup.value = lifeIndex === 1 ? 100 : 25;
+      } else {
+        const offeredKeys = this.shopPowerKeys.length
+          ? this.shopPowerKeys
+          : availablePowerups(this.stage).map(power => power.key);
+        const pool = POWERUPS.filter(power => offeredKeys.includes(power.key) && power.key !== this.stagePower);
+        if (!pool.length) return;
+        const power = Phaser.Math.RND.pick(pool);
+        pickup = this.pickupGroup.create(x, y, `power_${power.key}`).setDisplaySize(48, 48);
+        pickup.kind = 'power'; pickup.powerKey = power.key;
+      }
+      pickup.setOrigin(0.5, 1).setDepth(y);
+      pickup.body.setCircle(Math.min(pickup.frame.width, pickup.frame.height) * 0.35);
+      this.tweens.add({ targets: pickup, y: y - 9, duration: 420, yoyo: true, repeat: -1 });
+      this.time.delayedCall(11000, () => { if (pickup?.active && !pickup.collecting) pickup.destroy(); });
     }
 
     togglePause() {
@@ -1186,6 +1475,8 @@
       this.updateArena();
       this.updateEnemies(time);
       this.updateBossHazards(time, delta);
+      this.updateTimedDrops(time);
+      this.updatePowerEffects(time);
       this.updateDepths();
       this.updateCooldown(time);
       this.refreshHud();
@@ -1203,7 +1494,8 @@
       if (v.lengthSq() > 1) v.normalize();
       const running = Boolean(externalInput.running || this.runKey?.isDown);
       const speedMultiplier = running ? 1.65 : 1;
-      this.player.setVelocity(v.x * this.player.speed * speedMultiplier, v.y * this.player.speed * 0.72 * speedMultiplier);
+      const coffeeMultiplier = this.isPowerActive('coffee') ? (this.stagePower === 'coffee' ? 1.20 : 1.40) : 1;
+      this.player.setVelocity(v.x * this.player.speed * speedMultiplier * coffeeMultiplier, v.y * this.player.speed * 0.72 * speedMultiplier * coffeeMultiplier);
       this.player.y = Phaser.Math.Clamp(this.player.y, MOVEMENT_TOP, MOVEMENT_BOTTOM);
       if (this.arenaLocked) {
         const center = ARENA_X[this.arenaIndex];
@@ -1691,12 +1983,28 @@
       const now = this.time.now;
       this.comboStep = now <= this.comboExpires ? (this.comboStep % 3) + 1 : 1;
       this.comboExpires = now + 650;
-      this.performAttack('atk', 18 + this.comboStep * 4, 125 * COMBAT_SCALE, 55 * COMBAT_SCALE, 250);
+      const waveMultiplier = this.comboStep === 3 && this.isPowerActive('wave')
+        ? (this.stagePower === 'wave' ? 1.25 : 1.7)
+        : 1;
+      if (waveMultiplier > 1) {
+        this.playFrameEffect('aurea', this.player.x, this.player.y - 35, {
+          tint: 0x58e8ff, scale: 0.3, dx: this.player.facing * 115, duration: 330, grow: 0.75
+        });
+      }
+      this.performAttack('atk', 18 + this.comboStep * 4, 125 * COMBAT_SCALE * waveMultiplier, 55 * COMBAT_SCALE, 250);
+      if (this.isPowerActive('coffee')) {
+        this.time.delayedCall(this.stagePower === 'coffee' ? 280 : 110, () => {
+          if (!this.player?.active || this.stageEnded) return;
+          this.attackBusy = false;
+          this.player.play(`${this.character}_idle`, true);
+        });
+      }
     }
 
     specialAttack() {
       if (this.isGuarding) this.stopGuard();
-      const cd = SPECIAL_COOLDOWN * (this.playerStats.cdMult || 1.0);
+      const superMultiplier = this.isPowerActive('supercharge') ? (this.stagePower === 'supercharge' ? 0.65 : 0) : 1;
+      const cd = SPECIAL_COOLDOWN * (this.playerStats.cdMult || 1.0) * superMultiplier;
       if (this.attackBusy || this.stageEnded || this.isPausedState || this.time.now < this.specialReadyAt) return;
       playSfx('assets/audio/sfx_special.mp3');
       this.specialReadyAt = this.time.now + cd;
@@ -1730,7 +2038,8 @@
 
     performAttack(anim, damage, reach, lane, impactDelay) {
       this.attackBusy = true; this.player.setVelocity(0); this.player.play(`${this.character}_${anim}`, true);
-      const totalDmg = damage * (this.playerStats.dmgMult || 1.0);
+      const powerDamage = this.isPowerActive('doubleDamage') ? (this.stagePower === 'doubleDamage' ? 1.35 : 2) : 1;
+      const totalDmg = damage * (this.playerStats.dmgMult || 1.0) * powerDamage;
 
       this.time.delayedCall(impactDelay, () => {
         if (!this.player.active) return;
@@ -1747,7 +2056,7 @@
       });
     }
 
-    damageEnemy(enemy, damage) {
+    damageEnemy(enemy, damage, isPoisonTick = false) {
       if (enemy.stateLocked === 'ko') return;
       if (enemy.isBoss && enemy.mode !== 'rush') {
         playSfx('assets/audio/sfx_block.mp3');
@@ -1763,6 +2072,10 @@
         spin: this.player.facing * 45
       });
       enemy.hp -= damage; enemy.setVelocity(0); enemy.stateLocked = true;
+      if (!isPoisonTick && this.isPowerActive('poison')) {
+        enemy.poisonUntil = this.activePowers.poison || Number.MAX_SAFE_INTEGER;
+        enemy.nextPoisonTick = this.time.now + 1000;
+      }
       if (enemy.hp <= 0) {
         enemy.stateLocked = 'ko'; this.playActorAnim(enemy, 'ko');
         this.playFrameEffect('dustcloud', enemy.x, enemy.y - 12 * COMBAT_SCALE, {
@@ -1776,6 +2089,11 @@
           if (!wasBoss) {
             this.arenaDefeated++;
             this.maybeDropPickup(x, y, false);
+          }
+          if (this.isPowerActive('vampire')) {
+            const healing = this.stagePower === 'vampire' ? 5 : 10;
+            this.hp = Math.min(100, this.hp + healing);
+            this.refreshHud();
           }
           this.checkArenaClear();
         });
@@ -1845,6 +2163,10 @@
         const healValue = pickup.value * (this.playerStats.healMult || 1.0);
         this.hp = Math.min(100, this.hp + healValue);
         feedback = `+${Math.round(healValue)} HP`;
+      } else if (pickup.kind === 'power') {
+        const power = POWERUPS.find(item => item.key === pickup.powerKey);
+        if (power) this.activatePower(power);
+        feedback = power ? power.name : 'POWER UP';
       } else {
         this.score += pickup.value;
         feedback = `+${pickup.value}`;
@@ -1858,6 +2180,12 @@
     damagePlayer(damage) {
       if (this.time.now < this.player.invulnerableUntil || this.stageEnded) return;
 
+      if (this.isPowerActive('vip') && this.stagePower !== 'vip') {
+        playSfx('assets/audio/sfx_block.mp3');
+        this.player.invulnerableUntil = this.time.now + 220;
+        return;
+      }
+
       if (this.isGuarding) {
         playSfx('assets/audio/sfx_block.mp3');
         this.player.setTint(0x66eaff);
@@ -1867,7 +2195,8 @@
       }
 
       playSfx('assets/audio/sfx_hurt.mp3');
-      const actualDmg = damage * (this.playerStats.dmgTakenMult || 1.0);
+      const vipReduction = this.stagePower === 'vip' ? 0.65 : 1;
+      const actualDmg = damage * (this.playerStats.dmgTakenMult || 1.0) * vipReduction;
       this.hp = Math.max(0, this.hp - actualDmg); this.player.invulnerableUntil = this.time.now + 700;
       this.player.setTintFill(0xffffff); this.player.play(`${this.character}_hurt`, true);
       this.cameras.main.shake(130, 0.008);
@@ -1926,7 +2255,10 @@
       const shade = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.72).setScrollFactor(0).setDepth(12500);
       const over = fitImage(this.add.image(W / 2, H / 2, 'gameover'), W * 0.9, H * 0.35).setScrollFactor(0).setDepth(12501);
       const retry = this.add.text(W / 2, 380, 'RIPROVA', { fontFamily: 'monospace', fontSize: '20px', color: '#ffffff', backgroundColor: '#c71950', padding: { x: 32, y: 13 } }).setOrigin(0.5).setScrollFactor(0).setDepth(12502).setInteractive({ useHandCursor: true });
-      retry.on('pointerdown', () => this.scene.restart({ character: this.character, stage: this.stage, score: this.score }));
+      retry.on('pointerdown', () => this.scene.restart({
+        character: this.character, stage: this.stage, score: this.score,
+        stagePower: this.stagePower, shopPowerKeys: this.shopPowerKeys
+      }));
       void shade; void over;
     }
 
@@ -1967,7 +2299,12 @@
     }
 
     updateCooldown(time) {
-      const cd = SPECIAL_COOLDOWN * (this.playerStats.cdMult || 1.0);
+      const superMultiplier = this.isPowerActive('supercharge') ? (this.stagePower === 'supercharge' ? 0.65 : 0) : 1;
+      const cd = SPECIAL_COOLDOWN * (this.playerStats.cdMult || 1.0) * superMultiplier;
+      if (cd === 0) {
+        this.specialBar.width = 86;
+        return;
+      }
       const progress = Phaser.Math.Clamp(1 - (this.specialReadyAt - time) / cd, 0, 1);
       this.specialBar.width = 86 * progress;
       const fill = document.getElementById('specialFill');
@@ -2004,7 +2341,7 @@
       arcade: { gravity: { y: 0 }, debug: false }
     },
     input: { activePointers: 4 },
-    scene: [SelectScene, ScenarioIntroScene, EnemyBriefingScene, GameScene]
+    scene: [SelectScene, ScenarioIntroScene, PowerShopScene, EnemyBriefingScene, GameScene]
   };
 
   window.PixelPunchV2 = { config, PLAYERS, ENEMY_FILES, BOSS_FILES };

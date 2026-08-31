@@ -148,6 +148,21 @@ const imgTobi = new Image();   imgTobi.src = 'assets/frogger/tobi.png';
 const imgDave = new Image();   imgDave.src = 'assets/frogger/dave.png';
 const imgLuca = new Image();   imgLuca.src = 'assets/frogger/luca.png';
 
+const pickupImages = {};
+[
+  ['AUTO_SAVE', 'autosave.png'],
+  ['PROXY_ON', 'proxy2X.png'],
+  ['CACHE_BOOST', 'chacheboost.png'],
+  ['GUARD', 'render.png'],
+  ['EXTRA_LIFE', 'Undolife.png'],
+  ['DROP_FRAME', 'dropframe.png'],
+  ['DISK_FULL', 'buffering.png']
+].forEach(([key, file]) => {
+  const image = new Image();
+  image.src = `assets/frogger/potenziamenti/${file}`;
+  pickupImages[key] = image;
+});
+
 const ASSETS = { COVER: imgCover };
 
 const CHARACTERS = {
@@ -209,13 +224,13 @@ const BLOCK_TYPES = {
 };
 
 const PICKUP_TYPES = {
-  AUTO_SAVE:   { label: '💾 SAVE', pts: 300, isMalus: false },
-  PROXY_ON:    { label: '🎬 PROXY 2X', pts: 400, isMalus: false, scoreBoost: 2 },
-  CACHE_BOOST: { label: '⚡ CACHE', pts: 150, isMalus: false, speedBoost: 1.2 },
-  GUARD:       { label: '🛡️ RENDER', pts: 250, isMalus: false, shieldDuration: 180 },
-  EXTRA_LIFE:  { label: '♥ +1 VITA', pts: 100, isMalus: false, extraLife: 1 },
-  DROP_FRAME:  { label: '🐌 DROP', pts: -100, isMalus: true, slowFactor: 0.7 },
-  DISK_FULL:   { label: '⚠️ FULL DISK', pts: -200, isMalus: true, invertControls: true }
+  AUTO_SAVE:   { id: 'AUTO_SAVE', label: 'AUTO-SAVE', detail: 'Punteggio bonus bloccato', pts: 300, isMalus: false, icon: pickupImages.AUTO_SAVE },
+  PROXY_ON:    { id: 'PROXY_ON', label: 'PROXY 2X', detail: 'Punti raddoppiati', pts: 400, isMalus: false, scoreBoost: 2, duration: 600, icon: pickupImages.PROXY_ON },
+  CACHE_BOOST: { id: 'CACHE_BOOST', label: 'CACHE BOOST', detail: 'Movimento più fluido', pts: 150, isMalus: false, speedBoost: 1.2, duration: 480, icon: pickupImages.CACHE_BOOST },
+  GUARD:       { id: 'GUARD', label: 'RENDER SHIELD', detail: 'Protezione dai crash', pts: 250, isMalus: false, shieldDuration: 300, duration: 300, icon: pickupImages.GUARD },
+  EXTRA_LIFE:  { id: 'EXTRA_LIFE', label: 'UNDO LIFE', detail: 'Errore annullato: +1 vita', pts: 100, isMalus: false, extraLife: 1, icon: pickupImages.EXTRA_LIFE },
+  DROP_FRAME:  { id: 'DROP_FRAME', label: 'DROP FRAME', detail: 'Sistema rallentato', pts: -100, isMalus: true, slowFactor: 0.7, duration: 360, icon: pickupImages.DROP_FRAME },
+  DISK_FULL:   { id: 'DISK_FULL', label: 'BUFFERING', detail: 'Controlli invertiti', pts: -200, isMalus: true, invertControls: true, duration: 300, icon: pickupImages.DISK_FULL }
 };
 
 let gameState = 'COVER';
@@ -230,6 +245,8 @@ let frame = 0;
 let visualScrollOffset = 0;
 let activeLanes = [];
 let particles = [];
+let lockedScoreFloor = 0;
+let activePickupStatus = null;
 
 /* VAR PER GESTIONE ONDATE PANICO (AVVIA DA LIVELLO V15) */
 let panicModeActive = false;
@@ -249,7 +266,10 @@ let player = {
   guardTimer: 0,
   speedMult: 1,
   tempScoreMult: 1,
-  glitchTimer: 0
+  glitchTimer: 0,
+  speedTimer: 0,
+  scoreBoostTimer: 0,
+  speedEffectId: null
 };
 
 let moveState = { up: false, down: false, left: false, right: false };
@@ -273,8 +293,6 @@ function advanceMenuState() {
     gameState = 'CHAR_SELECT';
   } else if (gameState === 'CHAR_SELECT') {
     startGame();
-  } else if (gameState === 'PANIC_POPUP') {
-    gameState = 'playing';
   } else if (gameState === 'gameover') {
     gameState = 'CHAR_SELECT';
   }
@@ -381,6 +399,10 @@ function resetPlayer() {
   player.speedMult = 1;
   player.tempScoreMult = 1;
   player.glitchTimer = 0;
+  player.speedTimer = 0;
+  player.scoreBoostTimer = 0;
+  player.speedEffectId = null;
+  activePickupStatus = null;
   moveCooldown = 0;
 }
 
@@ -388,6 +410,7 @@ function startGame() {
   scoreSavedForCurrentGame = false;
   currentTheme = CHARACTERS[CHARACTER_LIST[selectedCharIndex]];
   score = 0;
+  lockedScoreFloor = 0;
   lives = 3;
   startInfiniteScroll();
   gameState = 'playing';
@@ -413,6 +436,30 @@ function updatePlayer() {
   if (player.glitchTimer > 0) player.glitchTimer--;
   if (player.invTimer > 0) player.invTimer--;
   if (player.guardTimer > 0) player.guardTimer--;
+  if (player.speedTimer > 0 && --player.speedTimer === 0) {
+    player.speedMult = 1;
+    player.speedEffectId = null;
+  }
+  if (player.scoreBoostTimer > 0 && --player.scoreBoostTimer === 0) player.tempScoreMult = 1;
+  if (activePickupStatus && activePickupStatus.timer > 0) {
+    activePickupStatus.timer--;
+    if (activePickupStatus.timer <= 0) activePickupStatus = null;
+  }
+  if (!activePickupStatus) {
+    const activeType = player.guardTimer > 0 ? PICKUP_TYPES.GUARD
+      : player.glitchTimer > 0 ? PICKUP_TYPES.DISK_FULL
+      : player.scoreBoostTimer > 0 ? PICKUP_TYPES.PROXY_ON
+      : player.speedTimer > 0 ? PICKUP_TYPES[player.speedEffectId]
+      : null;
+    const remaining = activeType?.id === 'GUARD' ? player.guardTimer
+      : activeType?.id === 'DISK_FULL' ? player.glitchTimer
+      : activeType?.id === 'PROXY_ON' ? player.scoreBoostTimer
+      : activeType ? player.speedTimer
+      : 0;
+    if (activeType && remaining > 0) {
+      activePickupStatus = { type: activeType, timer: remaining, total: activeType.duration };
+    }
+  }
 
   if (moveCooldown > 0) {
     moveCooldown--;
@@ -563,12 +610,25 @@ function checkPickups() {
       score += Math.floor(p.type.pts * currentTheme.scoreMult);
       if (p.type.isMalus) {
         playSound('malus');
-        if (p.type.slowFactor) player.speedMult = p.type.slowFactor;
-        if (p.type.invertControls) player.glitchTimer = 180;
+        score = Math.max(lockedScoreFloor, score);
+        if (p.type.slowFactor) {
+          player.speedMult = p.type.slowFactor;
+          player.speedTimer = p.type.duration;
+          player.speedEffectId = p.type.id;
+        }
+        if (p.type.invertControls) player.glitchTimer = p.type.duration;
       } else {
         playSound('pickup');
-        if (p.type.speedBoost) player.speedMult = p.type.speedBoost;
-        if (p.type.scoreBoost) player.tempScoreMult = p.type.scoreBoost;
+        if (p.type.id === 'AUTO_SAVE') lockedScoreFloor = Math.max(lockedScoreFloor, score);
+        if (p.type.speedBoost) {
+          player.speedMult = p.type.speedBoost;
+          player.speedTimer = p.type.duration;
+          player.speedEffectId = p.type.id;
+        }
+        if (p.type.scoreBoost) {
+          player.tempScoreMult = p.type.scoreBoost;
+          player.scoreBoostTimer = p.type.duration;
+        }
         if (p.type.shieldDuration) {
           player.guardTimer = p.type.shieldDuration;
         }
@@ -576,6 +636,8 @@ function checkPickups() {
           lives = Math.min(5, lives + p.type.extraLife);
         }
       }
+      const statusDuration = p.type.duration || 120;
+      activePickupStatus = { type: p.type, timer: statusDuration, total: statusDuration };
       const pickupColor = p.type.extraLife ? '#ff3e91' : (p.type.isMalus ? '#ff0055' : '#00f3ff');
       addParticles(player.gx * CELL_SIZE + CELL_SIZE / 2, player.gy * CELL_SIZE + HUD_HEIGHT, pickupColor, 10);
       currentLane.pickups.splice(i, 1);
@@ -624,6 +686,10 @@ function hitPlayer() {
     player.glitchTimer = 0;
     player.speedMult = 1;
     player.tempScoreMult = 1;
+    player.speedTimer = 0;
+    player.scoreBoostTimer = 0;
+    player.speedEffectId = null;
+    activePickupStatus = null;
   }
 }
 
@@ -645,11 +711,17 @@ function drawGameWorld() {
       lane.pickups.forEach(p => {
         let px = p.gx * CELL_SIZE + CELL_SIZE / 2;
         let py = y + CELL_SIZE / 2;
-        ctx.fillStyle = p.type.isMalus ? '#ff0055' : '#ffff00';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(p.type.label.split(' ')[0], px, py);
+        if (p.type.icon?.complete && p.type.icon.naturalWidth > 0) {
+          ctx.save();
+          ctx.imageSmoothingEnabled = false;
+          ctx.shadowColor = p.type.isMalus ? '#ff0055' : '#00f3ff';
+          ctx.shadowBlur = 8;
+          ctx.drawImage(p.type.icon, px - 16, py - 16, 32, 32);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = p.type.isMalus ? '#ff0055' : '#ffff00';
+          ctx.fillRect(px - 10, py - 10, 20, 20);
+        }
       });
     }
   });
@@ -773,6 +845,8 @@ function drawGameWorld() {
 
   drawSinglePlayer();
 
+  if (activePickupStatus) drawActivePickupStatus();
+
   if (panicModeActive) {
     let secLeft = Math.ceil(panicTimer / 60);
     ctx.fillStyle = 'rgba(255, 0, 85, 0.95)';
@@ -813,13 +887,48 @@ function drawSinglePlayer() {
   }
 
   if (player.guardTimer > 0) {
-    ctx.shadowColor = '#00ff66';
-    ctx.strokeStyle = '#00ff66';
+    ctx.shadowColor = '#00bfff';
+    ctx.strokeStyle = '#3ddcff';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.arc(0, 0, 20, 0, Math.PI * 2);
     ctx.stroke();
   }
+  ctx.restore();
+}
+
+function drawActivePickupStatus() {
+  const status = activePickupStatus;
+  const type = status.type;
+  const x = 58, y = HUD_HEIGHT + 8, w = CANVAS_W - 72, h = 50;
+  const progress = Math.max(0, Math.min(1, status.timer / status.total));
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(8, 5, 20, 0.94)';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = type.isMalus ? '#ff0055' : '#00f3ff';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+
+  if (type.icon?.complete && type.icon.naturalWidth > 0) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(type.icon, x + 7, y + 5, 36, 36);
+  }
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = type.isMalus ? '#ff668f' : '#ffea00';
+  ctx.font = '900 12px monospace';
+  const seconds = type.duration ? `  ${Math.ceil(status.timer / 60)}s` : '';
+  ctx.fillText(`${type.label}${seconds}`, x + 51, y + 14);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '11px sans-serif';
+  ctx.fillText(type.detail, x + 51, y + 29);
+
+  ctx.fillStyle = '#242234';
+  ctx.fillRect(x + 51, y + 39, w - 60, 5);
+  ctx.fillStyle = type.isMalus ? '#ff0055' : '#00ff99';
+  ctx.fillRect(x + 51, y + 39, (w - 60) * progress, 5);
   ctx.restore();
 }
 
@@ -1313,8 +1422,15 @@ canvas.addEventListener('pointerdown', e => {
   }
 
   if (gameState === 'PANIC_POPUP') {
-    gameState = 'playing';
-    startPanicWave();
+    const boxW = 380, boxH = 320;
+    const boxX = (CANVAS_W - boxW) / 2;
+    const boxY = (CANVAS_H - boxH) / 2 - 20;
+    const buttonX = boxX + 30;
+    const buttonY = boxY + 248;
+    if (x >= buttonX && x <= buttonX + boxW - 60 && y >= buttonY && y <= buttonY + 48) {
+      gameState = 'playing';
+      startPanicWave();
+    }
     return;
   }
 
@@ -1361,6 +1477,8 @@ function bindDirBtn(id, dirKey) {
   let el = document.getElementById(id);
   if (!el) return;
 
+  let activePointerId = null;
+
   const press = (e) => {
     if (e.cancelable) e.preventDefault();
     getAC();
@@ -1371,8 +1489,7 @@ function bindDirBtn(id, dirKey) {
     }
 
     if (gameState === 'PANIC_POPUP') {
-      gameState = 'playing';
-      startPanicWave();
+      // L'allerta si conferma soltanto toccando il pulsante nel banner.
       return;
     }
 
@@ -1394,18 +1511,26 @@ function bindDirBtn(id, dirKey) {
       return;
     }
 
+    activePointerId = e.pointerId;
+    if (el.setPointerCapture) {
+      try { el.setPointerCapture(e.pointerId); } catch (error) {}
+    }
     moveState[dirKey] = true;
+    el.classList.add('is-pressed');
   };
 
   const release = (e) => {
     if (e.cancelable) e.preventDefault();
+    if (activePointerId !== null && e.pointerId !== undefined && e.pointerId !== activePointerId) return;
     moveState[dirKey] = false;
+    activePointerId = null;
+    el.classList.remove('is-pressed');
   };
 
   el.addEventListener('pointerdown', press);
   el.addEventListener('pointerup', release);
   el.addEventListener('pointercancel', release);
-  el.addEventListener('pointerleave', release);
+  el.addEventListener('lostpointercapture', release);
 }
 
 bindDirBtn('btnUp', 'up');
@@ -1421,10 +1546,8 @@ window.addEventListener('keydown', e => {
   if (['COVER', 'STORY', 'RULES', 'POWERUPS_INFO'].includes(gameState)) {
     if (e.code === 'Space' || e.code === 'Enter') advanceMenuState();
   } else if (gameState === 'PANIC_POPUP') {
-    if (e.code === 'Space' || e.code === 'Enter') {
-      gameState = 'playing';
-      startPanicWave();
-    }
+    // D-pad e tastiera non possono chiudere l'allerta Panico.
+    return;
   } else if (gameState === 'CHAR_SELECT') {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
       selectedCharIndex = (selectedCharIndex - 1 + CHARACTER_LIST.length) % CHARACTER_LIST.length;
