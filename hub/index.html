@@ -474,7 +474,7 @@ const playerSkins = [
 
 const selectedSkin = playerSkins.includes(localStorage.getItem('arcade_hub_character')) ? localStorage.getItem('arcade_hub_character') : 'tommi.png';
 this.selectedSkin = selectedSkin;
-const squarePlayerSheets = new Set(['iris.png', 'rabe.png', 'laura.png']);
+const squarePlayerSheets = new Set(['iris.png', 'rabe.png', 'laura.png', 'guido.png']);
 const playerDisplayNames = {
   'tommi.png': 'Tommaso', 'giampa.png': 'Giampaolo', 'bretto.png': 'Paolo',
   'dave.png': 'Davide', 'tobi.png': 'Tobias', 'rabe.png': 'Luca',
@@ -484,7 +484,7 @@ const playerDisplayNames = {
 this.playerName = playerDisplayNames[selectedSkin];
 localStorage.setItem('arcade_hub_character_name', this.playerName);
 
-this.playerSpriteScale = selectedSkin === 'iris.png' ? 0.315 : (selectedSkin === 'laura.png' ? 0.357 : (selectedSkin === 'rabe.png' ? 0.38556 : 0.18));
+this.playerSpriteScale = selectedSkin === 'iris.png' ? 0.315 : (selectedSkin === 'laura.png' ? 0.357 : (selectedSkin === 'rabe.png' ? 0.38556 : (selectedSkin === 'guido.png' ? 0.370734 : 0.18)));
 this.load.spritesheet('player', '../assets/hub/player/' + selectedSkin, squarePlayerSheets.has(selectedSkin)
   ? { frameWidth: 512, frameHeight: 512 }
   : { frameWidth: 755, frameHeight: 1120 });
@@ -605,7 +605,7 @@ if (!isFirstHubTime && !isNaN(savedX) && savedX > 0) {
   localStorage.setItem('arcade_player_x', '278');
 }
 
-const playerYOffset = this.selectedSkin === 'iris.png' ? -4 : 0;
+const playerYOffset = this.selectedSkin === 'iris.png' ? -4 : (this.selectedSkin === 'guido.png' ? -4 : 0);
 this.player = this.physics.add.sprite(startX, floorY + playerYOffset, 'player');
 this.player.setOrigin(0.5, 1).setScale(this.playerSpriteScale).setDepth(20).setCollideWorldBounds(false);
 this.player.play('idle');

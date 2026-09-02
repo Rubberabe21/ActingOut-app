@@ -1,6 +1,6 @@
 const chars=[['Tommaso','tommi.png','Founder'],['Giampaolo','giampa.png','Founder'],['Paolo','bretto.png','Founder'],['Davide','dave.png','Videomaker Senior'],['Tobias','tobi.png','Editor Junior'],['Luca','rabe.png','Videomaker Senior'],['Giulia','giulia.png','Editor Senior'],['Laura','laura.png','Grafica Senior'],['Guido','guido.png','Grafico Junior'],['Iris','iris.png','Producer Junior'],['Cristina','tosatto.png','Producer Senior'],['Rachele','rache.png','Producer Senior']].map(([name,file,role])=>({name,file,role}));
 const $=id=>document.getElementById(id),norm=v=>String(v||'').trim().toLocaleLowerCase('it');let pos=0,promptEvent;
-const poseFiles={"iris.png":"iris_frontale.png","rabe.png":"rabe_frontale.png","laura.png":"laura_frontale.png"};
+const poseFiles={"iris.png":"iris_frontale.png","rabe.png":"rabe_frontale.png","laura.png":"laura_frontale.png","guido.png":"guido_frontale.png"};
 Promise.allSettled(chars.map(character=>new Promise(resolve=>{const image=new Image();image.onload=image.onerror=resolve;image.src=poseFiles[character.file]?`assets/hub/pose/${poseFiles[character.file]}`:`assets/hub/player/${character.file}`})));
 function user(){try{return JSON.parse(localStorage.getItem('arcade_current_user'))}catch{return null}}function account(){const u=user();return !!(u?.account||(u?.username&&!u.username.startsWith('GUEST_')))}
 function screen(id){document.querySelectorAll('.screen').forEach(e=>e.classList.toggle('active',e.id===id))}
