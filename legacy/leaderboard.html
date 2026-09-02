@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Classifiche Mondiali - Agency Arcade</title>
+    <style>
+        *, *:focus, *:active, button, input, div, a {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            -webkit-focus-ring-color: transparent !important;
+            outline: none !important;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #030305 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #leaderboard-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 360px;
+            max-height: 740px;
+            background: #060612 !important;
+            border: none !important;
+            box-shadow: none !important;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        @media (max-width: 600px) {
+            #leaderboard-wrapper {
+                position: fixed !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100vw !important;
+                height: 100dvh !important;
+                max-width: none !important;
+                max-height: none !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        .header-box {
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ff0055 !important;
+        }
+        .header-box h1 {
+            color: #ffff00;
+            font-size: 16px;
+            margin: 0 0 4px 0;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px #ffff00;
+        }
+        .header-box p {
+            color: #ff0055 !important;
+            font-size: 10px;
+            margin: 0;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 6px 4px;
+            background: #090918;
+            border: 1px solid #ff0055 !important;
+            color: #8899a6;
+            font-size: 9px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: #ff0055 !important;
+            color: #ffffff !important;
+            border-color: #ff0055 !important;
+            box-shadow: 0 0 8px rgba(255, 0, 85, 0.6) !important;
+        }
+
+        .board-container {
+            flex: 1;
+            background: #04040a;
+            border: 1px solid rgba(255, 0, 85, 0.3) !important;
+            border-radius: 10px;
+            padding: 8px;
+            overflow-y: auto;
+        }
+        .rank-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            margin-bottom: 6px;
+            background: #0a0a1a;
+            border-radius: 6px;
+            border-left: 3px solid #ff0055 !important;
+        }
+        .rank-row.top1 { border-left-color: #ffff00 !important; background: #1a1600; }
+        .rank-row.top2 { border-left-color: #c0c0c0 !important; background: #12121e; }
+        .rank-row.top3 { border-left-color: #cd7f32 !important; background: #1a0f0a; }
+
+        .rank-pos {
+            font-size: 12px;
+            font-weight: bold;
+            color: #ffff00;
+            width: 28px;
+        }
+        .rank-user {
+            font-size: 11px;
+            font-weight: bold;
+            color: #ffffff;
+            flex: 1;
+            text-align: left;
+        }
+        .rank-score {
+            font-size: 11px;
+            font-weight: bold;
+            color: #ffff00 !important;
+        }
+
+        .back-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #1a1a2e;
+            border: 2px solid #ff0055 !important;
+            color: #ffffff !important;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3) !important;
+        }
+        .back-btn:active { transform: scale(0.96); }
+
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 6px 100%;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+<script defer src="../shared/js/rotation-lock.js"></script>
+</head>
+<body>
+
+<div id="leaderboard-wrapper">
+    <div class="header-box">
+        <h1>🏆 CLASSIFICHE MONDIALI</h1>
+        <p>TOP PLAYERS AGENCY ARCADE</p>
+    </div>
+
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="showBoard('feedbackInvaders', this)">INVADERS</button>
+        <button class="tab-btn" onclick="showBoard('cyberRun', this)">CYBER RUN</button>
+        <button class="tab-btn" onclick="showBoard('pixelPunch', this)">PIXEL PUNCH</button>
+        <button class="tab-btn" onclick="showBoard('neonBlast', this)">NEON BLAST</button>
+    </div>
+
+    <div class="board-container" id="board-list"></div>
+
+    <button class="back-btn" onclick="window.location.href='../hub/index.html'">◄ TORNA AL GIOCO</button>
+
+    <div class="crt-overlay"></div>
+</div>
+
+<script>
+const defaultGlobalScores = {
+    feedbackInvaders: [
+        { name: "NEON_KING", score: 4200 },
+        { name: "RETRO_QUEEN", score: 3850 },
+        { name: "CYBER_BOY", score: 3100 },
+        { name: "PIXEL_GOD", score: 2450 },
+        { name: "ARCADE_99", score: 1800 }
+    ],
+    cyberRun: [
+        { name: "SPEED_DEMON", score: 5100 },
+        { name: "NEON_KING", score: 4600 },
+        { name: "MATRIX_X", score: 3900 },
+        { name: "RETRO_QUEEN", score: 3200 },
+        { name: "GHOST_RUNNER", score: 2100 }
+    ],
+    pixelPunch: [
+        { name: "KNOCKOUT_PRO", score: 6000 },
+        { name: "PIXEL_GOD", score: 5200 },
+        { name: "CYBER_BOY", score: 4300 },
+        { name: "NEON_KING", score: 3500 },
+        { name: "TITAN_80S", score: 2900 }
+    ],
+    neonBlast: [
+        { name: "BLAST_MASTER", score: 7200 },
+        { name: "RETRO_QUEEN", score: 6100 },
+        { name: "NEON_KING", score: 5400 },
+        { name: "SPEED_DEMON", score: 4800 },
+        { name: "PIXEL_GOD", score: 3900 }
+    ]
+};
+
+function getLeaderboardData(gameKey) {
+    let list = [...defaultGlobalScores[gameKey]];
+
+    try {
+        let users = JSON.parse(localStorage.getItem('arcade_users')) || {};
+        Object.keys(users).forEach(uname => {
+            let u = users[uname];
+            if (u.stats && u.stats[gameKey] > 0) {
+                list.push({ name: uname, score: u.stats[gameKey] });
+            }
+        });
+
+        let cur = JSON.parse(localStorage.getItem('arcade_current_user'));
+        if (cur && cur.stats && cur.stats[gameKey] > 0) {
+            let exists = list.find(item => item.name === cur.username);
+            if (!exists) {
+                list.push({ name: cur.username, score: cur.stats[gameKey] });
+            }
+        }
+    } catch(e) {}
+
+    list.sort((a, b) => b.score - a.score);
+    return list.slice(0, 10);
+}
+
+function showBoard(gameKey, btnElem) {
+    if (btnElem) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btnElem.classList.add('active');
+    }
+
+    const container = document.getElementById('board-list');
+    const data = getLeaderboardData(gameKey);
+
+    let html = '';
+    data.forEach((item, index) => {
+        let rankClass = '';
+        let badge = `#${index + 1}`;
+        if (index === 0) { rankClass = 'top1'; badge = '🥇'; }
+        if (index === 1) { rankClass = 'top2'; badge = '🥈'; }
+        if (index === 2) { rankClass = 'top3'; badge = '🥉'; }
+
+        html += `
+            <div class="rank-row ${rankClass}">
+                <div class="rank-pos">${badge}</div>
+                <div class="rank-user">${item.name}</div>
+                <div class="rank-score">${item.score} PTS</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+showBoard('feedbackInvaders');
+</script>
+</body>
+</html>

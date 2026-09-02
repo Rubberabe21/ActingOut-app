@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#060212">
+<title>Pixel Punch - Agency Arcade</title>
+
+<!-- Framework Phaser 3 per il motore isolato -->
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+
+<!-- SDK Supabase per salvataggio Cloud -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../shared/js/supabase-client.js"></script>
+<script src="../../shared/js/audio-manager.js"></script>
+<script src="../../shared/js/score-manager.js"></script>
+<script src="../../shared/js/arcade-game-shell.js"></script>
+
+<link rel="stylesheet" href="../../shared/css/arcade-game.css">
+<link rel="stylesheet" href="game.css">
+<script defer src="../../shared/js/rotation-lock.js"></script>
+</head>
+<body>
+
+<div id="wrapper">
+  <div class="top-header">
+    <button class="opt-btn options-btn" id="btnOpenSettings">OPZIONI</button>
+    <span class="header-title"><span>PIXEL</span><span>PUNCH</span></span>
+    <div class="header-btns-right">
+      <button class="opt-btn restart-btn" id="btnMenuTop">RESTART</button>
+      <button class="opt-btn exit-x-btn" id="btnExitTop" aria-label="Esci">×</button>
+    </div>
+  </div>
+
+  <div id="canvas-container">
+    <!-- Contenitore di aggancio per Phaser 3 -->
+    <div id="pixel-punch-v2"></div>
+  </div>
+
+  <div class="control-deck" aria-label="Controlli touch">
+    <div class="joystick-zone" id="joyZone" aria-label="Joystick">
+      <div class="joystick-knob" id="joyKnob"></div>
+    </div>
+    <button class="deck-pause-btn" id="btnPauseDeck" aria-label="Pausa">⏸ PAUSA</button>
+    <div class="action-buttons">
+      <button class="action-btn run" id="btnRun" aria-label="Corri"><span class="btn-label">R</span></button>
+      <button class="action-btn guard" id="btnGuard" aria-label="Parata"><span class="btn-label">P</span></button>
+      <button class="action-btn special" id="btnSpecial" aria-label="Speciale"><span class="special-fill" id="specialFill"></span><span class="btn-label">B</span></button>
+      <button class="action-btn" id="btnAttack" aria-label="Attacco"><span class="btn-label">A</span></button>
+    </div>
+  </div>
+
+  <!-- MODALE OPZIONI PRINCIPALE -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-title">⚙️ OPZIONI CABINET</div>
+
+      <div class="option-item">
+        <span class="option-label">MUSICA (BGM)</span>
+        <button class="toggle-btn active" id="btnToggleMusic">ON 🎵</button>
+      </div>
+
+      <div class="option-item">
+        <span class="option-label">EFFETTI SONORI (SFX)</span>
+        <button class="toggle-btn active" id="btnToggleSfx">ON 🔊</button>
+      </div>
+
+      <div class="option-item">
+        <span class="option-label">GUIDA & SCHEDE INFO</span>
+        <button class="toggle-btn" id="btnOpenRules" style="margin-bottom: 6px; background:#181836; border-color:#00ffff; color:#00ffff;">📖 REGOLE DI GIOCO</button>
+        <button class="toggle-btn" id="btnOpenPerks" style="background:#181836; border-color:#ffea00; color:#ffea00;">⚡ BONUS & MALUS PRODUCER</button>
+      </div>
+
+      <button class="close-modal-btn" id="btnCloseSettings">SALVA E CHIUDI ►</button>
+    </div>
+  </div>
+
+  <!-- MODALE REGOLE DI GIOCO -->
+  <div class="modal-overlay" id="rulesModal">
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title">📖 REGOLE DI GIOCO</div>
+
+      <div class="info-card" style="border-color:#00ffff;">
+        <h4 style="color:#00ffff;">MUOVITI</h4>
+        <p><span style="color:#00ffff; font-weight:900;">JOYSTICK</span>: muovi la Producer in tutte le direzioni.</p>
+        <p><span style="color:#ffea00; font-weight:900;">RUN</span>: tieni premuto il pulsante vicino ad A, B e P per correre.</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ff3e91;">
+        <h4 style="color:#ff3e91;">PULSANTE A — ATTACCO</h4>
+        <p>Colpo base e combo.</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ffea00;">
+        <h4 style="color:#ffea00;">PULSANTE B — SPECIALE</h4>
+        <p>Attacco devastante ad area.</p>
+      </div>
+
+      <div class="info-card" style="border-color:#00ff66;">
+        <h4 style="color:#00ff66;">PULSANTE P — PARATA</h4>
+        <p>Attiva o disattiva la difesa.</p>
+      </div>
+
+      <button class="close-modal-btn" id="btnCloseRules">◄ TORNA ALLE OPZIONI</button>
+    </div>
+  </div>
+
+  <!-- MODALE BONUS & MALUS PRODUCER -->
+  <div class="modal-overlay" id="perksModal">
+    <div class="modal-box" style="max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title">⚡ BONUS & MALUS PRODUCER</div>
+
+      <div class="info-card" style="border-color:#ff3e91;">
+        <h4 style="color:#ff3e91;">⚡ CRISTINA - Leader Agile</h4>
+        <p>• <span style="color:#00ff66; font-weight:900;">BONUS:</span> +20% Velocità | -20% Cooldown Speciale</p>
+        <p>• <span style="color:#ff0055; font-weight:900;">MALUS:</span> -15% Danno Attacco Base</p>
+      </div>
+
+      <div class="info-card" style="border-color:#00ffff;">
+        <h4 style="color:#00ffff;">🥊 IRIS - Brawler Heavy</h4>
+        <p>• <span style="color:#00ff66; font-weight:900;">BONUS:</span> +25% Danno Base | -20% Danni Subiti</p>
+        <p>• <span style="color:#ff0055; font-weight:900;">MALUS:</span> -15% Velocità di Movimento</p>
+      </div>
+
+      <div class="info-card" style="border-color:#ffea00;">
+        <h4 style="color:#ffea00;">🍕 RACHELE - Tactical Producer</h4>
+        <p>• <span style="color:#00ff66; font-weight:900;">BONUS:</span> +50% Cibo Recuperato | +10% Danno Base</p>
+        <p>• <span style="color:#ff0055; font-weight:900;">MALUS:</span> +20% Danni Subiti</p>
+      </div>
+
+      <button class="close-modal-btn" id="btnClosePerks">◄ TORNA ALLE OPZIONI</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const input = window.PixelPunchInput = { x: 0, y: 0, running: false };
+    const zone = document.getElementById('joyZone');
+    const knob = document.getElementById('joyKnob');
+    const guard = document.getElementById('btnGuard');
+    let activePointerId = null;
+
+    function moveJoystick(event) {
+      const rect = zone.getBoundingClientRect();
+      let x = event.clientX - rect.left - rect.width / 2;
+      let y = event.clientY - rect.top - rect.height / 2;
+      const maxDistance = rect.width * 0.32;
+      const length = Math.hypot(x, y) || 1;
+
+      if (length > maxDistance) {
+        x = x / length * maxDistance;
+        y = y / length * maxDistance;
+      }
+
+      knob.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+      input.x = Math.max(-1, Math.min(1, x / maxDistance));
+      input.y = Math.max(-1, Math.min(1, y / maxDistance));
+    }
+
+    function resetJoystick(event) {
+      if (event && event.pointerId !== activePointerId) return;
+      activePointerId = null;
+      input.x = 0;
+      input.y = 0;
+      input.running = false;
+      knob.style.transform = 'translate(-50%, -50%)';
+    }
+
+    zone.addEventListener('pointerdown', event => {
+      activePointerId = event.pointerId;
+      zone.setPointerCapture(event.pointerId);
+      moveJoystick(event);
+    });
+    zone.addEventListener('pointermove', event => {
+      if (event.pointerId === activePointerId) moveJoystick(event);
+    });
+    zone.addEventListener('pointerup', resetJoystick);
+    zone.addEventListener('pointercancel', resetJoystick);
+
+    const runButton = document.getElementById('btnRun');
+    const setRunning = running => {
+      input.running = running;
+      runButton.classList.toggle('active', running);
+    };
+    runButton.addEventListener('pointerdown', event => { event.preventDefault(); setRunning(true); });
+    ['pointerup', 'pointercancel', 'pointerout'].forEach(name => runButton.addEventListener(name, () => setRunning(false)));
+
+    const action = name => window.dispatchEvent(new CustomEvent('pixelpunch-action', { detail: name }));
+    document.getElementById('btnPauseDeck').addEventListener('pointerdown', event => {
+      event.preventDefault();
+      action('pause-toggle');
+    });
+    document.getElementById('btnAttack').addEventListener('pointerdown', event => {
+      event.preventDefault();
+      guard.classList.remove('active');
+      action('attack');
+    });
+    document.getElementById('btnSpecial').addEventListener('pointerdown', event => {
+      event.preventDefault();
+      guard.classList.remove('active');
+      action('special');
+    });
+    guard.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      guard.classList.toggle('active');
+      action('guard-toggle');
+    });
+    window.addEventListener('pixelpunch-guard-state', event => {
+      guard.classList.toggle('active', Boolean(event.detail));
+    });
+
+    const settingsModal = document.getElementById('settingsModal');
+    const rulesModal = document.getElementById('rulesModal');
+    const perksModal = document.getElementById('perksModal');
+    const renderAudioOptions = ArcadeGameShell.bindAudioOptions(
+      document.getElementById('btnToggleMusic'),
+      document.getElementById('btnToggleSfx')
+    );
+
+    document.getElementById('btnOpenSettings').onclick = () => {
+      renderAudioOptions();
+      ArcadeGameShell.showModal(settingsModal);
+    };
+    document.getElementById('btnMenuTop').onclick = () => action('menu');
+    document.getElementById('btnExitTop').onclick = () => action('exit');
+    document.getElementById('btnCloseSettings').onclick = () => ArcadeGameShell.hideModal(settingsModal);
+    ArcadeGameShell.bindModalTransition(document.getElementById('btnOpenRules'), settingsModal, rulesModal);
+    ArcadeGameShell.bindModalTransition(document.getElementById('btnCloseRules'), rulesModal, settingsModal);
+    ArcadeGameShell.bindModalTransition(document.getElementById('btnOpenPerks'), settingsModal, perksModal);
+    ArcadeGameShell.bindModalTransition(document.getElementById('btnClosePerks'), perksModal, settingsModal);
+  })();
+</script>
+
+<!-- CARICA IL NUOVO MOTORE ISOLATO MODIFICATO -->
+<script src="game.js"></script>
+</body>
+</html>
