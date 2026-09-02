@@ -6,6 +6,14 @@
 
 <title>Agency Arcade</title>
 
+<script>
+const arcadeHubAllowed = sessionStorage.getItem('arcade_allow_hub') === '1';
+sessionStorage.removeItem('arcade_allow_hub');
+if (!arcadeHubAllowed && localStorage.getItem('arcade_game_pending') !== 'true') {
+  window.location.replace('./start.html');
+}
+</script>
+
 <link rel="icon" type="image/png" href="assets/icon.png">
 <link rel="apple-touch-icon" href="assets/icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,6 +31,7 @@
 <script src="printerPredictions.js"></script>
 
 <link rel="stylesheet" href="hub.css">
+<link rel="stylesheet" href="hubFlow.css">
 <script defer src="rotationLock.js"></script>
 </head>
 
@@ -73,9 +82,30 @@
 <div id="profile-activity" class="profile-activity-tag">ATTIVITÀ: N/D</div>
 </div>
 </div>
+<button id="toggle-edit-btn" class="profile-edit-toggle">MODIFICA</button>
+<div id="edit-profile-box" class="edit-profile-box" style="display:none;">
+<label class="edit-subtitle" for="edit-nickname-input">NICKNAME</label>
+<input type="text" id="edit-nickname-input" class="profile-edit-input" maxlength="18">
+<label class="edit-subtitle" for="edit-email-input">MAIL DI ACCESSO</label>
+<input type="text" id="edit-email-input" class="profile-edit-input" autocapitalize="none">
+<label class="edit-subtitle" for="edit-email-confirm-input">CONFERMA MAIL</label>
+<input type="text" id="edit-email-confirm-input" class="profile-edit-input" autocapitalize="none">
+<label class="edit-subtitle" for="edit-role-select">RUOLO</label>
+<select id="edit-role-select" class="profile-edit-input"></select>
+<label class="edit-subtitle" for="edit-activity-select">ATTIVITÀ</label>
+<select id="edit-activity-select" class="profile-edit-input"></select>
+<div class="edit-subtitle">AVATAR</div>
+<div id="avatar-picker-grid" class="avatar-picker-grid"></div>
+<button id="save-profile-changes-btn" class="auth-btn profile-save-btn">SALVA MODIFICHE ►</button>
+</div>
 </div>
 
-<div class="section-title">LIBRERIA GIOCHI 🎮</div>
+<div class="profile-tabs" role="tablist">
+<button class="profile-tab active" data-profile-tab="games">GALLERIA GIOCHI</button>
+<button class="profile-tab" data-profile-tab="printer">STAMPANTE CREATIVA</button>
+</div>
+
+<section id="profile-panel-games" class="profile-tab-panel active">
 <div class="library-grid">
 <div class="game-cartridge">
 <img src="assets/invaders/copertina.png" class="cart-cover" alt="Invaders">
@@ -98,8 +128,9 @@
 <div class="cart-score" id="stat-dodge">0 PTS</div>
 </div>
 </div>
+</section>
 
-<div class="section-title advice-section-title">CONSIGLI CONSERVATI 🧾</div>
+<section id="profile-panel-printer" class="profile-tab-panel">
 <div class="saved-advice-card">
   <div class="saved-advice-summary">
     <span id="saved-advice-status">NESSUN CONSIGLIO CONSERVATO</span>
@@ -108,22 +139,7 @@
   <button id="toggle-advice-archive-btn" class="saved-advice-btn">APRI L'ARCHIVIO</button>
   <div id="saved-advice-archive" class="saved-advice-archive" style="display:none;"></div>
 </div>
-
-<button id="toggle-edit-btn" class="auth-btn" style="background:#181836; border:1px solid #00f3ff !important; color:#00f3ff; margin-bottom:8px;">
-⚙️ MODIFICA AVATAR / PASSWORD
-</button>
-
-<div id="edit-profile-box" class="edit-profile-box" style="display:none;">
-<div class="edit-subtitle">CAMBIA AVATAR</div>
-<div id="avatar-picker-grid" class="avatar-picker-grid"></div>
-
-<div class="edit-subtitle">CAMBIA PASSWORD</div>
-<input type="password" id="edit-password-input" class="pass-edit-input" placeholder="NUOVA PASSWORD (MIN 4 CARATTERI)">
-
-<button id="save-profile-changes-btn" class="auth-btn" style="background:#00f3ff; color:#000; margin-top:8px;">
-SALVA MODIFICHE ►
-</button>
-</div>
+</section>
 
 <button id="profile-close-btn" class="auth-btn">
 TORNA AL GIOCO
@@ -179,6 +195,25 @@ CHIUDI CLASSIFICA
 
 <script>
 const AVATAR_LIST = Array.from({ length: 102 }, (_, i) => `assets/avatars/testa${i + 1}.png`);
+const PROFILE_ROLES = [
+"", "Membro dello studio", "Un collega", "Un amico", "Un cliente", "Un conoscente",
+"Uno che è entrato seguendo qualcuno e adesso non sa più come uscire", "Un amico di un amico",
+"Un collega di un collega", "Uno che “conosce uno che lavora qui”", "Un corriere",
+"Un infiltrato", "Un investigatore privato", "Un alieno sotto copertura",
+"Un'intelligenza artificiale che ha preso un corpo umano"
+];
+const PROFILE_ACTIVITIES = [
+"", "Controllo il frigorifero anche se so già cosa c'è dentro", "Entro in una stanza e dimentico perché ci sono entrato",
+"Cerco il telefono mentre lo tengo in mano", "Rimando la sveglia per la quinta volta", "Controllo di nuovo se ho chiuso la porta",
+"Mi siedo un attimo e sparisco per mezz'ora", "Entro al supermercato per una cosa e ne esco con dodici",
+"Guardo il telefono senza avere nessuna notifica", "Mi preparo un caffè e dimentico di berlo",
+"Esco e torno indietro perché ho dimenticato qualcosa", "Provo a fare qualcosa senza leggere le istruzioni",
+"Leggo le istruzioni dopo aver fatto un casino", "Mi chiedo cosa mangiare mentre sto già mangiando",
+"Decido di cambiare vita a partire da lunedì", "Guardo il soffitto e rivaluto tutte le mie scelte",
+"Mi viene un'idea geniale mentre sto facendo tutt'altro", "Controllo l'ora sul telefono e dimentico immediatamente che ore sono",
+"Faccio una foto alle cose che probabilmente non riguarderò mai", "Pianifico la conquista del mondo tra due meeting",
+"Sguardo fisso al monitor per sembrare immerso nei pensieri"
+];
 let selectedAvatarForEdit = "";
 
 // LOGICA POPUP STORIA INIZIALE A TUTTO SCHERMO
@@ -278,14 +313,14 @@ class AuthManager {
     if (!supabaseClient) return;
 
     try {
-      let { data, error } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('username', this.currentUser.username)
-        .maybeSingle();
+      let query = supabaseClient.from('profiles').select('*');
+      query = this.currentUser.id ? query.eq('user_id', this.currentUser.id) : query.eq('username', this.currentUser.username);
+      let { data, error } = await query.maybeSingle();
 
       if (data && !error) {
         this.currentUser.avatar = data.avatar || this.currentUser.avatar;
+        this.currentUser.username = data.username || this.currentUser.username;
+        this.currentUser.email = data.login_email || this.currentUser.email;
         this.currentUser.role = data.role || this.currentUser.role;
         this.currentUser.activity = data.activity || this.currentUser.activity;
         this.currentUser.stats = data.stats || this.currentUser.stats;
@@ -436,10 +471,22 @@ const playerSkins = [
 'tommi.png', 'tobi.png'
 ];
 
-const selectedSkin = Phaser.Math.RND.pick(playerSkins);
-this.playerName = selectedSkin.replace('.png', '').charAt(0).toUpperCase() + selectedSkin.replace('.png', '').slice(1);
+const selectedSkin = playerSkins.includes(localStorage.getItem('arcade_hub_character')) ? localStorage.getItem('arcade_hub_character') : 'tommi.png';
+this.selectedSkin = selectedSkin;
+const squarePlayerSheets = new Set(['iris.png', 'rabe.png', 'laura.png']);
+const playerDisplayNames = {
+  'tommi.png': 'Tommaso', 'giampa.png': 'Giampaolo', 'bretto.png': 'Paolo',
+  'dave.png': 'Davide', 'tobi.png': 'Tobias', 'rabe.png': 'Luca',
+  'giulia.png': 'Giulia', 'laura.png': 'Laura', 'guido.png': 'Guido',
+  'iris.png': 'Iris', 'tosatto.png': 'Cristina', 'rache.png': 'Rachele'
+};
+this.playerName = playerDisplayNames[selectedSkin];
+localStorage.setItem('arcade_hub_character_name', this.playerName);
 
-this.load.spritesheet('player', 'assets/hub/player/' + selectedSkin, { frameWidth: 755, frameHeight: 1120 });
+this.playerSpriteScale = selectedSkin === 'iris.png' ? 0.315 : (squarePlayerSheets.has(selectedSkin) ? 0.42 : 0.18);
+this.load.spritesheet('player', 'assets/hub/player/' + selectedSkin, squarePlayerSheets.has(selectedSkin)
+  ? { frameWidth: 512, frameHeight: 512 }
+  : { frameWidth: 755, frameHeight: 1120 });
 
 let g = this.make.graphics({ x: 0, y: 0, add: false });
 g.fillStyle(0xffffff, 0);
@@ -460,6 +507,8 @@ let bgScale = vHeight / bg.height;
 bg.setScale(bgScale);
 
 const worldWidth = bg.width * bgScale;
+this.add.image(-worldWidth, 0, 'background').setOrigin(0, 0).setScale(bgScale).setDepth(0);
+this.add.image(worldWidth, 0, 'background').setOrigin(0, 0).setScale(bgScale).setDepth(0);
 this.physics.world.setBounds(0, 0, worldWidth, vHeight);
 
 const floorY = 589;
@@ -472,6 +521,12 @@ this.gabri = this.add.video(115, gabriY, 'gabri_video').setOrigin(0.5, 1).setSca
 if (this.gabri.setPipeline) this.gabri.setPipeline('GreenKey');
 this.gabri.play(true);
 this.gabri.setMute(true);
+
+// Copia oltre il bordo destro: rende Gabri visibile prima del raccordo.
+this.gabriLoop = this.add.video(worldWidth + 115, gabriY, 'gabri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
+if (this.gabriLoop.setPipeline) this.gabriLoop.setPipeline('GreenKey');
+this.gabriLoop.play(true);
+this.gabriLoop.setMute(true);
 
 this.pierri = this.add.video(440, 580, 'pierri_video').setOrigin(0.5, 1).setScale(0.21).setDepth(10);
 if (this.pierri.setPipeline) this.pierri.setPipeline('GreenKey');
@@ -488,7 +543,7 @@ if (this.morena.setPipeline) this.morena.setPipeline('GreenKey');
 this.morena.play(true);
 this.morena.setMute(true);
 
-this.raffa = this.add.video(1900, floorY, 'raffa_video').setOrigin(0.5, 1).setScale(0.15).setDepth(10);
+this.raffa = this.add.video(1830, 591, 'raffa_video').setOrigin(0.5, 1).setScale(0.16).setDepth(10);
 if (this.raffa.setPipeline) this.raffa.setPipeline('GreenKey');
 this.raffa.play(true);
 this.raffa.setMute(true);
@@ -502,6 +557,12 @@ this.vigliani = this.add.video(3020, 605, 'vigliani_video').setOrigin(0.5, 1).se
 if (this.vigliani.setPipeline) this.vigliani.setPipeline('GreenKey');
 this.vigliani.play(true);
 this.vigliani.setMute(true);
+
+// Copia oltre il bordo sinistro: rende Vigliani visibile prima del raccordo.
+this.viglianiLoop = this.add.video(3020 - worldWidth, 605, 'vigliani_video').setOrigin(0.5, 1).setScale(0.28).setDepth(10);
+if (this.viglianiLoop.setPipeline) this.viglianiLoop.setPipeline('GreenKey');
+this.viglianiLoop.play(true);
+this.viglianiLoop.setMute(true);
 
 this.advicePrinter = this.add.sprite(2750, 511 - 12, 'advice_printer', 0)
   .setOrigin(0.5, 1)
@@ -543,8 +604,9 @@ if (!isFirstHubTime && !isNaN(savedX) && savedX > 0) {
   localStorage.setItem('arcade_player_x', '278');
 }
 
-this.player = this.physics.add.sprite(startX, floorY, 'player');
-this.player.setOrigin(0.5, 1).setScale(0.18).setDepth(20).setCollideWorldBounds(true);
+const playerYOffset = this.selectedSkin === 'iris.png' ? -4 : 0;
+this.player = this.physics.add.sprite(startX, floorY + playerYOffset, 'player');
+this.player.setOrigin(0.5, 1).setScale(this.playerSpriteScale).setDepth(20).setCollideWorldBounds(false);
 this.player.play('idle');
 
 let logo = this.add.image(vWidth / 2, 150, 'logo').setOrigin(0.5).setScrollFactor(0).setDepth(110);
@@ -590,7 +652,8 @@ this.infoBox.setVisible(false);
 
 this.createDialogueSystem();
 
-this.cameras.main.setBounds(0, 0, worldWidth, vHeight);
+// Una copia del fondale su entrambi i lati rende invisibile il raccordo.
+this.cameras.main.setBounds(-worldWidth, 0, worldWidth * 3, vHeight);
 this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 
 this.cursors = this.input.keyboard.createCursorKeys();
@@ -1084,6 +1147,7 @@ if (dist < 60) {
 if (cab.gameData.type === "leaderboard") {
 openLeaderboardModal('feedbackInvaders');
 } else if (cab.gameData.url) {
+localStorage.setItem('arcade_game_pending', 'true');
 window.location.replace(cab.gameData.url);
 }
 return;
@@ -1122,6 +1186,16 @@ this.player.setFlipX(false);
 this.player.play('walk', true);
 } else {
 this.player.play('idle', true);
+}
+
+// HUB CIRCOLARE: i due bordi del background sono collegati.
+const worldWidth = this.physics.world.bounds.width;
+if ((this.cursors.left.isDown || this.isMovingLeft) && this.player.x <= 0) {
+this.cameras.main.scrollX += worldWidth;
+this.player.x += worldWidth;
+} else if ((this.cursors.right.isDown || this.isMovingRight) && this.player.x >= worldWidth) {
+this.cameras.main.scrollX -= worldWidth;
+this.player.x -= worldWidth;
 }
 
 localStorage.setItem('arcade_player_x', this.player.x);
@@ -1228,8 +1302,12 @@ await auth.syncWithSupabase();
 let s = auth.currentUser.stats || {};
 
 document.getElementById('profile-username').innerText = auth.currentUser.username;
-document.getElementById('profile-role').innerText = "RUOLO: " + (auth.currentUser.role || "Membro Studio");
-document.getElementById('profile-activity').innerText = "ATTIVITÀ: " + (auth.currentUser.activity || "In esplorazione");
+const roleTag = document.getElementById('profile-role');
+const activityTag = document.getElementById('profile-activity');
+roleTag.innerText = auth.currentUser.role ? "RUOLO: " + auth.currentUser.role : "";
+activityTag.innerText = auth.currentUser.activity ? "ATTIVITÀ: " + auth.currentUser.activity : "";
+roleTag.style.display = auth.currentUser.role ? 'block' : 'none';
+activityTag.style.display = auth.currentUser.activity ? 'block' : 'none';
 
 const avatarBox = document.getElementById('profile-avatar-box');
 if (auth.currentUser.avatar) {
@@ -1246,8 +1324,24 @@ renderSavedAdviceArchive();
 
 selectedAvatarForEdit = auth.currentUser.avatar || AVATAR_LIST[0];
 renderAvatarPickerGrid();
+document.getElementById('edit-nickname-input').value = auth.currentUser.username || '';
+document.getElementById('edit-email-input').value = auth.currentUser.email || '';
+document.getElementById('edit-email-confirm-input').value = auth.currentUser.email || '';
+fillProfileSelect('edit-role-select', PROFILE_ROLES, auth.currentUser.role || '', 'Nessun ruolo');
+fillProfileSelect('edit-activity-select', PROFILE_ACTIVITIES, auth.currentUser.activity || '', 'Nessuna attività');
 
 document.getElementById('profile-modal').style.display = 'flex';
+}
+
+function fillProfileSelect(id, values, selected, emptyLabel) {
+const select = document.getElementById(id);
+select.replaceChildren(...values.map((value, index) => {
+  const option = document.createElement('option');
+  option.value = value;
+  option.textContent = index === 0 ? emptyLabel : value;
+  option.selected = value === selected;
+  return option;
+}));
 }
 
 function renderAvatarPickerGrid() {
@@ -1279,6 +1373,13 @@ const box = document.getElementById('edit-profile-box');
 box.style.display = box.style.display === 'none' ? 'block' : 'none';
 });
 
+document.querySelectorAll('.profile-tab').forEach(button => {
+button.addEventListener('click', () => {
+  document.querySelectorAll('.profile-tab').forEach(tab => tab.classList.toggle('active', tab === button));
+  document.querySelectorAll('.profile-tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === `profile-panel-${button.dataset.profileTab}`));
+});
+});
+
 document.getElementById('toggle-advice-archive-btn').addEventListener('click', () => {
 const archive = document.getElementById('saved-advice-archive');
 const button = document.getElementById('toggle-advice-archive-btn');
@@ -1289,44 +1390,32 @@ button.textContent = opening ? 'CHIUDI L\'ARCHIVIO' : 'APRI L\'ARCHIVIO';
 });
 
 document.getElementById('save-profile-changes-btn').addEventListener('click', async () => {
-const passInput = document.getElementById('edit-password-input');
-const newPass = passInput.value.trim();
-
-let hasAvatarChange = selectedAvatarForEdit && selectedAvatarForEdit !== auth.currentUser.avatar;
-let hasPassChange = newPass.length >= 4;
-
-if (!hasAvatarChange && !hasPassChange) {
-alert("Nessuna modifica effettuata o password troppo corta (min 4 caratteri)!");
-return;
-}
+const nickname = document.getElementById('edit-nickname-input').value.trim();
+const email = document.getElementById('edit-email-input').value.trim().toLocaleLowerCase('it');
+const emailConfirm = document.getElementById('edit-email-confirm-input').value.trim().toLocaleLowerCase('it');
+const role = document.getElementById('edit-role-select').value;
+const activity = document.getElementById('edit-activity-select').value;
+if (!nickname || !email) return alert('Nickname e mail sono obbligatori.');
+if (email !== emailConfirm) return alert('Le due mail non coincidono.');
 
 const saveBtn = document.getElementById('save-profile-changes-btn');
 saveBtn.disabled = true;
 saveBtn.innerText = "SALVATAGGIO...";
 
-let updatedAvatar = hasAvatarChange ? selectedAvatarForEdit : auth.currentUser.avatar;
-
-if (supabaseClient && auth.currentUser.username && !auth.currentUser.username.startsWith("GUEST_")) {
 try {
-let updateData = {};
-if (hasAvatarChange) updateData.avatar = updatedAvatar;
-if (hasPassChange) updateData.password = newPass;
-
-const { error } = await supabaseClient
-.from('profiles')
-.update(updateData)
-.eq('username', auth.currentUser.username);
-
-if (error) console.warn("Errore aggiornamento Supabase:", error.message);
+await window.updateArcadeAccount({ username: nickname, email, avatar: selectedAvatarForEdit, role, activity });
 } catch (e) {
-console.warn("Connessione Supabase fallita:", e);
+saveBtn.disabled = false;
+saveBtn.innerText = "SALVA MODIFICHE ►";
+alert(e.message);
+return;
 }
-}
-
-auth.currentUser.avatar = updatedAvatar;
+auth.currentUser.username = nickname;
+auth.currentUser.email = email;
+auth.currentUser.avatar = selectedAvatarForEdit;
+auth.currentUser.role = role;
+auth.currentUser.activity = activity;
 localStorage.setItem('arcade_current_user', JSON.stringify(auth.currentUser));
-
-passInput.value = "";
 saveBtn.disabled = false;
 saveBtn.innerText = "SALVA MODIFICHE ►";
 document.getElementById('edit-profile-box').style.display = 'none';
@@ -1417,5 +1506,6 @@ auth.logout();
 });
 </script>
 
+<script src="hubFlow.js"></script>
 </body>
 </html>

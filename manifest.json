@@ -6,5 +6,9 @@
   "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
-  "scope": "/"
+  "scope": "./",
+  "description": "L'arcade di Acting Out",
+  "icons": [
+    { "src": "assets/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
 }
